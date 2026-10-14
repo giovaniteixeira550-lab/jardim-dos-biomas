@@ -46,10 +46,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.6 + preparação para integração)
+## 3. Estado atual (v0.6 + preparação e transformações)
 
 - O histórico acompanha v0.1–v0.6. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
-- 8 espécies de árvores e um tipo de arbusto, com 20 variações geométricas.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
@@ -62,6 +61,10 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 ### Verificação do lote
 
 Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar verificações**. A página usa o motor real e testa cancelamento imediato, descarte parcial, espera de compilação, renderização/teclado/foco, remontagem, duas trocas rápidas na página real e eventos de saída/restauração com preservação da semente e do viveiro. A compilação cancelada usa uma barreira controlada, e os eventos de restauração são disparados pelo teste; a renderização ativa usa WebGL real. Não grava dados de estudo.
+
+- **Transformações por estágio:** broto com folhas isoladas, muda com caule e primeiros ramos, jovem com bifurcações e copa aberta, adulta com raízes e arquitetura consolidada. Palmeira, coníferas, arbustos e cogumelo têm percursos próprios; o cogumelo adulto forma uma colônia.
+- **Evolução:** `evolucao.html` usa as mesmas geometrias do jogo. A escala de comparação destaca a arquitetura (com limite de largura para folhas abertas); desligue-a para ver os tamanhos reais do jogo. Não altera o crescimento no bosque.
+- Verificações e limites do lote em [docs/transformacoes.md](docs/transformacoes.md).
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 
