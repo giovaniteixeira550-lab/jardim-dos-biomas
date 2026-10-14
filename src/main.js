@@ -33,7 +33,8 @@ async function iniciar(semente) {
   } catch (e) {
     console.error(e);
     $("erro").hidden = false;
-    $("erro").textContent = "Não foi possível montar o jardim: este navegador precisa de WebGL 2.";
+    // Mostra a causa real (ajuda a corrigir); sem WebGL a mensagem já diz isso.
+    $("erro").textContent = `Não foi possível montar o jardim: ${e?.message ?? e}`;
   }
 }
 

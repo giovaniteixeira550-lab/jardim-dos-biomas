@@ -41,15 +41,17 @@ src/presets/      presets de arbustos do ez-tree (MIT)
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.1)
+## 3. Estado atual (v0.2)
 
 - Carrega em ~2,5 s; ~160 FPS numa placa dedicada; sem erros de console.
 - 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
+- **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
+- Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
 - Crescimento 0–100% (nasce dos núcleos do bosque para as bordas), vento, horas do dia, tamanho do pixel, liga/desliga contorno e paleta (para comparar).
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 
-1. **Árvores** — mais silhuetas distintas (copa em camadas, galhos aparentes nas bétulas, salgueiro mais caído); variação de tom por árvore na paleta.
+1. **Árvores** — ✅ silhuetas por espécie (v0.2). Pendente: bordas dos cones do pinheiro mais serrilhadas; galhos aparentes nas bétulas.
 2. **Chão** — micro-detalhe em pixel (trevos, folhas caídas sob o bosque, pedrinhas na trilha); transição mata/clareira.
 3. **Água** — borda com espuma de 1 px, plantas aquáticas (nenúfares, juncos), reflexo das copas.
 4. **Atmosfera** — sombras de nuvens, névoa baixa ao amanhecer, pássaros/borboletas (sprites de pixel).

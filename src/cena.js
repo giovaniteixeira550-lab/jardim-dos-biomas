@@ -17,7 +17,10 @@ import arbusto1 from "./presets/arbusto1.js";
 import arbusto2 from "./presets/arbusto2.js";
 import arbusto3 from "./presets/arbusto3.js";
 
-const quadro = () => new Promise((r) => requestAnimationFrame(() => r()));
+// Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
+// setTimeout em vez de requestAnimationFrame: rAF pausa com a aba em segundo
+// plano, e o carregamento ficaria parado até o usuário voltar.
+const quadro = () => new Promise((r) => setTimeout(r, 0));
 const cor = (hex) => new THREE.Color(hex);
 
 // ---------------------------------------------------------------------------
@@ -35,6 +38,25 @@ function rampa() {
   return rampaLuz;
 }
 const toon = (p) => new THREE.MeshToonMaterial({ gradientMap: rampa(), ...p });
+
+/** Casca de bétula: branca com marcas escuras horizontais (lenticelas), em coordenadas locais. */
+function cascaDeBetula() {
+  const mat = toon({ color: BASE.cascaBetula });
+  mat.onBeforeCompile = (shader) => {
+    shader.vertexShader = "varying vec3 vLocal;\n" + shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvLocal = position;");
+    shader.fragmentShader =
+      "varying vec3 vLocal;\n" +
+      shader.fragmentShader.replace(
+        "#include <color_fragment>",
+        `#include <color_fragment>
+        float faixa = fract(vLocal.y * 0.55 + sin(vLocal.x * 3.1 + vLocal.z * 2.3) * 0.35);
+        float marca = step(0.86, faixa) * step(0.35, fract(atan(vLocal.z, vLocal.x) * 0.95 + vLocal.y * 0.13));
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.13, 0.12, 0.11), marca);`,
+      );
+  };
+  mat.customProgramCacheKey = () => "casca-betula";
+  return mat;
+}
 
 /**
  * Vento em instâncias (adaptado do ez-tree, MIT). Amplitude pela altura:
@@ -81,7 +103,7 @@ function economizar(o, folhas = 0.7, galhos = 0.5) {
 }
 
 const ESPECIES = [
-  { id: "carvalho", preset: "Oak Medium", altura: [9, 12], cor: BASE.carvalho, n: 3 },
+  { id: "carvalho", preset: "Oak Large", altura: [10, 13], cor: BASE.carvalho, n: 3 },
   { id: "freixo", preset: "Ash Medium", altura: [10, 13], cor: BASE.freixo, n: 2 },
   { id: "betula", preset: "Aspen Medium", altura: [9, 12], cor: BASE.betula, casca: BASE.cascaBetula, ajustar: (o) => (o.bark.type = BarkType.Birch), n: 2 },
   { id: "pinheiro", preset: "Pine Medium", altura: [11, 15], cor: BASE.pinheiro, n: 3, folhas: 0.6 },
@@ -144,7 +166,9 @@ function pedraGeo(semente) {
     cores.push(c.r, c.g, c.b);
   }
   g.setAttribute("color", new THREE.Float32BufferAttribute(cores, 3));
-  return g.toNonIndexed();
+  const plano = g.index ? g.toNonIndexed() : g;
+  plano.computeVertexNormals(); // normais por face: pedra facetada
+  return plano;
 }
 
 /**
@@ -177,10 +201,13 @@ function massaDaCopa(folhas, k, rng, fator = 0.95) {
     const g = new THREE.IcosahedronGeometry(raio, 1);
     g.scale(1, 0.85, 1);
     g.translate(c.x, c.y, c.z);
-    partes.push(g.toNonIndexed());
+    partes.push((g.index ? g.toNonIndexed() : g));
   });
-  if (!partes.length) return null;
-  // Junta as esferas num só buffer (sem dependências extras).
+  return partes.length ? juntar(partes) : null;
+}
+
+/** Junta geometrias não indexadas (posição + normal) num só buffer, sem dependências extras. */
+function juntar(partes) {
   const total = partes.reduce((n, g) => n + g.attributes.position.count, 0);
   const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3);
   let o = 0;
@@ -194,6 +221,59 @@ function massaDaCopa(folhas, k, rng, fator = 0.95) {
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
   return geo;
+}
+
+/**
+ * Pinheiro: camadas de cones empilhadas (de baixo para cima, cada vez menores),
+ * com leve desalinhamento — a silhueta clássica de pinheiro em pixel art.
+ */
+function camadasDePinheiro(folhas, rng) {
+  const bb = folhas.boundingBox;
+  const base = bb.min.y + (bb.max.y - bb.min.y) * 0.12;
+  const topo = bb.max.y;
+  const raioBase = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * 0.42;
+  const n = 5;
+  const partes = [];
+  for (let i = 0; i < n; i++) {
+    const t = i / n;
+    const alt = (topo - base) * (0.34 - t * 0.04);
+    const r = raioBase * (1 - t * 0.78) * (0.92 + rng() * 0.16);
+    const g = new THREE.ConeGeometry(r, alt, 9, 1, true);
+    g.rotateY(rng() * 6.28);
+    g.translate((rng() - 0.5) * r * 0.12, base + (topo - base) * t * 0.82 + alt / 2, (rng() - 0.5) * r * 0.12);
+    partes.push((g.index ? g.toNonIndexed() : g));
+  }
+  return juntar(partes);
+}
+
+/**
+ * Salgueiro: "cortina" de galhos pendentes saindo da borda externa da copa.
+ * Lâminas finas e compridas que, em pixel, viram riscos verticais caindo.
+ */
+function cortinaDeSalgueiro(folhas, rng) {
+  const p = folhas.attributes.position;
+  const bb = folhas.boundingBox;
+  const cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2;
+  const raio = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2;
+  const meio = (bb.min.y + bb.max.y) / 2;
+  const partes = [];
+  for (let i = 0; i < p.count && partes.length < 70; i += 7) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const d = Math.hypot(x - cx, z - cz);
+    if (y < meio || d < raio * 0.55 || rng() < 0.4) continue;
+    const comp = (bb.max.y - bb.min.y) * (0.35 + rng() * 0.3);
+    const g = new THREE.PlaneGeometry(raio * 0.09, comp, 1, 3);
+    // Leve curva para fora na ponta, como galho pesado.
+    const q = g.attributes.position;
+    for (let k = 0; k < q.count; k++) {
+      const v = (q.getY(k) + comp / 2) / comp;
+      q.setZ(k, (1 - v) * (1 - v) * raio * 0.12);
+    }
+    g.rotateY(Math.atan2(x - cx, z - cz));
+    g.translate(x, y - comp / 2, z);
+    partes.push((g.index ? g.toNonIndexed() : g));
+  }
+  return partes.length ? juntar(partes) : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -381,10 +461,20 @@ export class Jardim {
       topo,
       true,
     );
-    const matGalhos = toon({ color: e.casca ?? BASE.casca });
-    // Pinheiro tem silhueta própria nas folhas; nas folhosas e arbustos entra a massa.
-    const massa = massaDaCopa(folhas, e.altura[0] < 3 ? 3 : e.id === 'pinheiro' ? 9 : 7, rng, e.id === 'pinheiro' ? 0.75 : 0.95);
-    const matMassa = massa ? toon({ color: new THREE.Color(e.cor).multiplyScalar(0.92) }) : null;
+    const matGalhos = e.id === "betula" || e.id === "dourada" ? cascaDeBetula() : toon({ color: e.casca ?? BASE.casca });
+    // Silhueta por espécie: pinheiro em cones; salgueiro com cortina pendente;
+    // carvalho largo e lobado; demais folhosas e arbustos com massa padrão.
+    let massa;
+    if (e.id === "pinheiro") massa = camadasDePinheiro(folhas, rng);
+    else {
+      const k = e.altura[0] < 3 ? 3 : e.id === "carvalho" ? 10 : 7;
+      massa = massaDaCopa(folhas, k, rng, e.id === "carvalho" ? 1.02 : 0.95);
+      if (e.id === "salgueiro") {
+        const cortina = cortinaDeSalgueiro(folhas, rng);
+        if (massa && cortina) massa = juntar([massa, cortina]);
+      }
+    }
+    const matMassa = massa ? toon({ color: new THREE.Color(e.cor).multiplyScalar(0.92), side: e.id === "salgueiro" ? THREE.DoubleSide : THREE.FrontSide }) : null;
     return { id: e.id, galhos, folhas, massa, matMassa, matGalhos, matFolhas, escala: alvo / Math.max(1, topo) };
   }
 
@@ -420,10 +510,15 @@ export class Jardim {
       const galhos = new THREE.InstancedMesh(v.galhos, v.matGalhos, itens.length);
       const folhas = new THREE.InstancedMesh(v.folhas, v.matFolhas, itens.length);
       const massa = v.massa ? new THREE.InstancedMesh(v.massa, v.matMassa, itens.length) : null;
+      // Tom por árvore em DEGRAUS (como um pintor de pixel escolheria): mais escura,
+      // normal ou mais clara — copa e folhas juntas, para a árvore ler como unidade.
+      const DEGRAUS = [0.86, 1, 1, 1.13];
       const tom = new THREE.Color();
       itens.forEach((_, i) => {
-        const l = 0.9 + rng() * 0.2;
-        folhas.setColorAt(i, tom.setRGB(l, l, l));
+        const l = DEGRAUS[Math.floor(rng() * DEGRAUS.length)];
+        tom.setRGB(l, l, l);
+        folhas.setColorAt(i, tom);
+        massa?.setColorAt(i, tom);
       });
       for (const im of [galhos, folhas, massa].filter(Boolean)) {
         im.castShadow = im.receiveShadow = true;
@@ -509,7 +604,7 @@ export class Jardim {
 
     // Pedras (facetadas, com musgo) e madeira caída.
     const pedras = m.objetos.filter((o) => o.tipo === "pedra");
-    const matPedra = toon({ vertexColors: true, flatShading: true });
+    const matPedra = toon({ vertexColors: true });
     [pedraGeo(m.semente + 1), pedraGeo(m.semente + 2), pedraGeo(m.semente + 3)].forEach((geo, k) => {
       const minhas = pedras.filter((_, i) => i % 3 === k);
       const im = new THREE.InstancedMesh(geo, matPedra, minhas.length);
@@ -585,8 +680,9 @@ export class Jardim {
   // --- Câmera e controles -------------------------------------------------
 
   redimensionar() {
-    const r = this.canvas.getBoundingClientRect();
-    if (!r.width || !r.height) return;
+    // Sem tamanho ainda (aba/painel oculto): usa a janela; o ResizeObserver corrige depois.
+    const caixa = this.canvas.getBoundingClientRect();
+    const r = caixa.width && caixa.height ? caixa : { width: window.innerWidth || 800, height: window.innerHeight || 600 };
     this.renderer.setSize(r.width, r.height, false);
     const w = Math.max(64, Math.floor(r.width / this.tamPixel));
     const h = Math.max(64, Math.floor(r.height / this.tamPixel));
