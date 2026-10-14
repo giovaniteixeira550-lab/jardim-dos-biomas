@@ -2,8 +2,8 @@
   "atualizado": "2026-10-14",
   "versaoAtual": "v0.8",
   "proximoPasso": {
-    "titulo": "Revisar as 4 fases de cada espécie no Viveiro",
-    "descricao": "Veja se cada etapa (broto, muda, jovem, adulta) passa a sensação de evolução. Depois: ajustes finos, mais espécies e o tempo do ecossistema."
+    "titulo": "Passo 1 do plano: árvores que secam sem revisão",
+    "descricao": "Antes: revisar as 4 fases no Viveiro. Depois, na demo: folhas amarelando, caindo e árvore dormente, e a 'rega' que traz o verde de volta. Só arte, sem dados reais ainda."
   },
   "frentes": [
     {
@@ -40,7 +40,7 @@
       "nome": "Ligação com os estudos",
       "status": "nao_iniciado",
       "progresso": 0,
-      "nota": "Base de dados no site (pedido ao GPT). Depois: plantas = tópicos."
+      "nota": "Plano definido (ver PLANO): árvore = tópico, crescimento = domínio, seca = tempo sem revisar."
     }
   ],
   "quadro": {
@@ -64,10 +64,13 @@
       "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas"
     ],
     "ideias": [
-      "Próximas espécies: pau-brasil, araçá, árvores de fantasia (cogumelo azul, árvore-nuvem)",
-      "Estações e sucessão do bosque",
-      "Pássaros e borboletas em pixel",
-      "Plantas que representam tópicos de estudo"
+      "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
+      "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
+      "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
+      "Clima e bichos refletem o ritmo geral de estudo",
+      "Próximas espécies: pau-brasil, araçá, embaúba; fantasia: cogumelo azul, árvore-nuvem",
+      "Estações do ano (ipês florindo, outono, inverno sem folhas)",
+      "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago"
     ]
   },
   "versoes": [
@@ -254,5 +257,119 @@
         }
       ]
     }
-  ]
+  ],
+  "plano": {
+    "titulo": "Ligar o jardim aos estudos",
+    "resumo": "Cada árvore é um tópico de estudo. O jardim vira um diagnóstico visual: de longe dá para ver o que está forte, o que está fraco e o que pede revisão. Tudo é testado primeiro na demo, sem mexer no site.",
+    "regras": [
+      {
+        "titulo": "Árvore = tópico",
+        "texto": "Grande área → bioma (região do mapa). Sistema/tema → espécie. Tópico → uma árvore."
+      },
+      {
+        "titulo": "Crescimento = domínio",
+        "texto": "Broto → muda → jovem → adulta conforme acertos e revisões. Nunca regride: o que foi aprendido fica."
+      },
+      {
+        "titulo": "Seca = tempo sem revisar",
+        "texto": "Verde → folhas amarelando → caindo → dormente (viva, com broto esperando). Revisar 'rega' e o verde volta. Nada morre."
+      },
+      {
+        "titulo": "Ritmo da seca = repetição espaçada",
+        "texto": "Tópico revisado poucas vezes seca em dias; bem dominado aguenta semanas (como no Anki)."
+      },
+      {
+        "titulo": "Antiga ≠ seca",
+        "texto": "Árvore anciã (tronco grosso, musgo) = tema dominado há muito tempo. É prêmio, não alerta."
+      },
+      {
+        "titulo": "Estudo em geral = ambiente",
+        "texto": "Sequência de dias estudando → sol, bichos e vaga-lumes; dias parados → nublado e garoa."
+      }
+    ],
+    "especies": [
+      {
+        "tema": "Pneumo",
+        "especie": "araucária/pinheiro",
+        "porque": "galhos como a árvore brônquica"
+      },
+      {
+        "tema": "Nefro",
+        "especie": "salgueiro",
+        "porque": "vive na beira d'água"
+      },
+      {
+        "tema": "Hemato",
+        "especie": "jabuticabeira",
+        "porque": "bolinhas roxas pelo tronco, como células"
+      },
+      {
+        "tema": "Infecto",
+        "especie": "cogumelo",
+        "porque": "fungo, cresce no úmido"
+      },
+      {
+        "tema": "Neuro",
+        "especie": "árvore-de-cristal",
+        "porque": "rede brilhante"
+      },
+      {
+        "tema": "Cardio",
+        "especie": "macieira",
+        "porque": "frutos vermelhos"
+      },
+      {
+        "tema": "GO",
+        "especie": "floríferas (ipês, jacarandá, cerejeira)",
+        "porque": "flores"
+      },
+      {
+        "tema": "PED",
+        "especie": "frutíferas pequenas (limoeiro, laranjeira)",
+        "porque": "pequenas e alegres"
+      },
+      {
+        "tema": "Preventiva",
+        "especie": "bambuzal",
+        "porque": "touceira = comunidade"
+      },
+      {
+        "tema": "Cirurgia",
+        "especie": "baobá/carvalho",
+        "porque": "robustos"
+      }
+    ],
+    "passos": [
+      {
+        "nome": "Estados de seca na demo (amarelando, caindo, dormente) e a rega",
+        "tamanho": "pequeno",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Painel de teste: temas fictícios + controles 'dias sem revisar' e 'domínio'",
+        "tamanho": "pequeno",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Fechar a lista de espécie por tema (decidir junto)",
+        "tamanho": "só uma lista",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Regra da seca com repetição espaçada",
+        "tamanho": "pequeno",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Biomas por grande área no mapa",
+        "tamanho": "médio",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Levar ao site e ligar aos dados reais (só com a demo aprovada)",
+        "tamanho": "médio",
+        "status": "nao_iniciado"
+      }
+    ]
+  }
 }
