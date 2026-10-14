@@ -63,14 +63,15 @@ function cascaDeBetula() {
  * relativa ao topo (`alturaRef` > 0, folhas) ou absoluta (capim).
  * `soAlfa`: a textura só recorta o formato; a cor vem da paleta.
  */
-function vento(material, forca, alturaRef = 0, soAlfa = false) {
+function vento(material, forca, alturaRef = 0, soAlfa = false, vel = 1) {
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = { value: 0 };
     shader.uniforms.uForca = { value: forca };
-    shader.uniforms.uEscalaVento = { value: forca };
     shader.uniforms.uAltura = { value: alturaRef };
+    shader.uniforms.uVel = { value: vel };
+    shader.uniforms.uPasso = { value: 0.25 };
     shader.vertexShader =
-      `uniform float uTime; uniform float uForca; uniform float uAltura;
+      `uniform float uTime; uniform float uForca; uniform float uAltura; uniform float uVel; uniform float uPasso;
       float ondaV(vec2 p){ return sin(p.x*0.11 + p.y*0.07) * 0.5 + sin(p.x*0.05 - p.y*0.13 + 1.7) * 0.5; }
       ` + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace(
@@ -78,15 +79,19 @@ function vento(material, forca, alturaRef = 0, soAlfa = false) {
       `vec4 mvPosition = instanceMatrix * vec4(transformed, 1.0);
       float fase = 6.28 * ondaV((modelMatrix * mvPosition).xz);
       float h = uAltura > 0.0 ? clamp(position.y / uAltura, 0.0, 1.0) : position.y;
-      float s = sin(uTime * 1.1 + fase) * cos(uTime * 1.55 + fase);
-      mvPosition.xz += h * uForca * vec2(s, s * 0.6);
+      float s = sin(uTime * 1.1 * uVel + fase) * cos(uTime * 1.55 * uVel + fase);
+      // Balanço em DEGRAUS de pixel inteiro (uPasso = 1 pixel no mundo): como
+      // animação desenhada à mão. Sem isso, deslocamentos menores que 1 pixel
+      // fazem lâminas finas "crescerem e encolherem" a cada quadro.
+      vec2 desl = h * uForca * vec2(s, s * 0.6);
+      mvPosition.xz += floor(desl / uPasso + 0.5) * uPasso;
       mvPosition = modelViewMatrix * mvPosition;
       gl_Position = projectionMatrix * mvPosition;`,
     );
     if (soAlfa) shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "diffuseColor.a *= texture2D(map, vMapUv).a;");
     material.userData.shader = shader;
   };
-  material.customProgramCacheKey = () => `vento-${soAlfa ? 1 : 0}`;
+  material.customProgramCacheKey = () => `vento2-${soAlfa ? 1 : 0}`;
   material.userData.forcaBase = forca;
   return material;
 }
@@ -127,8 +132,9 @@ const ESPECIES = [
 function touceira(rng) {
   const pos = [], cores = [], idx = [];
   const baseC = cor(RAMPAS.mata[2]), pontaC = cor(RAMPAS.mata[5]), c = new THREE.Color();
-  for (let b = 0; b < 7; b++) {
-    const ang = rng() * 6.28, incl = 0.2 + rng() * 0.5, alt = 0.35 + rng() * 0.35, larg = 0.035 + rng() * 0.02;
+  // Menos lâminas, mais largas e menos inclinadas: touceira firme, que lê bem em pixel.
+  for (let b = 0; b < 6; b++) {
+    const ang = rng() * 6.28, incl = 0.12 + rng() * 0.3, alt = 0.35 + rng() * 0.3, larg = 0.06 + rng() * 0.03;
     const ox = (rng() - 0.5) * 0.25, oz = (rng() - 0.5) * 0.25, dx = Math.cos(ang), dz = Math.sin(ang);
     const i0 = pos.length / 3;
     for (let k = 0; k <= 3; k++) {
@@ -556,7 +562,11 @@ export class Jardim {
     const d = new THREE.Object3D();
 
     // Capim: 3 formatos, agrupado por manchas, fora da trilha e da água.
-    const matCapim = vento(toon({ vertexColors: true, side: THREE.DoubleSide }), 0.12);
+    // Capim balança devagar (uVel 0.5) e não grava profundidade: o contorno de
+    // tinta não o enxerga, então as lâminas não ganham riscos que piscam; ele se
+    // lê pela cor (base escura, ponta clara). Desenhado depois dos opacos, ainda
+    // fica corretamente atrás de troncos e pedras.
+    const matCapim = vento(toon({ vertexColors: true, side: THREE.DoubleSide, depthWrite: false }), 0.16, 0, false, 0.5);
     this.materiaisVento.push(matCapim);
     for (let f = 0; f < 3; f++) {
       const max = 2600;
@@ -578,6 +588,7 @@ export class Jardim {
       im.count = n;
       im.receiveShadow = true;
       im.frustumCulled = false;
+      im.renderOrder = 1;
       this.scene.add(im);
     }
 
@@ -804,6 +815,7 @@ export class Jardim {
       if (!sh) continue;
       sh.uniforms.uTime.value = t;
       sh.uniforms.uForca.value = mat.userData.forcaBase * this.forcaVento * 1.6;
+      sh.uniforms.uPasso.value = this.pixel.uniforms.uTexel.value;
     }
     const sa = this.agua.material.userData.shader;
     if (sa) {

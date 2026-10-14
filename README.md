@@ -47,6 +47,7 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 - 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
+- **Vento em degraus de pixel:** folhas e capim se movem só em passos de 1 pixel inteiro (sem tremor sub-pixel); capim mais lento, sem contorno de tinta (não grava profundidade) e com lâminas mais grossas.
 - Crescimento 0–100% (nasce dos núcleos do bosque para as bordas), vento, horas do dia, tamanho do pixel, liga/desliga contorno e paleta (para comparar).
 
 ## 4. Próximos passos (um de cada vez, com revisão)
