@@ -171,16 +171,36 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
 
   for (const p of poisson({
     largura, altura, raioMin: 3.2, rng,
-    raio: (x, y) => lerp(16, 3.2, Math.pow(densidade(x, y), 0.6)),
-    aceitar: (x, y) => fora(x, y) && densidade(x, y) > 0.12,
+    raio: (x, y) => {
+      const r = lerp(16, 3.2, Math.pow(densidade(x, y), 0.6));
+      return fatorLago(x, y) < 1.5 ? Math.min(r, 5.5) : r; // mata ciliar mais fechada
+    },
+    // Mata ciliar: uma faixa de árvores esparsas na beira d'água, mesmo fora do bosque.
+    aceitar: (x, y) => fora(x, y) && (densidade(x, y) > 0.12 || (fatorLago(x, y) < 1.5 && fino(x / 8, y / 8, 2) > 0.35)),
   })) {
     const d = densidade(p.x, p.y);
     objetos.push({ tipo: "arvore", x: p.x, y: p.y, d, zona: fino(p.x / 40, p.y / 40, 2), lago: fatorLago(p.x, p.y), escala: lerp(0.8, 1.15, rng()), nasce: nascer(d), giro: rng() * 6.28 });
   }
+  // Grade das árvores já plantadas, para consultas de vizinhança rápidas.
+  const CEL = 4;
+  const gradeArv = new Map();
+  for (const o of objetos) {
+    const k = `${Math.floor(o.x / CEL)},${Math.floor(o.y / CEL)}`;
+    gradeArv.set(k, [...(gradeArv.get(k) ?? []), o]);
+  }
+  const pertoDeArvore = (x, y, r) => {
+    const cx = Math.floor(x / CEL), cy = Math.floor(y / CEL), n = Math.ceil(r / CEL);
+    for (let i = -n; i <= n; i++)
+      for (let j = -n; j <= n; j++)
+        for (const o of gradeArv.get(`${cx + i},${cy + j}`) ?? []) if (Math.hypot(o.x - x, o.y - y) < r) return true;
+    return false;
+  };
+
   for (const p of poisson({
     largura, altura, raioMin: 2.2, rng,
     raio: (x, y) => lerp(12, 2.2, densidade(x, y) * 0.8 + fino(x / 25, y / 25, 2) * 0.35),
-    aceitar: (x, y) => fora(x, y) && densidade(x, y) + fino(x / 30, y / 30) * 0.4 > 0.38,
+    // Arbusto não nasce colado ao tronco de uma árvore (espaço do indivíduo).
+    aceitar: (x, y) => fora(x, y) && densidade(x, y) + fino(x / 30, y / 30) * 0.4 > 0.38 && !pertoDeArvore(x, y, 2.4),
   })) {
     const d = densidade(p.x, p.y);
     objetos.push({ tipo: "arbusto", x: p.x, y: p.y, d, escala: lerp(0.7, 1.2, rng()), nasce: clamp01(nascer(d) - 0.1), giro: rng() * 6.28 });
@@ -202,5 +222,12 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     objetos.push({ tipo: "flor", x, y, cor: Math.floor(rng() * 4), nasce: 0 });
   }
 
-  return { semente, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, objetos, ruido, fino };
+  /** Altitude do terreno (m): colinas suaves e o lago escavado na depressão. */
+  const altitude = (x, y) => {
+    let h = (ruido(x / 60 + 3, y / 60, 3) - 0.5) * 3.2;
+    const f = fatorLago(x, y);
+    return h * suave(0.9, 1.5, f) - (1 - suave(0.6, 1.08, f)) * 2.4;
+  };
+
+  return { semente, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, altitude, objetos, ruido, fino };
 }

@@ -13,7 +13,8 @@ import { BarkType, LeafType, Tree } from "ez-tree";
 import { BASE, RAMPAS } from "./paleta.js";
 import { criarRng, criarRuido, gerarMundo, suave } from "./mundo.js";
 import { criarMaterialPixel } from "./pixel.js";
-import { ESPECIES, especieDoLugar, estagioDe } from "./especies.js";
+import { ESPECIES, estagioDe } from "./especies.js";
+import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
 // Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
@@ -405,11 +406,7 @@ export class Jardim {
   // --- Terreno e água -----------------------------------------------------
 
   alturaEm(x, z) {
-    const m = this.mundo;
-    let h = (m.ruido(x / 60 + 3, z / 60, 3) - 0.5) * 3.2;
-    const f = m.fatorLago(x, z);
-    h = h * suave(0.9, 1.5, f) - (1 - suave(0.6, 1.08, f)) * 2.4;
-    return h;
+    return this.mundo.altitude(x, z);
   }
 
   criarTerreno() {
@@ -494,7 +491,7 @@ export class Jardim {
       copa.computeBoundingBox();
       const alvo = e.altura[0] + rng() * (e.altura[1] - e.altura[0]);
       const topo = copa.boundingBox.max.y;
-      return { especie: id, galhos: null, copa, matGalhos: null, matCopa: this.materialCopa(e, topo, true), escala: alvo / topo };
+      return { especie: id, galhos: null, copa, matGalhos: null, matCopa: this.materialCopa(e, topo, true), escala: alvo / topo, altura: alvo };
     }
     const tree = new Tree();
     tree.loadPreset(e.preset);
@@ -529,7 +526,7 @@ export class Jardim {
     );
     this.materiaisVento.push(matGalhos);
     folhas.dispose();
-    return { especie: id, galhos, copa, matGalhos, matCopa: this.materialCopa(e, topo, false), escala: alvo / Math.max(1, topo) };
+    return { especie: id, galhos, copa, matGalhos, matCopa: this.materialCopa(e, topo, false), escala: alvo / Math.max(1, topo), altura: alvo };
   }
 
   materialCopa(e, topo, arbusto) {
@@ -552,10 +549,12 @@ export class Jardim {
     for (const v of this.variacoes) porEspecie.set(v.especie, [...(porEspecie.get(v.especie) ?? []), v]);
     const DEGRAUS = [0.86, 1, 1, 1.13];
     const porVariacao = new Map();
+    this.ambiente = criarAmbiente(this.mundo);
     this.individuos = [];
     for (const o of this.mundo.objetos) {
       if (o.tipo !== "arvore" && o.tipo !== "arbusto") continue;
-      const especie = especieDoLugar({ tipo: o.tipo, lago: o.lago ?? 9, zona: o.zona ?? 0.5 }, rng);
+      // Quem nasce aqui depende do nicho: umidade do solo, luz e altitude do lugar.
+      const especie = escolherEspecie(o.tipo, condicoes(this.ambiente, o.x, o.y), rng);
       const opcoes = porEspecie.get(especie);
       const variacao = opcoes[Math.floor(rng() * opcoes.length)];
       const ind = {
@@ -568,6 +567,7 @@ export class Jardim {
         giro: o.giro,
         inclinacao: [(rng() - 0.5) * 0.08, (rng() - 0.5) * 0.08],
         escala: variacao.escala * o.escala,
+        altura: variacao.altura * o.escala,
         nasce: o.nasce,
         tom: DEGRAUS[Math.floor(rng() * DEGRAUS.length)],
         estagio: null,
@@ -575,6 +575,13 @@ export class Jardim {
       };
       this.individuos.push(ind);
       porVariacao.set(variacao, [...(porVariacao.get(variacao) ?? []), ind]);
+    }
+    // Competição por luz entre vizinhos ⇒ vigor. Vigor muda o tamanho final e a
+    // velocidade: árvore bem adaptada e com luz cresce antes e maior.
+    competirPorLuz(this.individuos, this.ambiente);
+    for (const ind of this.individuos) {
+      ind.escala *= 0.78 + 0.32 * ind.vigor;
+      if (ind.nasce > 0) ind.nasce = Math.min(0.95, Math.max(0.02, ind.nasce + (0.55 - ind.vigor) * 0.25));
     }
     this.grupos = [];
     const tom = new THREE.Color();
@@ -646,7 +653,7 @@ export class Jardim {
     }
     for (const g of this.grupos) g.copa.instanceColor.needsUpdate = true;
     const i = this.selecionado;
-    this.aoSelecionar?.(i ? { numero: i.numero, nome: i.nome, especie: i.especie, estagio: i.estagio.nome } : null);
+    this.aoSelecionar?.(i ? { numero: i.numero, nome: i.nome, especie: i.especie, estagio: i.estagio.nome, extra: descrever(i) } : null);
   }
 
   // --- Capim, flores, pedras, troncos -------------------------------------
