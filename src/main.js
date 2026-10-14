@@ -23,6 +23,14 @@ async function iniciar(semente) {
     jardim.setCrescimento(Number($("crescimento").value));
     jardim.setVento(Number($("vento").value));
     jardim.tamPixel = Number($("pixel").value);
+    // Ficha da árvore clicada (cada árvore é um indivíduo).
+    $("ficha").hidden = true;
+    jardim.aoSelecionar = (a) => {
+      $("ficha").hidden = !a;
+      if (!a) return;
+      $("ficha-nome").textContent = a.nome;
+      $("ficha-dados").textContent = [`Indivíduo nº ${a.numero}`, `Estágio: ${a.estagio}`, ...(a.extra ?? [])].join("\n");
+    };
     await jardim.carregar(semente, progresso);
     jardim.setHora(document.querySelector("[data-hora][aria-pressed='true']").dataset.hora);
     jardim.setContorno($("contorno").checked);

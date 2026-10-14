@@ -28,6 +28,10 @@
   .titulo p { margin: 4px 0 0; font-size: 12px; color: var(--suave); }
 
   .giro { top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; display: flex; gap: 6px; padding: 6px; }
+  .ficha { top: calc(64px + env(safe-area-inset-top, 0px)); right: 12px; padding: 8px 12px; min-width: 180px; max-width: calc(100% - 24px); border-color: var(--alerta); }
+  .ficha p { margin: 0; }
+  .ficha-nome { font-family: var(--display); font-size: 13px; color: var(--alerta); letter-spacing: 0.04em; }
+  .ficha-dados { margin-top: 4px !important; font-size: 12px; color: var(--texto); line-height: 1.5; white-space: pre-line; }
   .painel { left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(760px, calc(100% - 24px)); padding: 10px 12px; display: grid; gap: 10px; }
   .linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
   .campo { display: grid; gap: 4px; flex: 1 1 180px; min-width: 0; }
@@ -66,6 +70,7 @@
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
       "ez-tree": "https://cdn.jsdelivr.net/npm/@dgreenheck/ez-tree@1.1.0/build/ez-tree.es.js"
     }
   }
@@ -75,7 +80,7 @@
 
 <header class="hud titulo">
   <h1>JARDIM DOS BIOMAS</h1>
-  <p>Demo de arte · clareira · arraste para mover · roda/pinça = zoom · Q/E gira</p>
+  <p>Demo de arte · clareira · arraste para mover · roda/pinça = zoom · Q/E gira · clique numa árvore</p>
 </header>
 
 <div class="hud giro" role="group" aria-label="Câmera">
@@ -84,6 +89,11 @@
   <button id="zoom-menos" type="button" title="Afastar" aria-label="Afastar">−</button>
   <button id="girar-dir" type="button" title="Girar 45° (E)" aria-label="Girar câmera para a direita">⟳</button>
 </div>
+
+<aside class="hud ficha" id="ficha" aria-live="polite" hidden>
+  <p class="ficha-nome" id="ficha-nome"></p>
+  <p class="ficha-dados" id="ficha-dados"></p>
+</aside>
 
 <section class="hud painel" aria-label="Controles do jardim">
   <div class="linha">
