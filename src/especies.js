@@ -4,6 +4,7 @@
  * Para criar uma espécie nova, acrescente uma entrada aqui. O gerador
  * (arvoreProc.js) e o motor (cena.js) não precisam mudar, desde que a FORMA
  * já exista. Formas: redonda, oval, conica, colunar, pendente, guarda-chuva,
+ * bananeira, garrafa (baobá), bambu, cristal,
  * palmeira, araucaria, cogumelo, moita.
  *
  * Campos:
@@ -137,6 +138,55 @@ export const ESPECIES = {
     nome: "Cogumelo-gigante", forma: "cogumelo", altura: [4, 6],
     cores: { folha: R.vermelho[1], casca: R.betula[0], pinta: R.betula[0], lamela: R.terra[4] }, variacoes: 2,
     nicho: { umidade: [0.8, 0.2], sombra: 0.9, altitude: null }, raridade: 0.06, // úmido e sombrio; raríssimo
+  },
+
+  // --- Leva 2: frutíferas, brasileiras e tropicais --------------------------
+  mangueira: {
+    nome: "Mangueira", forma: "redonda", altura: [10, 13], largura: 1.35, grossura: 1.3,
+    cores: { folha: R.mata[2], folha2: R.mata[1], casca: R.terra[1] }, variacoes: 2,
+    fruto: { cor: R.outono[3], raio: 0.2, quantidade: 20, achatar: 1.3, nome: "mangas" },
+    nicho: { umidade: [0.55, 0.25], sombra: 0.3, altitude: [0.3, 0.35] }, raridade: 0.3, // copa densa e escura
+  },
+  limoeiro: {
+    nome: "Limoeiro", forma: "redonda", altura: [4, 6], largura: 1.0,
+    cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.terra[2] }, variacoes: 2,
+    fruto: { cor: R.amarelo[2], raio: 0.13, quantidade: 24, achatar: 1.2, nome: "limões" },
+    nicho: { umidade: [0.5, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
+  },
+  ipeRoxo: {
+    nome: "Ipê-roxo", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.05,
+    cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.flor[1], folha2: R.flor[2], casca: R.terra[1], broto: R.mata[4] }, variacoes: 2,
+    flor: { cor: R.flor[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" },
+    nicho: { umidade: [0.45, 0.25], sombra: 0.2, altitude: null }, raridade: 0.25,
+  },
+  bananeira: {
+    nome: "Bananeira", forma: "bananeira", altura: [4, 6],
+    cores: { folha: R.mata[4], folha2: R.mata[5], casca: R.salvia[2], coracao: R.lilas[0], broto: R.mata[4] }, variacoes: 2,
+    fruto: { cor: R.amarelo[1], raio: 0.1, quantidade: 0, nome: "bananas" }, // cacho desenhado pela forma
+    nicho: { umidade: [0.75, 0.2], sombra: 0.3, altitude: [0.25, 0.35] }, raridade: 0.3, // baixada úmida
+  },
+  baoba: {
+    nome: "Baobá", forma: "garrafa", altura: [9, 12], grossura: 1.2,
+    cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.terra[3] }, variacoes: 2,
+    nicho: { umidade: [0.2, 0.18], sombra: 0.1, altitude: null }, raridade: 0.2, // solo seco, sol pleno
+  },
+  bambu: {
+    nome: "Bambuzal", forma: "bambu", altura: [8, 11],
+    cores: { folha: R.mata[5], casca: R.mata[4], broto: R.mata[5] }, variacoes: 2,
+    nicho: { umidade: [0.7, 0.2], sombra: 0.4, altitude: null }, raridade: 0.3, // úmido, forma touceiras
+  },
+
+  // --- Leva 2: fantasia ------------------------------------------------------
+  arvoreCristal: {
+    nome: "Árvore-de-cristal", forma: "cristal", altura: [4, 6],
+    cores: { folha: R.agua[4], folha2: R.lilas[3], casca: R.pedra[1] }, variacoes: 2,
+    nicho: { umidade: [0.4, 0.3], sombra: 0.5, altitude: [0.8, 0.3] }, raridade: 0.05, // rara, em terreno alto
+  },
+  salgueiroLanterna: {
+    nome: "Salgueiro-lanterna", forma: "pendente", altura: [6, 8], largura: 1.0,
+    cores: { folha: R.agua[3], folha2: R.mata[4], casca: R.terra[1] }, variacoes: 2,
+    fruto: { cor: R.luz[0], raio: 0.2, quantidade: 14, nome: "lanternas" },
+    nicho: { umidade: [0.8, 0.2], sombra: 0.5, altitude: null }, raridade: 0.06, // rara, junto à água
   },
 
   // --- Arbustos (sub-bosque) -----------------------------------------------
