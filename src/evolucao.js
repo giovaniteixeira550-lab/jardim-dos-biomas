@@ -12,6 +12,10 @@ const descricoes = {
   palmeira: ["Três folhas saem junto ao chão.", "Leque erguido, folhas largas e base curta: uma roseta, sem tronco alto.", "Tronco começa a se destacar, com anéis e folhas em arco.", "Tronco longo e curvo, frondes pendentes, raízes e cachos de cocos."],
   cogumelo: ["Botão fechado junto ao solo, ainda sem chapéu aberto.", "O pé aparece, mas o chapéu continua arredondado e fechado.", "Chapéu aberto, primeiras pintas e lamelas visíveis.", "Chapéu amplo, anel no pé e pequenos cogumelos ao redor: a conquista forma uma colônia."],
   moita: ["Duas folhas sobre um caule curto.", "Um eixo flexível com folhas isoladas.", "Ramos se abrem em várias direções, com espaços entre os tufos.", "Moita consolidada e ramificada; flores ou bagas nas variedades que as possuem."],
+  garrafa: ["Duas folhas anunciam o nascimento.","Caule flexível, primeiros ramos e folhas separadas.","O tronco começa a engrossar; pequenos braços sustentam tufos afastados.","Tronco largo em garrafa, braços no alto e raízes aparentes: uma presença monumental."],
+  bananeira: ["Folhas pequenas saem junto ao chão.","Duas folhas largas e erguidas envolvem uma base curta.","Pseudocaule emergente e folhas abertas em leque.","Folhas arqueadas, base robusta, cacho de bananas e coração roxo."],
+  bambu: ["Brotos fechados surgem do chão.","Um colmo com nós e primeiras folhas.","Três colmos se separam, com braços de folhas.","Touceira consolidada de colmos e folhagem abundante."],
+  cristal: ["Uma única ponta de cristal emerge da pedra.","Três pontas formam um núcleo próximo à base.","Braços de pedra elevam e separam os cristais.","Coroa radial de cristais, sustentada por tronco e raízes de pedra."],
 };
 let renderer, cena, camera, rt, material, pixel, tela, ro;
 let geometrias = [], modelos = [], giro = 0, encerrado = false;
@@ -54,7 +58,7 @@ function apresentar() {
     const v = construirVariacao(def, 1234);
     geometrias = v.estagios;
     const normalizar = $("normalizar").checked;
-    const textos = descricoes[def.forma === "palmeira" || def.forma === "cogumelo" || def.forma === "moita" ? def.forma : ["conica", "colunar", "araucaria"].includes(def.forma) ? "conifera" : "folhosa"];
+    const textos = descricoes[def.forma] ?? descricoes[["conica", "colunar", "araucaria"].includes(def.forma) ? "conifera" : "folhosa"];
     geometrias.forEach((geo, e) => {
       const m = new THREE.Mesh(geo, material);
       // Ajusta a altura ao mesmo alvo, limitando também a largura de folhas

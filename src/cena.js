@@ -658,7 +658,7 @@ export class Jardim {
   limitar() {
     // O viveiro fica além da borda sul do mapa: a câmera pode ir até lá.
     this.alvo.x = THREE.MathUtils.clamp(this.alvo.x, 0, this.mundo.largura);
-    this.alvo.z = THREE.MathUtils.clamp(this.alvo.z, 0, this.mundo.altura + 40);
+    this.alvo.z = THREE.MathUtils.clamp(this.alvo.z, 0, this.mundo.altura + 50);
   }
 
   /**
@@ -667,8 +667,8 @@ export class Jardim {
    */
   montarViveiro() {
     const ids = Object.keys(ESPECIES);
-    const porLinha = Math.ceil(ids.length / 2);
-    const z0 = this.mundo.altura + 14;
+    const porLinha = Math.ceil(ids.length / 3); // 3 fileiras: cabe na borda do terreno
+    const z0 = this.mundo.altura + 12;
     this.viveiro = [];
     ids.forEach((id, n) => {
       const v = this.variacoes.find((x) => x.especie === id);
@@ -677,7 +677,7 @@ export class Jardim {
         const malha = new THREE.Mesh(geo, this.matArvore);
         // Estágios da esquerda (broto) para a direita (adulta), com espaço para a copa.
         const x = 10 + col * 15 + [-6, -4, -1.2, 4][e];
-        const z = z0 + bloco * 20;
+        const z = z0 + bloco * 17;
         malha.position.set(x, this.alturaEm(x, z), z);
         malha.castShadow = malha.receiveShadow = true;
         malha.userData.viveiro = { nome: ESPECIES[id].nome, estagio: e, especie: id };
@@ -690,7 +690,7 @@ export class Jardim {
   /** Leva a câmera ao viveiro (ou de volta ao bosque). */
   irAoViveiro(ir = true) {
     if (ir) {
-      this.alvo.set(14, 0, this.mundo.altura + 22);
+      this.alvo.set(14, 0, this.mundo.altura + 28);
       this.altura = 46;
     } else {
       this.alvo.set(this.mundo.largura * 0.55, 0, this.mundo.altura * 0.55);

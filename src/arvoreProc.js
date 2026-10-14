@@ -386,6 +386,104 @@ const FORMAS = {
     }
     return { partes, copas };
   },
+
+  /** Bananeira: pseudocaule grosso, folhas largas em leque; adulta com cacho e "coração" roxo. */
+  bananeira(def, H, d, rng) {
+    const t = tronco({ altura: H * 0.55, r0: H * 0.07, r1: H * 0.05, hex: def.cores.casca, segs: 6, aneis: true, rng });
+    const partes = [t.geo];
+    const n = Math.round(lerp(3, 8, d));
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * 6.28 + rng() * 0.4;
+      partes.push(lamina({
+        origem: t.topo, direcao: V(Math.cos(a), 0, Math.sin(a)), comprimento: H * lerp(0.4, 0.55, rng()),
+        largura: H * 0.17, queda: 1.1, elevacao: lerp(0.7, 1.1, rng()), hex: i % 3 === 0 ? (def.cores.folha2 ?? def.cores.folha) : def.cores.folha, segs: 5,
+      }));
+    }
+    if (d > 0.99) {
+      // Cacho: pencas de bananas em espiral, pendendo de um lado, e o "coração" na ponta.
+      const lado = V(Math.cos(rng() * 6.28), 0, Math.sin(rng() * 6.28));
+      const base = t.topo.clone().addScaledVector(lado, H * 0.08).add(V(0, -H * 0.05, 0));
+      for (let i = 0; i < 14; i++) {
+        const u = i / 14, a = u * 6.28 * 2;
+        const c = base.clone().add(V(Math.cos(a) * H * 0.04, -u * H * 0.16, Math.sin(a) * H * 0.04));
+        partes.push(bolinha(H * 0.03, c, def.fruto.cor, 1.8, 0));
+      }
+      partes.push(bolinha(H * 0.035, base.clone().add(V(0, -H * 0.2, 0)), def.cores.coracao, 1.6, 1));
+    }
+    return { partes, copas: [] };
+  },
+
+  /** Baobá: tronco em garrafa (bojudo no meio), galhos curtos no topo com copinhas achatadas. */
+  garrafa(def, H, d, rng) {
+    const perfil = [];
+    const th = H * 0.72, rMax = H * 0.14 * (def.grossura ?? 1);
+    for (let i = 0; i <= 8; i++) {
+      const t = i / 8;
+      perfil.push(new THREE.Vector2(rMax * (0.75 + 0.35 * Math.sin(Math.PI * Math.min(1, t * 1.1)) - t * 0.35), t * th));
+    }
+    const g = new THREE.LatheGeometry(perfil, 10);
+    pintar(g, def.cores.casca, (x, y) => 0.82 + (y / th) * 0.2);
+    const partes = [finalizar(g)];
+    const topo = V(0, th, 0);
+    const n = Math.round(lerp(3, 7, d));
+    const copas = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * 6.28 + rng() * 0.5;
+      const L = H * lerp(0.18, 0.3, rng());
+      const ponta = V(Math.cos(a) * L, th + H * lerp(0.08, 0.18, rng()), Math.sin(a) * L);
+      partes.push(galho(topo.clone().add(V(0, -H * 0.03, 0)), ponta, H * 0.03, H * 0.012, def.cores.casca));
+      const r = H * lerp(0.08, 0.11, rng());
+      copas.push({ c: ponta.clone().add(V(0, r * 0.3, 0)), r });
+      partes.push(volume(r, ponta.clone().add(V(0, r * 0.3, 0)), corDaCopa(def, rng), Math.floor(rng() * 1e6), 0.5, 0.35));
+    }
+    return { partes, copas };
+  },
+
+  /** Bambuzal: touceira de colmos com nós (anéis) e tufos de folhas finas no alto. */
+  bambu(def, H, d, rng) {
+    const partes = [];
+    const n = Math.round(lerp(3, 11, d));
+    for (let i = 0; i < n; i++) {
+      const a = rng() * 6.28, dist = Math.sqrt(rng()) * H * 0.08;
+      const h = H * lerp(0.7, 1, rng());
+      const incl = [Math.cos(a) * h * 0.12, Math.sin(a) * h * 0.12];
+      const t = tronco({ altura: h, r0: H * 0.016, r1: H * 0.013, curva: incl, hex: def.cores.casca, segs: 9, aneis: true, rng });
+      t.geo.translate(Math.cos(a) * dist, 0, Math.sin(a) * dist);
+      partes.push(t.geo);
+      const tufos = 3;
+      for (let k = 0; k < tufos; k++) {
+        const u = lerp(0.55, 1, k / (tufos - 1));
+        const origem = V(Math.cos(a) * dist + incl[0] * u * u, h * u, Math.sin(a) * dist + incl[1] * u * u);
+        for (let f = 0; f < 3; f++) {
+          const b = rng() * 6.28;
+          partes.push(lamina({ origem, direcao: V(Math.cos(b), 0, Math.sin(b)), comprimento: H * 0.1, largura: H * 0.025, queda: 0.8, elevacao: 0.3, hex: def.cores.folha, segs: 3 }));
+        }
+      }
+    }
+    return { partes, copas: [] };
+  },
+
+  /** Árvore-de-cristal (fantasia): tronco de pedra e copa de cristais apontando para fora. */
+  cristal(def, H, d, rng) {
+    const t = tronco({ altura: H * 0.4, r0: H * 0.06, r1: H * 0.035, curva: [(rng() - 0.5) * H * 0.08, (rng() - 0.5) * H * 0.08], hex: def.cores.casca, rng });
+    const partes = [t.geo];
+    const centro = t.topo.clone().add(V(0, H * 0.22, 0));
+    const n = Math.round(lerp(4, 16, d));
+    for (let i = 0; i < n; i++) {
+      const dir = V(rng() - 0.5, rng() * 0.9 + 0.1, rng() - 0.5).normalize();
+      const comp = H * lerp(0.18, 0.34, rng());
+      const g = new THREE.OctahedronGeometry(1, 0);
+      g.scale(H * 0.05, comp / 2, H * 0.05);
+      g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), dir));
+      const c = centro.clone().addScaledVector(dir, comp * 0.45);
+      g.translate(c.x, c.y, c.z);
+      const hex = i % 3 === 0 ? (def.cores.folha2 ?? def.cores.folha) : def.cores.folha;
+      pintar(g, hex, (x, y) => 0.85 + ((y - centro.y) / (H * 0.4)) * 0.3);
+      g.computeVertexNormals(); // facetas nítidas: parece cristal
+      partes.push(finalizar(g));
+    }
+    return { partes, copas: [{ c: centro, r: H * 0.2 }] };
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -408,7 +506,24 @@ function broto(def, rng) {
     }
     return partes;
   }
-  if (def.forma === "palmeira") {
+  if (def.forma === "cristal") {
+    partes.push(galho(V(0, 0, 0), V(0, 0.15, 0), 0.035, 0.03, def.cores.casca));
+    const g = new THREE.OctahedronGeometry(1, 0);
+    g.scale(0.08, 0.22, 0.08);
+    g.translate(0, 0.3, 0);
+    pintar(g, def.cores.folha);
+    g.computeVertexNormals();
+    partes.push(finalizar(g));
+    return partes;
+  }
+  if (def.forma === "bambu") {
+    for (let i = 0; i < 3; i++) {
+      const a = rng() * 6.28;
+      partes.push(galho(V(Math.cos(a) * 0.05, 0, Math.sin(a) * 0.05), V(Math.cos(a) * 0.08, 0.35 + rng() * 0.2, Math.sin(a) * 0.08), 0.02, 0.012, def.cores.casca));
+    }
+    return partes;
+  }
+  if (def.forma === "palmeira" || def.forma === "bananeira") {
     for (let i = 0; i < 3; i++) {
       const a = (i / 3) * 6.28;
       partes.push(lamina({ origem: V(0, 0.05, 0), direcao: V(Math.cos(a), 0, Math.sin(a)), comprimento: 0.5, largura: 0.12, queda: 0.4, elevacao: 0.9, hex: verde }));
@@ -482,6 +597,48 @@ function jovemFolhosa(def, H, rng) {
 /** Cada família muda de organização, não só de dimensão. */
 function construirJuvenil(def, H, estagio, rng) {
   const jovem = estagio === 2;
+  if (def.forma === "garrafa") {
+    if (!jovem) return mudaFolhosa(def, H, rng);
+    // O bojo começa a surgir, mas ainda não é a garrafa larga da adulta.
+    return FORMAS.garrafa({ ...def, grossura: (def.grossura ?? 1) * 0.4 }, H, 0.2, rng);
+  }
+  if (def.forma === "bananeira") {
+    const t = tronco({ altura: H * (jovem ? 0.55 : 0.15), r0: H * 0.055, r1: H * 0.035, hex: def.cores.casca, rng });
+    const partes = [t.geo], n = jovem ? 4 : 2;
+    for (let i = 0; i < n; i++) {
+      const a = i * Math.PI * 2 / n;
+      partes.push(lamina({ origem:t.topo, direcao:V(Math.cos(a),0,Math.sin(a)), comprimento:H*0.65, largura:H*(jovem?0.16:0.22), queda:jovem?0.35:0.02, elevacao:jovem?0.8:1.15, hex:def.cores.folha }));
+    }
+    return { partes, copas:[] };
+  }
+  if (def.forma === "bambu") {
+    const partes = [], n = jovem ? 3 : 1;
+    for (let i = 0; i < n; i++) {
+      const x = (i - (n-1)/2)*H*0.09;
+      const t = tronco({ altura:H*(1-i*0.1), r0:H*0.025, r1:H*0.017, hex:def.cores.casca, segs:6, aneis:true, rng });
+      t.geo.translate(x,0,0); partes.push(t.geo);
+      for(let j=0;j<(jovem?4:2);j++) {
+        const a=j*2.4+i, origem=V(x,H*(0.6+j*0.09),0);
+        partes.push(lamina({ origem,direcao:V(Math.cos(a),0,Math.sin(a)),comprimento:H*0.2,largura:H*0.045,queda:0.25,elevacao:0.3,hex:def.cores.folha }));
+      }
+    }
+    return {partes,copas:[]};
+  }
+  if (def.forma === "cristal") {
+    const partes = [], n = 3, base = jovem ? H*0.45 : H*0.08;
+    partes.push(galho(V(0,0,0),V(0,base,0),H*0.06,H*0.03,def.cores.casca));
+    for(let i=0;i<n;i++) {
+      const a=i*Math.PI*2/n, dir=V(Math.cos(a)*0.6,1,Math.sin(a)*0.6).normalize();
+      const ponta=V(Math.cos(a)*H*(jovem?0.2:0.05),H*(jovem?0.75:0.45),Math.sin(a)*H*(jovem?0.2:0.05));
+      if(jovem)partes.push(galho(V(0,base,0),ponta,H*0.025,H*0.012,def.cores.casca));
+      const g=new THREE.OctahedronGeometry(1,0);
+      g.scale(H*(jovem?0.07:0.12),H*(jovem?0.18:0.35),H*(jovem?0.07:0.12));
+      g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0,1,0),dir));
+      g.translate(ponta.x,ponta.y,ponta.z); pintar(g,i===0?(def.cores.folha2??def.cores.folha):def.cores.folha);
+      g.computeVertexNormals(); partes.push(finalizar(g));
+    }
+    return {partes,copas:[]};
+  }
   if (["redonda", "oval", "pendente", "guarda-chuva"].includes(def.forma)) {
     return jovem ? jovemFolhosa(def, H, rng) : mudaFolhosa(def, H, rng);
   }

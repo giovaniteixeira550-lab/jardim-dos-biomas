@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.6 + transformações",
+  "versaoAtual": "v0.7 + transformações",
   "proximoPasso": {
     "titulo": "Revisar as transformações por espécie",
     "descricao": "Comparar broto, muda, jovem e adulta no link Evolução. Depois: identidade persistente das plantas e continuidade da frente de estações/sucessão."
@@ -15,8 +15,8 @@
     {
       "nome": "Árvores",
       "status": "andamento",
-      "progresso": 70,
-      "nota": "16 espécies + 4 arbustos. Estágios agora mudam folhas, ramificação, copa e estruturas de maturidade; comparação em Evolução."
+      "progresso": 78,
+      "nota": "24 espécies + 4 arbustos. Estágios mudam arquitetura e estruturas de maturidade; comparação em Evolução."
     },
     {
       "nome": "Ecossistema",
@@ -46,8 +46,9 @@
   "quadro": {
     "funciona": [
       "Pixel art com pixel mínimo e contorno",
-      "16 espécies e 4 arbustos, cada um com 4 estágios",
+      "24 espécies e 4 arbustos, cada um com 4 estágios",
       "Flores e frutos nas adultas (maçãs, laranjas, cocos, frutinhas)",
+      "Formas variadas: copa redonda, oval, cônica, colunar, pendente, guarda-chuva, palmeira, bananeira, baobá, bambu, araucária, cogumelo, cristal",
       "Floríferas verdes quando jovens, coloridas quando adultas",
       "Ecossistema: solo, luz, nicho e vigor",
       "Viveiro para ver todas as espécies",
@@ -58,13 +59,13 @@
       "Vitrine Evolução para comparar formas sem depender do tamanho"
     ],
     "corrigir": [
-      "Araucária e coqueiro quase não aparecem: o mapa tem pouco terreno alto e pouca baixada úmida",
+      "Espécies de terreno alto ou baixada (araucária, coqueiro, cristal) quase não aparecem: o mapa tem pouco desses terrenos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça"
     ],
     "ideias": [
-      "Mais espécies aos poucos (mangueira, bananeira, baobá, árvores de fantasia)",
+      "Próximas espécies: abacateiro, pau-brasil, oliveira, cacto, árvores de fantasia (cogumelo azul, árvore-nuvem)",
       "Estações e sucessão do bosque",
       "Pássaros e borboletas em pixel",
       "Folhas caídas e flores no chão sob as árvores floridas",
@@ -73,7 +74,7 @@
   },
   "versoes": [
     {
-      "versao": "v0.6 + transformações",
+      "versao": "v0.7 + transformações",
       "data": "2026-10-14",
       "titulo": "Crescer é ganhar uma nova forma",
       "porque": "Cada etapa deve parecer uma conquista, além de aumentar tamanho e volume.",
@@ -83,7 +84,7 @@
         "Palmeiras, coníferas, arbustos e cogumelos com sequências próprias",
         "Vitrine Evolução compara as quatro formas de cada espécie"
       ],
-      "resultado": "Transformações no mesmo gerador do bosque e do viveiro; 20 espécies verificadas. Proposta separada, ainda sem publicação na demo.",
+      "resultado": "Transformações combinadas com as oito novas espécies do Claude; 28 espécies na comparação. Proposta separada, ainda sem publicação na demo.",
       "imagens": [
         {
           "src": "historico/codex-transformacoes-carvalho.jpg",
@@ -111,6 +112,33 @@
         {
           "src": "historico/codex-ciclo-de-vida.jpg",
           "legenda": "Clareira da v0.6 preservada após a preparação do encerramento da cena"
+        }
+      ]
+    },
+    {
+      "versao": "v0.7",
+      "data": "2026-10-14",
+      "titulo": "Mais 8 espécies e 4 formas novas",
+      "porque": "Ampliar a variedade de árvores aos poucos.",
+      "mudancas": [
+        "Mangueira, limoeiro e ipê-roxo",
+        "Bananeira (com cacho), baobá (tronco em garrafa) e bambuzal",
+        "Fantasia: árvore-de-cristal e salgueiro-lanterna",
+        "Viveiro em 3 fileiras com as 28 espécies"
+      ],
+      "resultado": "24 árvores e 4 arbustos, todos com 4 estágios. Cada nova espécie tem seu nicho no ecossistema.",
+      "imagens": [
+        {
+          "src": "historico/v0.7-bambu-baoba-cristal.jpg",
+          "legenda": "Bambuzal, baobá e cristais"
+        },
+        {
+          "src": "historico/v0.7-mangueira-lanterna.jpg",
+          "legenda": "Mangueira com mangas e salgueiro-lanterna"
+        },
+        {
+          "src": "historico/v0.7-viveiro.jpg",
+          "legenda": "Viveiro com as novas espécies"
         }
       ]
     },
