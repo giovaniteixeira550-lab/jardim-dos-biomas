@@ -69,9 +69,10 @@ export function condicoes(amb, x, y) {
  * favorece fortemente a espécie mais adaptada, sem eliminar o acaso.
  */
 export function escolherEspecie(tipo, cond, rng) {
-  if (tipo === "arbusto") return "arbusto";
+  // Árvores competem entre árvores; arbustos entre arbustos (sub-bosque).
+  const querArbusto = tipo === "arbusto";
   const pesos = Object.entries(ESPECIES)
-    .filter(([, e]) => !e.arbusto)
+    .filter(([, e]) => Boolean(e.arbusto) === querArbusto)
     .map(([id, e]) => [id, aptidao(id, cond) ** 2 * e.raridade]);
   const total = pesos.reduce((s, [, p]) => s + p, 0);
   let r = rng() * total;

@@ -71,8 +71,7 @@
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
-      "ez-tree": "https://cdn.jsdelivr.net/npm/@dgreenheck/ez-tree@1.1.0/build/ez-tree.es.js"
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
     }
   }
 </script>
@@ -89,6 +88,7 @@
   <button id="zoom-mais" type="button" title="Aproximar" aria-label="Aproximar">+</button>
   <button id="zoom-menos" type="button" title="Afastar" aria-label="Afastar">−</button>
   <button id="girar-dir" type="button" title="Girar 45° (E)" aria-label="Girar câmera para a direita">⟳</button>
+  <button id="viveiro" type="button" aria-pressed="false" title="Ver todas as espécies e estágios">Viveiro</button>
 </div>
 
 <aside class="hud ficha" id="ficha" aria-live="polite" hidden>
@@ -103,10 +103,6 @@
       <input id="crescimento" type="range" min="0" max="1" step="0.01" value="0.9" />
     </div>
     <button id="ver-crescer" type="button">▶ Ver crescer</button>
-    <div class="campo">
-      <label for="vento">Vento <output id="v-vento">55%</output></label>
-      <input id="vento" type="range" min="0" max="1" step="0.01" value="0.55" />
-    </div>
   </div>
   <div class="linha">
     <div class="grupo" role="group" aria-label="Hora do dia">
@@ -114,12 +110,6 @@
       <button type="button" data-hora="entardecer" aria-pressed="false">Entardecer</button>
       <button type="button" data-hora="noite" aria-pressed="false">Noite</button>
     </div>
-    <div class="campo" style="flex-basis: 140px">
-      <label for="pixel">Tamanho do pixel <output id="v-pixel">4</output></label>
-      <input id="pixel" type="range" min="2" max="7" step="1" value="4" />
-    </div>
-    <label class="opcao"><input id="contorno" type="checkbox" checked /> Contorno</label>
-    <label class="opcao"><input id="paleta" type="checkbox" checked /> Paleta</label>
     <button id="novo" type="button">Novo mundo</button>
   </div>
   <p class="dica" id="info">Semente 1234</p>

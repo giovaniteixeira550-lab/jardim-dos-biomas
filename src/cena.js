@@ -8,14 +8,13 @@
  * pixels para o cenário não tremeluzir ao mover.
  */
 import * as THREE from "three";
-import { BarkType, LeafType, Tree } from "ez-tree";
 
 import { BASE, RAMPAS } from "./paleta.js";
 import { criarRng, criarRuido, gerarMundo, suave } from "./mundo.js";
 import { criarMaterialPixel } from "./pixel.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
-import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+import { construirVariacao } from "./arvoreProc.js";
 
 // Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
 // setTimeout em vez de requestAnimationFrame: rAF pausa com a aba em segundo
@@ -38,70 +37,6 @@ function rampa() {
   return rampaLuz;
 }
 const toon = (p) => new THREE.MeshToonMaterial({ gradientMap: rampa(), ...p });
-
-/** Casca de bétula: marcas escuras horizontais (lenticelas), em coordenadas locais. Ajuste de shader. */
-function marcasDeBetula(shader) {
-  shader.vertexShader = "varying vec3 vLocal;\n" + shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvLocal = position;");
-  shader.fragmentShader =
-    "varying vec3 vLocal;\n" +
-    shader.fragmentShader.replace(
-      "#include <color_fragment>",
-      `#include <color_fragment>
-      float faixa = fract(vLocal.y * 0.55 + sin(vLocal.x * 3.1 + vLocal.z * 2.3) * 0.35);
-      float marca = step(0.86, faixa) * step(0.35, fract(atan(vLocal.z, vLocal.x) * 0.95 + vLocal.y * 0.13));
-      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.13, 0.12, 0.11), marca);`,
-    );
-}
-
-/**
- * Vento em instâncias (adaptado do ez-tree, MIT). Amplitude pela altura:
- * relativa ao topo (`alturaRef` > 0, folhas) ou absoluta (capim).
- * `soAlfa`: a textura só recorta o formato; a cor vem da paleta.
- */
-function vento(material, forca, alturaRef = 0, soAlfa = false, vel = 1, ajuste = null) {
-  material.onBeforeCompile = (shader) => {
-    shader.uniforms.uTime = { value: 0 };
-    shader.uniforms.uForca = { value: forca };
-    shader.uniforms.uAltura = { value: alturaRef };
-    shader.uniforms.uVel = { value: vel };
-    shader.uniforms.uPasso = { value: 0.25 };
-    shader.vertexShader =
-      `uniform float uTime; uniform float uForca; uniform float uAltura; uniform float uVel; uniform float uPasso;
-      float ondaV(vec2 p){ return sin(p.x*0.11 + p.y*0.07) * 0.5 + sin(p.x*0.05 - p.y*0.13 + 1.7) * 0.5; }
-      ` + shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace(
-      "#include <project_vertex>",
-      `vec4 mvPosition = instanceMatrix * vec4(transformed, 1.0);
-      float fase = 6.28 * ondaV((modelMatrix * mvPosition).xz);
-      float h = uAltura > 0.0 ? clamp(position.y / uAltura, 0.0, 1.0) : position.y;
-      float s = sin(uTime * 1.1 * uVel + fase) * cos(uTime * 1.55 * uVel + fase);
-      // Balanço em DEGRAUS de pixel inteiro (uPasso = 1 pixel no mundo): como
-      // animação desenhada à mão. Sem isso, deslocamentos menores que 1 pixel
-      // fazem lâminas finas "crescerem e encolherem" a cada quadro.
-      vec2 desl = h * uForca * vec2(s, s * 0.6);
-      mvPosition.xz += floor(desl / uPasso + 0.5) * uPasso;
-      mvPosition = modelViewMatrix * mvPosition;
-      gl_Position = projectionMatrix * mvPosition;`,
-    );
-    if (soAlfa) shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "diffuseColor.a *= texture2D(map, vMapUv).a;");
-    ajuste?.(shader);
-    material.userData.shader = shader;
-  };
-  material.customProgramCacheKey = () => `vento3-${soAlfa ? 1 : 0}-${ajuste ? ajuste.name : ""}`;
-  material.userData.forcaBase = forca;
-  return material;
-}
-
-// ---------------------------------------------------------------------------
-// Espécies (ez-tree + paleta). Menos folhas e maiores ⇒ leitura de "tufos".
-// ---------------------------------------------------------------------------
-
-function economizar(o, folhas = 0.7, galhos = 0.5) {
-  o.leaves.count = Math.max(1, Math.round(o.leaves.count * folhas));
-  o.leaves.size *= 1 / Math.sqrt(folhas);
-  for (const k of Object.keys(o.branch.segments)) o.branch.segments[k] = Math.max(Number(k) >= 2 ? 3 : 5, Math.round(o.branch.segments[k] * galhos));
-  for (const k of Object.keys(o.branch.sections)) o.branch.sections[k] = Math.max(3, Math.round(o.branch.sections[k] * (0.5 + galhos / 2)));
-}
 
 // ---------------------------------------------------------------------------
 // Geometrias procedurais pequenas
@@ -156,167 +91,6 @@ function pedraGeo(semente) {
   return plano;
 }
 
-/**
- * Volume irregular de folhagem: icosaedro com saliências (ruído). Reentrâncias
- * mais escuras, saliências mais claras (cor por vértice) — lê como copa densa.
- * Vértices fundidos ⇒ normais suaves (sem facetas de "pedra").
- */
-function volumeIrregular(raio, cx, cy, cz, semente, achatar = 0.85) {
-  let g = new THREE.IcosahedronGeometry(1, 2);
-  g.deleteAttribute("normal");
-  g.deleteAttribute("uv");
-  g = mergeVertices(g);
-  const r = criarRuido(semente);
-  const p = g.attributes.position;
-  const cores = new Float32Array(p.count * 3);
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const n = r(x * 1.7 + z * 0.8 + 3, y * 1.7 + z * 1.2 + 7, 2);
-    const k = raio * (0.8 + n * 0.4);
-    p.setXYZ(i, cx + x * k, cy + y * k * achatar, cz + z * k);
-    const l = 0.84 + n * 0.26 + y * 0.05;
-    cores.set([l, l, l], i * 3);
-  }
-  g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
-  g.computeVertexNormals();
-  return g.toNonIndexed();
-}
-
-/**
- * Copa lobada: agrupa os pontos das folhas geradas pelo ez-tree (k-means) e põe
- * um volume irregular em cada grupo. As folhas em si NÃO são desenhadas: a copa
- * é um corpo só, que balança junto com o tronco.
- */
-function copaLobada(folhas, k, rng, fator) {
-  const p = folhas.attributes.position;
-  const pts = [];
-  for (let i = 0; i < p.count; i += 4) pts.push(new THREE.Vector3().fromBufferAttribute(p, i));
-  if (pts.length < k) return null;
-  const centros = Array.from({ length: k }, () => pts[Math.floor(rng() * pts.length)].clone());
-  const grupo = new Int32Array(pts.length);
-  for (let it = 0; it < 10; it++) {
-    pts.forEach((v, i) => {
-      let m = Infinity;
-      centros.forEach((c, j) => {
-        const d = v.distanceToSquared(c);
-        if (d < m) { m = d; grupo[i] = j; }
-      });
-    });
-    const soma = centros.map(() => [new THREE.Vector3(), 0]);
-    pts.forEach((v, i) => { soma[grupo[i]][0].add(v); soma[grupo[i]][1]++; });
-    soma.forEach(([v, n], j) => n && centros[j].copy(v.divideScalar(n)));
-  }
-  const partes = [];
-  centros.forEach((c, j) => {
-    let d = 0, n = 0;
-    pts.forEach((v, i) => { if (grupo[i] === j) { d += v.distanceTo(c); n++; } });
-    if (n < 6) return;
-    partes.push(volumeIrregular((d / n) * fator, c.x, c.y, c.z, Math.floor(rng() * 1e6)));
-  });
-  return partes.length ? juntar(partes) : null;
-}
-
-/** Junta geometrias não indexadas (posição, normal, cor) num só buffer, sem dependências extras. */
-function juntar(partes) {
-  const total = partes.reduce((n, g) => n + g.attributes.position.count, 0);
-  const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), cor = new Float32Array(total * 3).fill(1);
-  let o = 0;
-  for (const g of partes) {
-    if (!g.attributes.normal) g.computeVertexNormals();
-    pos.set(g.attributes.position.array, o * 3);
-    nor.set(g.attributes.normal.array, o * 3);
-    if (g.attributes.color) cor.set(g.attributes.color.array, o * 3);
-    o += g.attributes.position.count;
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
-  geo.setAttribute("color", new THREE.BufferAttribute(cor, 3));
-  return geo;
-}
-
-/**
- * Pinheiro: cones empilhados com a BORDA SERRILHADA (pontas para fora/dentro),
- * a base de cada camada mais escura (sombra da camada de cima).
- */
-function copaEmCamadas(folhas, camadas, rng) {
-  const bb = folhas.boundingBox;
-  const base = bb.min.y + (bb.max.y - bb.min.y) * 0.12;
-  const topo = bb.max.y;
-  const raioBase = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * 0.42;
-  const partes = [];
-  for (let i = 0; i < camadas; i++) {
-    const t = i / camadas;
-    const alt = (topo - base) * (0.34 - t * 0.04);
-    const r = raioBase * (1 - t * 0.78) * (0.92 + rng() * 0.16);
-    let g = new THREE.ConeGeometry(r, alt, 14, 2, true);
-    g.deleteAttribute("normal");
-    g.deleteAttribute("uv");
-    g = mergeVertices(g);
-    const p = g.attributes.position;
-    const cores = new Float32Array(p.count * 3);
-    for (let k = 0; k < p.count; k++) {
-      const x = p.getX(k), y = p.getY(k), z = p.getZ(k);
-      const naBorda = y < -alt / 2 + 1e-3;
-      if (naBorda) {
-        // Serrilhado: vértices alternam para fora e um pouco para baixo.
-        const a = Math.atan2(z, x);
-        const dente = Math.round((a / (Math.PI * 2)) * 14) % 2 === 0 ? 1.12 : 0.9;
-        p.setXYZ(k, x * dente, y - (dente > 1 ? alt * 0.08 : 0), z * dente);
-      }
-      const l = naBorda ? 0.82 : 0.95 + (y / alt) * 0.15;
-      cores.set([l, l, l], k * 3);
-    }
-    g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
-    g.computeVertexNormals();
-    g.rotateY(rng() * 6.28);
-    g.translate((rng() - 0.5) * r * 0.12, base + (topo - base) * t * 0.82 + alt / 2, (rng() - 0.5) * r * 0.12);
-    partes.push(g.toNonIndexed());
-  }
-  return juntar(partes);
-}
-
-/** Salgueiro: lâminas pendentes saindo da borda externa da copa (riscos caindo, em pixel). */
-function cortinaPendente(folhas, rng) {
-  const p = folhas.attributes.position;
-  const bb = folhas.boundingBox;
-  const cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2;
-  const raio = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2;
-  const meio = (bb.min.y + bb.max.y) / 2;
-  const partes = [];
-  for (let i = 0; i < p.count && partes.length < 70; i += 7) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    if (y < meio || Math.hypot(x - cx, z - cz) < raio * 0.55 || rng() < 0.4) continue;
-    const comp = (bb.max.y - bb.min.y) * (0.35 + rng() * 0.3);
-    const g = new THREE.PlaneGeometry(raio * 0.1, comp, 1, 3);
-    const q = g.attributes.position;
-    const cores = new Float32Array(q.count * 3);
-    for (let k = 0; k < q.count; k++) {
-      const v = (q.getY(k) + comp / 2) / comp;
-      q.setZ(k, (1 - v) * (1 - v) * raio * 0.12);
-      const l = 0.82 + v * 0.18;
-      cores.set([l, l, l], k * 3);
-    }
-    g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
-    g.rotateY(Math.atan2(x - cx, z - cz));
-    g.translate(x, y - comp / 2, z);
-    partes.push(g.index ? g.toNonIndexed() : g);
-  }
-  return partes.length ? juntar(partes) : null;
-}
-
-/** Arbusto: 2–4 volumes baixos agrupados, sem tronco aparente. */
-function moita(rng) {
-  const n = 2 + Math.floor(rng() * 3);
-  const partes = [];
-  for (let i = 0; i < n; i++) {
-    const a = rng() * 6.28, d = i === 0 ? 0 : 0.35 + rng() * 0.35;
-    const r = 0.55 + rng() * 0.35;
-    partes.push(volumeIrregular(r, Math.cos(a) * d, r * 0.7, Math.sin(a) * d, Math.floor(rng() * 1e6), 0.75));
-  }
-  return juntar(partes);
-}
-
 // ---------------------------------------------------------------------------
 // Cena
 // ---------------------------------------------------------------------------
@@ -339,13 +113,14 @@ export class Jardim {
     this.yawAlvo = this.yaw;
     this.pitch = THREE.MathUtils.degToRad(38);
     this.altura = 70; // metros visíveis na vertical
-    this.tamPixel = 4;
+    this.tamPixel = 2; // estilo definido: pixel mínimo, sempre com contorno
     this.crescimento = 0.9;
     this.cresceVisto = -1;
     this.forcaVento = 0.55;
     this.hora = "dia";
     this.relogio = new THREE.Timer();
-    this.materiaisVento = [];
+    // Material único das árvores: cor por vértice (gerador) × tom do indivíduo.
+    this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
     this.individuos = [];
     this.grupos = [];
     this.pixel = criarMaterialPixel();
@@ -381,6 +156,7 @@ export class Jardim {
     progresso(0.78, "Plantando o bosque…");
     await quadro();
     this.plantar();
+    this.montarViveiro();
     this.criarDetalhes();
 
     progresso(0.9, "Acendendo a luz…");
@@ -479,75 +255,21 @@ export class Jardim {
 
   // --- Árvores ------------------------------------------------------------
 
-  /**
-   * Uma VARIAÇÃO é um modelo pronto de uma espécie (galhos + copa num corpo só).
-   * Vários indivíduos podem usar a mesma variação (instancing): leve para a GPU,
-   * mas cada indivíduo tem seus próprios dados (ver plantar()).
-   */
+  /** Uma VARIAÇÃO: os 4 estágios (modelos diferentes) de uma espécie, do gerador próprio. */
   gerarVariacao(id, e, semente) {
-    const rng = criarRng(semente);
-    if (e.arbusto) {
-      const copa = moita(rng);
-      copa.computeBoundingBox();
-      const alvo = e.altura[0] + rng() * (e.altura[1] - e.altura[0]);
-      const topo = copa.boundingBox.max.y;
-      return { especie: id, galhos: null, copa, matGalhos: null, matCopa: this.materialCopa(e, topo, true), escala: alvo / topo, altura: alvo };
-    }
-    const tree = new Tree();
-    tree.loadPreset(e.preset);
-    tree.options.seed = Math.floor(rng() * 1e6);
-    economizar(tree.options, 0.7, 0.5);
-    if (e.barkType) tree.options.bark.type = BarkType[e.barkType];
-    if (e.pendente) {
-      tree.options.leaves.type = LeafType.Aspen;
-      tree.options.branch.force.strength = -0.05;
-      tree.options.branch.angle[2] = 75;
-    }
-    tree.generate();
-    const galhos = tree.branchesMesh.geometry, folhas = tree.leavesMesh.geometry;
-    galhos.computeBoundingBox();
-    folhas.computeBoundingBox();
-    const topo = Math.max(galhos.boundingBox.max.y, folhas.boundingBox.max.y);
-    const alvo = e.altura[0] + rng() * (e.altura[1] - e.altura[0]);
-    let copa;
-    if (e.copa.forma === "camadas") copa = copaEmCamadas(folhas, e.copa.camadas, rng);
-    else {
-      copa = copaLobada(folhas, e.copa.grupos, rng, e.copa.fator);
-      if (e.copa.forma === "pendente") {
-        const cortina = cortinaPendente(folhas, rng);
-        if (copa && cortina) copa = juntar([copa, cortina]);
-      }
-    }
-    // Galhos e copa com o MESMO vento (mesma altura de referência): a árvore
-    // inteira se inclina como um corpo; a base do tronco fica parada.
-    const matGalhos = vento(
-      toon({ color: e.casca === "betula" ? BASE.cascaBetula : e.casca }),
-      0.35, topo, false, 1, e.casca === "betula" ? marcasDeBetula : null,
-    );
-    this.materiaisVento.push(matGalhos);
-    folhas.dispose();
-    return { especie: id, galhos, copa, matGalhos, matCopa: this.materialCopa(e, topo, false), escala: alvo / Math.max(1, topo), altura: alvo };
-  }
-
-  materialCopa(e, topo, arbusto) {
-    const mat = vento(
-      toon({ color: e.cor, vertexColors: true, side: e.copa.forma === "pendente" ? THREE.DoubleSide : THREE.FrontSide }),
-      arbusto ? 0.1 : 0.35, topo,
-    );
-    this.materiaisVento.push(mat);
-    return mat;
+    return { especie: id, ...construirVariacao(e, semente) };
   }
 
   /**
-   * Indivíduos: cada árvore/arbusto do mapa é uma entidade própria — número,
-   * espécie, posição, crescimento, estágio e tom. O desenho agrupa por variação
-   * (instancing), e cada indivíduo sabe o seu lugar ("vaga") nesse grupo.
+   * Indivíduos: cada árvore/arbusto é uma entidade própria (número, espécie,
+   * posição, crescimento, estágio, tom). O desenho agrupa por variação, com
+   * uma malha instanciada por ESTÁGIO; o indivíduo aparece só na do seu estágio.
    */
   plantar() {
     const rng = criarRng(this.mundo.semente ^ 0x1234567);
     const porEspecie = new Map();
     for (const v of this.variacoes) porEspecie.set(v.especie, [...(porEspecie.get(v.especie) ?? []), v]);
-    const DEGRAUS = [0.86, 1, 1, 1.13];
+    const DEGRAUS = [0.88, 1, 1, 1.1];
     const porVariacao = new Map();
     this.ambiente = criarAmbiente(this.mundo);
     this.individuos = [];
@@ -563,62 +285,66 @@ export class Jardim {
         nome: ESPECIES[especie].nome,
         x: o.x,
         z: o.y,
-        y: this.alturaEm(o.x, o.y) - 0.15,
+        y: this.alturaEm(o.x, o.y) - 0.1,
         giro: o.giro,
-        inclinacao: [(rng() - 0.5) * 0.08, (rng() - 0.5) * 0.08],
-        escala: variacao.escala * o.escala,
-        altura: variacao.altura * o.escala,
+        inclinacao: [(rng() - 0.5) * 0.06, (rng() - 0.5) * 0.06],
+        escala: o.escala,
+        altura: variacao.alturaAdulta * o.escala,
         nasce: o.nasce,
         tom: DEGRAUS[Math.floor(rng() * DEGRAUS.length)],
         estagio: null,
+        indice: -1,
         variacao,
       };
       this.individuos.push(ind);
       porVariacao.set(variacao, [...(porVariacao.get(variacao) ?? []), ind]);
     }
-    // Competição por luz entre vizinhos ⇒ vigor. Vigor muda o tamanho final e a
-    // velocidade: árvore bem adaptada e com luz cresce antes e maior.
+    // Competição por luz entre vizinhos ⇒ vigor: tamanho final e velocidade.
     competirPorLuz(this.individuos, this.ambiente);
     for (const ind of this.individuos) {
-      ind.escala *= 0.78 + 0.32 * ind.vigor;
+      ind.escala *= 0.82 + 0.26 * ind.vigor;
       if (ind.nasce > 0) ind.nasce = Math.min(0.95, Math.max(0.02, ind.nasce + (0.55 - ind.vigor) * 0.25));
     }
     this.grupos = [];
+    this.malhaParaGrupo = new Map();
     const tom = new THREE.Color();
     for (const [variacao, membros] of porVariacao) {
-      const copa = new THREE.InstancedMesh(variacao.copa, variacao.matCopa, membros.length);
-      const galhos = variacao.galhos ? new THREE.InstancedMesh(variacao.galhos, variacao.matGalhos, membros.length) : null;
-      const grupo = { variacao, membros, copa, malhas: [copa, galhos].filter(Boolean) };
-      membros.forEach((ind, vaga) => {
-        ind.grupo = grupo;
-        ind.vaga = vaga;
-        copa.setColorAt(vaga, tom.setScalar(ind.tom));
-      });
-      for (const im of grupo.malhas) {
+      const malhas = variacao.estagios.map((geo) => {
+        const im = new THREE.InstancedMesh(geo, this.matArvore, membros.length);
         im.castShadow = im.receiveShadow = true;
         im.frustumCulled = false;
         this.scene.add(im);
-      }
+        return im;
+      });
+      const grupo = { variacao, membros, malhas };
+      membros.forEach((ind, vaga) => {
+        ind.grupo = grupo;
+        ind.vaga = vaga;
+        for (const im of malhas) im.setColorAt(vaga, tom.setScalar(ind.tom));
+      });
+      malhas.forEach((im, estagio) => this.malhaParaGrupo.set(im, { grupo, estagio }));
       this.grupos.push(grupo);
     }
   }
 
-  /** Aplica a regra de crescimento a cada indivíduo (estágio + tamanho). */
+  /** Regra de crescimento de cada indivíduo: estágio (modelo) + tamanho. */
   atualizarCrescimento(forcar = false) {
     if (this.cresceVisto < 0) this.cresceVisto = this.crescimento;
     const delta = this.crescimento - this.cresceVisto;
     if (!forcar && Math.abs(delta) < 0.001) return;
     if (!forcar) this.cresceVisto += delta * 0.08;
     const g = this.cresceVisto;
+    const zero = new THREE.Matrix4().makeScale(0, 0, 0);
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), s = new THREE.Vector3();
     for (const grupo of this.grupos) {
       for (const ind of grupo.membros) {
-        const gf = ind.nasce === 0 ? 1 : suave(ind.nasce, ind.nasce + 0.22, g);
-        const { estagio, escala } = estagioDe(gf);
+        const gf = ind.nasce === 0 ? 1 : suave(ind.nasce, ind.nasce + 0.3, g);
+        const { indice, estagio, escala } = estagioDe(gf);
         ind.estagio = estagio;
+        ind.indice = indice;
         q.setFromEuler(e.set(ind.inclinacao[0], ind.giro, ind.inclinacao[1]));
         m.compose(p.set(ind.x, ind.y, ind.z), q, s.setScalar(ind.escala * escala));
-        for (const im of grupo.malhas) im.setMatrixAt(ind.vaga, m);
+        grupo.malhas.forEach((im, est) => im.setMatrixAt(ind.vaga, est === indice ? m : zero));
       }
       for (const im of grupo.malhas) {
         im.instanceMatrix.needsUpdate = true;
@@ -638,22 +364,36 @@ export class Jardim {
   selecionarNDC(ndc) {
     const ray = new THREE.Raycaster();
     ray.setFromCamera(ndc, this.camera);
-    const alvos = this.grupos.map((g) => g.copa);
-    const hit = ray.intersectObjects(alvos, false)[0];
     const anterior = this.selecionado;
-    if (anterior) anterior.grupo.copa.setColorAt(anterior.vaga, new THREE.Color().setScalar(anterior.tom));
+    const cor = new THREE.Color();
+    if (anterior) for (const im of anterior.grupo.malhas) im.setColorAt(anterior.vaga, cor.setScalar(anterior.tom));
     this.selecionado = null;
-    if (hit && hit.instanceId !== undefined) {
-      const grupo = this.grupos.find((g) => g.copa === hit.object);
-      const ind = grupo.membros[hit.instanceId];
-      if (ind.estagio) {
+    const peca = ray.intersectObjects(this.viveiro ?? [], false)[0];
+    if (peca) {
+      const d = peca.object.userData.viveiro;
+      const def = ESPECIES[d.especie];
+      const enfeite = def.fruto ?? def.flor;
+      const ESTAG = ["Broto", "Muda", "Jovem", "Adulta"];
+      for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
+      return this.aoSelecionar?.({ numero: "viveiro", nome: d.nome, especie: d.especie, estagio: ESTAG[d.estagio], extra: ["Vitrine do viveiro", ...(enfeite ? [`Adulta: com ${enfeite.nome}`] : [])] });
+    }
+    for (const hit of ray.intersectObjects(this.grupos.flatMap((g) => g.malhas), false)) {
+      const info = this.malhaParaGrupo.get(hit.object);
+      const ind = info?.grupo.membros[hit.instanceId];
+      if (ind && ind.indice === info.estagio) {
         this.selecionado = ind;
-        grupo.copa.setColorAt(ind.vaga, new THREE.Color().setScalar(ind.tom * 1.35));
+        ind.grupo.malhas[ind.indice].setColorAt(ind.vaga, cor.setScalar(ind.tom * 1.35));
+        break;
       }
     }
-    for (const g of this.grupos) g.copa.instanceColor.needsUpdate = true;
+    for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
     const i = this.selecionado;
-    this.aoSelecionar?.(i ? { numero: i.numero, nome: i.nome, especie: i.especie, estagio: i.estagio.nome, extra: descrever(i) } : null);
+    if (!i) return this.aoSelecionar?.(null);
+    const def = ESPECIES[i.especie];
+    const extra = descrever(i);
+    const enfeite = def.fruto ?? def.flor;
+    if (enfeite) extra.push(i.indice === 3 ? `Com ${enfeite.nome}` : `${enfeite.nome[0].toUpperCase()}${enfeite.nome.slice(1)} quando adulta`);
+    this.aoSelecionar?.({ numero: i.numero, nome: i.nome, especie: i.especie, estagio: i.estagio.nome, extra });
   }
 
   // --- Capim, flores, pedras, troncos -------------------------------------
@@ -668,8 +408,7 @@ export class Jardim {
     // tinta não o enxerga, então as lâminas não ganham riscos que piscam; ele se
     // lê pela cor (base escura, ponta clara). Desenhado depois dos opacos, ainda
     // fica corretamente atrás de troncos e pedras.
-    const matCapim = vento(toon({ vertexColors: true, side: THREE.DoubleSide, depthWrite: false }), 0.16, 0, false, 0.5);
-    this.materiaisVento.push(matCapim);
+    const matCapim = toon({ vertexColors: true, side: THREE.DoubleSide, depthWrite: false });
     for (let f = 0; f < 3; f++) {
       const max = 2600;
       const im = new THREE.InstancedMesh(touceira(criarRng(m.semente + f)), matCapim, max);
@@ -885,8 +624,46 @@ export class Jardim {
   }
 
   limitar() {
+    // O viveiro fica além da borda sul do mapa: a câmera pode ir até lá.
     this.alvo.x = THREE.MathUtils.clamp(this.alvo.x, 0, this.mundo.largura);
-    this.alvo.z = THREE.MathUtils.clamp(this.alvo.z, 0, this.mundo.altura);
+    this.alvo.z = THREE.MathUtils.clamp(this.alvo.z, 0, this.mundo.altura + 40);
+  }
+
+  /**
+   * Viveiro: vitrine de todas as espécies e seus 4 estágios, em fileiras,
+   * numa faixa plana além da borda sul do mapa. Serve para revisar a arte.
+   */
+  montarViveiro() {
+    const ids = Object.keys(ESPECIES);
+    const porLinha = Math.ceil(ids.length / 2);
+    const z0 = this.mundo.altura + 14;
+    this.viveiro = [];
+    ids.forEach((id, n) => {
+      const v = this.variacoes.find((x) => x.especie === id);
+      const col = n % porLinha, bloco = Math.floor(n / porLinha);
+      v.estagios.forEach((geo, e) => {
+        const malha = new THREE.Mesh(geo, this.matArvore);
+        // Estágios da esquerda (broto) para a direita (adulta), com espaço para a copa.
+        const x = 10 + col * 15 + [-6, -4, -1.2, 4][e];
+        const z = z0 + bloco * 20;
+        malha.position.set(x, this.alturaEm(x, z), z);
+        malha.castShadow = malha.receiveShadow = true;
+        malha.userData.viveiro = { nome: ESPECIES[id].nome, estagio: e, especie: id };
+        this.scene.add(malha);
+        this.viveiro.push(malha);
+      });
+    });
+  }
+
+  /** Leva a câmera ao viveiro (ou de volta ao bosque). */
+  irAoViveiro(ir = true) {
+    if (ir) {
+      this.alvo.set(14, 0, this.mundo.altura + 22);
+      this.altura = 46;
+    } else {
+      this.alvo.set(this.mundo.largura * 0.55, 0, this.mundo.altura * 0.55);
+      this.altura = 70;
+    }
   }
 
   zoom(f) {
@@ -899,7 +676,6 @@ export class Jardim {
   // --- API da página ------------------------------------------------------
 
   setCrescimento(v) { this.crescimento = v; }
-  setVento(v) { this.forcaVento = v; }
   setHora(h) { this.hora = h; this.aplicarHora(); }
   setTamPixel(p) { this.tamPixel = p; this.redimensionar(); }
   setContorno(on) { this.pixel.uniforms.uContorno.value = on ? 1 : 0; }
@@ -917,13 +693,6 @@ export class Jardim {
     if (k.has("a") || k.has("arrowleft")) this._mover(v, 0);
     if (k.has("d") || k.has("arrowright")) this._mover(-v, 0);
     this.yaw += (this.yawAlvo - this.yaw) * Math.min(1, dt * 7);
-    for (const mat of this.materiaisVento) {
-      const sh = mat.userData.shader;
-      if (!sh) continue;
-      sh.uniforms.uTime.value = t;
-      sh.uniforms.uForca.value = mat.userData.forcaBase * this.forcaVento * 1.6;
-      sh.uniforms.uPasso.value = this.pixel.uniforms.uTexel.value;
-    }
     const sa = this.agua.material.userData.shader;
     if (sa) {
       sa.uniforms.uTime.value = t;

@@ -5,9 +5,9 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
 ## Regras
 
 1. **Idioma:** responda e comente em **português do Brasil**.
-2. **Site estático, sem build:** HTML + módulos JS (ES modules). Bibliotecas só pelo `importmap` do `index.html` (three 0.186.1, ez-tree 1.1.0, via jsDelivr). Nada de bundler, npm install ou frameworks.
+2. **Site estático, sem build:** HTML + módulos JS (ES modules). Bibliotecas só pelo `importmap` do `index.html` (three 0.186.1 via jsDelivr). As árvores são do gerador próprio (`src/arvoreProc.js`). Nada de bundler, npm install ou frameworks.
 3. **Caminhos relativos** (`./src/...`): a demo roda no GitHub Pages, num subcaminho.
-4. **Direção de arte é contrato** (README §1): pixel art de cena 3D, câmera ortográfica ¾, toon em 3 faixas, sombras duras, contorno de 1 px, **toda cor quantizada para a paleta de `src/paleta.js`**. Para mudar o visual, ajuste rampas/materiais; não remova a quantização nem o contorno sem pedido explícito.
+4. **Direção de arte é contrato** (README §1): pixel art de cena 3D com pixel MÍNIMO (2) e contorno SEMPRE ligado, câmera ortográfica ¾, toon em 3 faixas, sombras duras, SEM vento, **toda cor quantizada para a paleta de `src/paleta.js`**. Para mudar o visual, ajuste rampas/materiais; não remova a quantização nem o contorno sem pedido explícito.
 5. **Determinismo:** o mundo sai da semente (`src/mundo.js`). Não use `Math.random()` na geração; use `criarRng(semente)`.
 6. **Escopo pequeno:** uma melhoria por vez (ver README §4). Atualize o README (estado atual / próximos passos) no mesmo commit.
 7. **Teste antes de concluir:** sirva a pasta (`npx http-server -p 5600 -c-1`), abra a página, confira que carrega sem erros no console e descreva o que mudou visualmente.
@@ -25,7 +25,8 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
 - `src/pixel.js` — pós-processamento de pixel art
 - `src/paleta.js` — paleta (fonte única de cor)
 - `src/mundo.js` — geração do mundo (terreno, lago, trilha, posições)
-- `src/especies.js` — catálogo de espécies (regras, nichos, estágios)
+- `src/especies.js` — catálogo de espécies (forma, cores, flores/frutos, nicho)
+- `src/arvoreProc.js` — gerador de árvores: formas e os 4 estágios de cada espécie
 - `src/ecossistema.js` — umidade, luz, aptidão, competição, vigor
 - `historico.json` → `historico.html` — painel visual: progresso por frente, quadro de pendências, linha do tempo com imagens
 - `window.jardim` no console — acesso à cena para inspeção

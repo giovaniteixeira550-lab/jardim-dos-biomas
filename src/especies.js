@@ -1,91 +1,166 @@
 /**
  * Catálogo de espécies — as REGRAS de cada árvore, separadas do motor gráfico.
  *
- * Para criar uma espécie nova: acrescente uma entrada aqui (forma da copa,
- * cores, altura, habitat). O motor (cena.js) não precisa mudar.
+ * Para criar uma espécie nova, acrescente uma entrada aqui. O gerador
+ * (arvoreProc.js) e o motor (cena.js) não precisam mudar, desde que a FORMA
+ * já exista. Formas: redonda, oval, conica, colunar, pendente, guarda-chuva,
+ * palmeira, araucaria, cogumelo, moita.
  *
- * NICHO (ecologia real, simplificada): umidade = [ótimo, tolerância] do solo
- * (0 seco … 1 encharcado); sombra = tolerância à sombra (0 precisa de sol pleno …
- * 1 cresce sob dossel); altitude = [ótimo, tolerância] relativa (0 baixada … 1 alto).
- * O ecossistema (ecossistema.js) usa o nicho para decidir onde cada espécie
- * prospera e quão vigorosa cada árvore fica.
- *
- * Cada árvore do mapa é um indivíduo (ver `Arvore` em cena.js) com espécie,
- * posição, estágio e tom próprios; a espécie só diz COMO ela cresce e onde vive.
+ * Campos:
+ *  - forma / formaJovem: arquitetura (a jovem pode ser outra, como na natureza)
+ *  - altura [min, max] em metros da adulta; largura e grossura: proporções
+ *  - cores: folha (e folha2 para manchas), casca, broto; folhaJovem (cor antes
+ *    de florescer, nas floríferas); cogumelo: pinta, lamela
+ *  - flor / fruto: { cor, raio, quantidade, nome } — aparecem na adulta
+ *  - marcas: casca de bétula
+ *  - nicho (ecologia, simplificada): umidade = [ótimo, tolerância] do solo
+ *    (0 seco … 1 encharcado); sombra = tolerância (0 precisa de sol … 1 sob
+ *    dossel); altitude = [ótimo, tolerância] relativa (0 baixada … 1 alto).
+ *  - raridade: peso no sorteio (1 comum … 0,05 raríssima)
  */
-import { BASE, RAMPAS } from "./paleta.js";
+import { RAMPAS as R } from "./paleta.js";
 
 /**
- * Estágios de vida, comuns a todas as espécies (frações do crescimento do indivíduo).
- * `escala` = tamanho relativo à adulta. Nada morre: o mínimo é a muda.
+ * Estágios de vida (os mesmos para todas as espécies). `ate` = fração do
+ * crescimento do indivíduo. Cada estágio é um MODELO próprio (arvoreProc.js).
+ * Nada morre: o mínimo é o broto.
  */
 export const ESTAGIOS = [
-  { id: "muda", nome: "Muda", ate: 0.3, escala: 0.3 },
-  { id: "jovem", nome: "Jovem", ate: 0.75, escala: 0.65 },
-  { id: "adulta", nome: "Adulta", ate: 1.01, escala: 1 },
+  { id: "broto", nome: "Broto", ate: 0.2 },
+  { id: "muda", nome: "Muda", ate: 0.45 },
+  { id: "jovem", nome: "Jovem", ate: 0.75 },
+  { id: "adulta", nome: "Adulta", ate: Infinity },
 ];
 
-/** Estágio e escala contínua de um indivíduo para um crescimento 0..1. */
+/** Estágio de um crescimento 0..1, com leve crescimento dentro do estágio. */
 export function estagioDe(g) {
-  if (g <= 0.01) return { estagio: null, escala: 0 };
-  const e = ESTAGIOS.find((x) => g < x.ate) ?? ESTAGIOS[ESTAGIOS.length - 1];
-  // Escala contínua (cresce suave entre estágios), com mínimo de muda visível.
-  return { estagio: e, escala: 0.22 + 0.78 * Math.min(1, g) };
+  if (g <= 0.01) return { indice: -1, estagio: null, escala: 0 };
+  const i = ESTAGIOS.findIndex((e) => g < e.ate);
+  const inicio = i === 0 ? 0 : ESTAGIOS[i - 1].ate;
+  const fim = Math.min(1, ESTAGIOS[i].ate);
+  const t = Math.min(1, Math.max(0, (g - inicio) / Math.max(0.01, fim - inicio)));
+  return { indice: i, estagio: ESTAGIOS[i], escala: 0.86 + 0.14 * t };
 }
 
-/**
- * Forma da copa:
- *  - "lobada": vários volumes irregulares agrupados (folhosas)
- *  - "camadas": cones empilhados com borda serrilhada (coníferas)
- *  - "pendente": copa lobada + cortina de galhos caídos (salgueiro)
- *  - "moita": 2–4 volumes baixos, sem tronco aparente (arbustos)
- */
+const CASCA = R.terra[1];
+
 export const ESPECIES = {
+  // --- Folhosas clássicas (melhoradas) ------------------------------------
   carvalho: {
-    nicho: { umidade: [0.5, 0.2], sombra: 0.65, altitude: null }, raridade: 1, // tolera sombra; evita solo encharcado; domina o bosque maduro
-    nome: "Carvalho", preset: "Oak Large", altura: [10, 13], variacoes: 3,
-    copa: { forma: "lobada", grupos: 10, fator: 1.02 }, cor: BASE.carvalho, casca: BASE.casca,
+    nome: "Carvalho", forma: "redonda", altura: [10, 13], largura: 1.3, grossura: 1.5,
+    cores: { folha: R.mata[3], folha2: R.mata[2], casca: CASCA }, variacoes: 2,
+    nicho: { umidade: [0.5, 0.2], sombra: 0.65, altitude: null }, raridade: 1, // tolera sombra; domina o bosque maduro
   },
   freixo: {
-    nicho: { umidade: [0.7, 0.22], sombra: 0.5, altitude: [0.3, 0.3] }, raridade: 1, // solo úmido de fundo de vale
-    nome: "Freixo", preset: "Ash Medium", altura: [10, 13], variacoes: 2,
-    copa: { forma: "lobada", grupos: 7, fator: 0.95 }, cor: BASE.freixo, casca: BASE.casca,
+    nome: "Freixo", forma: "oval", altura: [10, 13], largura: 1.1,
+    cores: { folha: R.mata[4], folha2: R.mata[3], casca: R.terra[2] }, variacoes: 2,
+    nicho: { umidade: [0.7, 0.22], sombra: 0.5, altitude: [0.3, 0.3] }, raridade: 1, // fundo de vale úmido
   },
   betula: {
-    nicho: { umidade: [0.5, 0.32], sombra: 0.15, altitude: null }, raridade: 1, // pioneira: precisa de luz, coloniza clareiras
-    nome: "Bétula", preset: "Aspen Medium", altura: [9, 12], variacoes: 2, casca: "betula", barkType: "Birch",
-    copa: { forma: "lobada", grupos: 6, fator: 0.85 }, cor: BASE.betula,
+    nome: "Bétula", forma: "oval", altura: [9, 12], largura: 0.8, grossura: 0.8, marcas: true,
+    cores: { folha: R.mata[5], folha2: R.mata[4], casca: R.betula[0] }, variacoes: 2,
+    nicho: { umidade: [0.5, 0.32], sombra: 0.15, altitude: null }, raridade: 1, // pioneira de luz
   },
   pinheiro: {
-    nicho: { umidade: [0.25, 0.2], sombra: 0.35, altitude: [0.75, 0.3] }, raridade: 1, // solo seco, terreno mais alto
-    nome: "Pinheiro", preset: "Pine Medium", altura: [11, 15], variacoes: 3,
-    copa: { forma: "camadas", camadas: 5 }, cor: BASE.pinheiro, casca: BASE.casca,
+    nome: "Pinheiro", forma: "conica", altura: [11, 15], largura: 1,
+    cores: { folha: R.mata[2], casca: CASCA }, variacoes: 2,
+    nicho: { umidade: [0.25, 0.2], sombra: 0.35, altitude: [0.75, 0.3] }, raridade: 1, // seco e alto
   },
   salgueiro: {
-    nicho: { umidade: [0.85, 0.15], sombra: 0.2, altitude: null }, raridade: 1, // solo encharcado, beira d'água, sol pleno
-    nome: "Salgueiro", preset: "Ash Medium", altura: [8, 10], variacoes: 2, barkType: "Willow", pendente: true,
-    copa: { forma: "pendente", grupos: 7, fator: 0.95 }, cor: BASE.salgueiro, casca: BASE.casca,
+    nome: "Salgueiro", forma: "pendente", altura: [8, 10], largura: 1.1,
+    cores: { folha: R.mata[4], folha2: R.mata[5], casca: R.terra[2] }, variacoes: 2,
+    nicho: { umidade: [0.85, 0.15], sombra: 0.2, altitude: null }, raridade: 1, // beira d'água
   },
-  outonal: {
-    nicho: { umidade: [0.55, 0.25], sombra: 0.8, altitude: null }, raridade: 0.1, // bordo: muito tolerante à sombra
-    nome: "Bordo de outono", preset: "Oak Small", altura: [7, 9], variacoes: 2,
-    copa: { forma: "lobada", grupos: 6, fator: 0.95 }, cor: BASE.outonal, casca: BASE.casca,
-  },
-  dourada: {
-    nicho: { umidade: [0.5, 0.3], sombra: 0.15, altitude: null }, raridade: 0.2, // como a bétula, em borda ensolarada
-    nome: "Bétula dourada", preset: "Aspen Small", altura: [7, 9], variacoes: 1, casca: "betula", barkType: "Birch",
-    copa: { forma: "lobada", grupos: 5, fator: 0.85 }, cor: BASE.dourada,
+  bordo: {
+    nome: "Bordo de outono", forma: "redonda", altura: [7, 9], largura: 1.05,
+    cores: { folha: R.outono[2], folha2: R.outono[3], casca: CASCA }, variacoes: 2,
+    nicho: { umidade: [0.55, 0.25], sombra: 0.8, altitude: null }, raridade: 0.1, // muito tolerante à sombra
   },
   cerejeira: {
-    nicho: { umidade: [0.5, 0.25], sombra: 0.2, altitude: null }, raridade: 0.2, // borda de mata, sol
-    nome: "Cerejeira", preset: "Ash Small", altura: [6, 8], variacoes: 1,
-    copa: { forma: "lobada", grupos: 6, fator: 1.0 }, cor: BASE.cerejeira, casca: BASE.casca,
+    nome: "Cerejeira", forma: "redonda", altura: [6, 8], largura: 1.15,
+    cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.flor[2], folha2: R.flor[1], casca: R.terra[1] }, variacoes: 2,
+    flor: { cor: R.flor[3], raio: 0.22, quantidade: 26, achatar: 0.6, nome: "flores" },
+    nicho: { umidade: [0.5, 0.25], sombra: 0.2, altitude: null }, raridade: 0.2,
   },
+  betulaDourada: {
+    nome: "Bétula dourada", forma: "oval", altura: [7, 9], largura: 0.8, grossura: 0.75, marcas: true,
+    cores: { folha: R.amarelo[1], folha2: R.outono[3], casca: R.betula[0], broto: R.mata[5] }, variacoes: 1,
+    nicho: { umidade: [0.5, 0.3], sombra: 0.15, altitude: null }, raridade: 0.15,
+  },
+
+  // --- Frutíferas ----------------------------------------------------------
+  macieira: {
+    nome: "Macieira", forma: "redonda", altura: [5, 7], largura: 1.15, grossura: 1.1,
+    cores: { folha: R.mata[4], folha2: R.mata[3], casca: R.terra[2] }, variacoes: 2,
+    fruto: { cor: R.vermelho[1], raio: 0.17, quantidade: 22, nome: "maçãs" },
+    nicho: { umidade: [0.5, 0.25], sombra: 0.25, altitude: null }, raridade: 0.3,
+  },
+  laranjeira: {
+    nome: "Laranjeira", forma: "redonda", altura: [5, 7], largura: 1.0,
+    cores: { folha: R.mata[2], folha2: R.mata[3], casca: R.terra[1] }, variacoes: 2,
+    fruto: { cor: R.outono[3], raio: 0.16, quantidade: 26, nome: "laranjas" },
+    nicho: { umidade: [0.45, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
+  },
+  coqueiro: {
+    nome: "Coqueiro", forma: "palmeira", altura: [9, 12],
+    cores: { folha: R.mata[4], casca: R.terra[3], broto: R.mata[4] }, variacoes: 2,
+    fruto: { cor: R.terra[1], raio: 0.26, quantidade: 5, nome: "cocos" },
+    nicho: { umidade: [0.75, 0.2], sombra: 0.15, altitude: [0.25, 0.3] }, raridade: 0.3, // baixada úmida e ensolarada
+  },
+
+  // --- Floríferas brasileiras ---------------------------------------------
+  ipeAmarelo: {
+    nome: "Ipê-amarelo", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.0,
+    cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.amarelo[1], folha2: R.amarelo[2], casca: CASCA, broto: R.mata[4] }, variacoes: 2,
+    flor: { cor: R.amarelo[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" },
+    nicho: { umidade: [0.35, 0.25], sombra: 0.2, altitude: null }, raridade: 0.3, // tolera solo seco (cerrado)
+  },
+  jacaranda: {
+    nome: "Jacarandá", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.1,
+    cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[5], folha: R.lilas[2], folha2: R.lilas[3], casca: CASCA, broto: R.mata[4] }, variacoes: 2,
+    flor: { cor: R.lilas[3], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" },
+    nicho: { umidade: [0.45, 0.25], sombra: 0.25, altitude: null }, raridade: 0.3,
+  },
+  araucaria: {
+    nome: "Araucária", forma: "araucaria", formaJovem: "conica", altura: [14, 18],
+    cores: { folha: R.mata[2], casca: R.terra[1] }, variacoes: 2,
+    nicho: { umidade: [0.5, 0.25], sombra: 0.3, altitude: [0.8, 0.25] }, raridade: 0.4, // terreno alto
+  },
+
+  // --- Coníferas e fantasia ------------------------------------------------
+  cipreste: {
+    nome: "Cipreste", forma: "colunar", altura: [9, 13],
+    cores: { folha: R.mata[2], folha2: R.mata[3], casca: CASCA }, variacoes: 2,
+    nicho: { umidade: [0.35, 0.2], sombra: 0.3, altitude: [0.7, 0.3] }, raridade: 0.3,
+  },
+  cogumelo: {
+    nome: "Cogumelo-gigante", forma: "cogumelo", altura: [4, 6],
+    cores: { folha: R.vermelho[1], casca: R.betula[0], pinta: R.betula[0], lamela: R.terra[4] }, variacoes: 2,
+    nicho: { umidade: [0.8, 0.2], sombra: 0.9, altitude: null }, raridade: 0.06, // úmido e sombrio; raríssimo
+  },
+
+  // --- Arbustos (sub-bosque) -----------------------------------------------
   arbusto: {
-    nicho: { umidade: [0.55, 0.4], sombra: 0.9, altitude: null }, raridade: 1, // sub-bosque
-    nome: "Arbusto", altura: [1.2, 2.2], variacoes: 4, arbusto: true,
-    copa: { forma: "moita" }, cor: RAMPAS.mata[3],
+    nome: "Arbusto", forma: "moita", altura: [1.2, 2], arbusto: true,
+    cores: { folha: R.mata[3], casca: CASCA }, variacoes: 1,
+    nicho: { umidade: [0.55, 0.4], sombra: 0.9, altitude: null }, raridade: 1,
+  },
+  arbustoFrutinhas: {
+    nome: "Arbusto de frutinhas", forma: "moita", altura: [1.1, 1.8], arbusto: true,
+    cores: { folha: R.mata[2], casca: CASCA }, variacoes: 1,
+    fruto: { cor: R.vermelho[2], raio: 0.07, quantidade: 14, nome: "frutinhas" },
+    nicho: { umidade: [0.55, 0.4], sombra: 0.8, altitude: null }, raridade: 0.5,
+  },
+  arbustoFlorido: {
+    nome: "Arbusto florido", forma: "moita", altura: [1.0, 1.6], arbusto: true,
+    cores: { folha: R.mata[4], casca: CASCA }, variacoes: 1,
+    flor: { cor: R.betula[0], raio: 0.08, quantidade: 16, achatar: 0.6, nome: "flores" },
+    nicho: { umidade: [0.5, 0.4], sombra: 0.5, altitude: null }, raridade: 0.4,
+  },
+  arbustoBagas: {
+    nome: "Arbusto de bagas", forma: "moita", altura: [1.0, 1.5], arbusto: true,
+    cores: { folha: R.mata[3], casca: CASCA }, variacoes: 1,
+    fruto: { cor: R.lilas[1], raio: 0.06, quantidade: 16, nome: "bagas" },
+    nicho: { umidade: [0.6, 0.35], sombra: 0.85, altitude: null }, raridade: 0.4,
   },
 };
-
-// A escolha de espécie por lugar fica em ecossistema.js (escolherEspecie), a partir do nicho.
