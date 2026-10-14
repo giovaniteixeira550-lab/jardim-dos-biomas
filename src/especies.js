@@ -4,7 +4,7 @@
  * Para criar uma espécie nova, acrescente uma entrada aqui. O gerador
  * (arvoreProc.js) e o motor (cena.js) não precisam mudar, desde que a FORMA
  * já exista. Formas: redonda, oval, conica, colunar, pendente, guarda-chuva,
- * bananeira, garrafa (baobá), bambu, cristal,
+ * bananeira, garrafa (baobá), bambu, cristal, cacto,
  * palmeira, araucaria, cogumelo, moita.
  *
  * Campos:
@@ -13,6 +13,10 @@
  *  - cores: folha (e folha2 para manchas), casca, broto; folhaJovem (cor antes
  *    de florescer, nas floríferas); cogumelo: pinta, lamela
  *  - flor / fruto: { cor, raio, quantidade, nome } — aparecem na adulta
+ *  - FASES (cada estágio tem cara própria, ver arvoreProc.js):
+ *    cascaJovem (bétula nasce marrom), larguraJovem, floracao (cor das flores
+ *    da jovem nas frutíferas; null = não floresce à vista), tapete (pétalas
+ *    caídas sob a adulta), noTronco (nº de frutos colados no tronco)
  *  - marcas: casca de bétula
  *  - nicho (ecologia, simplificada): umidade = [ótimo, tolerância] do solo
  *    (0 seco … 1 encharcado); sombra = tolerância (0 precisa de sol … 1 sob
@@ -59,7 +63,7 @@ export const ESPECIES = {
   },
   betula: {
     nome: "Bétula", forma: "oval", altura: [9, 12], largura: 0.8, grossura: 0.8, marcas: true,
-    cores: { folha: R.mata[5], folha2: R.mata[4], casca: R.betula[0] }, variacoes: 2,
+    cores: { folha: R.mata[5], folha2: R.mata[4], casca: R.betula[0], cascaJovem: R.terra[2] }, variacoes: 2,
     nicho: { umidade: [0.5, 0.32], sombra: 0.15, altitude: null }, raridade: 1, // pioneira de luz
   },
   pinheiro: {
@@ -80,12 +84,12 @@ export const ESPECIES = {
   cerejeira: {
     nome: "Cerejeira", forma: "redonda", altura: [6, 8], largura: 1.15,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.flor[2], folha2: R.flor[1], casca: R.terra[1] }, variacoes: 2,
-    flor: { cor: R.flor[3], raio: 0.22, quantidade: 26, achatar: 0.6, nome: "flores" },
+    flor: { cor: R.flor[3], raio: 0.22, quantidade: 26, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.5, 0.25], sombra: 0.2, altitude: null }, raridade: 0.2,
   },
   betulaDourada: {
     nome: "Bétula dourada", forma: "oval", altura: [7, 9], largura: 0.8, grossura: 0.75, marcas: true,
-    cores: { folha: R.amarelo[1], folha2: R.outono[3], casca: R.betula[0], broto: R.mata[5] }, variacoes: 1,
+    cores: { folha: R.amarelo[1], folha2: R.outono[3], casca: R.betula[0], cascaJovem: R.terra[2], broto: R.mata[5] }, variacoes: 1,
     nicho: { umidade: [0.5, 0.3], sombra: 0.15, altitude: null }, raridade: 0.15,
   },
 
@@ -93,7 +97,7 @@ export const ESPECIES = {
   macieira: {
     nome: "Macieira", forma: "redonda", altura: [5, 7], largura: 1.15, grossura: 1.1,
     cores: { folha: R.mata[4], folha2: R.mata[3], casca: R.terra[2] }, variacoes: 2,
-    fruto: { cor: R.vermelho[1], raio: 0.17, quantidade: 22, nome: "maçãs" },
+    fruto: { cor: R.vermelho[1], raio: 0.17, quantidade: 22, nome: "maçãs" }, floracao: R.flor[3],
     nicho: { umidade: [0.5, 0.25], sombra: 0.25, altitude: null }, raridade: 0.3,
   },
   laranjeira: {
@@ -105,7 +109,7 @@ export const ESPECIES = {
   coqueiro: {
     nome: "Coqueiro", forma: "palmeira", altura: [9, 12],
     cores: { folha: R.mata[4], casca: R.terra[3], broto: R.mata[4] }, variacoes: 2,
-    fruto: { cor: R.terra[1], raio: 0.26, quantidade: 5, nome: "cocos" },
+    fruto: { cor: R.terra[1], raio: 0.26, quantidade: 5, nome: "cocos" }, floracao: null,
     nicho: { umidade: [0.75, 0.2], sombra: 0.15, altitude: [0.25, 0.3] }, raridade: 0.3, // baixada úmida e ensolarada
   },
 
@@ -113,13 +117,13 @@ export const ESPECIES = {
   ipeAmarelo: {
     nome: "Ipê-amarelo", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.0,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.amarelo[1], folha2: R.amarelo[2], casca: CASCA, broto: R.mata[4] }, variacoes: 2,
-    flor: { cor: R.amarelo[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" },
+    flor: { cor: R.amarelo[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.35, 0.25], sombra: 0.2, altitude: null }, raridade: 0.3, // tolera solo seco (cerrado)
   },
   jacaranda: {
     nome: "Jacarandá", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.1,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[5], folha: R.lilas[2], folha2: R.lilas[3], casca: CASCA, broto: R.mata[4] }, variacoes: 2,
-    flor: { cor: R.lilas[3], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" },
+    flor: { cor: R.lilas[3], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.45, 0.25], sombra: 0.25, altitude: null }, raridade: 0.3,
   },
   araucaria: {
@@ -130,7 +134,7 @@ export const ESPECIES = {
 
   // --- Coníferas e fantasia ------------------------------------------------
   cipreste: {
-    nome: "Cipreste", forma: "colunar", altura: [9, 13],
+    nome: "Cipreste", forma: "colunar", formaJovem: "conica", larguraJovem: 0.6, altura: [9, 13],
     cores: { folha: R.mata[2], folha2: R.mata[3], casca: CASCA }, variacoes: 2,
     nicho: { umidade: [0.35, 0.2], sombra: 0.3, altitude: [0.7, 0.3] }, raridade: 0.3,
   },
@@ -144,7 +148,7 @@ export const ESPECIES = {
   mangueira: {
     nome: "Mangueira", forma: "redonda", altura: [10, 13], largura: 1.35, grossura: 1.3,
     cores: { folha: R.mata[2], folha2: R.mata[1], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.outono[3], raio: 0.2, quantidade: 20, achatar: 1.3, nome: "mangas" },
+    fruto: { cor: R.outono[3], raio: 0.2, quantidade: 20, achatar: 1.3, nome: "mangas" }, floracao: R.amarelo[2],
     nicho: { umidade: [0.55, 0.25], sombra: 0.3, altitude: [0.3, 0.35] }, raridade: 0.3, // copa densa e escura
   },
   limoeiro: {
@@ -156,7 +160,7 @@ export const ESPECIES = {
   ipeRoxo: {
     nome: "Ipê-roxo", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.05,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.flor[1], folha2: R.flor[2], casca: R.terra[1], broto: R.mata[4] }, variacoes: 2,
-    flor: { cor: R.flor[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" },
+    flor: { cor: R.flor[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.45, 0.25], sombra: 0.2, altitude: null }, raridade: 0.25,
   },
   bananeira: {
@@ -172,7 +176,7 @@ export const ESPECIES = {
   },
   bambu: {
     nome: "Bambuzal", forma: "bambu", altura: [8, 11],
-    cores: { folha: R.mata[5], casca: R.mata[4], broto: R.mata[5] }, variacoes: 2,
+    cores: { folha: R.mata[4], folha2: R.mata[3], casca: R.salvia[3], broto: R.mata[5] }, variacoes: 2,
     nicho: { umidade: [0.7, 0.2], sombra: 0.4, altitude: null }, raridade: 0.3, // úmido, forma touceiras
   },
 
@@ -185,8 +189,35 @@ export const ESPECIES = {
   salgueiroLanterna: {
     nome: "Salgueiro-lanterna", forma: "pendente", altura: [6, 8], largura: 1.0,
     cores: { folha: R.agua[3], folha2: R.mata[4], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.luz[0], raio: 0.2, quantidade: 14, nome: "lanternas" },
+    fruto: { cor: R.luz[0], raio: 0.2, quantidade: 14, nome: "lanternas" }, floracao: R.agua[5],
     nicho: { umidade: [0.8, 0.2], sombra: 0.5, altitude: null }, raridade: 0.06, // rara, junto à água
+  },
+
+  // --- Leva 3: evolução visível (v0.8) --------------------------------------
+  jabuticabeira: {
+    nome: "Jabuticabeira", forma: "redonda", altura: [5, 7], largura: 1.25, grossura: 1.5,
+    cores: { folha: R.mata[3], folha2: R.mata[2], casca: R.terra[3] }, variacoes: 2,
+    fruto: { cor: R.lilas[0], raio: 0.09, quantidade: 0, nome: "jabuticabas no tronco" },
+    noTronco: 54, // frutos (e antes, flores brancas) colados no tronco
+    nicho: { umidade: [0.6, 0.22], sombra: 0.45, altitude: null }, raridade: 0.2,
+  },
+  abacateiro: {
+    nome: "Abacateiro", forma: "oval", altura: [10, 13], largura: 1.45, grossura: 1.2,
+    cores: { folha: R.mata[2], folha2: R.mata[3], casca: R.terra[1] }, variacoes: 2,
+    fruto: { cor: R.mata[5], raio: 0.2, quantidade: 14, achatar: 1.4, nome: "abacates" }, floracao: R.amarelo[2],
+    nicho: { umidade: [0.55, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
+  },
+  oliveira: {
+    nome: "Oliveira", forma: "redonda", altura: [5, 7], largura: 1.2, grossura: 1.5,
+    cores: { folha: R.salvia[3], folha2: R.salvia[4], casca: R.pedra[2] }, variacoes: 2,
+    fruto: { cor: R.lilas[0], raio: 0.08, quantidade: 30, achatar: 1.3, nome: "azeitonas" },
+    nicho: { umidade: [0.3, 0.2], sombra: 0.15, altitude: [0.6, 0.35] }, raridade: 0.25, // seca e ensolarada
+  },
+  mandacaru: {
+    nome: "Mandacaru", forma: "cacto", altura: [4, 6],
+    cores: { folha: R.salvia[2], folha2: R.salvia[3], casca: R.salvia[1] }, variacoes: 2,
+    flor: { cor: R.betula[0], raio: 0.2, quantidade: 6, nome: "flores" },
+    nicho: { umidade: [0.12, 0.15], sombra: 0.05, altitude: null }, raridade: 0.25, // solo seco, sol pleno
   },
 
   // --- Arbustos (sub-bosque) -----------------------------------------------
