@@ -25,12 +25,13 @@ São interpretações artísticas; flores, frutos e colônia são elementos de m
 ## Verificação realizada
 
 - 28 espécies passaram na verificação da semente 1234: coordenadas finitas, reprodução idêntica pela mesma semente, altura crescente e diferenças entre distribuições espaciais normalizadas dos estágios consecutivos. Esse teste é uma proteção contra modelos simplesmente escalados; não substitui julgamento visual.
-- Inspeção visual de carvalho, pinheiro, coqueiro, ipê-amarelo, arbusto de bagas e cogumelo-gigante na vitrine.
+- Inspeção visual de carvalho, pinheiro, coqueiro, ipê-amarelo, arbusto de bagas, cogumelo-gigante e das novas famílias baobá, bambu, bananeira e cristal na vitrine.
+- As sete verificações de ciclo de vida passaram novamente sobre a versão combinada com a v0.7, sem avisos/erros capturados durante essa execução.
 - Carregamento do bosque com 407 indivíduos, execução de “Ver crescer” e conferência do viveiro. Registros do navegador consultados na execução final.
 - Sintaxe dos módulos, diff e caminhos das capturas conferidos. Sem benchmark, validação em aparelho móvel ou integração de estudos nesta tarefa.
 
 ## Colaboração
 
-Branch `codex/transformacoes-arvores`, com o lote anterior e a v0.7 do Claude (`d0f30c9`). A proposta final concentra preparação e transformações, substituindo a proposta anterior de ciclo de vida. Arquivos de conteúdo: `src/arvoreProc.js`; apresentação: `evolucao.html`, `src/evolucao.js`, link no `index.html`. Apoio: README, histórico, capturas e este documento. Não modifica `src/especies.js`, `src/mundo.js`, `src/ecossistema.js`, `src/paleta.js`, `src/pixel.js` ou `src/cena.js`.
+Branch `codex/transformacoes-arvores`, com o lote anterior e a v0.7 do Claude (`d0f30c9`). A proposta final concentra preparação e transformações, substituindo a proposta anterior de ciclo de vida. Arquivos de conteúdo deste lote: `src/arvoreProc.js`; apresentação: `evolucao.html`, `src/evolucao.js`, link no `index.html`. Apoio: README, histórico, capturas e este documento. O lote de transformações preserva `src/especies.js`, `src/mundo.js`, `src/ecossistema.js`, `src/paleta.js`, `src/pixel.js` e a lógica de crescimento em `src/cena.js`; os ajustes anteriores de ciclo de vida continuam incluídos.
 
 Antes de combinar com novas mudanças do Claude no gerador, revisar os blocos de broto/juvenil/maturidade e repetir a comparação. Nenhuma alteração substitui a cópia local do Claude ou faz push direto para `main`. Esta anotação informa o escopo; não afirma que outro agente leu o registro.

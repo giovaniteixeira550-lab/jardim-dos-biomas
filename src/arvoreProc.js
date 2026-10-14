@@ -468,12 +468,13 @@ const FORMAS = {
     const t = tronco({ altura: H * 0.4, r0: H * 0.06, r1: H * 0.035, curva: [(rng() - 0.5) * H * 0.08, (rng() - 0.5) * H * 0.08], hex: def.cores.casca, rng });
     const partes = [t.geo];
     const centro = t.topo.clone().add(V(0, H * 0.22, 0));
+    partes.push(galho(t.topo, centro, H * 0.035, H * 0.025, def.cores.casca));
     const n = Math.round(lerp(4, 16, d));
     for (let i = 0; i < n; i++) {
       const dir = V(rng() - 0.5, rng() * 0.9 + 0.1, rng() - 0.5).normalize();
-      const comp = H * lerp(0.18, 0.34, rng());
+      const comp = H * lerp(0.26, 0.42, rng());
       const g = new THREE.OctahedronGeometry(1, 0);
-      g.scale(H * 0.05, comp / 2, H * 0.05);
+      g.scale(H * 0.07, comp / 2, H * 0.07);
       g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), dir));
       const c = centro.clone().addScaledVector(dir, comp * 0.45);
       g.translate(c.x, c.y, c.z);
