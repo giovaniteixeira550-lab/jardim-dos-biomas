@@ -2,7 +2,8 @@
 
 Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim antes de aplicá-la ao site. Uma única cena pequena (uma clareira de 180 × 120 m), para acertar qualidade antes de ampliar.
 
-- **Abrir online (sem login):** GitHub Pages do repositório `jardim-dos-biomas` (endereço no topo do repositório).
+- **Abrir online (sem login):** https://giovaniteixeira550-lab.github.io/jardim-dos-biomas/
+- **Código:** https://github.com/giovaniteixeira550-lab/jardim-dos-biomas (cada push na branch `main` republica a página em ~1 min)
 - **Editar com IA:** Claude Code ou Codex/ChatGPT ligados a este repositório — regras em `AGENTS.md`.
 - **Rodar no PC:** nesta pasta, `npx http-server -p 5600 -c-1` e abrir http://localhost:5600 (precisa de internet: three.js e ez-tree vêm do CDN jsDelivr).
 
