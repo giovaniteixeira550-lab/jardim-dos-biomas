@@ -97,6 +97,12 @@ function pedraGeo(semente) {
 
 export class Jardim {
   constructor(canvas) {
+    // Cada montagem tem seu próprio cancelamento, inclusive para os controles.
+    this.cancelamento = new AbortController();
+    this.descartado = false;
+    this.recursosLiberados = false;
+    this.compilando = false;
+    this.cargaIniciada = false;
     this.canvas = canvas;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
     this.renderer.setPixelRatio(1);
@@ -131,13 +137,16 @@ export class Jardim {
   }
 
   async carregar(semente, progresso) {
+    this.verificarAtivo();
+    if (this.cargaIniciada) throw new Error("Crie um novo Jardim para carregar outro mundo.");
+    this.cargaIniciada = true;
     progresso(0.04, "Semeando o mundo…");
-    await quadro();
+    await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
     this.alvo.set(m.largura * 0.55, 0, m.altura * 0.55);
 
     progresso(0.1, "Moldando o terreno…");
-    await quadro();
+    await this.ceder();
     this.criarTerreno();
     this.criarAgua();
 
@@ -148,35 +157,55 @@ export class Jardim {
     for (const [id, e] of lista)
       for (let v = 0; v < e.variacoes; v++) {
         progresso(0.18 + (feitas / total) * 0.55, `Desenhando árvores (${feitas + 1}/${total})…`);
-        await quadro();
+        await this.ceder();
         this.variacoes.push(this.gerarVariacao(id, e, semente * 31 + feitas * 977));
         feitas++;
       }
 
     progresso(0.78, "Plantando o bosque…");
-    await quadro();
+    await this.ceder();
     this.plantar();
     this.montarViveiro();
     this.criarDetalhes();
 
     progresso(0.9, "Acendendo a luz…");
-    await quadro();
+    await this.ceder();
     this.criarLuz();
     this.aplicarHora();
     this.redimensionar();
     this.atualizarCrescimento(true);
-    await this.renderer.compileAsync(this.scene, this.camera);
+    // A compilação não é interrompível. Aguarda terminar antes de liberar a GPU,
+    // mas nunca monta observadores, controles ou animação de uma carga cancelada.
+    this.compilando = true;
+    try {
+      await this.renderer.compileAsync(this.scene, this.camera);
+    } finally {
+      this.compilando = false;
+      if (this.descartado) this.liberarRecursos();
+    }
+    this.verificarAtivo();
 
     progresso(1, "Pronto");
+    this.verificarAtivo();
     this.ro = new ResizeObserver(() => this.redimensionar());
     this.ro.observe(this.canvas);
     this.ligarControles();
     this.relogio.reset();
     this.loop = () => {
+      if (this.descartado) return;
       this.quadroAnim();
-      this.raf = requestAnimationFrame(this.loop);
+      if (!this.descartado) this.raf = requestAnimationFrame(this.loop);
     };
     this.raf = requestAnimationFrame(this.loop);
+  }
+
+  verificarAtivo() {
+    if (this.descartado) throw new DOMException("Carregamento do jardim cancelado.", "AbortError");
+  }
+
+  async ceder() {
+    await quadro();
+    this.verificarAtivo();
   }
 
   // --- Terreno e água -----------------------------------------------------
@@ -532,6 +561,7 @@ export class Jardim {
   // --- Câmera e controles -------------------------------------------------
 
   redimensionar() {
+    if (this.descartado) return;
     // Sem tamanho ainda (aba/painel oculto): usa a janela; o ResizeObserver corrige depois.
     const caixa = this.canvas.getBoundingClientRect();
     const r = caixa.width && caixa.height ? caixa : { width: window.innerWidth || 800, height: window.innerHeight || 600 };
@@ -569,6 +599,7 @@ export class Jardim {
 
   ligarControles() {
     const c = this.canvas;
+    const signal = this.cancelamento.signal;
     const ponteiros = new Map();
     let pinca = 0;
     const mover = (dx, dy) => {
@@ -585,7 +616,7 @@ export class Jardim {
       c.setPointerCapture(e.pointerId);
       ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY });
       inicio = ponteiros.size === 1 ? { x: e.clientX, y: e.clientY } : null;
-    });
+    }, { signal });
     c.addEventListener("pointermove", (e) => {
       const a = ponteiros.get(e.pointerId);
       if (!a) return;
@@ -598,7 +629,7 @@ export class Jardim {
         if (pinca) this.zoom(pinca / dd);
         pinca = dd;
       }
-    });
+    }, { signal });
     const soltar = (e) => {
       ponteiros.delete(e.pointerId);
       pinca = 0;
@@ -606,20 +637,21 @@ export class Jardim {
       if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
       inicio = null;
     };
-    c.addEventListener("pointerup", soltar);
-    c.addEventListener("pointercancel", soltar);
+    c.addEventListener("pointerup", soltar, { signal });
+    c.addEventListener("pointercancel", soltar, { signal });
     c.addEventListener("wheel", (e) => {
       e.preventDefault();
       this.zoom(Math.exp(e.deltaY * 0.0012));
-    }, { passive: false });
+    }, { passive: false, signal });
     this.teclas = new Set();
     window.addEventListener("keydown", (e) => {
-      if (e.target instanceof HTMLInputElement) return;
+      if (e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
       if (e.key === "q" || e.key === "Q") this.girar(-1);
       else if (e.key === "e" || e.key === "E") this.girar(1);
       else this.teclas.add(e.key.toLowerCase());
-    });
-    window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()));
+    }, { signal });
+    window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()), { signal });
+    window.addEventListener("blur", () => this.teclas.clear(), { signal });
     this._mover = mover;
   }
 
@@ -713,14 +745,50 @@ export class Jardim {
   }
 
   dispose() {
+    if (this.descartado) return;
+    this.descartado = true;
+    this.cancelamento.abort();
     cancelAnimationFrame(this.raf);
+    this.raf = null;
     this.ro?.disconnect();
-    this.scene.traverse((o) => {
-      o.geometry?.dispose();
-      for (const m of [].concat(o.material ?? [])) m.dispose();
-    });
+    this.ro = null;
+    this.teclas?.clear();
+    this.aoSelecionar = null;
+    this.selecionado = null;
+    if (!this.compilando) this.liberarRecursos();
+  }
+
+  liberarRecursos() {
+    if (this.recursosLiberados) return;
+    this.recursosLiberados = true;
+    // Geometrias e materiais de instâncias são compartilhados: liberar uma vez.
+    // Inclui variações ainda não plantadas e o quad de pós-processamento.
+    const geometrias = new Set(), materiais = new Set();
+    for (const cena of [this.scene, this.cena2d]) {
+      cena.traverse((o) => {
+        if (o.geometry) geometrias.add(o.geometry);
+        for (const m of [].concat(o.material ?? [])) materiais.add(m);
+        if (o.isInstancedMesh) o.dispose();
+        o.shadow?.dispose();
+      });
+      cena.clear();
+    }
+    for (const v of this.variacoes ?? []) {
+      for (const g of v.estagios) geometrias.add(g);
+    }
+    materiais.add(this.matArvore);
+    for (const g of geometrias) g.dispose();
+    for (const m of materiais) m.dispose();
+    // A rampa toon é um cache do módulo, reutilizado entre Jardins; não pertence
+    // à instância, portanto continua disponível para o próximo Jardim.
     this.rt?.dispose();
+    this.relogio.dispose();
     this.renderer.dispose();
+    this.variacoes = [];
+    this.individuos = [];
+    this.grupos = [];
+    this.viveiro = [];
+    this.malhaParaGrupo?.clear();
   }
 
   info() {

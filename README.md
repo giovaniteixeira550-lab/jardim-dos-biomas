@@ -6,7 +6,7 @@ Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim 
 - **Código:** https://github.com/giovaniteixeira550-lab/jardim-dos-biomas (cada push na branch `main` republica a página em ~1 min)
 - **Diário (painel visual):** https://giovaniteixeira550-lab.github.io/jardim-dos-biomas/historico.html
 - **Editar com IA:** Claude Code ou Codex/ChatGPT ligados a este repositório — regras em `AGENTS.md`.
-- **Rodar no PC:** nesta pasta, `npx http-server -p 5600 -c-1` e abrir http://localhost:5600 (precisa de internet: three.js e ez-tree vêm do CDN jsDelivr).
+- **Rodar no PC:** nesta pasta, `npx http-server -p 5600 -c-1` e abrir http://localhost:5600 (precisa de internet: three.js vem do CDN jsDelivr).
 
 ---
 
@@ -17,13 +17,13 @@ Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim 
 | Pilar | Regra |
 |---|---|
 | Câmera | Ortográfica em ¾ (38° acima do horizonte), gira em passos de 45°; "snap" ao grid de pixels para não tremer |
-| Pixel | Cena renderizada a 1/4 da tela (ajustável 2–7); ampliada sem suavização |
+| Pixel | Cena renderizada com pixel mínimo (2); ampliada sem suavização |
 | Luz | Toon em 3 faixas (sombra 105 / meio-tom 178 / luz 255); sombras duras (`BasicShadowMap`) |
 | Cor | **Só a paleta** (`src/paleta.js`, ~40 cores em rampas); quantização + Bayer 4×4 no pós-processamento |
 | Contorno | 1 px onde há salto de profundidade (cor = pixel escurecido, não preto); brilho de recorte no topo |
-| Árvores | Massa sólida da copa (esferas por k-means das folhas) + folhas recortadas na borda; cor chapada da paleta |
+| Árvores | Gerador próprio (`src/arvoreProc.js`), quatro modelos por espécie (broto, muda, jovem, adulta), flores e frutos; cores da paleta |
 | Composição | Bosque denso de um lado, clareira, lago de margem irregular, trilha; acentos raros (outono, cerejeira, bétula dourada) |
-| Vida | Vento em folhas/capim, brilhos na água, dia/entardecer/noite, vaga-lumes |
+| Vida | Sem vento; brilhos na água, dia/entardecer/noite, vaga-lumes |
 | Regra anti-burnout | Nada morre: erro vira semente; crescimento só para frente |
 
 **Paleta (rampas, escuro → claro):** tinta, mata (7), sálvia (6), água (6), terra (6), outono (5), flor (4), pedra (5), bétula, noite (4), luz. Para ajustar a arte inteira, mexa nas rampas — tudo na tela é quantizado para elas.
@@ -31,26 +31,37 @@ Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim 
 ## 2. Estrutura
 
 ```
-index.html        HUD, tela de carregamento, importmap (three 0.186.1, ez-tree 1.1.0)
+index.html        HUD, tela de carregamento, importmap (three 0.186.1)
 src/main.js       liga controles da página à cena
-src/cena.js       mundo 3D: terreno, água, árvores (ez-tree), capim, flores, pedras, luz, câmera
+src/cena.js       mundo 3D: terreno, água, árvores, capim, flores, pedras, luz, câmera
 src/pixel.js      pós-processamento: contorno, brilho de topo, paleta + dithering
 src/paleta.js     paleta e cores-base por material
 src/mundo.js      geração determinística (Poisson disk, lago irregular, trilha, densidade)
-src/presets/      presets de arbustos do ez-tree (MIT)
+src/arvoreProc.js gerador próprio dos quatro estágios por espécie
+src/especies.js   catálogo, nichos e estágios dos indivíduos
+src/ecossistema.js umidade, luz, escolha de espécie e competição
+testes/          verificações no navegador, sem build ou dependências novas
+docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 ```
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.6)
+## 3. Estado atual (v0.6 + preparação para integração)
 
-- Carrega em ~2,5 s; ~160 FPS numa placa dedicada; sem erros de console.
-- 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
+- O histórico acompanha v0.1–v0.6. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- 8 espécies de árvores e um tipo de arbusto, com 20 variações geométricas.
+- **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
-- **Vento em degraus de pixel:** folhas e capim se movem só em passos de 1 pixel inteiro (sem tremor sub-pixel); capim mais lento, sem contorno de tinta (não grava profundidade) e com lâminas mais grossas.
 - **v0.6 — variedade:** gerador próprio de árvores (src/arvoreProc.js), 16 espécies + 4 arbustos, 4 estágios cada (broto, muda, jovem, adulta), flores e frutos; sem vento; pixel mínimo e contorno fixos; botão Viveiro.
-- Crescimento 0–100% (nasce dos núcleos do bosque para as bordas), vento, horas do dia, tamanho do pixel, liga/desliga contorno e paleta (para comparar).
+- Crescimento 0–100%, dia/entardecer/noite, câmera e viveiro. Estilo fixo: pixel 2, contorno e paleta ligados; sem vento.
+- **Preparação para integração:** encerramento idempotente, controles removidos ao descartar a cena, cancelamento entre etapas de geração e proteção contra resultados de cargas antigas. A compilação gráfica em andamento termina antes de liberar seus recursos.
+- A troca de mundo interrompe a animação de crescimento anterior. Voltar a uma página restaurada pelo navegador recarrega a última semente da demo.
+- Este lote preserva a arte e a ecologia; ainda não vincula plantas a tópicos nem grava progresso de estudos. Coordenação em [docs/colaboracao.md](docs/colaboracao.md).
+
+### Verificação do lote
+
+Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar verificações**. A página usa o motor real e testa cancelamento imediato, descarte parcial, espera de compilação, renderização/teclado/foco, remontagem, duas trocas rápidas na página real e eventos de saída/restauração com preservação da semente e do viveiro. A compilação cancelada usa uma barreira controlada, e os eventos de restauração são disparados pelo teste; a renderização ativa usa WebGL real. Não grava dados de estudo.
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 
@@ -62,15 +73,17 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 6. **Biomas** — só depois da clareira estar "perfeita": variar paleta/espécies por área (GO, CM, CC, PED, Preventiva).
 7. **Dados** — ligar crescimento a tópicos/revisões/erros (já planejado em `docs/jardim-pesquisa-e-plano.md` do site).
 
+Na frente de integração, o próximo lote é identidade persistente e crescimento por planta, seguido de inspeção do site e do contrato de dados. A frente artística/ecológica acima continua independente; combinar mudanças antes de publicar, conforme o registro de colaboração.
+
 ## 5. Levar para o site
 
 O site (repositório `study-compass-26`, branch `codex/medtermo-claude-context`) já tem a aba `/jardim` com uma versão 3D anterior (`src/lib/jardim/cena3d.ts`) e as dependências `three` e `@dgreenheck/ez-tree`. Para portar:
 
-1. Copiar `paleta.js`, `pixel.js` e a lógica de `cena.js` para `src/lib/jardim/` (convertendo para TypeScript), substituindo `cena3d.ts`.
+1. Confirmar primeiro a estrutura atual do site. Portar `paleta.js`, `pixel.js`, `especies.js`, `arvoreProc.js`, `ecossistema.js` e a lógica de `cena.js` para `src/lib/jardim/` (convertendo para TypeScript); comparar com `cena3d.ts` antes de substituí-lo.
 2. Trocar `mundo.js` pelo `src/lib/jardim/mundo.ts` do site (mesma lógica, com lago irregular) ajustando a escala para metros.
 3. Manter o carregamento sob demanda e a tela de carregamento de `src/components/jardim/CenaJardim.tsx`.
 
 ## Créditos
 
-- Árvores e presets de arbustos: [ez-tree](https://github.com/dgreenheck/ez-tree), Daniel Greenheck — MIT.
+- Árvores e presets de arbustos das versões anteriores à v0.6: [ez-tree](https://github.com/dgreenheck/ez-tree), Daniel Greenheck — MIT. Na v0.6, gerador próprio em `src/arvoreProc.js`.
 - [three.js](https://threejs.org) — MIT.
