@@ -11,7 +11,8 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
 5. **Determinismo:** o mundo sai da semente (`src/mundo.js`). Não use `Math.random()` na geração; use `criarRng(semente)`.
 6. **Escopo pequeno:** uma melhoria por vez (ver README §4). Atualize o README (estado atual / próximos passos) no mesmo commit.
 7. **Teste antes de concluir:** sirva a pasta (`npx http-server -p 5600 -c-1`), abra a página, confira que carrega sem erros no console e descreva o que mudou visualmente.
-8. **Créditos:** ez-tree e three.js são MIT; mantenha a seção de créditos.
+8. **Histórico obrigatório:** toda mudança relevante ganha uma entrada no topo de `HISTORICO.md` (data, por quê, o que mudou, resultado) com uma captura de tela em `historico/`, e o **Quadro atual** (Funciona / Corrigir / Ideias) é atualizado. Ao fechar uma versão: `git tag vX.Y && git push --tags`.
+9. **Créditos:** ez-tree e three.js são MIT; mantenha a seção de créditos.
 
 ## Mapa rápido
 
@@ -19,5 +20,8 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
 - `src/cena.js` — cena 3D, materiais, câmera, controles
 - `src/pixel.js` — pós-processamento de pixel art
 - `src/paleta.js` — paleta (fonte única de cor)
-- `src/mundo.js` — geração do mundo
+- `src/mundo.js` — geração do mundo (terreno, lago, trilha, posições)
+- `src/especies.js` — catálogo de espécies (regras, nichos, estágios)
+- `src/ecossistema.js` — umidade, luz, aptidão, competição, vigor
+- `HISTORICO.md` + `historico.html` — diário de versões e quadro de pendências
 - `window.jardim` no console — acesso à cena para inspeção

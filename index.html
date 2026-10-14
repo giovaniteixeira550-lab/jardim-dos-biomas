@@ -26,6 +26,7 @@
   .titulo { top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; padding: 8px 12px; max-width: calc(100% - 24px); }
   .titulo h1 { margin: 0; font-family: var(--display); font-size: 15px; letter-spacing: 0.06em; color: var(--acento); font-weight: 400; }
   .titulo p { margin: 4px 0 0; font-size: 12px; color: var(--suave); }
+  .link-historico { margin-left: 8px; font-family: var(--corpo); font-size: 11px; color: var(--alerta); letter-spacing: 0; vertical-align: middle; }
 
   .giro { top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; display: flex; gap: 6px; padding: 6px; }
   .ficha { top: calc(64px + env(safe-area-inset-top, 0px)); right: 12px; padding: 8px 12px; min-width: 180px; max-width: calc(100% - 24px); border-color: var(--alerta); }
@@ -79,7 +80,7 @@
 <canvas id="mapa" aria-label="Mapa do jardim: clareira com bosque, lago e trilha, em pixel art vista do alto em ângulo"></canvas>
 
 <header class="hud titulo">
-  <h1>JARDIM DOS BIOMAS</h1>
+  <h1>JARDIM DOS BIOMAS <a class="link-historico" href="historico.html">Histórico</a></h1>
   <p>Demo de arte · clareira · arraste para mover · roda/pinça = zoom · Q/E gira · clique numa árvore</p>
 </header>
 
