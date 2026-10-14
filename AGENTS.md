@@ -11,7 +11,11 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
 5. **Determinismo:** o mundo sai da semente (`src/mundo.js`). Não use `Math.random()` na geração; use `criarRng(semente)`.
 6. **Escopo pequeno:** uma melhoria por vez (ver README §4). Atualize o README (estado atual / próximos passos) no mesmo commit.
 7. **Teste antes de concluir:** sirva a pasta (`npx http-server -p 5600 -c-1`), abra a página, confira que carrega sem erros no console e descreva o que mudou visualmente.
-8. **Histórico obrigatório:** toda mudança relevante ganha uma entrada no topo de `HISTORICO.md` (data, por quê, o que mudou, resultado) com uma captura de tela em `historico/`, e o **Quadro atual** (Funciona / Corrigir / Ideias) é atualizado. Ao fechar uma versão: `git tag vX.Y && git push --tags`.
+8. **Histórico obrigatório (para o dono do projeto ler):** a cada mudança relevante, atualize `historico.json` — fonte do painel `historico.html`:
+   - nova entrada no TOPO de `versoes` (versao, data, titulo, porque em 1 frase, mudancas em até 4 itens curtos, resultado, imagens com uma captura em `historico/`);
+   - `quadro` (funciona / corrigir / ideias), `frentes` (status e progresso 0–100) e `proximoPasso`;
+   - textos curtos e em linguagem simples (o painel é lido por uma pessoa, não por IA).
+   Ao fechar uma versão: `git tag -a vX.Y -m "..." && git push --tags`.
 9. **Créditos:** ez-tree e three.js são MIT; mantenha a seção de créditos.
 
 ## Mapa rápido
@@ -23,5 +27,5 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
 - `src/mundo.js` — geração do mundo (terreno, lago, trilha, posições)
 - `src/especies.js` — catálogo de espécies (regras, nichos, estágios)
 - `src/ecossistema.js` — umidade, luz, aptidão, competição, vigor
-- `HISTORICO.md` + `historico.html` — diário de versões e quadro de pendências
+- `historico.json` → `historico.html` — painel visual: progresso por frente, quadro de pendências, linha do tempo com imagens
 - `window.jardim` no console — acesso à cena para inspeção

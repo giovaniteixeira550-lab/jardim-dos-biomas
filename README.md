@@ -4,7 +4,7 @@ Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim 
 
 - **Abrir online (sem login):** https://giovaniteixeira550-lab.github.io/jardim-dos-biomas/
 - **Código:** https://github.com/giovaniteixeira550-lab/jardim-dos-biomas (cada push na branch `main` republica a página em ~1 min)
-- **Histórico e pendências:** [HISTORICO.md](HISTORICO.md) (online: `/historico.html`)
+- **Diário (painel visual):** https://giovaniteixeira550-lab.github.io/jardim-dos-biomas/historico.html
 - **Editar com IA:** Claude Code ou Codex/ChatGPT ligados a este repositório — regras em `AGENTS.md`.
 - **Rodar no PC:** nesta pasta, `npx http-server -p 5600 -c-1` e abrir http://localhost:5600 (precisa de internet: three.js e ez-tree vêm do CDN jsDelivr).
 

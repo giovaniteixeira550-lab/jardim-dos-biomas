@@ -1,0 +1,99 @@
+{
+  "atualizado": "2026-10-14",
+  "versaoAtual": "v0.5",
+  "proximoPasso": {
+    "titulo": "Tempo do ecossistema",
+    "descricao": "Fazer o jardim viver ao longo de estações: árvores lançam sementes perto de si, pioneiras (bétulas) abrem espaço e carvalhos tomam conta do bosque maduro com o tempo."
+  },
+  "frentes": [
+    { "nome": "Estilo de arte", "status": "pronto", "progresso": 80, "nota": "Pixel art de cena 3D definida: paleta, contorno, câmera que gira." },
+    { "nome": "Árvores", "status": "andamento", "progresso": 60, "nota": "8 espécies como indivíduos. Faltam mais silhuetas e detalhes." },
+    { "nome": "Ecossistema", "status": "andamento", "progresso": 35, "nota": "Solo, luz, nicho e competição prontos. Falta o tempo passar." },
+    { "nome": "Terreno e água", "status": "andamento", "progresso": 40, "nota": "Relevo, lago e trilha. Falta detalhe no chão e plantas aquáticas." },
+    { "nome": "Vida e clima", "status": "andamento", "progresso": 20, "nota": "Vento, dia e noite, vaga-lumes. Faltam pássaros, borboletas, nuvens." },
+    { "nome": "Ligação com os estudos", "status": "nao_iniciado", "progresso": 0, "nota": "Base de dados no site (pedido ao GPT). Depois: plantas = tópicos." }
+  ],
+  "quadro": {
+    "funciona": [
+      "Pixel art de cena 3D com câmera que gira",
+      "Clareira com bosque, lago, trilha, pedras e flores",
+      "Cada árvore é um indivíduo com ficha própria",
+      "Ecossistema: solo, luz, nicho e vigor de cada árvore",
+      "Crescimento muda → jovem → adulta",
+      "Vento, dia, entardecer e noite"
+    ],
+    "corrigir": [
+      "Salgueiros raros: margem do lago estreita",
+      "Primeiro carregamento lento (~20 s)",
+      "Clique entre lóbulos da copa às vezes falha",
+      "Borda do pinheiro pouco serrilhada vista de cima"
+    ],
+    "ideias": [
+      "Estações e sucessão do bosque",
+      "Pássaros e borboletas em pixel",
+      "Folhas caídas, trevos e pedrinhas no chão",
+      "Juncos e nenúfares no lago",
+      "Plantas que representam tópicos de estudo"
+    ]
+  },
+  "versoes": [
+    {
+      "versao": "v0.5",
+      "data": "2026-10-14",
+      "titulo": "Ecossistema",
+      "porque": "O jogo deve funcionar como um ecossistema real, sem perder o lado artístico.",
+      "mudancas": [
+        "Solo com umidade real: perto da água e nos vales",
+        "Cada espécie com seu nicho (água, luz, altitude)",
+        "Árvores competem por luz e ganham vigor",
+        "Mata ciliar na beira do lago"
+      ],
+      "resultado": "As espécies se distribuem conforme o terreno. A ficha mostra solo, luz e vigor.",
+      "imagens": [{ "src": "historico/v0.5-ecossistema.jpg", "legenda": "Espécies distribuídas pelo terreno" }]
+    },
+    {
+      "versao": "v0.4",
+      "data": "2026-10-14",
+      "titulo": "Árvores como indivíduos",
+      "porque": "Uma árvore parecia uma muda grudada numa bola; cada árvore deve existir por si.",
+      "mudancas": [
+        "Catálogo de espécies com regras",
+        "Copa e tronco num corpo só, mesmo vento",
+        "Arbustos não nascem colados aos troncos",
+        "Clique mostra a ficha da árvore"
+      ],
+      "resultado": "Copas limpas, sem sobreposições estranhas.",
+      "imagens": [{ "src": "historico/v0.4-individuos.jpg", "legenda": "Copas como volumes únicos" }]
+    },
+    {
+      "versao": "v0.3",
+      "data": "2026-10-14",
+      "titulo": "Capim sem tentáculos",
+      "porque": "O capim parecia ter tentáculos que cresciam e encolhiam.",
+      "mudancas": ["Vento em passos de pixel inteiro", "Capim sem contorno piscando", "Lâminas mais grossas e lentas"],
+      "resultado": "Capim estável, mexendo 1 pixel por vez.",
+      "imagens": [{ "src": "historico/v0.3-capim.png", "legenda": "Capim de perto" }]
+    },
+    {
+      "versao": "v0.2",
+      "data": "2026-10-14",
+      "titulo": "Silhuetas por espécie",
+      "porque": "Pouca variedade entre as árvores.",
+      "mudancas": ["Pinheiro em camadas", "Carvalho largo", "Bétula de casca branca", "Salgueiro com galhos pendentes"],
+      "resultado": "Espécies reconhecíveis pela forma.",
+      "imagens": [{ "src": "historico/v0.2-silhuetas.jpg", "legenda": "Silhuetas distintas" }]
+    },
+    {
+      "versao": "v0.1",
+      "data": "2026-10-14",
+      "titulo": "Base: pixel art de cena 3D",
+      "porque": "Definir uma arte criativa que não fique 'só 2D'.",
+      "mudancas": ["Mundo 3D desenhado como pixel art", "Paleta fixa, contorno e dithering", "Câmera que gira 45°", "Escopo: uma clareira"],
+      "resultado": "Estilo definido; versões anteriores (2D plano e 3D realista) descartadas.",
+      "imagens": [
+        { "src": "historico/v0.1-clareira-pixel-3d.jpg", "legenda": "Primeira clareira" },
+        { "src": "historico/v0.1-camera-girada.jpg", "legenda": "Mesma floresta, câmera girada" }
+      ]
+    }
+  ]
+}

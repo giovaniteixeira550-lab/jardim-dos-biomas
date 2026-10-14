@@ -3,59 +3,203 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Histórico do Jardim</title>
+<title>Diário do Jardim</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet" />
 <style>
-  /* Página de leitura: coluna única, mesma identidade da demo (painéis de jogo). */
+  /* Painel de acompanhamento: resumo no topo (onde estamos, próximo passo),
+     quadro de pendências em 3 colunas, linha do tempo de versões embaixo. */
   :root {
-    --tinta: #141c18;
+    --fundo: #141c18;
     --painel: #1b2620;
+    --painel2: #22302a;
     --borda: #3f6e3c;
     --texto: #e9e3d1;
     --suave: #a6b67f;
-    --acento: #9cc364;
-    --alerta: #ecab4c;
+    --verde: #9cc364;
+    --ambar: #ecab4c;
+    --azul: #86c2bd;
+    --cinza: #7c847e;
     --display: "Silkscreen", "Pixelify Sans", ui-monospace, monospace;
     --corpo: "Pixelify Sans", ui-monospace, "Cascadia Mono", monospace;
     color-scheme: dark;
   }
-  body { margin: 0; background: var(--tinta); color: var(--texto); font-family: var(--corpo); font-size: 16px; line-height: 1.6; }
-  .topo { position: sticky; top: 0; z-index: 2; background: var(--tinta); border-bottom: 2px solid var(--borda); padding: 10px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
-  .topo strong { font-family: var(--display); font-weight: 400; color: var(--acento); letter-spacing: 0.06em; font-size: 14px; }
-  .topo a { color: var(--texto); background: #22382b; border: 2px solid var(--borda); padding: 3px 10px; text-decoration: none; box-shadow: 2px 2px 0 #000; font-size: 13px; }
-  main { max-width: 760px; margin: 0 auto; padding: 8px 16px 48px; }
-  h1 { font-family: var(--display); font-weight: 400; color: var(--acento); font-size: 22px; letter-spacing: 0.05em; text-wrap: balance; }
-  h2 { font-family: var(--display); font-weight: 400; color: var(--alerta); font-size: 16px; letter-spacing: 0.05em; margin-top: 40px; border-top: 2px dashed var(--borda); padding-top: 18px; }
-  h3 { font-size: 18px; color: var(--texto); margin: 28px 0 6px; }
-  a { color: var(--acento); }
-  code { background: var(--painel); padding: 0 4px; border: 1px solid var(--borda); font-size: 0.9em; }
-  img { display: block; max-width: 100%; margin: 12px 0; border: 2px solid var(--borda); image-rendering: pixelated; box-shadow: 4px 4px 0 #000; }
-  ul, ol { padding-left: 22px; }
-  li { margin: 3px 0; }
-  hr { border: 0; border-top: 2px solid var(--borda); margin: 28px 0; }
-  #erro { color: var(--alerta); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: var(--corpo); font-size: 15px; line-height: 1.5; }
+  .topo { position: sticky; top: 0; z-index: 5; background: var(--fundo); border-bottom: 2px solid var(--borda); padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .topo h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 15px; letter-spacing: 0.06em; color: var(--verde); flex: 1 1 auto; }
+  .selo { font-family: var(--display); font-size: 11px; background: var(--verde); color: var(--fundo); padding: 2px 8px; }
+  .botao { color: var(--texto); background: #22382b; border: 2px solid var(--borda); padding: 3px 10px; text-decoration: none; box-shadow: 2px 2px 0 #000; font-size: 13px; }
+  .botao:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
+  main { max-width: 1040px; margin: 0 auto; padding: 18px 16px 56px; display: grid; gap: 28px; }
+  h2 { margin: 0 0 12px; font-family: var(--display); font-weight: 400; font-size: 14px; letter-spacing: 0.06em; color: var(--suave); }
+  .bloco { background: var(--painel); border: 2px solid var(--borda); box-shadow: 4px 4px 0 #000; padding: 16px; }
+  .atualizado { color: var(--suave); font-size: 12px; }
+
+  /* Próximo passo */
+  .proximo { border-color: var(--ambar); }
+  .proximo strong { display: block; font-size: 18px; color: var(--ambar); margin-bottom: 4px; }
+  .proximo p { margin: 0; max-width: 70ch; }
+
+  /* Frentes */
+  .frentes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .frente { background: var(--painel2); border: 2px solid #2f5236; padding: 12px; display: grid; gap: 6px; min-width: 0; }
+  .frente-topo { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .frente-nome { font-weight: 600; }
+  .pilula { font-size: 11px; padding: 1px 7px; border: 2px solid currentColor; white-space: nowrap; }
+  .pronto { color: var(--verde); }
+  .andamento { color: var(--ambar); }
+  .nao_iniciado { color: var(--cinza); }
+  .barra { height: 10px; background: var(--fundo); border: 2px solid #2f5236; }
+  .barra > i { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--verde) 0 6px, #75a650 6px 8px); }
+  .frente p { margin: 0; font-size: 13px; color: var(--suave); }
+
+  /* Quadro */
+  .quadro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .coluna { background: var(--painel2); border: 2px solid; padding: 12px; min-width: 0; }
+  .coluna h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 12px; letter-spacing: 0.05em; }
+  .coluna ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .coluna li { background: var(--fundo); padding: 6px 8px; font-size: 14px; border-left: 4px solid; }
+  .c-funciona { border-color: var(--verde); } .c-funciona h3 { color: var(--verde); } .c-funciona li { border-left-color: var(--verde); }
+  .c-corrigir { border-color: var(--ambar); } .c-corrigir h3 { color: var(--ambar); } .c-corrigir li { border-left-color: var(--ambar); }
+  .c-ideias { border-color: var(--azul); } .c-ideias h3 { color: var(--azul); } .c-ideias li { border-left-color: var(--azul); }
+
+  /* Linha do tempo */
+  .tempo { display: grid; gap: 16px; position: relative; }
+  .versao { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: 16px; background: var(--painel); border: 2px solid var(--borda); box-shadow: 4px 4px 0 #000; padding: 14px; }
+  .versao-cab { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; margin-bottom: 6px; }
+  .tag { font-family: var(--display); font-size: 12px; background: var(--borda); color: #fff; padding: 2px 7px; }
+  .versao h3 { margin: 0; font-size: 19px; }
+  .data { color: var(--suave); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .porque { margin: 4px 0 10px; color: var(--ambar); }
+  .porque::before { content: "Por quê: "; color: var(--suave); }
+  .versao ul { margin: 0 0 10px; padding-left: 18px; }
+  .versao li { margin: 2px 0; }
+  .resultado { margin: 0; padding: 6px 8px; background: var(--fundo); border-left: 4px solid var(--verde); font-size: 14px; }
+  .fotos { display: grid; gap: 8px; align-content: start; }
+  .fotos button { padding: 0; border: 2px solid var(--borda); background: none; cursor: zoom-in; box-shadow: 3px 3px 0 #000; }
+  .fotos img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+  .fotos figcaption { font-size: 12px; color: var(--suave); }
+
+  /* Ampliar imagem */
+  dialog { border: 2px solid var(--borda); background: var(--fundo); color: var(--texto); padding: 8px; max-width: min(96vw, 1400px); }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.8); }
+  dialog img { display: block; max-width: 100%; max-height: 82vh; image-rendering: pixelated; }
+  dialog p { margin: 6px 0 0; font-size: 13px; color: var(--suave); }
+
+  @media (max-width: 760px) {
+    .quadro { grid-template-columns: 1fr; }
+    .versao { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 <header class="topo">
-  <strong>HISTÓRICO DO JARDIM</strong>
-  <a href="./">← Voltar ao jardim</a>
+  <h1>DIÁRIO DO JARDIM</h1>
+  <span class="selo" id="versao-atual">…</span>
+  <a class="botao" href="./">Abrir o jardim</a>
+  <a class="botao" href="https://github.com/giovaniteixeira550-lab/jardim-dos-biomas" target="_blank" rel="noopener">Código</a>
 </header>
-<main id="conteudo"><p>Carregando o histórico…</p></main>
 
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<main>
+  <p id="erro" hidden></p>
+
+  <section class="bloco proximo" aria-labelledby="t-proximo">
+    <h2 id="t-proximo">PRÓXIMO PASSO</h2>
+    <strong id="proximo-titulo"></strong>
+    <p id="proximo-descricao"></p>
+  </section>
+
+  <section aria-labelledby="t-frentes">
+    <h2 id="t-frentes">ONDE ESTAMOS <span class="atualizado" id="atualizado"></span></h2>
+    <div class="frentes" id="frentes"></div>
+  </section>
+
+  <section aria-labelledby="t-quadro">
+    <h2 id="t-quadro">QUADRO</h2>
+    <div class="quadro">
+      <div class="coluna c-funciona"><h3>✔ FUNCIONA</h3><ul id="q-funciona"></ul></div>
+      <div class="coluna c-corrigir"><h3>⚠ CORRIGIR</h3><ul id="q-corrigir"></ul></div>
+      <div class="coluna c-ideias"><h3>✦ IDEIAS</h3><ul id="q-ideias"></ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-tempo">
+    <h2 id="t-tempo">LINHA DO TEMPO</h2>
+    <div class="tempo" id="tempo"></div>
+  </section>
+</main>
+
+<dialog id="zoom"><img alt="" /><p></p></dialog>
+
 <script>
-  // Fonte única: HISTORICO.md (o mesmo arquivo que as IAs e você editam).
-  fetch("HISTORICO.md", { cache: "no-store" })
-    .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`))))
-    .then((md) => {
-      document.getElementById("conteudo").innerHTML = marked.parse(md);
+  // Fonte única dos dados: historico.json (atualizado a cada versão).
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs = {}, ...filhos) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) k === "class" ? (e.className = v) : e.setAttribute(k, v);
+    for (const f of filhos) e.append(f);
+    return e;
+  };
+  const STATUS = { pronto: "pronto", andamento: "em andamento", nao_iniciado: "não iniciado" };
+  const fmt = (d) => d.split("-").reverse().join("/");
+
+  fetch("historico.json", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+    .then((h) => {
+      $("versao-atual").textContent = h.versaoAtual;
+      $("atualizado").textContent = `· atualizado em ${fmt(h.atualizado)}`;
+      $("proximo-titulo").textContent = h.proximoPasso.titulo;
+      $("proximo-descricao").textContent = h.proximoPasso.descricao;
+
+      for (const f of h.frentes) {
+        const barra = el("div", { class: "barra", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(f.progresso), "aria-label": f.nome }, el("i"));
+        barra.firstChild.style.width = `${f.progresso}%`;
+        $("frentes").append(
+          el("article", { class: "frente" },
+            el("div", { class: "frente-topo" }, el("span", { class: "frente-nome" }, f.nome), el("span", { class: `pilula ${f.status}` }, STATUS[f.status])),
+            barra,
+            el("p", {}, f.nota),
+          ),
+        );
+      }
+
+      for (const [chave, id] of [["funciona", "q-funciona"], ["corrigir", "q-corrigir"], ["ideias", "q-ideias"]])
+        for (const item of h.quadro[chave]) $(id).append(el("li", {}, item));
+
+      for (const v of h.versoes) {
+        const fotos = el("div", { class: "fotos" });
+        for (const im of v.imagens ?? []) {
+          const img = el("img", { src: im.src, alt: im.legenda, loading: "lazy" });
+          const b = el("button", { type: "button", "aria-label": `Ampliar: ${im.legenda}` }, img);
+          b.addEventListener("click", () => {
+            $("zoom").querySelector("img").src = im.src;
+            $("zoom").querySelector("img").alt = im.legenda;
+            $("zoom").querySelector("p").textContent = `${v.versao} · ${im.legenda} (clique fora para fechar)`;
+            $("zoom").showModal();
+          });
+          fotos.append(el("figure", { style: "margin:0" }, b, el("figcaption", {}, im.legenda)));
+        }
+        $("tempo").append(
+          el("article", { class: "versao" },
+            el("div", {},
+              el("div", { class: "versao-cab" }, el("span", { class: "tag" }, v.versao), el("h3", {}, v.titulo), el("span", { class: "data" }, fmt(v.data))),
+              el("p", { class: "porque" }, v.porque),
+              el("ul", {}, ...v.mudancas.map((m) => el("li", {}, m))),
+              el("p", { class: "resultado" }, v.resultado),
+            ),
+            fotos,
+          ),
+        );
+      }
     })
     .catch((e) => {
-      document.getElementById("conteudo").innerHTML = `<p id="erro">Não foi possível carregar o histórico (${e.message}). Ele também está em HISTORICO.md no repositório.</p>`;
+      $("erro").hidden = false;
+      $("erro").textContent = `Não foi possível carregar o diário (${e.message}).`;
     });
+
+  $("zoom").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 </script>
 </body>
 </html>
