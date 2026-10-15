@@ -60,7 +60,9 @@ function finalizar(g) {
 export function juntar(partes) {
   const total = partes.reduce((n, g) => n + g.attributes.position.count, 0);
   const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), cor = new Float32Array(total * 3).fill(1);
-  const banda = new Float32Array(total); // altura dentro da copa (-1 base … +1 topo): o shader desenha luz e sombra
+  // Altura dentro da copa (-1 base … +1 topo): o shader desenha luz, sombra e escamas de folhas.
+  // -9 = não é folhagem (tronco, galho, fruto, flor): fica sem esse desenho.
+  const banda = new Float32Array(total).fill(-9);
   let o = 0;
   for (const g of partes) {
     pos.set(g.attributes.position.array, o * 3);

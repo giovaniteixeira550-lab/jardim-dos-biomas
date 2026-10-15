@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.14",
+  "versaoAtual": "v0.15",
   "proximoPasso": {
     "titulo": "Revisar o mapa maior; depois a seca das árvores",
     "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
@@ -62,7 +62,8 @@
       "Mapa 2× maior (260 × 170 m), carregando no mesmo tempo de antes (~4,5 s de cálculo)",
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
       "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
-      "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)"
+      "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)",
+      "Textura de folhas nas copas: aglomerados em escama com sombra embaixo e brilho em cima"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -83,10 +84,33 @@
       "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
       "Botão 'ver troncos' (abaixa as copas por um instante)",
       "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões",
-      "Textura de folhas nas copas (aglomerados em escama, como nas referências)"
+      "Mesmo cuidado de textura nos troncos (casca com veios) e nas pedras soltas"
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.15",
+      "data": "2026-10-14",
+      "titulo": "Folhas em escama nas copas",
+      "porque": "Copas com textura de aglomerados de folhas, como nas referências de pixel art.",
+      "mudancas": [
+        "Copas desenhadas com fileiras desencontradas de aglomerados (como telhas), cada um com arco de sombra embaixo",
+        "Alguns aglomerados ganham brilho no alto; outros ficam lisos, para não parecer padrão de máquina",
+        "Desenho parado no mundo (não 'escorrega' ao arrastar o mapa) e some no zoom muito longe, sem virar chuvisco",
+        "Só nas folhas: troncos, frutos, flores, cogumelo e cristal ficam como estavam"
+      ],
+      "resultado": "As árvores ganharam a textura de folhagem desenhada das referências.",
+      "imagens": [
+        {
+          "src": "historico/v0.15-folhas.jpg",
+          "legenda": "Bosque com copas em escama (zoom de jogo)"
+        },
+        {
+          "src": "historico/v0.15-folhas-perto.jpg",
+          "legenda": "De perto: aglomerados com sombra e franja"
+        }
+      ]
+    },
     {
       "versao": "v0.14",
       "data": "2026-10-14",
