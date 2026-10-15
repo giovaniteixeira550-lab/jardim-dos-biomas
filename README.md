@@ -1,6 +1,6 @@
 # Jardim dos Biomas — demo de arte
 
-Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim antes de aplicá-la ao site. Uma única cena pequena (uma clareira de 180 × 120 m), para acertar qualidade antes de ampliar.
+Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim antes de aplicá-la ao site. Uma única cena (260 × 170 m desde a v0.12; começou com 180 × 120 m), para acertar a qualidade antes de ampliar mais.
 
 - **Abrir online (sem login):** https://giovaniteixeira550-lab.github.io/jardim-dos-biomas/
 - **Código:** https://github.com/giovaniteixeira550-lab/jardim-dos-biomas (cada push na branch `main` republica a página em ~1 min)
@@ -42,13 +42,14 @@ src/presets/      presets de arbustos do ez-tree (MIT)
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.11)
+## 3. Estado atual (v0.12)
 
 - Carrega em ~2,5 s; ~160 FPS numa placa dedicada; sem erros de console.
 - 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
 - **Vento em degraus de pixel:** folhas e capim se movem só em passos de 1 pixel inteiro (sem tremor sub-pixel); capim mais lento, sem contorno de tinta (não grava profundidade) e com lâminas mais grossas.
+- **v0.12 — mapa maior:** 260 × 170 m (`gerarMundo`), quantidades proporcionais à área (`areaRel`); campos do mundo (lago, trilha, densidade) calculados uma vez na grade e reaproveitados pelo terreno; `jardim.tempos` mede cada etapa do carregamento.
 - **v0.11 — riacho:** curso em `mundo.riacho` (nível da água só desce; leito escavado na grade de alturas), fita de água com cascata animada (`criarRiacho`), vitórias-régias e taboas (`criarPlantasAquaticas`); paredões com padrão de colunas limpo.
 - **v0.10 — terraços:** relevo em platôs (mundo.js: `elevacao` fatiada em níveis de 4,5 m, paredão de largura fixa, escadas na trilha, grade de alturas pré-calculada); paredões de pedra em blocos por shader (`materialTerreno` em cena.js).
 - **v0.9 — raio-X:** copas na frente do cursor ficam rendadas em xadrez de pixels (shader no material das árvores, `criarRaioX` em cena.js); cliques atravessam a parte rendada.

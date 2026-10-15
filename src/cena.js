@@ -134,35 +134,54 @@ export class Jardim {
   }
 
   async carregar(semente, progresso) {
+    // Tempo de cada etapa (ms), para acompanhar o custo de carregar: jardim.tempos no console.
+    this.tempos = {};
+    let marca = performance.now();
+    const medir = (nome) => {
+      const agora = performance.now();
+      this.tempos[nome] = Math.round(agora - marca);
+      marca = agora;
+    };
     progresso(0.04, "Semeando o mundo…");
     await quadro();
+    marca = performance.now();
     const m = (this.mundo = gerarMundo(semente));
+    medir("mundo");
     this.alvo.set(m.largura * 0.55, 0, m.altura * 0.55);
 
     progresso(0.1, "Moldando o terreno…");
     await quadro();
+    marca = performance.now();
     this.criarTerreno();
+    medir("terreno");
     this.criarAgua();
     this.criarRiacho();
     this.criarPlantasAquaticas();
+    medir("agua");
 
     const lista = Object.entries(ESPECIES);
     const total = lista.reduce((n, [, e]) => n + e.variacoes, 0);
-    let feitas = 0;
+    let feitas = 0, somaArvores = 0;
     this.variacoes = [];
     for (const [id, e] of lista)
       for (let v = 0; v < e.variacoes; v++) {
         progresso(0.18 + (feitas / total) * 0.55, `Desenhando árvores (${feitas + 1}/${total})…`);
         await quadro();
+        const t0 = performance.now();
         this.variacoes.push(this.gerarVariacao(id, e, semente * 31 + feitas * 977));
+        somaArvores += performance.now() - t0;
         feitas++;
       }
 
+    this.tempos.arvores = Math.round(somaArvores);
     progresso(0.78, "Plantando o bosque…");
     await quadro();
+    marca = performance.now();
     this.plantar();
+    medir("plantar");
     this.montarViveiro();
     this.criarDetalhes();
+    medir("detalhes");
 
     progresso(0.9, "Acendendo a luz…");
     await quadro();
@@ -171,6 +190,7 @@ export class Jardim {
     this.redimensionar();
     this.atualizarCrescimento(true);
     await this.renderer.compileAsync(this.scene, this.camera);
+    medir("luz_e_shaders");
 
     progresso(1, "Pronto");
     this.ro = new ResizeObserver(() => this.redimensionar());
@@ -216,8 +236,10 @@ export class Jardim {
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
       const n1 = m.ruido(x / 22, z / 22 + 9, 3), n2 = m.fino(x / 6, z / 6, 2);
-      const d = m.densidade(x, z), f = m.fatorLago(x, z);
-      const trilha = m.distTrilha(x, z) / m.trilha.largura;
+      // Campos já calculados pelo mundo (mesma grade de 0,5 m): sem recalcular ruído.
+      const gr = m.grade, mesmo = pos.count === gr.nx * gr.ny;
+      const d = mesmo ? gr.DN[i] : m.densidade(x, z), f = mesmo ? gr.FL[i] : m.fatorLago(x, z);
+      const trilha = (mesmo ? gr.DT[i] : m.distTrilha(x, z)) / m.trilha.largura;
       rocha[i] = suave(0.5, 0.62, trilha);
       // Gramado: sálvia com manchas; salpicos pontuais viram textura após o dither.
       let idx = n1 < 0.38 ? 2 : n1 < 0.62 ? 3 : 4;
@@ -728,7 +750,7 @@ export class Jardim {
     // fica corretamente atrás de troncos e pedras.
     const matCapim = toon({ vertexColors: true, side: THREE.DoubleSide, depthWrite: false });
     for (let f = 0; f < 3; f++) {
-      const max = 2600;
+      const max = Math.round(2600 * m.areaRel);
       const im = new THREE.InstancedMesh(touceira(criarRng(m.semente + f)), matCapim, max);
       let n = 0;
       for (let t = 0; t < max * 5 && n < max; t++) {
@@ -801,7 +823,7 @@ export class Jardim {
     }
 
     // Vaga-lumes (noite): pontos de 1 pixel que piscam.
-    const n = 140, pos = new Float32Array(n * 3);
+    const n = Math.round(140 * m.areaRel), pos = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
       const x = rng() * m.largura, z = rng() * m.altura;
       pos.set([x, this.alturaEm(x, z) + 0.6 + rng() * 2.5, z], i * 3);

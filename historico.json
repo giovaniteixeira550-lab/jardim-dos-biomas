@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.11",
+  "versaoAtual": "v0.12",
   "proximoPasso": {
-    "titulo": "Ampliar o mapa",
-    "descricao": "A clareira de 180 × 120 m foi a base inicial. Com relevo e água prontos, o mapa pode crescer (mais platôs, outro riacho, espaço para os biomas) — medindo o carregamento a cada passo."
+    "titulo": "Revisar o mapa maior; depois a seca das árvores",
+    "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
   },
   "frentes": [
     {
@@ -27,8 +27,8 @@
     {
       "nome": "Terreno e água",
       "status": "andamento",
-      "progresso": 75,
-      "nota": "Terraços, paredões de pedra em colunas, riacho com cascatas, ponte, vitórias-régias e taboas."
+      "progresso": 80,
+      "nota": "Mapa 260 × 170 m com terraços, riacho com cascatas e lago proporcional. Falta: acabamento da escada, segundo riacho."
     },
     {
       "nome": "Vida e clima",
@@ -58,18 +58,19 @@
       "Raio-X: copas na frente do cursor ficam rendadas em pixel (cliques atravessam)",
       "Relevo em terraços: platôs planos, paredões verticais de pedra em blocos, escadas de pedra na trilha",
       "Riacho que desce do platô mais alto até o lago, com cascatas nos paredões, espuma, pedras e ponte de madeira",
-      "Paredões com padrão limpo: colunas regulares com chanfro, topo claro e pé na sombra"
+      "Paredões com padrão limpo: colunas regulares com chanfro, topo claro e pé na sombra",
+      "Mapa 2× maior (260 × 170 m), carregando no mesmo tempo de antes (~4,5 s de cálculo)",
+      "Tempo de cada etapa do carregamento visível em jardim.tempos (console)"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça",
       "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
-      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)",
       "Encontro da escada da trilha com o barranco ainda tem uma faixa cinza sem acabamento"
     ],
     "ideias": [
-      "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
+      "Segundo riacho e lagoas menores; regiões para os 5 biomas no mapa maior",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
       "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
       "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
@@ -83,6 +84,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.12",
+      "data": "2026-10-14",
+      "titulo": "Mapa 2× maior, sem carregar mais devagar",
+      "porque": "O mapa de 180 × 120 m era só a base; com relevo e água, cabia ampliar.",
+      "mudancas": [
+        "Mapa de 260 × 170 m: mais platôs, riacho mais longo, lago e colina proporcionais",
+        "Capim, flores, pedras e vaga-lumes crescem junto com a área",
+        "Otimização: o terreno reaproveita os cálculos do mundo (terreno de 1,7 s → 0,9 s no mapa antigo)",
+        "Medição por etapa em jardim.tempos: antes 4,2 s no mapa pequeno, agora ~4,5 s no mapa 2× maior"
+      ],
+      "resultado": "Cerca de 950 árvores e arbustos; espécies raras (cristal, cogumelo, araucária) passaram a aparecer.",
+      "imagens": [
+        {
+          "src": "historico/v0.12-mapa-maior.jpg",
+          "legenda": "Visão ampla do mapa novo"
+        }
+      ]
+    },
     {
       "versao": "v0.11",
       "data": "2026-10-14",
