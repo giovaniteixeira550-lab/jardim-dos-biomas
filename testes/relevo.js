@@ -40,6 +40,27 @@ $("executar").onclick=async()=>{
     }
     afirmar(verificados>20,"Escadaria não foi construída");
     registrar(`${verificados} pisos conferidos por interseção 3D; terreno não atravessa os degraus.`);
+    let lateraisConferidas=0;
+    for(let i=1;i<m.trilha.amostras.length-1;i++) {
+      const p=m.trilha.amostras[i],a=m.trilha.amostras[i-1],b=m.trilha.amostras[i+1];
+      if(!p.escada||p.ponte)continue;
+      const d=Math.hypot(b.x-a.x,b.y-a.y);
+      for(const lado of [-.35,.35]) {
+        ray.set(new THREE.Vector3(p.x-(b.y-a.y)/d*m.trilha.largura*lado,p.h+1,p.y+(b.x-a.x)/d*m.trilha.largura*lado),new THREE.Vector3(0,-1,0));
+        const hit=ray.intersectObjects(degraus,false)[0];
+        afirmar(hit&&Math.abs(hit.point.y-p.h)<.02,'Piso inclinado, torcido ou com fenda lateral em '+p.s);
+        lateraisConferidas++;
+      }
+    }
+    for(const degrau of degraus) {
+      const pos=degrau.geometry.attributes.position;
+      for(let i=0;i<pos.count;i+=3) {
+        const tri=[0,1,2].map(j=>new THREE.Vector3().fromBufferAttribute(pos,i+j));
+        if(!tri.every(v=>Math.abs(v.y-degrau.userData.topo)<.001))continue;
+        for(let j=0;j<3;j++)afirmar(tri[j].distanceTo(tri[(j+1)%3])<.9,'Face do piso continua larga demais');
+      }
+    }
+    registrar(lateraisConferidas+' bordas de piso niveladas; faces menores que 0,9 m e degraus sem torção.');
     const ponte=m.pontes[0],malhasPonte=[];
     jardim.travessias.traverse(o=>{if(o.userData.tipo==="piso-ponte")malhasPonte.push(o);});
     ray.set(new THREE.Vector3(ponte.x+ponte.dx*0.17,ponte.h+1,ponte.y+ponte.dy*0.17),new THREE.Vector3(0,-1,0));
@@ -55,7 +76,7 @@ $("executar").onclick=async()=>{
     for(const geo of geometrias)geo.addEventListener("dispose",()=>liberadas++);
     jardim.dispose();jardim.dispose();afirmar(liberadas===geometrias.size,"Geometria abandonada ou liberada em duplicidade");
     registrar("Encerramento libera os recursos novos uma única vez.");
-    $("estado").textContent="Todas as 5 verificações de relevo passaram.";
+    $("estado").textContent="Todas as 6 verificações de relevo passaram.";
   } catch(e){$("estado").textContent=`FALHOU — ${e.message}`;console.error(e);}
 };
 window.addEventListener("pagehide",()=>jardim?.dispose());

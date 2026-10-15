@@ -95,8 +95,8 @@ for (const m of mundos) {
     for (let i = 1; i < pontos.length; i++) {
       const a = pontos[i - 1], b = pontos[i], delta = Math.abs(b.h - a.h);
       assert.ok(b.s > a.s && b.s - a.s <= 0.5 + tolerancia, `amostragem descontínua em ${i}`);
-      assert.ok(delta <= 0.3 + tolerancia, `espelho de ${delta} m em ${i}`);
-      assert.ok(Math.abs(b.h / 0.3 - Math.round(b.h / 0.3)) < tolerancia, `altura fora da modulação em ${i}`);
+      assert.ok(delta <= 0.25 + tolerancia, `espelho de ${delta} m em ${i}`);
+      assert.ok(Math.abs(b.h / 0.25 - Math.round(b.h / 0.25)) < tolerancia, `altura fora da modulação em ${i}`);
       if (delta > tolerancia) { degraus++; assert.ok(a.escada || b.escada, `desnível sem escada em ${i}`); }
       else patamares++;
     }
@@ -176,5 +176,18 @@ test('ponte fica depois da última cascata e substitui a travessia alta',()=>{
   assert.ok(p.sRio>q.s+8,'ponte deve ficar no trecho baixo, afastada da cortina');
   assert.ok(Math.abs(rioEm(m,p.x,p.y).agua+.55)<tolerancia,'ponte ainda está no patamar alto');
   assert.ok(m.distTrilha(74/180*m.largura,49/120*m.altura)>8,'travessia antiga permaneceu no caminho');
-  assert.ok(m.distTrilha(68/180*m.largura,69/120*m.altura)<tolerancia,'caminho deixou de acompanhar a margem esquerda');
+  assert.ok(m.distTrilha(68/180*m.largura,66.8/120*m.altura)<tolerancia,'caminho deixou de acompanhar a margem esquerda');
+});
+
+test('lances de escada ficam retos; mudanças de direção acontecem nos patamares',()=>{
+ const A=mundos[0].trilha.amostras;
+ for(let i=0;i<A.length;i++){
+  if(!A[i].escada)continue;let j=i;while(j+1<A.length&&A[j+1].escada)j++;
+  const a=A[i],b=A[j],len=Math.hypot(b.x-a.x,b.y-a.y);
+  if(len>3)for(let k=i;k<=j;k++) {
+   const desvio=Math.abs((b.x-a.x)*(A[k].y-a.y)-(b.y-a.y)*(A[k].x-a.x))/len;
+   assert.ok(desvio<.025,'escada muda de direção no meio dos degraus: '+desvio);
+  }
+  i=j;
+ }
 });

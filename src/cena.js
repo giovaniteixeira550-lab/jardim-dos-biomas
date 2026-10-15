@@ -968,7 +968,7 @@ export class Jardim {
     if(!local)return false;
     this.focarEm(null);
     this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
-    this.altura=local.tipo==="agua"&&id==="lago"?52:32;
+    this.altura=local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32;
     return true;
   }
 

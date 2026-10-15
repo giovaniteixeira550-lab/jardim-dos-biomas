@@ -54,9 +54,10 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.21)
+## 3. Estado atual (v0.22)
 
-- O histórico acompanha v0.1–v0.21 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.22 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- **v0.22 — escadas refinadas:** lances retos com mudanças de direção nos patamares, degraus de 0,25 m em vez de 0,30 m e pisos regulares. Uma referência comum alinha as bordas; quatro pedras por piso, juntas rebaixadas e quinas em três faces substituem as divisões irregulares. Malhas mais densas, com amostras a cada 0,125 m. Atalho para ver a Escada do vale de perto na planta.
 - **v0.21 — caminho pela margem esquerda e ponte inferior:** o trecho indicado pelo usuário desce pela encosta, contorna sua base e cruza abaixo da última cascata, conectando novamente à estrada da direita. A travessia alta foi removida. Escadas e cabeceiras continuam seguindo o mesmo perfil do terreno.
 - **v0.20 — relevo distribuído:** seis regiões com encostas curvas, espigões alongados e cumes deslocados. Vales entre nascente, norte, leste, chegada, sul e promontório do lago preservam água e circulação. A vista inicial mostra o conjunto; cinco novos lugares na planta permitem visitar as encostas. Materiais, árvores e controles preservados.
 - **v0.19 — paredões com leitura de pixel art:** massas angulares grandes com poucos tons substituem os estratos horizontais. Fendas seletivas, sombras nos encaixes e capa verde recortada acompanham as referências. Pontilhado menor só nas paredes; a paleta continua obrigatória. O contorno distingue uma silhueta de um plano oblíquo contínuo, evitando riscar toda a parede. Topografia, árvores, percursos e água preservados.
