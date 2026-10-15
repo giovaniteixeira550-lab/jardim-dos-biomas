@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.9 + câmera e transparência",
+  "versaoAtual": "v0.10 + câmera e transparência",
   "proximoPasso": {
-    "titulo": "Relevo de verdade: terraços com barrancos",
-    "descricao": "O chão é quase plano (±1,6 m). Próximo: platôs em degraus com barrancos de pedra, uma colina alta e uma baixada úmida — dá leitura ao mapa e lugar para as espécies de altitude e de baixada. Depois: seca das árvores (passo 1 do PLANO)."
+    "titulo": "Relevo, parte 2: água descendo entre os níveis",
+    "descricao": "Como na referência: um riacho que nasce no platô alto e cai em cascata no paredão até o lago, com pedras na margem. Depois: seca das árvores (passo 1 do PLANO)."
   },
   "frentes": [
     {
@@ -27,8 +27,8 @@
     {
       "nome": "Terreno e água",
       "status": "andamento",
-      "progresso": 40,
-      "nota": "Relevo, lago e trilha. Falta detalhe no chão e plantas aquáticas."
+      "progresso": 60,
+      "nota": "Terraços com paredões de pedra em blocos e escadas na trilha. Falta: cascata/riacho, plantas aquáticas."
     },
     {
       "nome": "Vida e clima",
@@ -55,6 +55,7 @@
       "Clique mostra a ficha da árvore",
       "Carregamento rápido (sem biblioteca de árvores)",
       "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
+      "Relevo em terraços: platôs planos, paredões verticais de pedra em blocos, escadas de pedra na trilha",
       "Troca de mundo cancela a carga anterior e remove controles antigos",
       "Transformações de arquitetura entre broto, muda, jovem e adulta",
       "Vitrine Evolução para comparar formas sem depender do tamanho",
@@ -63,14 +64,14 @@
       "Árvore sob o mouse fica translúcida por inteira, revelando as de trás"
     ],
     "corrigir": [
-      "Terreno quase plano: falta relevo visível",
-      "Espécies de terreno alto ou baixada (araucária, coqueiro, cristal) quase não aparecem: o mapa tem pouco desses terrenos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça",
-      "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas"
+      "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
+      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
+      "Riacho e cascata descendo pelos paredões até o lago",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
       "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
       "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
@@ -79,7 +80,8 @@
       "Estações do ano (ipês florindo, outono, inverno sem folhas)",
       "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago",
       "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
-      "Botão 'ver troncos' (abaixa as copas por um instante)"
+      "Botão 'ver troncos' (abaixa as copas por um instante)",
+      "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões"
     ]
   },
   "versoes": [
@@ -164,6 +166,29 @@
         {
           "src": "historico/codex-ciclo-de-vida.jpg",
           "legenda": "Clareira da v0.6 preservada após a preparação do encerramento da cena"
+        }
+      ]
+    },
+    {
+      "versao": "v0.10",
+      "data": "2026-10-14",
+      "titulo": "Relevo em terraços (estilo da referência)",
+      "porque": "O chão era quase plano; jogos de pixel art com 3D usam platôs e paredões de pedra.",
+      "mudancas": [
+        "Platôs planos em até 4 níveis (~4,5 m cada): colina num canto, baixada úmida em volta do lago",
+        "Paredões verticais de pedra em blocos (desenhados pixel a pixel por shader), com tom de grama próprio em cada platô",
+        "Escadas de pedra estreitas onde a trilha muda de nível",
+        "Nada nasce nos paredões; espécies de altitude (pinheiro, araucária) e de baixada (bananeira, coqueiro) aparecem mais"
+      ],
+      "resultado": "O mapa ganhou leitura de altura sem mudar a arte das árvores, do lago e da trilha.",
+      "imagens": [
+        {
+          "src": "historico/v0.10-terracos.jpg",
+          "legenda": "Lago na baixada cercado por paredões; platôs e escada"
+        },
+        {
+          "src": "historico/v0.10-escada.jpg",
+          "legenda": "Escada de pedra encaixada no paredão"
         }
       ]
     },

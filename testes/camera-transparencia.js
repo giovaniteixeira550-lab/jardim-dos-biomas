@@ -37,13 +37,13 @@ $("executar").onclick=async()=>{
     afirmar(!j.matArvore.customProgramCacheKey().includes("raiox"),"Shader circular ainda ativo");
     const m=new THREE.Matrix4(); h.malha.getMatrixAt(h.ind.vaga,m);
     afirmar(m.determinant()===0,"Árvore opaca sobreposta à translúcida");
-    for(const ind of j.individuos.filter(i=>i!==h.ind)) {
+    for(const ind of j.individuos.filter(i=>i!==h.ind&&i.indice>=0)) {
       ind.grupo.malhas[ind.indice].getMatrixAt(ind.vaga,m);
       afirmar(m.determinant()!==0,"Outra árvore ficou escondida");
     }
     registrar("Só um indivíduo fica translúcido; demais árvores continuam opacas, sem círculo ou descarte quadriculado.");
     j.ultimoRastreio=-Infinity; renderizar();
-    afirmar(j.sobrevoo?.ind.numero===numero,"Interseção alternou para a árvore de trás");
+    afirmar(j.sobrevoo?.ind.numero===numero,`Interseção alternou de ${numero} para ${j.sobrevoo?.ind.numero}`);
     let ficha;
     j.aoSelecionar = valor => ficha = valor;
     j.selecionarEm(ponto.x,ponto.y);

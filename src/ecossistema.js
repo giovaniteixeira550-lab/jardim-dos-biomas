@@ -34,7 +34,8 @@ export function criarAmbiente(m) {
     const dy = (m.altitude(x, y + 1) - m.altitude(x, y - 1)) / 2;
     return clamp01(Math.hypot(dx, dy) * 4); // ~0,25 m/m já é íngreme para a clareira
   };
-  const altitudeRel = (x, y) => clamp01((m.altitude(x, y) + 1.6) / 3.2);
+  // Terraços: baixada (nível 0) ≈ 0, platô 1 ≈ 0,38, platô 2 ≈ 0,77, topo do morro = 1.
+  const altitudeRel = (x, y) => clamp01(m.altitude(x, y) / (m.DEGRAU * 2.6));
   const umidade = (x, y) => {
     const raioMedio = (m.lago.rx + m.lago.ry) / 2;
     const dAgua = Math.max(0, m.fatorLago(x, y) - 1) * raioMedio; // metros até a margem (aprox.)
