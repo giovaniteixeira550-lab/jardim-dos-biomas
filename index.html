@@ -71,12 +71,16 @@
 </style>
 
 <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
-    }
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+    "./src/cena.js": "./src/cena.js?v=0.20",
+    "./src/mundo.js": "./src/mundo.js?v=0.20",
+    "./src/formacaoTerreno.js": "./src/formacaoTerreno.js?v=0.20",
+    "./src/planoMestre.js": "./src/planoMestre.js?v=0.20"
   }
+}
 </script>
 
 <canvas id="mapa" aria-label="Mapa do jardim: clareira com bosque, lago e trilha, em pixel art vista do alto em ângulo"></canvas>
@@ -128,4 +132,4 @@
   </div>
 </div>
 
-<script type="module" src="./src/main.js"></script>
+<script type="module" src="./src/main.js?v=0.20"></script>
