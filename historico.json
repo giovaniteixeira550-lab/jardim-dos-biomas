@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.20",
+  "versaoAtual": "v0.21",
   "proximoPasso": {
-    "titulo": "Avaliar a nova composição do mapa",
-    "descricao": "Revisar as seis regiões na vista geral e de perto antes de desenvolver os lugares de descanso."
+    "titulo": "Revisar o caminho do vale",
+    "descricao": "Conferir a nova descida pela esquerda e a ponte abaixo da cascata; depois continuar os lugares já planejados."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Seis regiões de relevo com curvas autorais, vales abertos, cumes deslocados e três cascatas conectadas ao lago."
+      "nota": "Seis regiões de relevo; caminho do vale redesenhado pela margem esquerda e ponte depois da última cascata."
     },
     {
       "nome": "Vida e clima",
@@ -75,7 +75,8 @@
       "Cascatas com fios variados e espuma em arcos quebrados",
       "Paredões com poucas áreas de cor, fendas desencontradas e grama em volume",
       "Contorno de silhueta sem riscar planos oblíquos contínuos",
-      "Relevo em seis regiões do mapa, com curvas e alturas diferentes"
+      "Relevo em seis regiões do mapa, com curvas e alturas diferentes",
+      "Caminho desce pela margem esquerda e cruza abaixo da última cascata"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -100,6 +101,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.21",
+      "data": "2026-10-15",
+      "titulo": "Ponte na parte baixa do vale",
+      "porque": "O caminho precisava acompanhar o desvio marcado em vermelho pelo usuário.",
+      "mudancas": [
+        "Caminho acompanha a margem esquerda da cascata",
+        "Descida em pedra e curva pela base da encosta",
+        "Ponte transferida para o trecho baixo do riacho",
+        "Ligação com a estrada da direita refeita"
+      ],
+      "resultado": "A travessia alta foi substituída por uma ponte abaixo da última cascata. O caminho, as escadas e as cabeceiras usam o mesmo perfil de altura.",
+      "imagens": [
+        {
+          "src": "historico/v0.21-caminho-ponte-baixa.jpg",
+          "legenda": "Descida pela esquerda, curva na base e ponte inferior conectada à estrada"
+        }
+      ]
+    },
     {
       "versao": "v0.20",
       "data": "2026-10-15",
