@@ -48,3 +48,18 @@ O estado atual combina o trabalho do Claude até a v0.17 (`3599561`), mantendo a
 ## Verificação
 
 Verificações da v0.18: 31 de percursos em cinco sementes e 12 da formação autoral, além dos cenários de relevo, câmera/transparência e ciclo de vida no navegador. Os testes de formação conferem contornos sem cruzamentos, encaixe com separação mínima de 4 m, uma massa conectada por patamar e ausência de buracos fechados em uma grade de 1 m. Os percursos conferem composição fixa, plantio variável, três quedas, foz, desembarques, degraus, canal livre e reservas de construção. Não houve benchmark de aparelhos. A publicação pública é conferida separadamente do resultado local.
+
+## Revisão de composição — v0.20
+
+A restrição anterior de uma única massa por altura foi substituída: concentrava os patamares no noroeste. Agora são seis regiões planejadas, sem ilhas pequenas nem buracos fechados. Os contornos usam curvas com tangentes curtas, e não segmentos retos longos.
+
+| Região | Centro canônico aproximado | Composição |
+|---|---|---|
+| Nascente | 30,24 | Três níveis; mirante, cascatas e subida preservados |
+| Norte | 99,14 | Espigão sinuoso de um nível, vale aberto ao sul |
+| Leste | 165,15 | Encosta ramificada de dois níveis, cume deslocado |
+| Poente | 15,110 | Encosta longitudinal de dois níveis, passagem da chegada livre |
+| Sul | 80,109 | Lombo baixo assimétrico separado por vales |
+| Lago | 174,105 | Promontório oriental; margem da água continua livre |
+
+Os terraços somam dentro de cada região; entre regiões vale a maior altura, evitando picos artificiais por sobreposição. A planta e o jardim usam o mesmo campo. Os testes conferem seis massas no primeiro nível, três no segundo e uma no terceiro, sem fragmentos menores que 100 m² na grade canônica, sem buracos e com pelo menos 4 m entre patamares de apoio. As reservas e três cascatas continuam verificadas em cinco sementes.

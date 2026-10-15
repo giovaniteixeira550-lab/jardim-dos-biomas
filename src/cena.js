@@ -124,7 +124,7 @@ export class Jardim {
     this.yaw = Math.PI / 4;
     this.yawAlvo = this.yaw;
     this.pitch = THREE.MathUtils.degToRad(38);
-    this.altura = 92; // vista inicial da encosta, cascatas e travessia
+    this.altura = 180; // vista inicial das seis regiões de relevo
     this.tamPixel = 2; // estilo definido: pixel mínimo, sempre com contorno
     this.crescimento = 0.9;
     this.cresceVisto = -1;
@@ -952,8 +952,8 @@ export class Jardim {
       this.alvo.set(14, 0, this.mundo.altura + 28);
       this.altura = 46;
     } else {
-      this.alvo.set(this.mundo.largura * 0.38, 4, this.mundo.altura * 0.38);
-      this.altura = 92;
+      this.alvo.set(this.mundo.largura * 0.5, 4, this.mundo.altura * 0.5);
+      this.altura = 180;
     }
   }
 

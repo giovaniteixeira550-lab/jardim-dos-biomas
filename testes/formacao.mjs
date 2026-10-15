@@ -53,7 +53,9 @@ for (const formacao of FORMACOES_PLANEJADAS) {
 }
 
 for (let k = 1; k < FORMACOES_PLANEJADAS.length; k++) {
-  const interno = FORMACOES_PLANEJADAS[k], externo = FORMACOES_PLANEJADAS[k - 1];
+  const interno = FORMACOES_PLANEJADAS[k];
+  if (!interno.apoio) continue;
+  const externo = FORMACOES_PLANEJADAS.find(f=>f.id===interno.apoio);
   test(`${interno.id}: encaixado em ${externo.id}, com pelo menos 4 m entre contornos`, () => {
     const arestasInternas = segmentos(interno.pontos), arestasExternas = segmentos(externo.pontos);
     for (const p of interno.pontos) assert.ok(dentro(p, externo.pontos), `vértice ${p} fora do patamar de apoio`);
@@ -90,7 +92,7 @@ function preencher(inicios, aceita, vistos) {
 }
 
 for (const nivel of [1, 2, 3]) {
-  test(`acima do nível ${nivel}: uma massa conectada e nenhum buraco fechado na grade de 1 m`, () => {
+  test(`acima do nível ${nivel}: maciços amplos e nenhum buraco fechado na grade de 1 m`, () => {
     const ocupadas = Uint8Array.from(campo, (v) => Number(v > nivel));
     const primeiro = ocupadas.indexOf(1), total = ocupadas.reduce((s, v) => s + v, 0);
     assert.ok(total > 25, "patamar desapareceu ou virou um remanescente diminuto");
@@ -98,8 +100,13 @@ for (const nivel of [1, 2, 3]) {
     for (let x = 0; x < nx; x++) borda.push(x, (ny - 1) * nx + x);
     for (let y = 1; y < ny - 1; y++) borda.push(y * nx, y * nx + nx - 1);
     assert.ok(borda.every((i) => !ocupadas[i]), "formação escapou da moldura de verificação");
-    const conectadas = preencher([primeiro], (i) => Boolean(ocupadas[i]), new Uint8Array(campo.length));
-    assert.equal(conectadas, total, `${total - conectadas} células formam ilhas separadas`);
+    const vistos=new Uint8Array(campo.length), massas=[];
+    for(let i=0;i<ocupadas.length;i++) if(ocupadas[i]&&!vistos[i]) {
+      const tamanho=preencher([i],j=>Boolean(ocupadas[j]),vistos);
+      assert.ok(tamanho>=100, 'fragmento isolado de '+tamanho+' m²');
+      massas.push(tamanho);
+    }
+    assert.equal(massas.length, nivel===1?6:nivel===2?3:1, 'distribuição regional mudou');
     const exteriores = preencher(borda, (i) => !ocupadas[i], new Uint8Array(campo.length));
     assert.equal(exteriores, campo.length - total, `${campo.length - total - exteriores} células formam buracos fechados`);
   });
@@ -128,3 +135,10 @@ for (const id of ["chegada", "pavilhao"]) {
     assert.ok(valores.every((v) => v < 1), "reserva virou uma colina inesperada");
   });
 }
+
+test('relevo em seis regiões e vales preservados',()=>{
+  for(const [x,y] of [[25,24],[99,14],[165,15],[15,110],[80,109],[174,105]])
+    assert.ok(elevacaoPlanejada(x,y)>1.3,'região sem relevo '+x+'/'+y);
+  for(const [x,y] of [[115,44],[130,81],[153,57],[53,83]])
+    assert.ok(elevacaoPlanejada(x,y)<.4,'vale fechado '+x+'/'+y);
+});
