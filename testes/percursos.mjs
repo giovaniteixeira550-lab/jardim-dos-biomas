@@ -169,3 +169,12 @@ for (const m of mundos) {
     }
   });
 }
+
+// O traçado solicitado contorna a cascata pela margem esquerda e cruza só no vale baixo.
+test('ponte fica depois da última cascata e substitui a travessia alta',()=>{
+  const m=mundos[0],p=m.ponte,q=m.riacho.quedas.at(-1);
+  assert.ok(p.sRio>q.s+8,'ponte deve ficar no trecho baixo, afastada da cortina');
+  assert.ok(Math.abs(rioEm(m,p.x,p.y).agua+.55)<tolerancia,'ponte ainda está no patamar alto');
+  assert.ok(m.distTrilha(74/180*m.largura,49/120*m.altura)>8,'travessia antiga permaneceu no caminho');
+  assert.ok(m.distTrilha(68/180*m.largura,69/120*m.altura)<tolerancia,'caminho deixou de acompanhar a margem esquerda');
+});

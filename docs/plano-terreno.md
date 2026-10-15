@@ -63,3 +63,7 @@ A restrição anterior de uma única massa por altura foi substituída: concentr
 | Lago | 174,105 | Promontório oriental; margem da água continua livre |
 
 Os terraços somam dentro de cada região; entre regiões vale a maior altura, evitando picos artificiais por sobreposição. A planta e o jardim usam o mesmo campo. Os testes conferem seis massas no primeiro nível, três no segundo e uma no terceiro, sem fragmentos menores que 100 m² na grade canônica, sem buracos e com pelo menos 4 m entre patamares de apoio. As reservas e três cascatas continuam verificadas em cinco sementes.
+
+## Caminho do vale — v0.21
+
+O desenho enviado pelo usuário em vermelho substitui a travessia alta por um desvio na margem esquerda. Depois de 60/47, o caminho segue 61/57 → 68/69 → 76/78, desce o paredão oeste e faz uma curva larga por 82/81 e 88/81. O trecho reto 94/78 → 112/60 cruza o riacho abaixo da última cascata; 122/53 reconecta à estrada existente. Coordenadas canônicas 180×120. A ponte é calculada pela interseção real, com cabeceiras niveladas; a anterior deixa de existir. Relevos das seis regiões e curso da água preservados.

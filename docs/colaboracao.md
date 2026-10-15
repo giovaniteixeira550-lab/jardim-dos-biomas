@@ -55,3 +55,7 @@ Escopo limitado ao acabamento dos paredões: `solo.js`, `bordasBarranco.js` e co
 ## Relevo distribuído (v0.20)
 
 Correção da composição solicitada pelo usuário: seis regiões autorais com curvas suaves e cumes deslocados. Mudanças em formacaoTerreno, lugares da planta e enquadramento inicial. Solo, folhas, água e controles anteriores preservados. Trabalho isolado em codex/relevo-distribuido, sem modificar a cópia do Claude. Publicação na demo autorizada pelo usuário.
+
+## Desvio e ponte inferior — v0.21
+
+Alteração delimitada ao traçado de planoMestre, conforme imagem do usuário. Sem mudanças em materiais, modelos ou topografia autoral. Percursos existentes recalculam escadas, ponte e apoio no terreno. Importações versionadas atualizadas para 0.21 para evitar o cache antigo. Testes cobrem a nova travessia a jusante e a remoção da antiga.

@@ -54,9 +54,10 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.20)
+## 3. Estado atual (v0.21)
 
-- O histórico acompanha v0.1–v0.20 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.21 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- **v0.21 — caminho pela margem esquerda e ponte inferior:** o trecho indicado pelo usuário desce pela encosta, contorna sua base e cruza abaixo da última cascata, conectando novamente à estrada da direita. A travessia alta foi removida. Escadas e cabeceiras continuam seguindo o mesmo perfil do terreno.
 - **v0.20 — relevo distribuído:** seis regiões com encostas curvas, espigões alongados e cumes deslocados. Vales entre nascente, norte, leste, chegada, sul e promontório do lago preservam água e circulação. A vista inicial mostra o conjunto; cinco novos lugares na planta permitem visitar as encostas. Materiais, árvores e controles preservados.
 - **v0.19 — paredões com leitura de pixel art:** massas angulares grandes com poucos tons substituem os estratos horizontais. Fendas seletivas, sombras nos encaixes e capa verde recortada acompanham as referências. Pontilhado menor só nas paredes; a paleta continua obrigatória. O contorno distingue uma silhueta de um plano oblíquo contínuo, evitando riscar toda a parede. Topografia, árvores, percursos e água preservados.
 - **v0.18 — encostas naturais:** crista, ombro e saia com contornos próprios e conectados substituem os anéis de uma colina cônica. Paredes de terra em camadas, crosta sob a grama e pequenos lábios em volume substituem as fiadas repetidas. Escadas têm pisos claros, espelhos escuros, nariz chanfrado e bordas baixas contínuas. Água calma tem poucos arcos; cascatas têm fios variados e espuma de impacto. A vista inicial enquadra encostas e travessia.
