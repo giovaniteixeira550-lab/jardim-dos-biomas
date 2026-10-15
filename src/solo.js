@@ -1,4 +1,4 @@
-/** Barrancos naturais: terra em massas contínuas, sem fiadas de alvenaria. */
+/** Paredões desenhados: massas angulares grandes, fendas seletivas e poucos tons. */
 import * as THREE from "three";
 import { RAMPAS } from "./paleta.js";
 
@@ -6,8 +6,8 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
   const mat = toon({ vertexColors: true });
   const direita = opcoes.direita ?? { value: new THREE.Vector2(1, 0) };
   const texel = opcoes.texel ?? { value: 0.1 };
-  mat.name = "terra-estratificada";
-  mat.userData.relevo = { versao: 2, referencia: "mundo", desenho: "terra-estratificada", altura: "local" };
+  mat.name = "paredao-facetas-pixel";
+  mat.userData.relevo = { versao: 3, referencia: "mundo", desenho: "facetas-pixel", altura: "local" };
   mat.userData.gramado = { direita, texel };
   mat.onBeforeCompile = (sh) => {
     const cores = {
@@ -47,38 +47,50 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
         vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
         return mix(mix(soloHash(i), soloHash(i + vec2(1.0, 0.0)), f.x), mix(soloHash(i + vec2(0.0, 1.0)), soloHash(i + vec2(1.0, 1.0)), f.x), f.y);
       }
-      // Ruído volumétrico: nenhuma costura entre as faces de um barranco curvo.
-      float veioSolo(vec3 p) {
-        float h = floor(p.y), f = fract(p.y); f = f * f * (3.0 - 2.0 * f);
-        return mix(ruidoSolo(p.xz + vec2(h * 17.1, h * 7.3)), ruidoSolo(p.xz + vec2((h + 1.0) * 17.1, (h + 1.0) * 7.3)), f);
+      // Células volumétricas grandes e deslocadas: as quebras passam pelas
+      // quinas sem depender do eixo da parede ou da orientação da câmera.
+      void facetaSolo(vec3 p, out vec3 deslocamento, out float borda, out float tinta) {
+        vec3 q = p / vec3(2.8, 2.65, 2.8);
+        vec3 ip = floor(q), fp = fract(q), melhor = vec3(0.0), chave = vec3(0.0);
+        float d1 = 20.0, d2 = 20.0;
+        for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) {
+          vec3 g = vec3(float(x), float(y), float(z)), h = ip + g;
+          vec3 sorte = fract(sin(vec3(dot(h, vec3(127.1, 311.7, 74.7)), dot(h, vec3(269.5, 183.3, 246.1)), dot(h, vec3(113.5, 271.9, 124.6)))) * 43758.5453);
+          vec3 r = g + 0.15 + sorte * 0.7 - fp;
+          float d = dot(r, r);
+          if (d < d1) { d2 = d1; d1 = d; melhor = r; chave = h; }
+          else if (d < d2) d2 = d;
+        }
+        deslocamento = -melhor;
+        borda = sqrt(d2) - sqrt(d1);
+        tinta = soloHash(chave.xy + chave.z * vec2(13.1, 37.7));
       }
     ` + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
       vec3 normalSolo = normalize(vSoloNormal);
       if (normalSolo.y < 0.72 && vRocha > 0.15) {
-        vec3 p = floor(vSoloMundo / 0.13) * 0.13;
+        vec3 p = floor(vSoloMundo / 0.15) * 0.15;
         float profundidade = max(0.0, vLimitesSolo.x - vSoloMundo.y);
         float acimaPe = max(0.0, vSoloMundo.y - vLimitesSolo.y);
-        float massa = veioSolo(p * vec3(0.25, 0.48, 0.25));
-        float dobra = ruidoSolo(p.xz * 0.13) * 1.5 + ruidoSolo(p.xz * 0.47) * 0.28;
-        float veio = sin(p.y * 2.6 + dobra * 2.1);
-        vec3 terra = massa < 0.32 ? uTerraSombra : uTerra;
-        // Estratos incompletos: larguras e continuidade diferentes, sem uma grade.
-        if (veio > 0.61 && massa > 0.39) terra = mix(uTerra, uTerraClara, 0.55);
-        else if (veio < -0.82 && massa < 0.56) terra = uTerraSombra;
-        // Afloramentos isolados: a maior parte da face continua sendo terra.
-        float rocha = veioSolo(p * vec3(0.42, 0.7, 0.42) + vec3(21.0, 8.0, 3.0));
-        if (rocha > 0.73 && profundidade > 0.75) {
-          terra = rocha > 0.83 ? uRochaLuz : mix(uRocha, uTerraSombra, 0.28);
-          if (veio < -0.5) terra = uTerraSombra;
-        }
-        // Crosta calculada pelo TOPO LOCAL, inclusive nos recortes de água/estrada.
-        float crosta = 0.34 + ruidoSolo(p.xz * 1.2) * 0.3;
-        if (profundidade < crosta) terra = uTerraFunda;
-        if (profundidade < 0.12 + ruidoSolo(p.xz * 1.9) * 0.17) terra = massa > 0.4 ? uGramaBorda : uMusgo;
-        // Pequenos filetes de raízes sob a borda, nunca colunas de altura inteira.
-        float raiz = ruidoSolo(vec2(p.x + p.z * 0.7, 2.0) * 2.8);
-        if (raiz > 0.75 && profundidade > 0.24 && profundidade < 1.05 && rocha < 0.72) terra = uTerraFunda;
-        if (acimaPe < 0.24 && profundidade > 1.5) terra = mix(terra, uTerraFunda, 0.55);
+        vec3 face; float encaixe, tinta;
+        facetaSolo(p, face, encaixe, tinta);
+        // Cada massa tem face principal, quebra iluminada e recuo escuro.
+        // Os limites diagonais desenham volume; nada forma uma fiada horizontal.
+        float quina = face.y * 0.9 + face.x * 0.58 - face.z * 0.44;
+        vec3 terra = tinta > 0.9 ? uTerraClara : uTerra;
+        if (quina > 0.3) terra = uTerraClara;
+        else if (quina < -0.22) terra = uTerraSombra;
+        if (tinta < 0.075 && profundidade > 0.8) terra = quina > 0.2 ? uRochaLuz : uRocha;
+        // Fendas curtas e desencontradas, sem contornar todas as células.
+        if (encaixe < 0.05 && (face.y < -0.05 || tinta > 0.7)) terra = uTerraSombra;
+        if (encaixe < 0.022 && face.y < -0.17 && tinta > 0.55) terra = uTerraFunda;
+        else if (encaixe < 0.08 && face.y > 0.15 && tinta > 0.5) terra = uTerraClara;
+        // Topo local: faixa verde recortada e sombra estreita sob a grama.
+        float recorte = soloHash(floor(p.xz / 1.3));
+        float capa = 0.16 + floor(recorte * 3.0) * 0.065;
+        if (profundidade < capa + 0.14) terra = uTerraFunda;
+        if (profundidade < capa) terra = recorte > 0.62 ? uMusgo : uGramaBorda;
+        if (profundidade < 0.6 && tinta > 0.91 && face.y > 0.0) terra = uMusgo;
+        if (acimaPe < 0.18 && profundidade > 1.5) terra = uTerraFunda;
         diffuseColor.rgb = terra;
       } else if (vGrama > 0.5) {
         // Preserva o gramado desenhado do Claude: manchas e tufinhos em V.
@@ -98,8 +110,12 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
         }
         diffuseColor.rgb = grama;
       }
+    `).replace("#include <opaque_fragment>", `#include <opaque_fragment>
+      // O alvo intermediário usa alfa como força de pontilhado. Continua
+      // sendo uma parede opaca: só o pós-processamento lê esta marca.
+      if (normalize(vSoloNormal).y < 0.72 && vRocha > 0.15) gl_FragColor.a = 0.18;
     `);
   };
-  mat.customProgramCacheKey = () => "solo-estratificado-local-2";
+  mat.customProgramCacheKey = () => "solo-facetas-graficas-3-limpo";
   return mat;
 }

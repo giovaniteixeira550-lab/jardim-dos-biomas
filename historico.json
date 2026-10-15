@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.18",
+  "versaoAtual": "v0.19",
   "proximoPasso": {
-    "titulo": "Revisar a paisagem e construir os lugares",
-    "descricao": "Conferir encostas, cascatas e escadas na demo pública. Depois desenvolver chegada, mirante e pavilhão nas áreas reservadas."
+    "titulo": "Revisar o acabamento dos paredões",
+    "descricao": "Comparar as faces e a borda de grama com as referências; depois continuar os lugares já reservados no plano."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Encostas largas em crista, ombro e saia; terra em camadas, bordas de grama, escadas legíveis e cascatas com espuma."
+      "nota": "Paredões com massas angulares grandes, fendas seletivas e capa de grama recortada; encostas, escadas, cascatas e percursos preservados."
     },
     {
       "nome": "Vida e clima",
@@ -55,7 +55,7 @@
       "Clique mostra a ficha da árvore",
       "Carregamento rápido (sem biblioteca de árvores)",
       "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
-      "Encostas de terra em camadas e três patamares assimétricos, sem anéis concêntricos",
+      "Encostas assimétricas com facetas gráficas, sem anéis concêntricos",
       "Mapa de 260 × 170 m, com cache dos campos do terreno",
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
       "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
@@ -72,7 +72,9 @@
       "Cascatas verticais, poços alargados e margens 3D conectadas",
       "Planta interativa do terreno com reservas de construção e acesso aos lugares em 3D",
       "Escadas com pisos claros, espelhos escuros e bordas baixas contínuas",
-      "Cascatas com fios variados e espuma em arcos quebrados"
+      "Cascatas com fios variados e espuma em arcos quebrados",
+      "Paredões com poucas áreas de cor, fendas desencontradas e grama em volume",
+      "Contorno de silhueta sem riscar planos oblíquos contínuos"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -97,6 +99,33 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.19",
+      "data": "2026-10-15",
+      "titulo": "Paredões desenhados como nos jogos em pixel art",
+      "porque": "O acabamento anterior ainda parecia terra granulada com estratos, distante das formas gráficas das referências.",
+      "mudancas": [
+        "Massas angulares grandes, com poucos tons e fendas interrompidas",
+        "Capa de grama espessa, com recortes e placas em volume",
+        "Pontilhado menor somente nas paredes, preservando a paleta",
+        "Contorno mantém silhuetas sem riscar as faces vistas de lado"
+      ],
+      "resultado": "Mudança concentrada nas paredes e bordas de grama. Topografia, espécies, caminhos, escadas, água e controles preservados.",
+      "imagens": [
+        {
+          "src": "historico/v0.19-paredoes.jpg",
+          "legenda": "Faces grandes, fendas seletivas e capa de grama na vista da cascata"
+        },
+        {
+          "src": "historico/v0.19-paredoes-giro.jpg",
+          "legenda": "Mesmas facetas vistas por outro ângulo, fixas no mundo 3D"
+        },
+        {
+          "src": "historico/v0.18-encostas.jpg",
+          "legenda": "Antes: acabamento com estratos e textura mais granulada"
+        }
+      ]
+    },
     {
       "versao": "v0.18",
       "data": "2026-10-15",

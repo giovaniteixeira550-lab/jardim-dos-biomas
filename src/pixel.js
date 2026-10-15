@@ -48,7 +48,7 @@ export function criarMaterialPixel() {
         return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c));
       }
       /** Cor mais próxima da paleta; perto do meio-termo entre duas, alterna pelo Bayer. */
-      vec3 quantizar(vec3 c, float limiar) {
+      vec3 quantizar(vec3 c, float limiar, float pontilhadoLocal) {
         float d1 = 1e9, d2 = 1e9;
         vec3 c1 = c, c2 = c;
         for (int i = 0; i < ${N}; i++) {
@@ -58,12 +58,13 @@ export function criarMaterialPixel() {
           else if (d < d2) { d2 = d; c2 = uPal[i]; }
         }
         float t = sqrt(d1) / (sqrt(d1) + sqrt(d2) + 1e-5);
-        return (t * 2.0 * uDither > limiar) ? c2 : c1;
+        return (t * 2.0 * uDither * pontilhadoLocal > limiar) ? c2 : c1;
       }
 
       void main() {
         px = floor(vUv * uTam);
-        gl_FragColor = vec4(texture2D(tCor, uvDe(vec2(0.0))).rgb, 1.0);
+        vec4 amostra = texture2D(tCor, uvDe(vec2(0.0)));
+        gl_FragColor = vec4(amostra.rgb, 1.0);
         #include <tonemapping_fragment>
         vec3 c = paraSRGB(clamp(gl_FragColor.rgb, 0.0, 1.0));
 
@@ -71,17 +72,30 @@ export function criarMaterialPixel() {
           float d = dist(vec2(0.0));
           // Limiar acompanha o tamanho do pixel no mundo (chão inclinado não vira linha).
           float lim = max(0.45, uTexel * 3.5);
-          float atras = 0.0;
-          atras = max(atras, step(lim, d - dist(vec2(1.0, 0.0))));
-          atras = max(atras, step(lim, d - dist(vec2(-1.0, 0.0))));
-          atras = max(atras, step(lim, d - dist(vec2(0.0, 1.0))));
-          atras = max(atras, step(lim, d - dist(vec2(0.0, -1.0))));
+          float de = dist(vec2(-1.0, 0.0)), dd = dist(vec2(1.0, 0.0));
+          float dc = dist(vec2(0.0, 1.0)), db = dist(vec2(0.0, -1.0));
+          // Um plano oblíquo tem variação de profundidade, mas ela é contínua.
+          // Comparar os vizinhos opostos evita riscar toda a face do paredão.
+          float quebraX = step(lim, abs(de + dd - 2.0 * d));
+          float quebraY = step(lim, abs(dc + db - 2.0 * d));
+          // Faces quase de perfil amplificam os pequenos triângulos da grade.
+          // Dentro do mesmo barranco, só uma separação grande vira contorno;
+          // encontros com chão, grama, árvores e água mantêm a linha de 1 px.
+          float parede = step(amostra.a, 0.5);
+          float me = 1.0 - parede * step(texture2D(tCor, uvDe(vec2(-1.0, 0.0))).a, 0.5) * (1.0 - step(lim * 12.0, abs(d - de)));
+          float md = 1.0 - parede * step(texture2D(tCor, uvDe(vec2(1.0, 0.0))).a, 0.5) * (1.0 - step(lim * 12.0, abs(d - dd)));
+          float mc = 1.0 - parede * step(texture2D(tCor, uvDe(vec2(0.0, 1.0))).a, 0.5) * (1.0 - step(lim * 12.0, abs(d - dc)));
+          float mb = 1.0 - parede * step(texture2D(tCor, uvDe(vec2(0.0, -1.0))).a, 0.5) * (1.0 - step(lim * 12.0, abs(d - db)));
+          float atras = max(max(step(lim, d - de) * me, step(lim, d - dd) * md) * quebraX,
+                            max(step(lim, d - dc) * mc, step(lim, d - db) * mb) * quebraY);
           // Topo de um objeto: o pixel de cima está bem mais longe ⇒ brilho de recorte.
-          float topo = step(lim * 1.5, dist(vec2(0.0, 1.0)) - d) * (1.0 - atras);
+          float topo = step(lim * 1.5, dc - d) * mc * quebraY * (1.0 - atras);
           c = mix(c, c * vec3(0.42, 0.45, 0.5), atras);
           c = mix(c, min(c * 1.18 + 0.03, 1.0), topo * 0.8);
         }
-        if (uQuant > 0.5) c = quantizar(c, bayer4(px));
+        // Barrancos marcam o alfa do alvo intermediário para manter suas
+        // faces chapadas. Os demais materiais conservam o Bayer original.
+        if (uQuant > 0.5) c = quantizar(c, bayer4(px), amostra.a);
         gl_FragColor = vec4(c, 1.0);
       }`,
     depthTest: false,

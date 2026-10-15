@@ -54,9 +54,10 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.18)
+## 3. Estado atual (v0.19)
 
-- O histórico acompanha v0.1–v0.18 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.19 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- **v0.19 — paredões com leitura de pixel art:** massas angulares grandes com poucos tons substituem os estratos horizontais. Fendas seletivas, sombras nos encaixes e capa verde recortada acompanham as referências. Pontilhado menor só nas paredes; a paleta continua obrigatória. O contorno distingue uma silhueta de um plano oblíquo contínuo, evitando riscar toda a parede. Topografia, árvores, percursos e água preservados.
 - **v0.18 — encostas naturais:** crista, ombro e saia com contornos próprios e conectados substituem os anéis de uma colina cônica. Paredes de terra em camadas, crosta sob a grama e pequenos lábios em volume substituem as fiadas repetidas. Escadas têm pisos claros, espelhos escuros, nariz chanfrado e bordas baixas contínuas. Água calma tem poucos arcos; cascatas têm fios variados e espuma de impacto. A vista inicial enquadra encostas e travessia.
 - **v0.16–v0.17 do Claude preservadas:** folhagem com anatomia 3D, oito espécies brasileiras, quatro formas novas e filtro de brasileiras no catálogo. O estilo da folhagem também é aplicado às prévias e à galeria.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
@@ -90,9 +91,11 @@ Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar veri
 
 - O macroterreno de 260 × 170 m tem desenho fixo. **Variar plantio** muda vegetação e detalhes; preserva relevo, lago, riacho, estrada e travessias.
 - Estrada da chegada ao mirante, trechos de escada, ponte de pedra alinhada com seus acessos, três cascatas verticais, dois poços e lago principal.
-- Terra em estratos presos ao mundo, quinas com normais próprias, pisos de pedra sólidos e margens geométricas evitam triângulos de terra atravessando a água. Juntas de alvenaria ficam nas obras de pedra, não no terreno natural.
+- Paredões em facetas gráficas presas ao mundo, quinas com normais próprias, pisos de pedra sólidos e margens geométricas evitam triângulos de terra atravessando a água. Juntas de alvenaria ficam nas obras de pedra, não no terreno natural.
 - **Plano** abre a planta interativa: relevo real, caminhos, sentido da água, vegetação, áreas e oito lugares. Chegada, mirante e pavilhão têm reservas e estudos de construção; os edifícios ainda são propostas.
 - Decisões, dimensões e estudos de paisagem em [docs/plano-terreno.md](docs/plano-terreno.md). Testes: `node --test testes/percursos.mjs` e `testes/relevo.html` no navegador.
+
+Acabamento v0.19: `testes/contorno.html` compara pixels reais da GPU em dois cenários — plano oblíquo com interior preservado e cubo com silhueta de exatamente 1 pixel. Quantização é desligada somente nessa fixture para medir o efeito do contorno. Os cinco cenários de relevo e os seis de câmera/transparência também foram conferidos. Capturas em `historico/v0.19-paredoes.jpg` e `historico/v0.19-paredoes-giro.jpg`.
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 

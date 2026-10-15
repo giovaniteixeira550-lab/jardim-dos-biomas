@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verificação do contorno em superfícies oblíquas</title>
+<style>
+body{font:16px system-ui;margin:24px;background:#141c18;color:#e9e3d1}button{font:inherit;padding:10px}li{margin:10px 0}
+.comparacoes{display:grid;grid-template-columns:repeat(2,minmax(160px,256px));gap:20px}figure{margin:0}canvas{width:100%;height:auto;image-rendering:pixelated;background:#22382b}figcaption{margin:6px 0 18px;font-size:14px}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<h1>Contorno de 1 pixel, sem riscos no paredão</h1>
+<p>Dois cenários pequenos usam WebGL e o shader real do jardim. A comparação desliga a quantização somente nesta página de teste.</p>
+<button id="executar">Executar verificações</button>
+<p id="estado" role="status">Aguardando.</p><ol id="resultados"></ol>
+<div class="comparacoes">
+  <figure><canvas id="plano-sem" width="64" height="64"></canvas><figcaption>Plano inclinado — sem contorno</figcaption></figure>
+  <figure><canvas id="plano-com" width="64" height="64"></canvas><figcaption>Plano inclinado — com contorno</figcaption></figure>
+  <figure><canvas id="cubo-sem" width="64" height="64"></canvas><figcaption>Cubo diante do fundo — sem contorno</figcaption></figure>
+  <figure><canvas id="cubo-com" width="64" height="64"></canvas><figcaption>Cubo diante do fundo — com contorno</figcaption></figure>
+</div>
+<script type="module" src="./contorno.js"></script>
+</html>
