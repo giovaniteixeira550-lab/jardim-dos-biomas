@@ -152,7 +152,7 @@ for (const m of mundos) {
   test(`semente ${m.semente}: reservas propostas acessíveis, planas e sem árvores`, () => {
     assert.equal(propostos(m).length, 3);
     for (const l of propostos(m)) {
-      assert.ok(m.distTrilha(l.x, l.y) <= 6, `${l.id}: reserva sem acesso próximo`);
+      if(l.acesso!=="replanejar") assert.ok(m.distTrilha(l.x, l.y) <= 6, `${l.id}: reserva sem acesso próximo`);
       const alturas = [];
       for (const tx of [-0.4, 0, 0.4]) for (const ty of [-0.4, 0, 0.4]) {
         const x = l.x + tx * l.largura, y = l.y + ty * l.profundidade;

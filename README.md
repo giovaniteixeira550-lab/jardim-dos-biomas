@@ -54,6 +54,10 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
+## Proposta local aguardando aprovação
+
+Na branch `codex/proposta-ponte-madeira`, o percurso ocidental marcado pelo usuário foi removido e uma ponte de madeira liga as bordas próximas dos dois platôs. A ponte inferior também recebeu madeira. Não publicado; versão pública continua v0.22. Detalhes e imagens em `docs/proposta-ponte-madeira.md`.
+
 ## 3. Estado atual (v0.22)
 
 - O histórico acompanha v0.1–v0.22 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.

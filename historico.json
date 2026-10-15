@@ -2,8 +2,8 @@
   "atualizado": "2026-10-15",
   "versaoAtual": "v0.22",
   "proximoPasso": {
-    "titulo": "Revisar a leitura das escadas",
-    "descricao": "Comparar os degraus de perto e na distância normal antes de continuar as construções do jardim."
+    "titulo": "Aprovar a proposta das pontes de madeira",
+    "descricao": "Prévia local: percurso longo removido, ponte no vão curto indicado e modelo de madeira detalhado. Ainda sem publicação."
   },
   "frentes": [
     {
@@ -102,6 +102,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Proposta local · madeira",
+      "data": "2026-10-15",
+      "titulo": "Ponte curta de madeira para aprovação",
+      "porque": "O percurso ocidental repetia uma subida existente; o usuário indicou as bordas próximas para a ponte.",
+      "mudancas": [
+        "Percurso longo e escadas ocidentais removidos",
+        "Travessia curta entre os dois platôs indicados",
+        "Tábuas pequenas, vigas, postes e guarda-corpos de madeira",
+        "Ponte inferior no mesmo estilo de madeira"
+      ],
+      "resultado": "Proposta local, ainda não publicada. Aguarda aprovação do modelo e da posição. A versão pública continua v0.22.",
+      "imagens": [
+        {
+          "src": "historico/proposta-madeira-detalhe.jpg",
+          "legenda": "Proposta: ponte de madeira com tábuas pequenas e estrutura detalhada"
+        },
+        {
+          "src": "historico/proposta-madeira-conjunto.jpg",
+          "legenda": "Proposta: vão curto ocupado pela ponte e percurso ocidental removido"
+        }
+      ]
+    },
     {
       "versao": "v0.22",
       "data": "2026-10-15",

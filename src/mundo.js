@@ -259,7 +259,8 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   const ingreme = (x, y) => declive(x, y) > 0.45 || declive(x + 1.2, y) > 0.45 || declive(x - 1.2, y) > 0.45 || declive(x, y + 1.2) > 0.45 || declive(x, y - 1.2) > 0.45;
 
   const reservado = (x,y) => plano.locais.some(l=>l.status==="proposto" && Math.abs(x-l.x)<l.largura/2+1 && Math.abs(y-l.y)<l.profundidade/2+1);
-  const fora = (x, y) => !reservado(x,y) && fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9 && !ingreme(x, y) && distRiacho(x, y) > larguraRiacho(x,y) * 0.5 + 1.6;
+  const sobPassarela=(x,y)=>plano.passarela&&distSegmento(x,y,plano.passarela.inicio,plano.passarela.fim)<plano.passarela.largura/2+1.2;
+  const fora = (x, y) => !sobPassarela(x,y) && !reservado(x,y) && fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9 && !ingreme(x, y) && distRiacho(x, y) > larguraRiacho(x,y) * 0.5 + 1.6;
   const nascer = (d) => clamp01(0.85 - d * 0.75 + (rng() - 0.5) * 0.35);
   const objetos = [];
 
