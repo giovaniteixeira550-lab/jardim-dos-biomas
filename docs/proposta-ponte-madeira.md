@@ -15,3 +15,7 @@ Verificação: 55 testes de terreno e percursos passaram. A chegada continua ver
 ![Conjunto](../historico/proposta-madeira-conjunto.jpg)
 
 Conferência final adicional: seis verificações do relevo no navegador passaram, com 69 pisos e 138 posições laterais de escadas, altura da ponte, cascatas, renderização e liberação dos recursos.
+
+## Aprovação e integração — v0.23
+
+O usuário aprovou a proposta em 15/10/2026 e pediu a ponte inferior com subida e descida em arco. A indicação de proposta local nas seções anteriores registra a etapa de revisão. A versão v0.23 integra as pontes e a remoção do percurso. O tabuleiro inferior eleva o centro em 0,8 m sobre as cabeceiras, com perfil senoidal ao quadrado, tangentes horizontais nas entradas e tábuas orientadas pela tangente. Guarda-corpos e vigas seguem o mesmo perfil com segmentos de até 0,3 m. A planta foi ampliada para incluir a cabeceira ocidental e mostra as duas pontes.

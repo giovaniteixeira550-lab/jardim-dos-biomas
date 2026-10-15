@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.22",
+  "versaoAtual": "v0.23",
   "proximoPasso": {
-    "titulo": "Aprovar a proposta das pontes de madeira",
-    "descricao": "Prévia local: percurso longo removido, ponte no vão curto indicado e modelo de madeira detalhado. Ainda sem publicação."
+    "titulo": "Revisar os acessos do jardim",
+    "descricao": "Continuar os lugares planejados, revendo a chegada após a retirada do caminho antigo."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Escadas retas com degraus menores, quinas refinadas, pedras regulares e bordas alinhadas. Ponte inferior e seis regiões de relevo preservadas."
+      "nota": "Duas pontes de madeira: travessia curta entre as encostas e ponte arqueada sobre o riacho. Percurso ocidental removido; acesso pela cascata preservado."
     },
     {
       "nome": "Vida e clima",
@@ -77,7 +77,8 @@
       "Contorno de silhueta sem riscar planos oblíquos contínuos",
       "Relevo em seis regiões do mapa, com curvas e alturas diferentes",
       "Caminho desce pela margem esquerda e cruza abaixo da última cascata",
-      "Escadas com lances retos, degraus de 0,25 m, quinas refinadas e juntas regulares"
+      "Escadas com lances retos, degraus de 0,25 m, quinas refinadas e juntas regulares",
+      "Pontes de madeira detalhadas; ponte do riacho sobe e desce em arco suave"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -102,6 +103,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.23",
+      "data": "2026-10-15",
+      "titulo": "Pontes de madeira e arco sobre o riacho",
+      "porque": "O usuário aprovou a ponte curta e pediu a outra com uma subida e descida curvas.",
+      "mudancas": [
+        "Percurso longo removido e ponte curta de madeira aprovada",
+        "Ponte do riacho sobe 0,8 m até o centro e desce suavemente",
+        "Tábuas, vigas e guarda-corpos acompanham a curva",
+        "Planta atualizada com as duas pontes de madeira"
+      ],
+      "resultado": "As duas travessias são de madeira, com peças pequenas. As entradas da ponte arqueada continuam no nível do caminho; a água passa livremente por baixo.",
+      "imagens": [
+        {
+          "src": "historico/v0.23-ponte-arco.jpg",
+          "legenda": "Ponte do riacho com subida e descida suaves em madeira"
+        },
+        {
+          "src": "historico/v0.23-ponte-encostas.jpg",
+          "legenda": "Ponte curta entre as encostas, aprovada no lugar do percurso longo"
+        }
+      ]
+    },
     {
       "versao": "Proposta local · madeira",
       "data": "2026-10-15",

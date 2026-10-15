@@ -1,6 +1,6 @@
 <!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Proposta de pontes de madeira · verificações</title><style>body{background:#141c18;color:#e9e3d1;font:16px system-ui;margin:24px}canvas{width:800px;height:480px;max-width:100%}li{margin:10px}button{padding:8px}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
-<h1>Proposta local · madeira e percurso removido</h1><button id="executar">Executar verificações</button><p id="estado">Aguardando</p><ol id="resultados"></ol><canvas id="canvas"></canvas>
+<h1>Pontes de madeira e perfil em arco</h1><button id="executar">Executar verificações</button><p id="estado">Aguardando</p><ol id="resultados"></ol><canvas id="canvas"></canvas>
 <script type="module">
 import * as THREE from 'three';import {Jardim} from '../src/cena.js';
 const $=id=>document.getElementById(id),ok=(v,m)=>{if(!v)throw Error(m)},passou=m=>{const li=document.createElement('li');li.textContent='PASSOU — '+m;$('resultados').append(li)};
@@ -15,11 +15,15 @@ passou('Percurso longo e suas escadas removidos; acesso pelo lado das cascatas p
 for(const q of [p.inicio,p.fim])ok(Math.abs(m.altitude(q.x,q.y)-p.altura)<.15,'cabeceira sem terreno de apoio');
 const cx=(p.inicio.x+p.fim.x)/2,cy=(p.inicio.y+p.fim.y)/2;ok(p.altura-m.altitude(cx,cy)>3,'ponte aterrada no vale');
 passou('Cabeceiras apoiadas nos dois platôs; vão livre sobre o vale.');
-const b=wood.find(b=>b.name==='ponte-madeira-proposta');ok(b.userData.tabuas>200,'tábuas largas demais');
+const b=wood.find(b=>b.name==='ponte-madeira-encostas');ok(b.userData.tabuas>200,'tábuas largas demais');
 const geo=b.children[0].geometry.attributes.position;let max=0;for(let i=0;i<geo.count;i+=3){const tri=[0,1,2].map(k=>new THREE.Vector3().fromBufferAttribute(geo,i+k));for(let k=0;k<3;k++)max=Math.max(max,tri[k].distanceTo(tri[(k+1)%3]));}ok(max<.55,'face grande demais: '+max);
 passou(b.userData.tabuas+' peças de tabuleiro, '+b.userData.pecas+' peças de madeira e metal; arestas das faces menores que 0,55 m.');
-const ray=new THREE.Raycaster();for(const t of [.001,.101,.501,.901,.999]){const x=p.inicio.x+(p.fim.x-p.inicio.x)*t,y=p.inicio.y+(p.fim.y-p.inicio.y)*t,h=p.altura+p.arqueamento*Math.sin(Math.PI*t);ray.set(new THREE.Vector3(x,h+1,y),new THREE.Vector3(0,-1,0));const hit=ray.intersectObject(b,true)[0];ok(hit&&Math.abs(hit.point.y-h)<.08,'piso ausente ou flutuante');}
+const ray=new THREE.Raycaster();for(const t of [0,.1,.5,.9,.999].map(f=>(Math.floor(f*(b.userData.tabuas/5))+.5)/(b.userData.tabuas/5))){const x=p.inicio.x+(p.fim.x-p.inicio.x)*t,y=p.inicio.y+(p.fim.y-p.inicio.y)*t,h=p.altura+p.arqueamento*Math.sin(Math.PI*t)**2;ray.set(new THREE.Vector3(x,h+1,y),new THREE.Vector3(0,-1,0));const hit=ray.intersectObject(b,true)[0];ok(hit&&Math.abs(hit.point.y-h)<.08,'piso ausente ou flutuante');}
 passou('Tabuleiro com altura coerente entre cabeceiras e centro.');
-j.irParaLocal('ponte-madeira');j.quadroAnim();$('estado').textContent='Todas as 5 verificações da proposta passaram.';
+const curva=wood.find(b=>b.name==='ponte-madeira-riacho'),c=curva.userData;
+ok(c.arqueamento===.8,'ponte inferior continua plana');
+for(const t of [.021,.251,.5,.749,.979]){const x=c.inicio.x+(c.fim.x-c.inicio.x)*t,y=c.inicio.y+(c.fim.y-c.inicio.y)*t,h=c.altura+c.arqueamento*Math.sin(Math.PI*t)**2;ray.set(new THREE.Vector3(x,h+1,y),new THREE.Vector3(0,-1,0));const hit=ray.intersectObject(curva,true)[0];ok(hit&&Math.abs(hit.point.y-h)<.025,'tabuleiro não acompanha o arco');}
+passou('Ponte inferior arqueada: piso sobe e desce, com cabeceiras no nível do caminho.');
+j.irParaLocal('ponte');j.quadroAnim();$('estado').textContent='Todas as 6 verificações das pontes passaram.';
 }catch(e){$('estado').textContent='FALHOU — '+e.message;console.error(e)}};
 </script></html>

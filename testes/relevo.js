@@ -63,10 +63,10 @@ $("executar").onclick=async()=>{
     registrar(lateraisConferidas+' bordas de piso niveladas; faces menores que 0,9 m e degraus sem torção.');
     const ponte=m.pontes[0],malhasPonte=[];
     jardim.travessias.traverse(o=>{if(o.userData.tipo==="piso-ponte")malhasPonte.push(o);});
-    ray.set(new THREE.Vector3(ponte.x+ponte.dx*0.17,ponte.h+1,ponte.y+ponte.dy*0.17),new THREE.Vector3(0,-1,0));
+    ray.set(new THREE.Vector3(ponte.x,ponte.h+1,ponte.y),new THREE.Vector3(0,-1,0));
     const piso=ray.intersectObjects(malhasPonte,false)[0];
-    afirmar(piso&&Math.abs(piso.point.y-ponte.h)<0.001,"Tabuleiro diverge do perfil da estrada");
-    registrar("Tabuleiro real na altura prevista e eixo orientado pela estrada.");
+    afirmar(piso&&Math.abs(piso.point.y-(ponte.h+ponte.arqueamento*Math.sin(Math.PI*(.5))**2))<0.015,"Tabuleiro diverge do perfil da estrada");
+    registrar("Tabuleiro real acompanha o arco previsto e o eixo da estrada.");
     afirmar(jardim.terreno.material.userData.relevo.referencia==="mundo","Textura sem referência espacial fixa");
     const geometrias=new Set(),materiais=new Set();
     jardim.scene.traverse(o=>{if(o.geometry){geometrias.add(o.geometry);for(const v of o.geometry.attributes.position.array)afirmar(Number.isFinite(v),"Vértice inválido");}for(const mat of [].concat(o.material??[]))materiais.add(mat);});

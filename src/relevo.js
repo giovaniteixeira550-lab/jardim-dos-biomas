@@ -241,7 +241,7 @@ export function criarTravessias(mundo, toon) {
   const pontes = mundo.pontes ?? (mundo.ponte ? [mundo.ponte] : []);
   pontes.forEach((p, numero) => {
     if(mundo.plano.passarela) {
-      const madeira=criarPonteMadeira({inicio:{x:p.x-p.dx*p.comprimento/2,y:p.y-p.dy*p.comprimento/2},fim:{x:p.x+p.dx*p.comprimento/2,y:p.y+p.dy*p.comprimento/2},largura:p.largura,altura:p.h,arqueamento:0,apoiosInteriores:false},toon,mundo.altitude);
+      const madeira=criarPonteMadeira({inicio:{x:p.x-p.dx*p.comprimento/2,y:p.y-p.dy*p.comprimento/2},fim:{x:p.x+p.dx*p.comprimento/2,y:p.y+p.dy*p.comprimento/2},largura:p.largura,altura:p.h,arqueamento:p.arqueamento,apoiosInteriores:false},toon,mundo.altitude);
       madeira.name="ponte-madeira-riacho";madeira.children[0].userData.tipo="piso-ponte";grupo.add(madeira);return;
     }
     const norma = Math.hypot(p.dx, p.dy);

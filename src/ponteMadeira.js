@@ -1,14 +1,15 @@
 import * as THREE from 'three';
 import {RAMPAS} from './paleta.js';
+import {alturaTabuleiro,inclinacaoTabuleiro} from './perfilPonte.js';
 
 /** Ponte de madeira em peças pequenas, reunidas numa malha para evitar centenas de chamadas de desenho. */
 export function criarPonteMadeira({inicio,fim,largura=2.8,altura=4.6,arqueamento=.24,apoiosInteriores=true},toon,altitude=()=>0) {
-  const grupo=new THREE.Group();grupo.name='ponte-madeira-proposta';
+  const grupo=new THREE.Group();grupo.name='ponte-madeira-encostas';
   const dx=fim.x-inicio.x,dz=fim.y-inicio.y,L=Math.hypot(dx,dz);
   grupo.position.set(inicio.x,0,inicio.y);grupo.rotation.y=-Math.atan2(dz,dx);
-  grupo.userData={tipo:'ponte-madeira',inicio,fim,comprimento:L,largura,altura,arqueamento,proposta:true};
+  grupo.userData={tipo:'ponte-madeira',inicio,fim,comprimento:L,largura,altura,arqueamento,proposta:false};
   const pos=[],cores=[];let pecas=0,tabuas=0;
-  const piso=x=>altura+arqueamento*Math.sin(Math.PI*x/L);
+  const piso=x=>alturaTabuleiro(altura,arqueamento,x/L);
   function caixa(centro,tamanho,tom,rotacao=null,bisel=.018) {
     const geo=new THREE.BoxGeometry(...tamanho,...tamanho.map(v=>Math.max(1,Math.ceil(v/.3)))).toNonIndexed();
     const cor=new THREE.Color(tom),p=geo.attributes.position,q=new THREE.Vector3();
@@ -26,16 +27,22 @@ export function criarPonteMadeira({inicio,fim,largura=2.8,altura=4.6,arqueamento
     const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());
     caixa(A.add(B).multiplyScalar(.5).toArray(),[espessura,d.length(),espessura],cor,q);
   }
-  const linhas=Math.ceil(L/.36),passo=L/linhas,colunas=5;
+  const linhas=Math.ceil(L/.36)|1,passo=L/linhas,colunas=5;
   for(let i=0;i<linhas;i++) {
-    const x=(i+.5)*passo,h=piso(x);
+    const x=(i+.5)*passo,h=piso(x),angulo=Math.atan(inclinacaoTabuleiro(arqueamento,L,x/L));
+    const rotacao=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angulo);
+    const centro=(profundidade,z)=>[x-profundidade*Math.sin(angulo),h+profundidade*Math.cos(angulo),z];
     for(let j=0;j<colunas;j++) {
       const z=-largura/2+(j+.5)*largura/colunas;
-      caixa([x,h-.09,z],[passo-.024,.18,largura/colunas-.018],RAMPAS.terra[(i+j)%5===0?4:3]);tabuas++;
+      caixa(centro(-.09,z),[passo-.024,.18,largura/colunas-.018],RAMPAS.terra[(i+j)%5===0?4:3],rotacao);tabuas++;
       // Veios curtos seguem a madeira; ficam presos à peça em qualquer ângulo.
-      if((i+j)%3===0)caixa([x,h-.004,z+.1],[.018,.009,largura/colunas*.52],RAMPAS.terra[2],null,.002);
-      if(j===0||j===colunas-1)caixa([x,h-.0075,z],[.035,.016,.035],RAMPAS.pedra[1],null,.002);
+      if((i+j)%3===0)caixa(centro(-.004,z+.1),[.018,.009,largura/colunas*.52],RAMPAS.terra[2],rotacao,.002);
+      if(j===0||j===colunas-1)caixa(centro(-.0075,z),[.035,.016,.035],RAMPAS.pedra[1],rotacao,.002);
     }
+  }
+  function vigaCurva(x,xx,z,offset,espessura,cor){
+    const n=Math.ceil((xx-x)/.3);
+    for(let k=0;k<n;k++) {const a=x+(xx-x)*k/n,b=x+(xx-x)*(k+1)/n;viga([a,piso(a)+offset,z],[b,piso(b)+offset,z],espessura,cor);}
   }
   const vaos=Math.ceil(L/1.8);
   for(const lado of [-1,1]) {
@@ -46,10 +53,10 @@ export function criarPonteMadeira({inicio,fim,largura=2.8,altura=4.6,arqueamento
       caixa([x,h+1.04,z],[.25,.1,.25],RAMPAS.terra[4]);
       if(i<vaos) {
         const xx=L*(i+1)/vaos,hh=piso(xx);
-        viga([x,h+.97,z],[xx,hh+.97,z],.13,RAMPAS.terra[3]);
-        viga([x,h+.48,z],[xx,hh+.48,z],.09,RAMPAS.terra[2]);
+        vigaCurva(x,xx,z,.97,.13,RAMPAS.terra[3]);
+        vigaCurva(x,xx,z,.48,.09,RAMPAS.terra[2]);
         viga([x,h+.12,z],[xx,hh+.82,z],.065,RAMPAS.terra[2]);
-        viga([x,h-.34,z],[xx,hh-.34,z],.22,RAMPAS.terra[1]);
+        vigaCurva(x,xx,z,-.34,.22,RAMPAS.terra[1]);
       }
     }
   }
