@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.21",
+  "versaoAtual": "v0.22",
   "proximoPasso": {
-    "titulo": "Revisar o caminho do vale",
-    "descricao": "Conferir a nova descida pela esquerda e a ponte abaixo da cascata; depois continuar os lugares já planejados."
+    "titulo": "Revisar a leitura das escadas",
+    "descricao": "Comparar os degraus de perto e na distância normal antes de continuar as construções do jardim."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Seis regiões de relevo; caminho do vale redesenhado pela margem esquerda e ponte depois da última cascata."
+      "nota": "Escadas retas com degraus menores, quinas refinadas, pedras regulares e bordas alinhadas. Ponte inferior e seis regiões de relevo preservadas."
     },
     {
       "nome": "Vida e clima",
@@ -76,7 +76,8 @@
       "Paredões com poucas áreas de cor, fendas desencontradas e grama em volume",
       "Contorno de silhueta sem riscar planos oblíquos contínuos",
       "Relevo em seis regiões do mapa, com curvas e alturas diferentes",
-      "Caminho desce pela margem esquerda e cruza abaixo da última cascata"
+      "Caminho desce pela margem esquerda e cruza abaixo da última cascata",
+      "Escadas com lances retos, degraus de 0,25 m, quinas refinadas e juntas regulares"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -101,6 +102,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.22",
+      "data": "2026-10-15",
+      "titulo": "Escadas mais nítidas e alinhadas",
+      "porque": "Os degraus pareciam grandes, tortos e irregulares, com bordas de difícil leitura.",
+      "mudancas": [
+        "Lances retos; mudanças de direção nos patamares",
+        "Degraus menores e alinhados por uma referência comum",
+        "Mais faces nas quinas e quatro pedras regulares por piso",
+        "Novo atalho para ver a Escada do vale de perto"
+      ],
+      "resultado": "Pisos horizontais, bordas alinhadas e quinas mais finas. A escada continua em pixel art, conectada ao caminho e apoiada no terreno.",
+      "imagens": [
+        {
+          "src": "historico/v0.22-escada-frente.jpg",
+          "legenda": "Escada do vale: lance reto, degraus regulares e quinas refinadas"
+        },
+        {
+          "src": "historico/v0.22-escada-lateral.jpg",
+          "legenda": "Vista lateral da mesma escada, com pisos, espelhos e bordas alinhados"
+        }
+      ]
+    },
     {
       "versao": "v0.21",
       "data": "2026-10-15",

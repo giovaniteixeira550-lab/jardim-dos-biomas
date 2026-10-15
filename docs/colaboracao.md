@@ -59,3 +59,7 @@ Correção da composição solicitada pelo usuário: seis regiões autorais com 
 ## Desvio e ponte inferior — v0.21
 
 Alteração delimitada ao traçado de planoMestre, conforme imagem do usuário. Sem mudanças em materiais, modelos ou topografia autoral. Percursos existentes recalculam escadas, ponte e apoio no terreno. Importações versionadas atualizadas para 0.21 para evitar o cache antigo. Testes cobrem a nova travessia a jusante e a remoção da antiga.
+
+## Refinamento das escadas — v0.22
+
+Escopo: lajes e bordas de relevo.js, modulação de 0,25 m em percursos.js e remoção de dois pontos de inflexão no meio dos lances da margem esquerda. O desvio e a ponte inferior continuam no mesmo lugar. Normais transversais vêm de um corredor comum; quinas em três faixas e subdivisões de 0,125 m refinam as faces. Copas, paleta, solo e água preservados. Importações atualizadas para 0.22.

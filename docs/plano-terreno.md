@@ -67,3 +67,9 @@ Os terraços somam dentro de cada região; entre regiões vale a maior altura, e
 ## Caminho do vale — v0.21
 
 O desenho enviado pelo usuário em vermelho substitui a travessia alta por um desvio na margem esquerda. Depois de 60/47, o caminho segue 61/57 → 68/69 → 76/78, desce o paredão oeste e faz uma curva larga por 82/81 e 88/81. O trecho reto 94/78 → 112/60 cruza o riacho abaixo da última cascata; 122/53 reconecta à estrada existente. Coordenadas canônicas 180×120. A ponte é calculada pela interseção real, com cabeceiras niveladas; a anterior deixa de existir. Relevos das seis regiões e curso da água preservados.
+
+## Escadas regulares — v0.22
+
+A modulação passa a 0,25 m de altura para combinar com amostras de 0,50 m do caminho; uma queda de 4,5 m tem 18 espelhos. Os cantos antes dentro dos dois lances da margem esquerda foram removidos: o trecho 50/41 → 61/57 e o trecho 61/57 → 76/78 deixam as mudanças de direção nos patamares. Lajes e bordas usam uma referência transversal comum. Pisos têm quatro pedras alinhadas, juntas rebaixadas de 0,012 m e quinas de 0,045 m com três faces. A geometria é subdividida longitudinalmente a cada 0,125 m e nas frentes em doze partes. A planta inclui a Escada do vale com enquadramento próximo.
+
+Verificação adicional: todos os lances maiores que 3 m devem desviar menos de 0,025 m do próprio eixo reto. No navegador, o piso é conferido também nas duas laterais e as faces superiores têm arestas menores que 0,9 m.

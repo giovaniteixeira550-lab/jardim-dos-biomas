@@ -110,16 +110,16 @@ export function organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:
   // Maiorante com inclinação limitada: os acessos sobem antes do paredão,
   // sempre ao longo do caminho. Não dependem da orientação do gradiente.
   for(const ponte of pontes) {
-    ponte.h=Math.ceil(Math.max(amostraEm(amostras,ponte.s0).h,amostraEm(amostras,ponte.s1).h,(projetarRio(ponte.x,ponte.y)?.agua??0)+0.9)/0.3)*0.3;
+    ponte.h=Math.ceil(Math.max(amostraEm(amostras,ponte.s0).h,amostraEm(amostras,ponte.s1).h,(projetarRio(ponte.x,ponte.y)?.agua??0)+0.9)/0.25)*0.25;
   }
   for(let rodada=0;rodada<3;rodada++) {
     for(const p of amostras)for(const ponte of pontes)if(p.s>=ponte.s0-1.5&&p.s<=ponte.s1+1.5)p.h=ponte.h;
     for(let i=1;i<amostras.length;i++)amostras[i].h=Math.max(amostras[i].h,amostras[i-1].h-0.5*(amostras[i].s-amostras[i-1].s));
     for(let i=amostras.length-2;i>=0;i--)amostras[i].h=Math.max(amostras[i].h,amostras[i+1].h-0.5*(amostras[i+1].s-amostras[i].s));
-    for(const ponte of pontes)ponte.h=Math.ceil(Math.max(ponte.h,...amostras.filter(p=>p.s>=ponte.s0-1.5&&p.s<=ponte.s1+1.5).map(p=>p.h))/0.3-1e-6)*0.3;
+    for(const ponte of pontes)ponte.h=Math.ceil(Math.max(ponte.h,...amostras.filter(p=>p.s>=ponte.s0-1.5&&p.s<=ponte.s1+1.5).map(p=>p.h))/0.25-1e-6)*0.25;
   }
   for(const p of amostras) {
-    p.h=Math.round(p.h/0.3)*0.3;
+    p.h=Math.round(p.h/0.25)*0.25;
     p.ponte=pontes.find(ponte=>p.s>=ponte.s0&&p.s<=ponte.s1)??null;
     if(p.ponte)p.h=p.ponte.h;
   }
