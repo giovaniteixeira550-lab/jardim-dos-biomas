@@ -39,7 +39,9 @@ export function criarAmbiente(m) {
   const umidade = (x, y) => {
     const raioMedio = (m.lago.rx + m.lago.ry) / 2;
     const dAgua = Math.max(0, m.fatorLago(x, y) - 1) * raioMedio; // metros até a margem (aprox.)
-    const agua = Math.exp(-dAgua / 14);
+    // Lago ou riacho: o que estiver mais perto molha o solo.
+    const dRio = Math.max(0, m.distRiacho(x, y) - m.riacho.largura / 2);
+    const agua = Math.max(Math.exp(-dAgua / 14), Math.exp(-dRio / 8) * 0.9);
     // Vale: abaixo da média do entorno (10 m) ⇒ acumula água escorrida.
     const h = m.altitude(x, y);
     const media = (m.altitude(x + 10, y) + m.altitude(x - 10, y) + m.altitude(x, y + 10) + m.altitude(x, y - 10)) / 4;

@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.10",
+  "versaoAtual": "v0.11",
   "proximoPasso": {
-    "titulo": "Relevo, parte 2: água descendo entre os níveis",
-    "descricao": "Como na referência: um riacho que nasce no platô alto e cai em cascata no paredão até o lago, com pedras na margem. Depois: seca das árvores (passo 1 do PLANO)."
+    "titulo": "Ampliar o mapa",
+    "descricao": "A clareira de 180 × 120 m foi a base inicial. Com relevo e água prontos, o mapa pode crescer (mais platôs, outro riacho, espaço para os biomas) — medindo o carregamento a cada passo."
   },
   "frentes": [
     {
@@ -27,8 +27,8 @@
     {
       "nome": "Terreno e água",
       "status": "andamento",
-      "progresso": 60,
-      "nota": "Terraços com paredões de pedra em blocos e escadas na trilha. Falta: cascata/riacho, plantas aquáticas."
+      "progresso": 75,
+      "nota": "Terraços, paredões de pedra em colunas, riacho com cascatas, ponte, vitórias-régias e taboas."
     },
     {
       "nome": "Vida e clima",
@@ -56,17 +56,20 @@
       "Carregamento rápido (sem biblioteca de árvores)",
       "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
       "Raio-X: copas na frente do cursor ficam rendadas em pixel (cliques atravessam)",
-      "Relevo em terraços: platôs planos, paredões verticais de pedra em blocos, escadas de pedra na trilha"
+      "Relevo em terraços: platôs planos, paredões verticais de pedra em blocos, escadas de pedra na trilha",
+      "Riacho que desce do platô mais alto até o lago, com cascatas nos paredões, espuma, pedras e ponte de madeira",
+      "Paredões com padrão limpo: colunas regulares com chanfro, topo claro e pé na sombra"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça",
       "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
-      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
+      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)",
+      "Encontro da escada da trilha com o barranco ainda tem uma faixa cinza sem acabamento"
     ],
     "ideias": [
-      "Riacho e cascata descendo pelos paredões até o lago",
+      "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
       "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
       "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
@@ -80,6 +83,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.11",
+      "data": "2026-10-14",
+      "titulo": "Riacho com cascatas e pedras mais limpas",
+      "porque": "Seguir as referências: água descendo entre os níveis e paredões com padrão limpo e sombreado.",
+      "mudancas": [
+        "Riacho nasce no platô mais alto e desce até o lago; a água nunca sobe e cai em cascata nos paredões",
+        "Cascata turquesa com listras brancas animadas, espuma e pedras no pé; ponte onde a trilha cruza",
+        "Paredões refeitos: colunas verticais regulares com chanfro de luz e sombra, topo claro, pé escuro",
+        "Lago com borda clara, vitórias-régias e taboas; solo mais úmido junto ao riacho"
+      ],
+      "resultado": "O relevo ganhou água correndo entre os níveis, no estilo das referências, sem mudar árvores, trilha e lago de lugar.",
+      "imagens": [
+        {
+          "src": "historico/v0.11-riacho.jpg",
+          "legenda": "Riacho com duas cascatas chegando ao lago"
+        },
+        {
+          "src": "historico/v0.11-cascata.jpg",
+          "legenda": "Cascata, espuma e paredões em colunas"
+        }
+      ]
+    },
     {
       "versao": "v0.10",
       "data": "2026-10-14",

@@ -215,11 +215,82 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     const tx = fx - i, ty = fy - j, k = j * G.nx + i;
     return lerp(lerp(H[k], H[k + 1], tx), lerp(H[k + G.nx], H[k + G.nx + 1], tx), ty);
   };
+
+  // --- Riacho: nasce no platô mais alto e desce até o lago --------------------
+  // Sorteio próprio (rngR): não mexe na posição de árvores, trilha e lago.
+  // A água NUNCA sobe: o nível só desce ao longo do curso; onde o chão cai num
+  // paredão, a água cai junto (cascata); onde há lombada, o leito é escavado.
+  const rngR = criarRng(semente ^ 0x51ed);
+  const riacho = { largura: 3.2, pontos: [] };
+  {
+    let S = null, melhor = -Infinity;
+    for (let x = 14; x < largura - 14; x += 3)
+      for (let y = 10; y < altura - 10; y += 3) {
+        if (fatorLago(x, y) < 3 || distTrilha(x, y) < 10) continue;
+        const nota = altitude(x, y) + Math.hypot(x - lago.cx, y - lago.cy) * 0.015;
+        if (nota > melhor) (melhor = nota), (S = { x, y });
+      }
+    const a = Math.atan2((S.y - lago.cy) / lago.ry, (S.x - lago.cx) / lago.rx);
+    const E = { x: lago.cx + Math.cos(a) * lago.rx * lago.raio(a) * 0.8, y: lago.cy + Math.sin(a) * lago.ry * lago.raio(a) * 0.8 };
+    // Curso sinuoso: pontos de controle com desvio lateral, suavizados (Chaikin).
+    const L = Math.hypot(E.x - S.x, E.y - S.y), nx = -(E.y - S.y) / L, ny = (E.x - S.x) / L;
+    const fase = rngR() * 6.28, amp = lerp(6, 10, rngR());
+    let ctrl = [];
+    for (let i = 0; i <= 8; i++) {
+      const t = i / 8, desvio = Math.sin(t * Math.PI * 2 + fase) * amp * Math.sin(t * Math.PI) + (rngR() - 0.5) * 4 * Math.sin(t * Math.PI);
+      ctrl.push({ x: lerp(S.x, E.x, t) + nx * desvio, y: lerp(S.y, E.y, t) + ny * desvio });
+    }
+    for (let r = 0; r < 3; r++) {
+      const n = [ctrl[0]];
+      for (let i = 0; i < ctrl.length - 1; i++) {
+        const p = ctrl[i], q = ctrl[i + 1];
+        n.push({ x: lerp(p.x, q.x, 0.25), y: lerp(p.y, q.y, 0.25) }, { x: lerp(p.x, q.x, 0.75), y: lerp(p.y, q.y, 0.75) });
+      }
+      n.push(ctrl[ctrl.length - 1]);
+      ctrl = n;
+    }
+    // Amostras a cada 0,5 m com o nível da água (só desce).
+    let agua = Infinity;
+    for (let i = 0; i < ctrl.length - 1; i++) {
+      const p = ctrl[i], q = ctrl[i + 1], n = Math.max(1, Math.round(Math.hypot(q.x - p.x, q.y - p.y) / 0.5));
+      for (let k = 0; k < n; k++) {
+        const x = lerp(p.x, q.x, k / n), y = lerp(p.y, q.y, k / n), h0 = altitude(x, y);
+        agua = Math.max(-0.5, Math.min(agua, h0 - 0.45)); // no lago, assenta na superfície (-0,55)
+        riacho.pontos.push({ x, y, h0, agua });
+      }
+    }
+    // Escava o leito na grade de alturas (margens em rampa curta, como barranco baixo).
+    const meia = riacho.largura / 2, R = meia + 0.9;
+    for (const p of riacho.pontos) {
+      const i0 = Math.floor((p.x - R - G.x0) / G.passo), i1 = Math.ceil((p.x + R - G.x0) / G.passo);
+      const j0 = Math.floor((p.y - R - G.y0) / G.passo), j1 = Math.ceil((p.y + R - G.y0) / G.passo);
+      const leito = p.agua - 0.35;
+      for (let j = Math.max(0, j0); j <= Math.min(G.ny - 1, j1); j++)
+        for (let i = Math.max(0, i0); i <= Math.min(G.nx - 1, i1); i++) {
+          const d = Math.hypot(G.x0 + i * G.passo - p.x, G.y0 + j * G.passo - p.y);
+          if (d > R) continue;
+          const k = j * G.nx + i;
+          H[k] = Math.min(H[k], lerp(leito, H[k], suave(meia + 0.15, R, d))); // margem íngreme: barranquinho
+        }
+    }
+  }
+  /** Distância (m) até o eixo do riacho. */
+  const distRiacho = (x, y) => {
+    let m = Infinity;
+    const P = riacho.pontos;
+    for (let i = 0; i < P.length; i += 4) {
+      const dx = P[i].x - x, dy = P[i].y - y;
+      if (Math.abs(dx) > 12 || Math.abs(dy) > 12) continue;
+      m = Math.min(m, Math.hypot(dx, dy));
+    }
+    return m;
+  };
+
   /** Inclinação (m/m) — barrancos passam de ~0,6. */
   const declive = (x, y) => Math.hypot(altitude(x + 0.5, y) - altitude(x - 0.5, y), altitude(x, y + 0.5) - altitude(x, y - 0.5));
   const ingreme = (x, y) => declive(x, y) > 0.45 || declive(x + 1.2, y) > 0.45 || declive(x - 1.2, y) > 0.45 || declive(x, y + 1.2) > 0.45 || declive(x, y - 1.2) > 0.45;
 
-  const fora = (x, y) => fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9 && !ingreme(x, y);
+  const fora = (x, y) => fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9 && !ingreme(x, y) && distRiacho(x, y) > riacho.largura * 0.5 + 1.6;
   const nascer = (d) => clamp01(0.85 - d * 0.75 + (rng() - 0.5) * 0.35);
   const objetos = [];
 
@@ -276,5 +347,5 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     objetos.push({ tipo: "flor", x, y, cor: Math.floor(rng() * 4), nasce: 0 });
   }
 
-  return { semente, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, objetos, ruido, fino };
+  return { semente, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, distRiacho, objetos, ruido, fino };
 }

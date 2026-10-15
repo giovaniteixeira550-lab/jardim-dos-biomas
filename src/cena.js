@@ -16,6 +16,8 @@ import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
 
+const lerp = THREE.MathUtils.lerp;
+
 // Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
 // setTimeout em vez de requestAnimationFrame: rAF pausa com a aba em segundo
 // plano, e o carregamento ficaria parado até o usuário voltar.
@@ -141,6 +143,8 @@ export class Jardim {
     await quadro();
     this.criarTerreno();
     this.criarAgua();
+    this.criarRiacho();
+    this.criarPlantasAquaticas();
 
     const lista = Object.entries(ESPECIES);
     const total = lista.reduce((n, [, e]) => n + e.variacoes, 0);
@@ -227,7 +231,7 @@ export class Jardim {
       if (trilha < 0.55) c.set(T[n2 > 0.6 ? 5 : 4]);
       else if (trilha < 0.75) c.set(T[3]);
       // Margem e fundo do lago.
-      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : 1]);
+      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.95 ? 1 : 5]); // faixa clara rente à margem: a borda ciano das referências
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
@@ -248,42 +252,50 @@ export class Jardim {
   }
 
   /**
-   * Chão com paredões de PEDRA EM BLOCOS: onde o terreno fica quase vertical,
-   * o shader desenha colunas de pedra com rachaduras (cor por bloco, no mundo),
-   * como nos barrancos de jogos em pixel art. O resto usa a cor por vértice.
+   * Chão com paredões de PEDRA no estilo das referências de pixel art: colunas
+   * verticais REGULARES (sempre na vertical da tela), cada uma com chanfro
+   * (luz de um lado, sombra do outro), topo iluminado e pé na sombra, poucos
+   * tons. A luz é desenhada (quase sem depender da malha), por isso fica limpa.
    */
   materialTerreno() {
     const mat = toon({ vertexColors: true });
-    const T = RAMPAS.terra, P = RAMPAS.pedra;
+    const T = RAMPAS.terra;
+    this.uDireita = { value: new THREE.Vector2(1, 0) }; // direita da câmera no chão (atualizada por quadro)
     mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uRochaEsc = { value: new THREE.Color(T[2]) };
-      sh.uniforms.uRochaClara = { value: new THREE.Color(T[4]) };
-      sh.uniforms.uPedra = { value: new THREE.Color(P[3]) };
+      sh.uniforms.uT1 = { value: new THREE.Color(T[1]) };
+      sh.uniforms.uT2 = { value: new THREE.Color(T[2]) };
+      sh.uniforms.uT3 = { value: new THREE.Color(T[3]) };
+      sh.uniforms.uT4 = { value: new THREE.Color(T[4]) };
+      sh.uniforms.uDegrau = { value: this.mundo.DEGRAU };
+      sh.uniforms.uDireita = this.uDireita;
       sh.vertexShader = "attribute float aRocha; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.vertexShader.replace(
         "#include <worldpos_vertex>",
         "#include <worldpos_vertex>\nvRocha = aRocha;\nvMundoT = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvNorT = normalize(mat3(modelMatrix) * objectNormal);",
       );
-      sh.fragmentShader = "uniform vec3 uRochaEsc; uniform vec3 uRochaClara; uniform vec3 uPedra; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.fragmentShader.replace(
+      sh.fragmentShader = "uniform vec3 uT1; uniform vec3 uT2; uniform vec3 uT3; uniform vec3 uT4; uniform float uDegrau; uniform vec2 uDireita; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.fragmentShader.replace(
         "#include <color_fragment>",
         `#include <color_fragment>
         vec3 rochaLuz = vec3(0.0);
         if (vNorT.y < 0.62 && vRocha > 0.5) {
-          // Coordenada ao longo do paredão: colunas de ~0,75 m; fiadas de ~1,1 m desencontradas.
-          vec2 tg = normalize(vec2(-vNorT.z, vNorT.x) + 1e-4);
-          float u = dot(vMundoT.xz, tg) / 0.75;
-          float col = floor(u);
+          // Colunas de 0,9 m medidas na horizontal da TELA: listras sempre verticais e iguais.
+          float u = dot(vMundoT.xz, uDireita) / 0.9;
+          float col = floor(u), fu = fract(u);
           float h1 = fract(sin(col * 12.9898) * 43758.5453);
-          float v = (vMundoT.y + h1 * 0.9) / 1.1;
-          float h2 = fract(sin(col * 78.233 + floor(v) * 37.719) * 43758.5453);
-          vec3 rocha = h2 > 0.82 ? uPedra : mix(uRochaEsc, uRochaClara, h2);
-          float fenda = max(step(fract(u), 0.12), step(fract(v), 0.1));
-          rocha *= 1.0 - fenda * 0.4;
-          diffuseColor.rgb = rocha;
-          rochaLuz = rocha * 0.45; // paredão vertical não pode sumir na sombra do toon
+          vec3 c = h1 < 0.4 ? uT3 : (h1 < 0.8 ? uT2 : uT3); // 2 tons alternando
+          if (fu < 0.16) c = uT4;          // chanfro iluminado
+          else if (fu > 0.84) c = uT1;     // sulco na sombra
+          // Altura dentro do degrau: borda de cima clara, pé escuro.
+          float hr = fract(vMundoT.y / uDegrau + 0.04);
+          if (hr > 0.9) c = uT4;
+          else if (hr < 0.18) c = (fu > 0.84) ? uT1 : uT2;
+          // Uma rachadura horizontal por coluna, em alturas diferentes.
+          if (abs(hr - (0.35 + h1 * 0.4)) < 0.025 && fu > 0.16 && fu < 0.84) c = uT2;
+          diffuseColor.rgb = c * 0.3;
+          rochaLuz = c * 0.78; // luz desenhada: não depende da malha irregular
         }`,
       ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += rochaLuz;");
     };
-    mat.customProgramCacheKey = () => "terreno-rocha";
+    mat.customProgramCacheKey = () => "terreno-rocha-2";
     return mat;
   }
 
@@ -313,6 +325,200 @@ export class Jardim {
     this.agua.position.y = -0.55;
     this.agua.receiveShadow = true;
     this.scene.add(this.agua);
+  }
+
+  /**
+   * Riacho: fita de água seguindo o curso (mundo.riacho). Onde o nível cai de
+   * repente (paredão), a fita fica em pé e vira CASCATA: cortina clara com
+   * listras brancas descendo e espuma no pé. Borda ciano clara junto à margem,
+   * como nos jogos de pixel art de referência.
+   */
+  criarRiacho() {
+    const m = this.mundo, P = m.riacho.pontos, n = P.length;
+    if (n < 2) return;
+    const w = m.riacho.largura / 2 + 0.3;
+    const pos = new Float32Array(n * 2 * 3), dist = new Float32Array(n * 2), lado = new Float32Array(n * 2), queda = new Float32Array(n * 2);
+    const quedaEm = (i) => {
+      const a = P[Math.max(0, i - 2)], b = P[Math.min(n - 1, i + 2)];
+      return THREE.MathUtils.clamp((a.agua - b.agua) / 2 / 1.2, 0, 1); // ~1 num paredão
+    };
+    let acc = 0;
+    for (let i = 0; i < n; i++) {
+      const a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)];
+      let tx = b.x - a.x, tz = b.y - a.y;
+      const l = Math.hypot(tx, tz) || 1;
+      tx /= l; tz /= l;
+      if (i > 0) acc += Math.hypot(P[i].x - P[i - 1].x, P[i].y - P[i - 1].y, P[i].agua - P[i - 1].agua);
+      const q = quedaEm(i);
+      for (const [s, o] of [[-1, 0], [1, 1]]) {
+        const k = i * 2 + o;
+        pos.set([P[i].x - tz * w * s, P[i].agua, P[i].y + tx * w * s], k * 3);
+        dist[k] = acc;
+        lado[k] = s;
+        queda[k] = q;
+      }
+    }
+    const idx = [];
+    for (let i = 0; i < n - 1; i++) {
+      const a = i * 2, b = i * 2 + 1, c = i * 2 + 2, d = i * 2 + 3;
+      idx.push(a, c, b, b, c, d);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("aDist", new THREE.BufferAttribute(dist, 1));
+    g.setAttribute("aLado", new THREE.BufferAttribute(lado, 1));
+    g.setAttribute("aQueda", new THREE.BufferAttribute(queda, 1));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    const A = RAMPAS.agua;
+    const mat = toon({ color: A[3], side: THREE.DoubleSide });
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uTime = { value: 0 };
+      sh.uniforms.uBorda = { value: new THREE.Color(A[5]) };
+      sh.uniforms.uEspuma = { value: new THREE.Color(RAMPAS.betula[0]) };
+      mat.userData.shader = sh;
+      sh.vertexShader = "attribute float aDist; attribute float aLado; attribute float aQueda; varying float vDist; varying float vLado; varying float vQueda;\n" +
+        sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvDist = aDist; vLado = aLado; vQueda = aQueda;");
+      sh.fragmentShader = "uniform float uTime; uniform vec3 uBorda; uniform vec3 uEspuma; varying float vDist; varying float vLado; varying float vQueda;\n" +
+        sh.fragmentShader.replace(
+          "#include <color_fragment>",
+          `#include <color_fragment>
+          float faixa = floor((vLado * 0.5 + 0.5) * 9.0);
+          float h = fract(sin(faixa * 17.13) * 4375.85);
+          vec3 luz = vec3(0.0);
+          if (vQueda > 0.45) {
+            // Cascata: cortina clara com listras brancas que descem.
+            diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, 0.35);
+            float listra = step(0.55, fract(vDist * 1.4 - uTime * 2.2 + h * 3.0));
+            diffuseColor.rgb = mix(diffuseColor.rgb, uEspuma, listra * (0.6 + 0.4 * step(0.5, h)));
+            luz = diffuseColor.rgb * 0.4;
+          } else {
+            // Correnteza: tracinhos claros andando rio abaixo; borda ciano junto à margem.
+            float traco = step(0.9, fract(vDist * 0.45 - uTime * 0.7 + h * 5.0)) * step(0.4, h);
+            diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, max(traco, step(0.8, abs(vLado))));
+            luz = diffuseColor.rgb * 0.2;
+          }`,
+        ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += luz;");
+    };
+    mat.customProgramCacheKey = () => "riacho";
+    this.riacho = new THREE.Mesh(g, mat);
+    this.riacho.receiveShadow = true;
+    this.scene.add(this.riacho);
+
+    // Espuma e pedras no pé de cada cascata.
+    const rng = criarRng(m.semente ^ 0x5ca);
+    const partes = [], pedras = [];
+    const bola = (r, x, y, z, ach, lista) => {
+      const b = new THREE.IcosahedronGeometry(r, 1);
+      b.scale(1, ach, 1);
+      b.translate(x, y, z);
+      lista.push(b);
+    };
+    for (let i = 3; i < n - 1; i++) {
+      if (!(quedaEm(i - 1) > 0.45 && quedaEm(i + 1) <= 0.45)) continue;
+      const p = P[Math.min(n - 1, i + 2)];
+      for (let k = 0; k < 9; k++) bola(lerp(0.25, 0.5, rng()), p.x + (rng() - 0.5) * w * 1.6, p.agua + 0.05, p.y + (rng() - 0.5) * w * 1.6, 0.45, partes);
+      for (let k = 0; k < 3; k++) {
+        const ang = rng() * 6.28;
+        bola(lerp(0.4, 0.8, rng()), p.x + Math.cos(ang) * w * 1.3, p.agua + 0.1, p.y + Math.sin(ang) * w * 1.3, 0.7, pedras);
+      }
+    }
+    const juntarEm = (lista, cor) => {
+      if (!lista.length) return;
+      const tot = lista.reduce((s, b) => s + b.toNonIndexed().attributes.position.count, 0);
+      const arr = new Float32Array(tot * 3);
+      let o = 0;
+      for (const b of lista) {
+        const nb = b.toNonIndexed();
+        arr.set(nb.attributes.position.array, o);
+        o += nb.attributes.position.array.length;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+      geo.computeVertexNormals();
+      const malha = new THREE.Mesh(geo, toon({ color: cor }));
+      malha.castShadow = malha.receiveShadow = true;
+      this.scene.add(malha);
+    };
+    juntarEm(partes, RAMPAS.betula[0]);
+    juntarEm(pedras, RAMPAS.pedra[3]);
+
+    // Ponte de madeira onde a trilha cruza o riacho.
+    let melhor = null;
+    for (let i = 0; i < n; i += 2) {
+      const d = m.distTrilha(P[i].x, P[i].y);
+      if (d < m.trilha.largura * 0.5 && (!melhor || d < melhor.d)) melhor = { i, d };
+    }
+    if (melhor) {
+      const p = P[melhor.i], a = P[Math.max(0, melhor.i - 2)], b = P[Math.min(n - 1, melhor.i + 2)];
+      const ang = Math.atan2(b.y - a.y, b.x - a.x);
+      const ponte = new THREE.Group();
+      const madeira = toon({ color: RAMPAS.terra[3] }), escura = toon({ color: RAMPAS.terra[1] });
+      const vao = m.riacho.largura + 2.2;
+      for (let k = 0; k < 7; k++) {
+        const tabua = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, vao), k % 2 ? madeira : escura);
+        tabua.position.set((k - 3) * 0.45, 0, 0);
+        ponte.add(tabua);
+      }
+      for (const s of [-1, 1]) {
+        const corrimao = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, vao), escura);
+        corrimao.position.set(s * 1.6, 0.7, 0);
+        ponte.add(corrimao);
+        for (const z of [-vao / 2 + 0.3, 0, vao / 2 - 0.3]) {
+          const poste = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.75, 0.14), escura);
+          poste.position.set(s * 1.6, 0.35, z);
+          ponte.add(poste);
+        }
+      }
+      ponte.traverse((o) => (o.castShadow = o.receiveShadow = true));
+      ponte.rotation.y = -ang; // tábuas no sentido do riacho, vão atravessando-o
+      ponte.position.set(p.x, Math.max(p.h0, p.agua + 0.5) + 0.05, p.y);
+      this.scene.add(ponte);
+    }
+  }
+
+  /** Vitórias-régias e taboas na beira do lago. */
+  criarPlantasAquaticas() {
+    const m = this.mundo, L = m.lago, rng = criarRng(m.semente ^ 0x1e1a);
+    const folhas = [], taboas = [], pontas = [];
+    for (let i = 0; i < 16; i++) {
+      const a = rng() * 6.28, r = L.raio(a) * lerp(0.62, 0.9, rng());
+      const x = L.cx + Math.cos(a) * L.rx * r, z = L.cy + Math.sin(a) * L.ry * r;
+      const f = new THREE.CylinderGeometry(lerp(0.6, 0.95, rng()), lerp(0.6, 0.95, rng()), 0.05, 10, 1, false, 0.5, 5.6); // fatia aberta: o "corte" da folha
+      f.rotateY(rng() * 6.28);
+      f.translate(x, -0.52, z);
+      folhas.push(f);
+    }
+    for (let c = 0; c < 7; c++) {
+      const a = rng() * 6.28, r = L.raio(a) * lerp(0.95, 1.05, rng());
+      const cx = L.cx + Math.cos(a) * L.rx * r, cz = L.cy + Math.sin(a) * L.ry * r;
+      for (let k = 0; k < 6; k++) {
+        const x = cx + (rng() - 0.5) * 1.4, z = cz + (rng() - 0.5) * 1.4, h = lerp(1.0, 1.7, rng());
+        const y = Math.max(-0.55, m.altitude(x, z));
+        const haste = new THREE.CylinderGeometry(0.03, 0.04, h, 4);
+        haste.translate(x, y + h / 2, z);
+        taboas.push(haste);
+        const ponta = new THREE.CylinderGeometry(0.07, 0.07, 0.3, 5);
+        ponta.translate(x, y + h - 0.12, z);
+        pontas.push(ponta);
+      }
+    }
+    for (const [lista, cor] of [[folhas, RAMPAS.mata[4]], [taboas, RAMPAS.mata[3]], [pontas, RAMPAS.terra[1]]]) {
+      const geo = new THREE.BufferGeometry();
+      const tot = lista.reduce((s, b) => s + b.toNonIndexed().attributes.position.count, 0);
+      const arr = new Float32Array(tot * 3);
+      let o = 0;
+      for (const b of lista) {
+        const nb = b.toNonIndexed();
+        arr.set(nb.attributes.position.array, o);
+        o += nb.attributes.position.array.length;
+      }
+      geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+      geo.computeVertexNormals();
+      const malha = new THREE.Mesh(geo, toon({ color: cor, side: THREE.DoubleSide }));
+      malha.castShadow = malha.receiveShadow = true;
+      this.scene.add(malha);
+    }
   }
 
   // --- Árvores ------------------------------------------------------------
@@ -527,7 +733,7 @@ export class Jardim {
       let n = 0;
       for (let t = 0; t < max * 5 && n < max; t++) {
         const x = rng() * m.largura, z = rng() * m.altura;
-        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5) continue;
+        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5 || m.distRiacho(x, z) < m.riacho.largura * 0.5 + 0.6) continue;
         const mancha = m.fino(x / 9, z / 9, 3);
         const margem = 1 - suave(1.05, 1.4, m.fatorLago(x, z));
         if (rng() > Math.min(1, suave(0.35, 0.65, mancha) * (1 - m.densidade(x, z) * 0.5) + margem)) continue;
@@ -818,9 +1024,12 @@ export class Jardim {
       sa.uniforms.uTime.value = t;
       sa.uniforms.uBrilho.value = this.hora === "noite" ? 0.22 : this.hora === "entardecer" ? 0.7 : 1;
     }
+    const sr = this.riacho?.material.userData.shader;
+    if (sr) sr.uniforms.uTime.value = t;
     if (this.vagalumes.visible) this.vagalumes.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.3);
 
     this.posicionarCamera();
+    this.uDireita?.value.set(Math.cos(this.yaw), -Math.sin(this.yaw));
     const rx = this.raioX;
     rx.uAtivo.value = this.focoMundo ? 1 : 0;
     if (this.focoMundo) {
