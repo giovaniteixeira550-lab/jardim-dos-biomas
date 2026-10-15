@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformações das árvores — Jardim dos Biomas</title>
+<style>
+  :root { color-scheme:dark; font-family:system-ui,sans-serif; background:#141c18; color:#e9e3d1; }
+  body { margin:0; padding:24px; max-width:1280px; margin-inline:auto; }
+  a { color:#c6dd84; } h1 { font-size:28px; margin-bottom:8px; }
+  p { color:#c0cb97; line-height:1.5; } .controles { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin:20px 0; }
+  select,button { font:inherit; color:#e9e3d1; background:#22382b; border:1px solid #568a45; padding:10px; border-radius:4px; }
+  label { display:flex; align-items:center; gap:8px; } :focus-visible { outline:2px solid #ecab4c; outline-offset:3px; }
+  .vitrine { overflow:auto; border:1px solid #568a45; background:#74895c; }
+  .interior { min-width:900px; } canvas { display:block; width:100%; height:380px; image-rendering:pixelated; }
+  .legendas { display:grid; grid-template-columns:repeat(4,1fr); background:#1e2a22; }
+  article { padding:16px; border-right:1px solid #3f6e3c; } article:last-child { border:0; }
+  h2 { margin:0 0 8px; font-size:20px; color:#c6dd84; } article p { margin:0; font-size:14px; }
+  #estado { min-height:24px; } details { margin-top:20px; } pre { white-space:pre-wrap; line-height:1.5; }
+  @media(max-width:600px) { body { padding:16px; } h1 { font-size:24px; } }
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}
+</script>
+<a href="./index.html">← Voltar ao jardim</a>
+ · <a href="./historico.html#catalogo">Catálogo do diário</a>
+<h1>Uma árvore, quatro transformações</h1>
+<p>De folhas isoladas a uma arquitetura completa. Compare a forma de cada conquista, além do tamanho.</p>
+<div class="controles">
+  <label>Espécie <select id="especie"></select></label>
+  <label><input type="checkbox" id="normalizar" checked> Comparar formas sem usar o tamanho do jogo</label>
+  <button id="girar" type="button">Girar árvores</button>
+</div>
+<p id="estado" role="status">Preparando a comparação…</p>
+<div class="vitrine" tabindex="0" aria-label="Comparação dos quatro estágios. Em telas pequenas, role para os lados.">
+  <div class="interior">
+    <canvas id="comparacao" aria-label="Broto, muda, jovem e adulta da espécie selecionada"></canvas>
+    <div class="legendas">
+      <article><h2>1 · Broto</h2><p id="etapa-0"></p></article>
+      <article><h2>2 · Muda</h2><p id="etapa-1"></p></article>
+      <article><h2>3 · Jovem</h2><p id="etapa-2"></p></article>
+      <article><h2>4 · Adulta</h2><p id="etapa-3"></p></article>
+    </div>
+  </div>
+</div>
+<p>Uma interpretação artística do crescimento: as transformações podem ser exageradas para tornar o progresso legível. No jardim, os estágios continuam com seus tamanhos próprios.</p>
+<details><summary>Verificação das espécies</summary><p>Confere as geometrias de todas as espécies, a repetição da mesma semente e as mudanças de forma com o tamanho removido da comparação.</p><button id="verificar" type="button">Verificar todas as espécies</button><pre id="resultado" role="status"></pre></details>
+<script type="module" src="./src/evolucao.js"></script>
+</html>

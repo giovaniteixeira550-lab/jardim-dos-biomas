@@ -4,10 +4,13 @@
  * Para criar uma espécie nova, acrescente uma entrada aqui. O gerador
  * (arvoreProc.js) e o motor (cena.js) não precisam mudar, desde que a FORMA
  * já exista. Formas: redonda, oval, conica, colunar, pendente, guarda-chuva,
- * bananeira, garrafa (baobá), bambu, cristal, cacto,
+ * bananeira, garrafa (baobá), bambu, cristal, cacto, candelabro (embaúba),
+ * leque (buriti), acai (touceira de palmeiras), esparramada (cajueiro),
  * palmeira, araucaria, cogumelo, moita.
  *
  * Campos:
+ *  - brasil: espécie nativa do Brasil (filtro "Brasileiras" no catálogo do diário)
+ *  - espinhos: acúleos no tronco (paineira); fruto.cores: frutos de mais de uma cor
  *  - forma / formaJovem: arquitetura (a jovem pode ser outra, como na natureza)
  *  - altura [min, max] em metros da adulta; largura e grossura: proporções
  *  - cores: folha (e folha2 para manchas), casca, broto; folhaJovem (cor antes
@@ -115,19 +118,19 @@ export const ESPECIES = {
 
   // --- Floríferas brasileiras ---------------------------------------------
   ipeAmarelo: {
-    nome: "Ipê-amarelo", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.0,
+    nome: "Ipê-amarelo", brasil: true, forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.0,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.amarelo[1], folha2: R.amarelo[2], casca: CASCA, broto: R.mata[4] }, variacoes: 2,
     flor: { cor: R.amarelo[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.35, 0.25], sombra: 0.2, altitude: null }, raridade: 0.3, // tolera solo seco (cerrado)
   },
   jacaranda: {
-    nome: "Jacarandá", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.1,
+    nome: "Jacarandá", brasil: true, forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.1,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[5], folha: R.lilas[2], folha2: R.lilas[3], casca: CASCA, broto: R.mata[4] }, variacoes: 2,
     flor: { cor: R.lilas[3], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.45, 0.25], sombra: 0.25, altitude: null }, raridade: 0.3,
   },
   araucaria: {
-    nome: "Araucária", forma: "araucaria", formaJovem: "conica", altura: [14, 18],
+    nome: "Araucária", brasil: true, forma: "araucaria", formaJovem: "conica", altura: [14, 18],
     cores: { folha: R.mata[2], casca: R.terra[1] }, variacoes: 2,
     nicho: { umidade: [0.5, 0.25], sombra: 0.3, altitude: [0.8, 0.25] }, raridade: 0.4, // terreno alto
   },
@@ -158,7 +161,7 @@ export const ESPECIES = {
     nicho: { umidade: [0.5, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
   },
   ipeRoxo: {
-    nome: "Ipê-roxo", forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.05,
+    nome: "Ipê-roxo", brasil: true, forma: "guarda-chuva", formaJovem: "oval", altura: [9, 12], largura: 1.05,
     cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.flor[1], folha2: R.flor[2], casca: R.terra[1], broto: R.mata[4] }, variacoes: 2,
     flor: { cor: R.flor[2], raio: 0.2, quantidade: 18, achatar: 0.6, nome: "flores" }, tapete: true,
     nicho: { umidade: [0.45, 0.25], sombra: 0.2, altitude: null }, raridade: 0.25,
@@ -195,7 +198,7 @@ export const ESPECIES = {
 
   // --- Leva 3: evolução visível (v0.8) --------------------------------------
   jabuticabeira: {
-    nome: "Jabuticabeira", forma: "redonda", altura: [5, 7], largura: 1.25, grossura: 1.5,
+    nome: "Jabuticabeira", brasil: true, forma: "redonda", altura: [5, 7], largura: 1.25, grossura: 1.5,
     cores: { folha: R.mata[3], folha2: R.mata[2], casca: R.terra[3] }, variacoes: 2,
     fruto: { cor: R.lilas[0], raio: 0.09, quantidade: 0, nome: "jabuticabas no tronco" },
     noTronco: 54, // frutos (e antes, flores brancas) colados no tronco
@@ -214,10 +217,58 @@ export const ESPECIES = {
     nicho: { umidade: [0.3, 0.2], sombra: 0.15, altitude: [0.6, 0.35] }, raridade: 0.25, // seca e ensolarada
   },
   mandacaru: {
-    nome: "Mandacaru", forma: "cacto", altura: [4, 6],
+    nome: "Mandacaru", brasil: true, forma: "cacto", altura: [4, 6],
     cores: { folha: R.salvia[2], folha2: R.salvia[3], casca: R.salvia[1] }, variacoes: 2,
     flor: { cor: R.betula[0], raio: 0.2, quantidade: 6, nome: "flores" },
     nicho: { umidade: [0.12, 0.15], sombra: 0.05, altitude: null }, raridade: 0.25, // solo seco, sol pleno
+  },
+
+  // --- Leva 4: árvores brasileiras (v0.17) ----------------------------------
+  embauba: {
+    nome: "Embaúba", forma: "candelabro", altura: [9, 12], brasil: true,
+    cores: { folha: R.salvia[3], folha2: R.pedra[4], casca: R.pedra[3] }, variacoes: 2, // folhas com avesso prateado
+    nicho: { umidade: [0.6, 0.25], sombra: 0.1, altitude: null }, raridade: 0.35, // pioneira de clareira, precisa de sol
+  },
+  buriti: {
+    nome: "Buriti", forma: "leque", altura: [12, 16], brasil: true,
+    cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.pedra[2] }, variacoes: 2,
+    fruto: { cor: R.vermelho[0], raio: 0.13, quantidade: 34, nome: "cachos de buriti" }, floracao: null,
+    nicho: { umidade: [0.85, 0.22], sombra: 0.2, altitude: null }, raridade: 0.4, // veredas: solo encharcado
+  },
+  acai: {
+    nome: "Açaizeiro", forma: "acai", altura: [8, 12], brasil: true,
+    cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.salvia[2] }, variacoes: 2,
+    fruto: { cor: R.lilas[0], raio: 0.07, quantidade: 44, nome: "cachos de açaí" }, floracao: null,
+    nicho: { umidade: [0.85, 0.15], sombra: 0.45, altitude: [0.2, 0.3] }, raridade: 0.3, // várzea úmida
+  },
+  cajueiro: {
+    nome: "Cajueiro", forma: "esparramada", altura: [5, 7], largura: 1.2, grossura: 1.2, brasil: true,
+    cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.terra[1] }, variacoes: 2,
+    fruto: { cor: R.vermelho[2], cores: [R.vermelho[2], R.amarelo[1]], raio: 0.14, quantidade: 20, achatar: 1.4, nome: "cajus" },
+    nicho: { umidade: [0.3, 0.25], sombra: 0.15, altitude: null }, raridade: 0.25, // solo arenoso e sol
+  },
+  paineira: {
+    nome: "Paineira (barriguda)", forma: "garrafa", altura: [10, 13], grossura: 1.0, espinhos: true, tapete: true, brasil: true,
+    cores: { folhaJovem: R.mata[3], folhaJovem2: R.mata[4], folha: R.flor[2], folha2: R.mata[3], casca: R.salvia[2] }, variacoes: 2,
+    flor: { cor: R.flor[2], raio: 0.2, quantidade: 22, achatar: 0.6, nome: "flores" },
+    nicho: { umidade: [0.4, 0.25], sombra: 0.15, altitude: null }, raridade: 0.2,
+  },
+  pauBrasil: {
+    nome: "Pau-brasil", forma: "redonda", altura: [8, 11], largura: 1.05, grossura: 1.1, brasil: true,
+    cores: { folha: R.mata[3], folha2: R.mata[2], casca: R.vermelho[0] }, variacoes: 2, // casca e cerne avermelhados
+    flor: { cor: R.amarelo[2], raio: 0.13, quantidade: 30, achatar: 0.7, nome: "flores amarelas" },
+    nicho: { umidade: [0.55, 0.25], sombra: 0.45, altitude: null }, raridade: 0.2, // Mata Atlântica
+  },
+  quaresmeira: {
+    nome: "Quaresmeira", forma: "redonda", altura: [6, 8], largura: 0.9, tapete: true, brasil: true,
+    cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.lilas[1], folha2: R.lilas[2], casca: R.terra[2] }, variacoes: 2,
+    flor: { cor: R.lilas[2], raio: 0.17, quantidade: 26, achatar: 0.6, nome: "flores roxas" },
+    nicho: { umidade: [0.55, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
+  },
+  jequitiba: {
+    nome: "Jequitibá", forma: "guarda-chuva", formaJovem: "oval", altura: [18, 24], largura: 1.35, grossura: 1.6, brasil: true,
+    cores: { folha: R.mata[2], folha2: R.mata[3], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.6, 0.25], sombra: 0.55, altitude: null }, raridade: 0.1, // gigante emergente da mata, raro
   },
 
   // --- Arbustos (sub-bosque) -----------------------------------------------

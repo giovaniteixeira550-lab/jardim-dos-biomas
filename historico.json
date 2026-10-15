@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.16",
+  "versaoAtual": "v0.17",
   "proximoPasso": {
     "titulo": "Revisar o mapa maior; depois a seca das árvores",
     "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
@@ -15,8 +15,8 @@
     {
       "nome": "Árvores",
       "status": "andamento",
-      "progresso": 84,
-      "nota": "28 espécies + 4 arbustos; cada fase tem cara própria (não só tamanho). 15 formas."
+      "progresso": 88,
+      "nota": "36 espécies + 4 arbustos (14 brasileiras), 19 formas; catálogo com todas no diário."
     },
     {
       "nome": "Ecossistema",
@@ -63,22 +63,25 @@
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
       "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
       "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)",
-      "Folhagem com anatomia 3D: tufos orgânicos sobre cada volume, iluminados pelo sol, sombra só embaixo de cada tufo"
+      "Folhagem com anatomia 3D: tufos orgânicos sobre cada volume, iluminados pelo sol, sombra só embaixo de cada tufo",
+      "8 árvores brasileiras novas: embaúba, buriti, açaí, cajueiro, paineira, pau-brasil, quaresmeira, jequitibá",
+      "Catálogo de espécies no diário (feito pelo GPT) com filtro 'Brasileiras' e as 4 fases de cada uma"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça",
       "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
-      "Encontro da escada da trilha com o barranco ainda tem uma faixa cinza sem acabamento"
+      "Encontro da escada da trilha com o barranco ainda tem uma faixa cinza sem acabamento",
+      "Prévias do catálogo ainda sem a folhagem desenhada (v0.14–v0.16) — usar o mesmo material do jogo"
     ],
     "ideias": [
+      "Próximas brasileiras: pequizeiro (cerrado, tronco torto), aroeira, sibipiruna, ipê-branco, carnaúba, cambuci, guapuruvu",
       "Segundo riacho e lagoas menores; regiões para os 5 biomas no mapa maior",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
       "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
       "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
       "Clima e bichos refletem o ritmo geral de estudo",
-      "Próximas espécies: pau-brasil, araçá, embaúba; fantasia: cogumelo azul, árvore-nuvem",
       "Estações do ano (ipês florindo, outono, inverno sem folhas)",
       "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago",
       "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
@@ -88,6 +91,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.17",
+      "data": "2026-10-14",
+      "titulo": "Árvores brasileiras e catálogo no diário",
+      "porque": "Foco do projeto em árvores do Brasil e um lugar no diário para ver todos os estilos de árvore.",
+      "mudancas": [
+        "Formas novas: candelabro (embaúba), leque (buriti), touceira de palmeiras (açaí), copa esparramada (cajueiro); paineira com acúleos no tronco",
+        "Cada uma muda de verdade ao crescer: embaúba de guarda-sol a candelabro; buriti sem tronco → estipe alto com saia de folhas secas; açaí de 2 para vários estipes",
+        "Pau-brasil (casca vermelha, flores amarelas), quaresmeira (roxa), jequitibá (gigante raro); nichos ecológicos próprios (veredas, várzea, cerrado, mata)",
+        "Catálogo do GPT trazido ao diário, com filtro 'Brasileiras' (14 espécies) e página das 4 fases de cada uma"
+      ],
+      "resultado": "40 espécies no total; as brasileiras aparecem no mapa conforme o terreno (úmido, seco, mata).",
+      "imagens": [
+        {
+          "src": "historico/v0.17-catalogo-brasileiras.jpg",
+          "legenda": "Catálogo do diário filtrado em 'Brasileiras'"
+        },
+        {
+          "src": "historico/v0.17-buriti-fases.jpg",
+          "legenda": "Buriti: semente, muda, jovem sem tronco, adulto"
+        }
+      ]
+    },
     {
       "versao": "v0.16",
       "data": "2026-10-14",

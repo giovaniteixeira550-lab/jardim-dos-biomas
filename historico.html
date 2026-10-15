@@ -36,6 +36,25 @@
   h2 { margin: 0 0 12px; font-family: var(--display); font-weight: 400; font-size: 14px; letter-spacing: 0.06em; color: var(--suave); }
   .bloco { background: var(--painel); border: 2px solid var(--borda); box-shadow: 4px 4px 0 #000; padding: 16px; }
   .atualizado { color: var(--suave); font-size: 12px; }
+  #catalogo { scroll-margin-top: 90px; }
+  .catalogo-intro { margin: 0 0 16px; color: var(--suave); }
+  .catalogo-controles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .catalogo-controles label { display: grid; gap: 4px; flex: 1 1 180px; }
+  .catalogo-controles input, .catalogo-controles select { width: 100%; min-width: 0; padding: 8px; border: 2px solid var(--borda); color: var(--texto); background: var(--painel2); font: inherit; }
+  .catalogo-controles :focus-visible, .catalogo-card a:focus-visible { outline: 2px solid var(--ambar); outline-offset: 3px; }
+  .catalogo-resumo { display: flex; flex-wrap: wrap; gap: 4px 18px; color: var(--suave); font-size: 13px; margin-bottom: 16px; }
+  .catalogo-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .catalogo-card { min-width: 0; display: flex; flex-direction: column; border: 2px solid var(--borda); background: var(--painel2); }
+  .catalogo-preview { margin: 0; display: grid; place-items: center; background: #74895c; height: 170px; }
+  .catalogo-preview img { width: 100%; height: 170px; object-fit: contain; image-rendering: pixelated; }
+  .catalogo-preview span { color: #141c18; }
+  .catalogo-card-conteudo { display: grid; gap: 8px; padding: 12px; flex: 1; align-content: start; }
+  .catalogo-card h3 { margin: 0; font-size: 19px; color: var(--verde); }
+  .catalogo-card p { margin: 0; font-size: 13px; }
+  .catalogo-card .catalogo-tipo { color: var(--suave); }
+  .catalogo-card a { justify-self: start; margin-top: auto; }
+  .catalogo-vazio { padding: 12px; border: 2px dashed var(--borda); }
+  [hidden] { display: none !important; }
 
   /* Próximo passo */
   .proximo { border-color: var(--ambar); }
@@ -105,16 +124,21 @@
   dialog p { margin: 6px 0 0; font-size: 13px; color: var(--suave); }
 
   @media (max-width: 760px) {
+    #catalogo { scroll-margin-top: 170px; }
     .quadro { grid-template-columns: 1fr; }
     .versao { grid-template-columns: 1fr; }
   }
 </style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}
+</script>
 </head>
 <body>
 <header class="topo">
   <h1>DIÁRIO DO JARDIM</h1>
   <span class="selo" id="versao-atual">…</span>
   <a class="botao" href="./">Abrir o jardim</a>
+  <a class="botao" href="#catalogo">Espécies</a>
   <a class="botao" href="https://github.com/giovaniteixeira550-lab/jardim-dos-biomas" target="_blank" rel="noopener">Código</a>
 </header>
 
@@ -148,6 +172,20 @@
       <div class="coluna c-corrigir"><h3>⚠ CORRIGIR</h3><ul id="q-corrigir"></ul></div>
       <div class="coluna c-ideias"><h3>✦ IDEIAS</h3><ul id="q-ideias"></ul></div>
     </div>
+  </section>
+
+  <section class="bloco" id="catalogo" aria-labelledby="t-catalogo">
+    <h2 id="t-catalogo">ESPÉCIES PRESENTES NO JARDIM</h2>
+    <p class="catalogo-intro">Veja cada planta de perto e abra seus quatro estágios. As prévias são enquadradas para destacar a forma de cada espécie.</p>
+    <div class="catalogo-controles">
+      <label>Buscar espécie<input id="catalogo-busca" type="search" placeholder="Nome, forma, flor ou fruto" autocomplete="off"></label>
+      <label>Grupo<select id="catalogo-grupo"><option value="todos">Todos</option><option value="brasileiras">Brasileiras</option><option value="plantas">Árvores e plantas</option><option value="arbustos">Arbustos</option><option value="fantasia">Fantasia</option></select></label>
+      <label>Estágio da prévia<select id="catalogo-estagio"><option value="0">Broto</option><option value="1">Muda</option><option value="2">Jovem</option><option value="3" selected>Adulta</option></select></label>
+    </div>
+    <div class="catalogo-resumo"><span id="catalogo-contagem" role="status">Carregando catálogo…</span><span id="catalogo-estado" role="status"></span></div>
+    <div id="catalogo-grade" class="catalogo-grade"></div>
+    <p id="catalogo-vazio" class="catalogo-vazio" hidden>Nenhuma espécie corresponde à busca. Tente outro nome ou grupo.</p>
+    <noscript>Ative JavaScript para consultar o catálogo de espécies.</noscript>
   </section>
 
   <section aria-labelledby="t-tempo">
@@ -236,5 +274,6 @@
 
   $("zoom").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 </script>
+<script type="module" src="./src/catalogo.js"></script>
 </body>
 </html>
