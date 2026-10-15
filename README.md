@@ -42,13 +42,14 @@ src/presets/      presets de arbustos do ez-tree (MIT)
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.12)
+## 3. Estado atual (v0.13)
 
 - Carrega em ~2,5 s; ~160 FPS numa placa dedicada; sem erros de console.
 - 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
 - **Vento em degraus de pixel:** folhas e capim se movem só em passos de 1 pixel inteiro (sem tremor sub-pixel); capim mais lento, sem contorno de tinta (não grava profundidade) e com lâminas mais grossas.
+- **v0.13 — chão desenhado:** gramado com manchas e tufinhos no shader do terreno (`materialTerreno`, atributo `aGrama`), sombra de contato e beirada clara nos paredões, pontilhado `uDither` 0,22 em pixel.js.
 - **v0.12 — mapa maior:** 260 × 170 m (`gerarMundo`), quantidades proporcionais à área (`areaRel`); campos do mundo (lago, trilha, densidade) calculados uma vez na grade e reaproveitados pelo terreno; `jardim.tempos` mede cada etapa do carregamento.
 - **v0.11 — riacho:** curso em `mundo.riacho` (nível da água só desce; leito escavado na grade de alturas), fita de água com cascata animada (`criarRiacho`), vitórias-régias e taboas (`criarPlantasAquaticas`); paredões com padrão de colunas limpo.
 - **v0.10 — terraços:** relevo em platôs (mundo.js: `elevacao` fatiada em níveis de 4,5 m, paredão de largura fixa, escadas na trilha, grade de alturas pré-calculada); paredões de pedra em blocos por shader (`materialTerreno` em cena.js).

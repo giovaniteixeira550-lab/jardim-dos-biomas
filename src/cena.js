@@ -221,6 +221,7 @@ export class Jardim {
     const pos = g.attributes.position;
     const cores = new Float32Array(pos.count * 3);
     const rocha = new Float32Array(pos.count); // 1 = pode ter paredão de pedra (longe da trilha)
+    const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
@@ -241,17 +242,22 @@ export class Jardim {
       const d = mesmo ? gr.DN[i] : m.densidade(x, z), f = mesmo ? gr.FL[i] : m.fatorLago(x, z);
       const trilha = (mesmo ? gr.DT[i] : m.distTrilha(x, z)) / m.trilha.largura;
       rocha[i] = suave(0.5, 0.62, trilha);
-      // Gramado: sálvia com manchas; salpicos pontuais viram textura após o dither.
-      let idx = n1 < 0.38 ? 2 : n1 < 0.62 ? 3 : 4;
-      if (n2 > 0.72) idx += 1;
-      if (rng() < 0.025) idx += rng() < 0.5 ? -1 : 1;
+      // Gramado: tom de base por platô; as manchas e os tufinhos vêm do shader (desenho limpo).
+      let idx = n1 < 0.5 ? 3 : 4;
       idx += Math.floor(Math.max(0, y + 0.6) / m.DEGRAU) - 1; // cada platô com seu tom: alto mais claro e seco, baixada mais escura
       c.set(S[Math.max(0, Math.min(S.length - 1, idx))]);
       // Chão de mata: mais escuro e terroso sob o bosque.
-      c.lerp(tmp.set(S[1]), suave(0.25, 0.9, d) * 0.8);
-      // Trilha: terra batida com borda mais escura.
-      if (trilha < 0.55) c.set(T[n2 > 0.6 ? 5 : 4]);
-      else if (trilha < 0.75) c.set(T[3]);
+      c.lerp(tmp.set(S[1]), Math.round(suave(0.25, 0.9, d) * 2) / 2 * 0.7); // em degraus: sem degradê (que vira chuvisco no pontilhado)
+      // Sombra de contato ao pé do paredão e brilho na beirada de cima (leitura de volume).
+      // Vizinhos a 1 m (2 pontos da grade), lidos direto da malha: barato.
+      const ix = i % (nx + 1), iz = Math.floor(i / (nx + 1)), h = y;
+      const hv = [pos.getY(iz * (nx + 1) + Math.min(nx, ix + 2)), pos.getY(iz * (nx + 1) + Math.max(0, ix - 2)), pos.getY(Math.min(nz, iz + 2) * (nx + 1) + ix), pos.getY(Math.max(0, iz - 2) * (nx + 1) + ix)];
+      const viz = Math.max(hv[0], hv[1], hv[2], hv[3]), vizMin = Math.min(hv[0], hv[1], hv[2], hv[3]);
+      if (viz - h > 2) c.multiplyScalar(0.72); // pé do paredão
+      else if (h - vizMin > 2) c.set(S[Math.min(S.length - 1, idx + 2)]); // beirada iluminada
+      // Trilha: terra batida limpa, com borda escura de 1 traço e pedrinhas claras raras.
+      if (trilha < 0.56) c.set(T[n2 > 0.8 ? 5 : 4]);
+      else if (trilha < 0.7) c.set(T[2]);
       // Margem e fundo do lago.
       if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.95 ? 1 : 5]); // faixa clara rente à margem: a borda ciano das referências
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
@@ -262,10 +268,12 @@ export class Jardim {
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
       // Escada na trilha: degraus de pedra clara com espelho mais escuro.
       if (trilha < 0.62 && inc > 0.12 && f > 1.0) c.set(Math.floor((y + 0.05) / 0.45) % 2 ? P2[3] : P2[2]);
+      grama[i] = trilha > 0.75 && f > 1.04 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
     g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
+    g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
     g.computeVertexNormals();
     const t = new THREE.Mesh(g, this.materialTerreno());
     t.receiveShadow = true;
@@ -290,11 +298,22 @@ export class Jardim {
       sh.uniforms.uT4 = { value: new THREE.Color(T[4]) };
       sh.uniforms.uDegrau = { value: this.mundo.DEGRAU };
       sh.uniforms.uDireita = this.uDireita;
-      sh.vertexShader = "attribute float aRocha; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.vertexShader.replace(
+      sh.uniforms.uTexel = this.pixel.uniforms.uTexel; // tamanho do pixel no mundo (zoom)
+      sh.uniforms.uTufo = { value: new THREE.Color(RAMPAS.mata[2]) };
+      sh.uniforms.uTufoLuz = { value: new THREE.Color(RAMPAS.mata[5]) };
+      sh.vertexShader = "attribute float aRocha; attribute float aGrama; varying float vRocha; varying float vGrama; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.vertexShader.replace(
         "#include <worldpos_vertex>",
-        "#include <worldpos_vertex>\nvRocha = aRocha;\nvMundoT = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvNorT = normalize(mat3(modelMatrix) * objectNormal);",
+        "#include <worldpos_vertex>\nvRocha = aRocha;\nvGrama = aGrama;\nvMundoT = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvNorT = normalize(mat3(modelMatrix) * objectNormal);",
       );
-      sh.fragmentShader = "uniform vec3 uT1; uniform vec3 uT2; uniform vec3 uT3; uniform vec3 uT4; uniform float uDegrau; uniform vec2 uDireita; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.fragmentShader.replace(
+      sh.fragmentShader = `uniform vec3 uT1; uniform vec3 uT2; uniform vec3 uT3; uniform vec3 uT4; uniform float uDegrau; uniform vec2 uDireita; uniform float uTexel; uniform vec3 uTufo; uniform vec3 uTufoLuz;
+varying float vRocha; varying float vGrama; varying vec3 vMundoT; varying vec3 vNorT;
+float hashT(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float ruidoT(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hashT(i), hashT(i + vec2(1.0, 0.0)), f.x), mix(hashT(i + vec2(0.0, 1.0)), hashT(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+` + sh.fragmentShader.replace(
         "#include <color_fragment>",
         `#include <color_fragment>
         vec3 rochaLuz = vec3(0.0);
@@ -314,10 +333,30 @@ export class Jardim {
           if (abs(hr - (0.35 + h1 * 0.4)) < 0.025 && fu > 0.16 && fu < 0.84) c = uT2;
           diffuseColor.rgb = c * 0.3;
           rochaLuz = c * 0.78; // luz desenhada: não depende da malha irregular
+        } else if (vGrama > 0.5) {
+          // GRAMADO desenhado: manchas grandes com borda nítida (3 tons) + tufinhos em "V".
+          vec2 p = vMundoT.xz;
+          float n = ruidoT(p / 9.0) * 0.7 + ruidoT(p / 3.1) * 0.3;
+          vec3 g = diffuseColor.rgb * (n < 0.36 ? 0.8 : (n > 0.66 ? 1.16 : 1.0)); // degraus fortes: sobrevivem à paleta
+          // Tufinhos só quando o pixel é pequeno o bastante para desenhá-los (sem chuvisco no zoom longe).
+          if (uTexel < 0.2) {
+            vec2 cel = floor(p / 1.1);
+            float h = hashT(cel);
+            if (h > 0.55) {
+              vec2 o = (cel + 0.25 + vec2(fract(h * 7.3), fract(h * 13.1)) * 0.5) * 1.1; // centro do tufo
+              vec2 cima = vec2(uDireita.y, -uDireita.x); // "para cima" na tela, no plano do chão
+              vec2 d = p - o;
+              float ax = dot(d, uDireita), ay = dot(d, cima) / 0.62; // compensa o encurtamento da vista ¾
+              float esp = max(0.05, uTexel * 0.75);
+              float folhas = step(0.0, ay) * step(ay, 0.38) * max(step(abs(ax + ay * 0.5), esp), max(step(abs(ax - ay * 0.5), esp), step(abs(ax), esp) * step(ay, 0.48)));
+              if (folhas > 0.5) g = h > 0.9 ? uTufoLuz : uTufo; // cor própria da paleta (verde-mata)
+            }
+          }
+          diffuseColor.rgb = g;
         }`,
       ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += rochaLuz;");
     };
-    mat.customProgramCacheKey = () => "terreno-rocha-2";
+    mat.customProgramCacheKey = () => "terreno-desenhado-3";
     return mat;
   }
 

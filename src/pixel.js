@@ -20,7 +20,7 @@ export function criarMaterialPixel() {
       uFar: { value: 1000 },
       uTexel: { value: 0.25 },
       uPal: { value: PALETA_RGB.map(([r, g, b]) => new THREE.Vector3(r, g, b)) },
-      uDither: { value: 0.42 },
+      uDither: { value: 0.22 }, // pontilhado suave: áreas chapadas e limpas, como nas referências
       uContorno: { value: 1 },
       uQuant: { value: 1 },
     },

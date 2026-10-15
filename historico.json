@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.12",
+  "versaoAtual": "v0.13",
   "proximoPasso": {
     "titulo": "Revisar o mapa maior; depois a seca das árvores",
     "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
@@ -10,7 +10,7 @@
       "nome": "Estilo de arte",
       "status": "pronto",
       "progresso": 95,
-      "nota": "Definido: pixel mínimo, contorno sempre, paleta fixa, sem vento."
+      "nota": "Pixel mínimo, contorno, paleta fixa, sem vento; chão desenhado e pontilhado suave (v0.13)."
     },
     {
       "nome": "Árvores",
@@ -60,7 +60,8 @@
       "Riacho que desce do platô mais alto até o lago, com cascatas nos paredões, espuma, pedras e ponte de madeira",
       "Paredões com padrão limpo: colunas regulares com chanfro, topo claro e pé na sombra",
       "Mapa 2× maior (260 × 170 m), carregando no mesmo tempo de antes (~4,5 s de cálculo)",
-      "Tempo de cada etapa do carregamento visível em jardim.tempos (console)"
+      "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
+      "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -80,10 +81,34 @@
       "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago",
       "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
       "Botão 'ver troncos' (abaixa as copas por um instante)",
-      "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões"
+      "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões",
+      "Mesmo tratamento 'desenhado' nas copas: brilho na borda de cima e sombra limpa embaixo, como nas referências"
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.13",
+      "data": "2026-10-14",
+      "titulo": "Chão desenhado e pontilhado mais limpo",
+      "porque": "Texturas com padrão limpo e sombras, como nas referências (frente artística do Claude; o GPT cuida de câmera, catálogo e planejamento).",
+      "mudancas": [
+        "Grama com manchas grandes de borda nítida e tufinhos em 'V' desenhados em verde-mata (só quando o zoom permite, sem chuvisco)",
+        "Sombra de contato ao pé dos paredões e faixa clara na beirada de cima",
+        "Trilha de terra limpa com borda escura; sombra do bosque em degraus, sem degradê",
+        "Pontilhado da paleta mais suave (0,42 → 0,22): áreas chapadas, como em pixel art desenhada"
+      ],
+      "resultado": "Menos ruído e mais leitura de forma; o chão parece pintado à mão.",
+      "imagens": [
+        {
+          "src": "historico/v0.13-chao-desenhado.jpg",
+          "legenda": "Depois: chão desenhado e pontilhado suave"
+        },
+        {
+          "src": "historico/v0.13-antes-do-pontilhado.jpg",
+          "legenda": "Comparação: mesmo lugar com o pontilhado antigo"
+        }
+      ]
+    },
     {
       "versao": "v0.12",
       "data": "2026-10-14",
