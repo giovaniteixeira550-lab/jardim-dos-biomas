@@ -15,6 +15,10 @@ import { criarMaterialPixel } from "./pixel.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
+import { criarAguaPercurso } from "./aguaPercurso.js";
+import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
+
+const lerp = THREE.MathUtils.lerp;
 
 // Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
 // setTimeout em vez de requestAnimationFrame: rAF pausa com a aba em segundo
@@ -153,6 +157,8 @@ export class Jardim {
     await this.ceder();
     this.criarTerreno();
     this.criarAgua();
+    this.criarRiacho();
+    this.criarPlantasAquaticas();
 
     const lista = Object.entries(ESPECIES);
     const total = lista.reduce((n, [, e]) => n + e.variacoes, 0);
@@ -246,7 +252,7 @@ export class Jardim {
       const n1 = m.ruido(x / 22, z / 22 + 9, 3), n2 = m.fino(x / 6, z / 6, 2);
       const d = m.densidade(x, z), f = m.fatorLago(x, z);
       const trilha = m.distTrilha(x, z) / m.trilha.largura;
-      rocha[i] = suave(0.5, 0.62, trilha);
+      rocha[i] = suave(0.5, 0.62, trilha) * (0.8+0.8*suave(8,14,m.distTrilha(x,z)));
       // Gramado: sálvia com manchas; salpicos pontuais viram textura após o dither.
       let idx = n1 < 0.38 ? 2 : n1 < 0.62 ? 3 : 4;
       if (n2 > 0.72) idx += 1;
@@ -259,7 +265,7 @@ export class Jardim {
       if (trilha < 0.55) c.set(T[n2 > 0.6 ? 5 : 4]);
       else if (trilha < 0.75) c.set(T[3]);
       // Margem e fundo do lago.
-      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : 1]);
+      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.985 ? 1 : 4]);
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
@@ -273,50 +279,38 @@ export class Jardim {
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
     g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, this.materialTerreno());
+    // As faces dos barrancos têm normais próprias. O topo continua suave;
+    // a quina não se dissolve numa transição arredondada de luz.
+    const indicesChao=[],indicesParede=[],a3=new THREE.Vector3(),b3=new THREE.Vector3(),c3=new THREE.Vector3();
+    for(let i=0;i<g.index.count;i+=3) {
+      const ids=[g.index.getX(i),g.index.getX(i+1),g.index.getX(i+2)];
+      a3.fromBufferAttribute(pos,ids[0]);b3.fromBufferAttribute(pos,ids[1]);c3.fromBufferAttribute(pos,ids[2]);
+      const normal=b3.sub(a3).cross(c3.sub(a3)).normalize();
+      (Math.abs(normal.y)<0.72?indicesParede:indicesChao).push(...ids);
+    }
+    const material=this.materialTerreno();
+    if(indicesParede.length) {
+      const recorte=new THREE.BufferGeometry();
+      for(const nome of ["position","color","aRocha"])recorte.setAttribute(nome,g.getAttribute(nome));
+      recorte.setIndex(indicesParede);
+      const faces=recorte.toNonIndexed();faces.computeVertexNormals();recorte.dispose();
+      const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
+    }
+    g.setIndex(indicesChao);
+    const t = new THREE.Mesh(g, material);
     t.receiveShadow = true;
     this.scene.add(t);
     this.terreno = t;
   }
 
   /**
-   * Chão com paredões de PEDRA EM BLOCOS: onde o terreno fica quase vertical,
-   * o shader desenha colunas de pedra com rachaduras (cor por bloco, no mundo),
-   * como nos barrancos de jogos em pixel art. O resto usa a cor por vértice.
+   * Chão com paredões de PEDRA no estilo das referências de pixel art: colunas
+   * verticais REGULARES (sempre na vertical da tela), cada uma com chanfro
+   * (luz de um lado, sombra do outro), topo iluminado e pé na sombra, poucos
+   * tons. A luz é desenhada (quase sem depender da malha), por isso fica limpa.
    */
   materialTerreno() {
-    const mat = toon({ vertexColors: true });
-    const T = RAMPAS.terra, P = RAMPAS.pedra;
-    mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uRochaEsc = { value: new THREE.Color(T[2]) };
-      sh.uniforms.uRochaClara = { value: new THREE.Color(T[4]) };
-      sh.uniforms.uPedra = { value: new THREE.Color(P[3]) };
-      sh.vertexShader = "attribute float aRocha; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.vertexShader.replace(
-        "#include <worldpos_vertex>",
-        "#include <worldpos_vertex>\nvRocha = aRocha;\nvMundoT = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvNorT = normalize(mat3(modelMatrix) * objectNormal);",
-      );
-      sh.fragmentShader = "uniform vec3 uRochaEsc; uniform vec3 uRochaClara; uniform vec3 uPedra; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.fragmentShader.replace(
-        "#include <color_fragment>",
-        `#include <color_fragment>
-        vec3 rochaLuz = vec3(0.0);
-        if (vNorT.y < 0.62 && vRocha > 0.5) {
-          // Coordenada ao longo do paredão: colunas de ~0,75 m; fiadas de ~1,1 m desencontradas.
-          vec2 tg = normalize(vec2(-vNorT.z, vNorT.x) + 1e-4);
-          float u = dot(vMundoT.xz, tg) / 0.75;
-          float col = floor(u);
-          float h1 = fract(sin(col * 12.9898) * 43758.5453);
-          float v = (vMundoT.y + h1 * 0.9) / 1.1;
-          float h2 = fract(sin(col * 78.233 + floor(v) * 37.719) * 43758.5453);
-          vec3 rocha = h2 > 0.82 ? uPedra : mix(uRochaEsc, uRochaClara, h2);
-          float fenda = max(step(fract(u), 0.12), step(fract(v), 0.1));
-          rocha *= 1.0 - fenda * 0.4;
-          diffuseColor.rgb = rocha;
-          rochaLuz = rocha * 0.45; // paredão vertical não pode sumir na sombra do toon
-        }`,
-      ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += rochaLuz;");
-    };
-    mat.customProgramCacheKey = () => "terreno-rocha";
-    return mat;
+    return criarMaterialRelevo(toon);
   }
 
   criarAgua() {
@@ -345,6 +339,63 @@ export class Jardim {
     this.agua.position.y = -0.55;
     this.agua.receiveShadow = true;
     this.scene.add(this.agua);
+  }
+
+  /**
+   * Riacho: fita de água seguindo o curso (mundo.riacho). Onde o nível cai de
+   * repente (paredão), a fita fica em pé e vira CASCATA: cortina clara com
+   * listras brancas descendo e espuma no pé. Borda ciano clara junto à margem,
+   * como nos jogos de pixel art de referência.
+   */
+  criarRiacho() {
+    this.aguaPercurso = criarAguaPercurso(this.mundo, toon);
+    this.scene.add(this.aguaPercurso);
+    this.travessias = criarTravessias(this.mundo, toon);
+    this.scene.add(this.travessias);
+  }
+
+  /** Vitórias-régias e taboas na beira do lago. */
+  criarPlantasAquaticas() {
+    const m = this.mundo, L = m.lago, rng = criarRng(m.semente ^ 0x1e1a);
+    const folhas = [], taboas = [], pontas = [];
+    for (let i = 0; i < 16; i++) {
+      const a = rng() * 6.28, r = L.raio(a) * lerp(0.62, 0.9, rng());
+      const x = L.cx + Math.cos(a) * L.rx * r, z = L.cy + Math.sin(a) * L.ry * r;
+      const f = new THREE.CylinderGeometry(lerp(0.6, 0.95, rng()), lerp(0.6, 0.95, rng()), 0.05, 10, 1, false, 0.5, 5.6); // fatia aberta: o "corte" da folha
+      f.rotateY(rng() * 6.28);
+      f.translate(x, -0.52, z);
+      folhas.push(f);
+    }
+    for (let c = 0; c < 7; c++) {
+      const a = rng() * 6.28, r = L.raio(a) * lerp(0.95, 1.05, rng());
+      const cx = L.cx + Math.cos(a) * L.rx * r, cz = L.cy + Math.sin(a) * L.ry * r;
+      for (let k = 0; k < 6; k++) {
+        const x = cx + (rng() - 0.5) * 1.4, z = cz + (rng() - 0.5) * 1.4, h = lerp(1.0, 1.7, rng());
+        const y = Math.max(-0.55, m.altitude(x, z));
+        const haste = new THREE.CylinderGeometry(0.03, 0.04, h, 4);
+        haste.translate(x, y + h / 2, z);
+        taboas.push(haste);
+        const ponta = new THREE.CylinderGeometry(0.07, 0.07, 0.3, 5);
+        ponta.translate(x, y + h - 0.12, z);
+        pontas.push(ponta);
+      }
+    }
+    for (const [lista, cor] of [[folhas, RAMPAS.mata[4]], [taboas, RAMPAS.mata[3]], [pontas, RAMPAS.terra[1]]]) {
+      const geo = new THREE.BufferGeometry();
+      const tot = lista.reduce((s, b) => s + b.toNonIndexed().attributes.position.count, 0);
+      const arr = new Float32Array(tot * 3);
+      let o = 0;
+      for (const b of lista) {
+        const nb = b.toNonIndexed();
+        arr.set(nb.attributes.position.array, o);
+        o += nb.attributes.position.array.length;
+      }
+      geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+      geo.computeVertexNormals();
+      const malha = new THREE.Mesh(geo, toon({ color: cor, side: THREE.DoubleSide }));
+      malha.castShadow = malha.receiveShadow = true;
+      this.scene.add(malha);
+    }
   }
 
   // --- Árvores ------------------------------------------------------------
@@ -589,7 +640,7 @@ export class Jardim {
       let n = 0;
       for (let t = 0; t < max * 5 && n < max; t++) {
         const x = rng() * m.largura, z = rng() * m.altura;
-        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5) continue;
+        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5 || m.distRiacho(x, z) < m.larguraRiacho(x,z) * 0.5 + 0.6) continue;
         const mancha = m.fino(x / 9, z / 9, 3);
         const margem = 1 - suave(1.05, 1.4, m.fatorLago(x, z));
         if (rng() > Math.min(1, suave(0.35, 0.65, mancha) * (1 - m.densidade(x, z) * 0.5) + margem)) continue;
@@ -878,6 +929,15 @@ export class Jardim {
     this.pitch = THREE.MathUtils.degToRad(38);
   }
 
+  irParaLocal(id) {
+    const local=this.mundo.plano?.locais.find(l=>l.id===id);
+    if(!local)return false;
+    this.focarEm(null);
+    this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
+    this.altura=local.tipo==="agua"&&id==="lago"?52:32;
+    return true;
+  }
+
   zoom(f) {
     this.altura = THREE.MathUtils.clamp(this.altura * f, 8, 240);
   }
@@ -910,6 +970,10 @@ export class Jardim {
     if (sa) {
       sa.uniforms.uTime.value = t;
       sa.uniforms.uBrilho.value = this.hora === "noite" ? 0.22 : this.hora === "entardecer" ? 0.7 : 1;
+    }
+    for (const material of this.aguaPercurso?.userData.materiaisAnimados ?? []) {
+      const sr = material.userData.shader;
+      if (sr) sr.uniforms.uTime.value = t;
     }
     if (this.vagalumes.visible) this.vagalumes.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.3);
 

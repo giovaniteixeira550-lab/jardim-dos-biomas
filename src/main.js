@@ -52,6 +52,8 @@ async function iniciar(semente) {
     if (carga !== cargaAtual) return;
     jardim.setHora(document.querySelector("[data-hora][aria-pressed='true']").dataset.hora);
     jardim.irAoViveiro($("viveiro").getAttribute("aria-pressed") === "true");
+    const local=new URLSearchParams(window.location.search).get("local");
+    if(local)jardim.irParaLocal(local);
     $("info").textContent = `Semente ${semente} · ${jardim.info().instancias} árvores e arbustos`;
     window.jardim = jardim;
     tela.hidden = true;

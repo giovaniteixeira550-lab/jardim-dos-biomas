@@ -36,7 +36,12 @@ src/main.js       liga controles da página à cena
 src/cena.js       mundo 3D: terreno, água, árvores, capim, flores, pedras, luz, câmera
 src/pixel.js      pós-processamento: contorno, brilho de topo, paleta + dithering
 src/paleta.js     paleta e cores-base por material
-src/mundo.js      geração determinística (Poisson disk, lago irregular, trilha, densidade)
+src/mundo.js      terreno do plano e plantio por semente
+src/planoMestre.js desenho fixo: lugares, percursos, água e reservas de construção
+src/percursos.js  perfis compartilhados pelo terreno, escadas, pontes e água
+src/relevo.js     pedra, escadarias e ponte com geometrias próprias
+src/aguaPercurso.js superfícies, cortinas, espuma e margens do riacho
+planejamento.html planta interativa do mesmo terreno, com propostas de arquitetura
 src/arvoreProc.js gerador próprio dos quatro estágios por espécie
 src/especies.js   catálogo, nichos e estágios dos indivíduos
 src/ecossistema.js umidade, luz, escolha de espécie e competição
@@ -46,9 +51,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.10 + câmera, transparência e catálogo)
+## 3. Estado atual (v0.11 + jardim planejado)
 
-- O histórico acompanha v0.1–v0.10. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.11. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
@@ -74,6 +79,14 @@ Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar veri
 - **Câmera:** giro livre em 360° com o botão do meio/Shift, inclinação de 20° a 75° com o botão direito, zoom de detalhes (8 m) até visão ampla (240 m), roda/pinça, botões +/− e botão de recentrar. Nenhuma redução de resolução durante o movimento.
 - **Transparência:** apenas a árvore inteira sob o mouse usa opacidade de 22%; o restante fica opaco. A saída do ponteiro restaura o modelo. Substitui o raio-X circular quadriculado da v0.9 para permitir enxergar as árvores de trás.
 - Verificação: seis cenários em `testes/camera-transparencia.html`; detalhes e controles em [docs/camera-transparencia.md](docs/camera-transparencia.md).
+
+### Jardim planejado e continuidade
+
+- O macroterreno de 180 × 120 m tem desenho fixo. **Variar plantio** muda vegetação e detalhes; preserva relevo, lago, riacho, estrada e travessias.
+- Estrada da chegada ao mirante, sete trechos de escada, ponte de pedra alinhada com seus acessos, três cascatas verticais, dois poços e lago principal.
+- Blocos presos ao mundo, quinas dos paredões com normais próprias, pisos de pedra sólidos e margens geométricas evitam triângulos de terra atravessando a água.
+- **Plano** abre a planta interativa: relevo real, caminhos, sentido da água, vegetação, áreas e oito lugares. Chegada, mirante e pavilhão têm reservas e estudos de construção; os edifícios ainda são propostas.
+- Decisões, dimensões e estudos de paisagem em [docs/plano-terreno.md](docs/plano-terreno.md). Testes: `node --test testes/percursos.mjs` e `testes/relevo.html` no navegador.
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 

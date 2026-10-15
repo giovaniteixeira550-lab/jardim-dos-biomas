@@ -35,3 +35,7 @@ A v0.6 do Claude foi incorporada durante a conferência final: gerador próprio,
 - Branch e PR continuam separados de main. Nenhuma cópia local do Claude foi editada.
 
 Na conferência final, também integrada a v0.10 do Claude (f1a84c9): terraços, texturas de paredões, escadas e ecologia preservados. Câmera e transparência verificadas novamente sobre o novo relevo.
+
+## Jardim planejado e continuidade (base v0.11)
+
+Incorporada a v0.11 do Claude (37d4a9c), preservando plantas aquáticas, catálogo e gerador de árvores. O usuário solicitou substituir a composição aleatória por planejamento de terreno e arquitetura. Os novos módulos planoMestre, percursos, relevo e aguaPercurso definem lugares e conexões compartilhados. Planta em planejamento.html. Escopo e estudos em docs/plano-terreno.md. O lote segue na proposta de integração; não modifica a cópia do Claude nem publica main.

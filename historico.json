@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.10 + câmera e transparência",
+  "versaoAtual": "v0.11 + jardim planejado",
   "proximoPasso": {
-    "titulo": "Relevo, parte 2: água descendo entre os níveis",
-    "descricao": "Como na referência: um riacho que nasce no platô alto e cai em cascata no paredão até o lago, com pedras na margem. Depois: seca das árvores (passo 1 do PLANO)."
+    "titulo": "Consolidar os lugares do plano",
+    "descricao": "Revisar a planta e as vistas do terreno. Próximas construções propostas: jardim de chegada, praça do mirante e pavilhão de estudos, preservando as passagens e margens da água."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 84,
-      "nota": "28 espécies + 4 arbustos; cada fase tem cara própria (não só tamanho). 15 formas. Catálogo visual no diário e galeria de estágios."
+      "nota": "28 espécies + 4 arbustos; cada fase tem cara própria (não só tamanho). 15 formas."
     },
     {
       "nome": "Ecossistema",
@@ -27,8 +27,8 @@
     {
       "nome": "Terreno e água",
       "status": "andamento",
-      "progresso": 60,
-      "nota": "Terraços com paredões de pedra em blocos e escadas na trilha. Falta: cascata/riacho, plantas aquáticas."
+      "progresso": 75,
+      "nota": "Desenho fixo, três cascatas, dois poços, lago, escadas sólidas e ponte de pedra com acessos conectados. Planta interativa com propostas de arquitetura."
     },
     {
       "nome": "Vida e clima",
@@ -61,7 +61,11 @@
       "Vitrine Evolução para comparar formas sem depender do tamanho",
       "Catálogo visual de todas as espécies no diário, com busca e prévias por estágio",
       "Giro livre, inclinação e zoom ampliado, com resolução constante",
-      "Árvore sob o mouse fica translúcida por inteira, revelando as de trás"
+      "Árvore sob o mouse fica translúcida por inteira, revelando as de trás",
+      "Terreno planejado: variar o plantio preserva lugares e percursos",
+      "Ponte alinhada com a estrada, patamares de acesso e degraus de pedra sólidos",
+      "Cascatas verticais, poços alargados e margens 3D conectadas",
+      "Planta interativa do terreno com reservas de construção e acesso aos lugares em 3D"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -71,7 +75,8 @@
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
-      "Riacho e cascata descendo pelos paredões até o lago",
+      "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
+      "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
       "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
       "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
@@ -85,6 +90,33 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.11 + jardim planejado",
+      "data": "2026-10-14",
+      "titulo": "Um jardim desenhado, com caminhos que chegam aos lugares",
+      "porque": "O terreno precisava de continuidade e composição, com água, escadas e arquitetura planejadas em conjunto.",
+      "mudancas": [
+        "Desenho fixo do relevo, estrada, nascente, três cascatas, dois poços e lago",
+        "Ponte de pedra alinhada à estrada e escadas com pisos e espelhos reais",
+        "Margens contínuas e textura da rocha presa ao mundo, sem listras que giram com a câmera",
+        "Planta interativa com oito lugares e áreas reservadas para chegada, mirante e pavilhão"
+      ],
+      "resultado": "Correções e plano implementados na proposta de integração. Os novos edifícios permanecem propostas; a demo pública ainda não recebeu este lote.",
+      "imagens": [
+        {
+          "src": "historico/codex-plano-terreno.jpg",
+          "legenda": "Planta do terreno real, com percursos e lugares planejados"
+        },
+        {
+          "src": "historico/codex-ponte-escadas.jpg",
+          "legenda": "Ponte e escadas de pedra conectadas à estrada"
+        },
+        {
+          "src": "historico/codex-cascatas-margens.jpg",
+          "legenda": "Cascatas e margens contínuas no terreno planejado"
+        }
+      ]
+    },
     {
       "versao": "v0.9 + câmera e transparência",
       "data": "2026-10-14",
@@ -166,6 +198,29 @@
         {
           "src": "historico/codex-ciclo-de-vida.jpg",
           "legenda": "Clareira da v0.6 preservada após a preparação do encerramento da cena"
+        }
+      ]
+    },
+    {
+      "versao": "v0.11",
+      "data": "2026-10-14",
+      "titulo": "Riacho com cascatas e pedras mais limpas",
+      "porque": "Seguir as referências: água descendo entre os níveis e paredões com padrão limpo e sombreado.",
+      "mudancas": [
+        "Riacho nasce no platô mais alto e desce até o lago; a água nunca sobe e cai em cascata nos paredões",
+        "Cascata turquesa com listras brancas animadas, espuma e pedras no pé; ponte onde a trilha cruza",
+        "Paredões refeitos: colunas verticais regulares com chanfro de luz e sombra, topo claro, pé escuro",
+        "Lago com borda clara, vitórias-régias e taboas; solo mais úmido junto ao riacho"
+      ],
+      "resultado": "O relevo ganhou água correndo entre os níveis, no estilo das referências, sem mudar árvores, trilha e lago de lugar.",
+      "imagens": [
+        {
+          "src": "historico/v0.11-riacho.jpg",
+          "legenda": "Riacho com duas cascatas chegando ao lago"
+        },
+        {
+          "src": "historico/v0.11-cascata.jpg",
+          "legenda": "Cascata, espuma e paredões em colunas"
         }
       ]
     },
