@@ -1,5 +1,5 @@
 /** Composição autoral do jardim. A semente varia o plantio, não o projeto. */
-export function criarPlano(largura=180,altura=120) {
+export function criarPlano(largura=260,altura=170) {
   const ponto=([x,y])=>({x:x/180*largura,y:y/120*altura});
   const locais=[
     {id:"chegada",nome:"Jardim de chegada",x:16,y:75,largura:14,profundidade:12,status:"proposto",tipo:"jardim",descricao:"Clareira de recepção com banco, placa e canteiros baixos. Abre a vista antes da subida e não bloqueia a estrada."},
@@ -10,7 +10,7 @@ export function criarPlano(largura=180,altura=120) {
     {id:"poco-baixo",nome:"Poço do vale",x:97,y:64,largura:10,profundidade:9,status:"implantado",tipo:"agua",descricao:"Segundo alargamento na parte baixa, preparando a transição do riacho para o lago principal."},
     {id:"lago",nome:"Lago da clareira",x:130,y:81,largura:40,profundidade:32,status:"implantado",tipo:"agua",descricao:"Principal espaço aberto da composição. As margens curvas, taboas e folhas aquáticas contrastam com a pedra dos terraços."},
     {id:"pavilhao",nome:"Pavilhão de estudos",x:153,y:57,largura:12,profundidade:10,status:"proposto",tipo:"pavilhao",descricao:"Possibilidade de abrigo aberto de madeira e pedra, baixo e voltado ao lago. A entrada nasce da estrada; a implantação reserva vista e evita a margem inundada."},
-  ].map(l=>({...l,...ponto([l.x,l.y]),largura:l.largura/180*largura,profundidade:l.profundidade/120*altura}));
+  ].map(l=>({...l,...ponto([l.x,l.y]),largura:l.id==="lago"?l.largura/180*largura:l.largura,profundidade:l.id==="lago"?l.profundidade/120*altura:l.profundidade}));
   return {
     nome:"Jardim dos Patamares",versao:1,
     ideia:"Uma caminhada sobe ao mirante, atravessa o vale por uma ponte e termina junto à vista do lago. A água conta o caminho inverso: nasce no alto, passa pelos poços e cascatas e chega à clareira.",

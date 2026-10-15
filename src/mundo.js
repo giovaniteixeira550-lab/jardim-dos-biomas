@@ -125,7 +125,8 @@ function distSegmento(px, py, a, b) {
  * árvores/arbustos (Poisson com raio variável), pedras, troncos e flores.
  * Coordenadas (x, y) no plano do chão; no 3D, y vira z.
  */
-export function gerarMundo(semente, largura = 180, altura = 120) {
+export function gerarMundo(semente, largura = 260, altura = 170) {
+  const areaRel=(largura*altura)/(180*120);
   const rng = criarRng(semente);
   const plano = criarPlano(largura, altura);
   const ruidoProjeto = criarRuido(0x471c52);
@@ -158,11 +159,11 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
   };
 
   /** Densidade da mata: bosque denso num lado, clareira no meio, rarefeita junto à água e à trilha. */
-  const densidade = (x, y) => {
+  const densidade = (x, y, dt=distTrilha(x,y), f=fatorLago(x,y)) => {
     let d = Math.max(...plano.bosques.map(b=>Math.exp(-((x-b.x)**2+(y-b.y)**2)/(2*b.raio*b.raio))));
     d = clamp01((d - 0.4) * 1.6 + (ruido(x / 22, y / 22, 3) - 0.5) * 0.2);
-    d *= clamp01((distTrilha(x, y) - trilha.largura * 0.7) / 10);
-    d *= clamp01((fatorLago(x, y) - 1.15) / 0.8);
+    d *= clamp01((dt - trilha.largura * 0.7) / 10);
+    d *= clamp01((f - 1.15) / 0.8);
     return d;
   };
 
@@ -170,25 +171,26 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
   // baixada em volta da água) é fatiada em platôs planos separados por barrancos
   // íngremes de DEGRAU metros. Onde a trilha cruza um degrau, vira rampa.
   const DEGRAU = 4.5, PAREDE = 0.65; // altura do degrau e largura do paredão (m)
-  const elevacao = (x, y) => {
-    const dx=(x-plano.colina.x)/1.12,dy=(y-plano.colina.y)/0.95;
+  const elevacao = (x, y, f=fatorLago(x,y)) => {
+    const px=x/(largura/180),py=y/(altura/120);
+    const dx=(px-24)/1.12,dy=(py-20)/0.95;
     const r=Math.hypot(dx,dy);
     // Contornos compostos, fixos e discretamente recortados; três patamares
     // concentram a composição na diagonal entre mirante, cascatas e lago.
-    let c=3.48-r/28+0.12*Math.sin(x/11+0.3)*Math.sin(y/14)+0.07*Math.sin(y/9);
-    c=lerp(0.5,c,suave(1.12,1.7,fatorLago(x,y)));
+    let c=3.48-r/28+0.12*Math.sin(px/11+0.3)*Math.sin(py/14)+0.07*Math.sin(py/9);
+    c=lerp(0.5,c,suave(1.12,1.7,f));
     c=lerp(0.5,c,1-suave(altura+2,altura+8,y));
     return Math.min(3.45,Math.max(0.3,c));
   };
   /** Altura (m) a partir da elevação c e do gradiente dela (níveis por metro). */
-  const alturaDe = (x, y, c, grad) => {
+  const alturaDe = (x, y, c, grad, f=fatorLago(x,y)) => {
     const nivel = Math.floor(c);
     // Paredão de largura FIXA (PAREDE m): quantos metros faltam até o próximo
     // nível, pelo gradiente — fica vertical mesmo onde o morro é suave.
     const falta = (1 - (c - nivel)) / Math.max(1e-3, grad);
     const degraus = nivel + suave(PAREDE, 0, falta);
     const h = degraus * DEGRAU + (ruidoProjeto(x / 9, y / 9, 2) - 0.5) * 0.14;
-    return h - (1 - suave(0.6, 1.08, fatorLago(x, y))) * 2.4; // lago escavado
+    return h - (1 - suave(0.6, 1.08, f)) * 2.4; // lago escavado
   };
   const alturaExata = (x, y) =>
     alturaDe(x, y, elevacao(x, y), Math.hypot(elevacao(x + 0.5, y) - elevacao(x - 0.5, y), elevacao(x, y + 0.5) - elevacao(x, y - 0.5)));
@@ -199,13 +201,17 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
   G.nx = Math.round((largura + 100) / G.passo) + 1;
   G.ny = Math.round((altura + 100) / G.passo) + 1;
   const C = new Float32Array(G.nx * G.ny), H = new Float32Array(G.nx * G.ny);
-  for (let j = 0; j < G.ny; j++) for (let i = 0; i < G.nx; i++) C[j * G.nx + i] = elevacao(G.x0 + i * G.passo, G.y0 + j * G.passo);
+  const FL=new Float32Array(H.length),DT=new Float32Array(H.length),DN=new Float32Array(H.length);
+  for(let j=0;j<G.ny;j++)for(let i=0;i<G.nx;i++) {
+    const k=j*G.nx+i,x=G.x0+i*G.passo,y=G.y0+j*G.passo;
+    FL[k]=fatorLago(x,y);DT[k]=distTrilha(x,y);DN[k]=densidade(x,y,DT[k],FL[k]);C[k]=elevacao(x,y,FL[k]);
+  }
   for (let j = 0; j < G.ny; j++)
     for (let i = 0; i < G.nx; i++) {
       const k = j * G.nx + i;
       const gx = C[j * G.nx + Math.min(G.nx - 1, i + 1)] - C[j * G.nx + Math.max(0, i - 1)];
       const gy = C[Math.min(G.ny - 1, j + 1) * G.nx + i] - C[Math.max(0, j - 1) * G.nx + i];
-      H[k] = alturaDe(G.x0 + i * G.passo, G.y0 + j * G.passo, C[k], Math.hypot(gx, gy));
+      H[k] = alturaDe(G.x0 + i * G.passo, G.y0 + j * G.passo, C[k], Math.hypot(gx, gy),FL[k]);
     }
   const altitude = (x, y) => {
     const fx = (x - G.x0) / G.passo, fy = (y - G.y0) / G.passo;
@@ -296,7 +302,7 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     objetos.push({ tipo: "arbusto", x: p.x, y: p.y, d, escala: lerp(0.7, 1.2, rng()), nasce: clamp01(nascer(d) - 0.1), giro: rng() * 6.28 });
   }
   // Imperfeições: pedras (inclusive na margem), tocos e troncos caídos.
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < Math.round(22 * areaRel); i++) {
     const x = rng() * largura, y = rng() * altura;
     if (!fora(x, y)) continue;
     objetos.push({ tipo: rng() < 0.7 ? "pedra" : rng() < 0.5 ? "toco" : "tronco", x, y, escala: lerp(0.6, 1.4, rng()), nasce: 0, giro: rng() * 6.28 });
@@ -306,11 +312,11 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     objetos.push({ tipo: "pedra", x: lago.cx + Math.cos(a) * lago.rx * r, y: lago.cy + Math.sin(a) * lago.ry * r, escala: lerp(0.5, 1.1, rng()), nasce: 0, giro: rng() * 6.28 });
   }
   // Flores em manchas nas clareiras ensolaradas.
-  for (let i = 0; i < 900; i++) {
+  for (let i = 0; i < Math.round(900 * areaRel); i++) {
     const x = rng() * largura, y = rng() * altura;
     if (!fora(x, y) || densidade(x, y) > 0.25 || fino(x / 12, y / 12, 2) < 0.55) continue;
     objetos.push({ tipo: "flor", x, y, cor: Math.floor(rng() * 4), nasce: 0 });
   }
 
-  return { semente, plano, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, distRiacho, larguraRiacho, perfilTrilha, pontes, ponte, objetos, ruido, fino };
+  return { semente, plano, largura, altura, areaRel, grade:{...G,FL,DT,DN}, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, distRiacho, larguraRiacho, perfilTrilha, pontes, ponte, objetos, ruido, fino };
 }

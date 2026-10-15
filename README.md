@@ -1,6 +1,6 @@
 # Jardim dos Biomas — demo de arte
 
-Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim antes de aplicá-la ao site. Uma única cena pequena (uma clareira de 180 × 120 m), para acertar qualidade antes de ampliar.
+Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim antes de aplicá-la ao site. Uma única cena pequena (uma clareira de 260 × 170 m), para acertar qualidade antes de ampliar.
 
 - **Abrir online (sem login):** https://giovaniteixeira550-lab.github.io/jardim-dos-biomas/
 - **Código:** https://github.com/giovaniteixeira550-lab/jardim-dos-biomas (cada push na branch `main` republica a página em ~1 min)
@@ -51,12 +51,13 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.11 + jardim planejado)
+## 3. Estado atual (v0.15 + jardim planejado)
 
-- O histórico acompanha v0.1–v0.11. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.15 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
+- **v0.12–v0.15 do Claude preservadas:** mapa maior, cache do terreno, medições de carga, gramado desenhado, pontilhado suave e copas com escamas de folhas.
 - **v0.10 do Claude preservada:** terraços, paredões de pedra, escadas e ecologia adaptada ao relevo.
 - **v0.7 — leva 2:** mangueira, limoeiro, ipê-roxo, bananeira, baobá, bambuzal, árvore-de-cristal e salgueiro-lanterna; formas novas bananeira, garrafa, bambu e cristal; viveiro em 3 fileiras.
 - **v0.6 — variedade:** gerador próprio de árvores (src/arvoreProc.js), 16 espécies + 4 arbustos, 4 estágios cada (broto, muda, jovem, adulta), flores e frutos; sem vento; pixel mínimo e contorno fixos; botão Viveiro.
@@ -82,8 +83,8 @@ Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar veri
 
 ### Jardim planejado e continuidade
 
-- O macroterreno de 180 × 120 m tem desenho fixo. **Variar plantio** muda vegetação e detalhes; preserva relevo, lago, riacho, estrada e travessias.
-- Estrada da chegada ao mirante, sete trechos de escada, ponte de pedra alinhada com seus acessos, três cascatas verticais, dois poços e lago principal.
+- O macroterreno de 260 × 170 m tem desenho fixo. **Variar plantio** muda vegetação e detalhes; preserva relevo, lago, riacho, estrada e travessias.
+- Estrada da chegada ao mirante, trechos de escada, ponte de pedra alinhada com seus acessos, três cascatas verticais, dois poços e lago principal.
 - Blocos presos ao mundo, quinas dos paredões com normais próprias, pisos de pedra sólidos e margens geométricas evitam triângulos de terra atravessando a água.
 - **Plano** abre a planta interativa: relevo real, caminhos, sentido da água, vegetação, áreas e oito lugares. Chegada, mirante e pavilhão têm reservas e estudos de construção; os edifícios ainda são propostas.
 - Decisões, dimensões e estudos de paisagem em [docs/plano-terreno.md](docs/plano-terreno.md). Testes: `node --test testes/percursos.mjs` e `testes/relevo.html` no navegador.

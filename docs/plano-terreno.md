@@ -1,6 +1,6 @@
 # Jardim dos Patamares — plano de paisagem
 
-O cenário tem um desenho fixo de 180 × 120 metros. A semente muda o plantio e pequenos detalhes de cor, preservando o projeto: colina, patamares, nascente, estrada, travessia, poços, cascatas e lago. O botão agora se chama **Variar plantio**.
+O cenário tem um desenho fixo de 260 × 170 metros. A semente muda o plantio e pequenos detalhes de cor, preservando o projeto: colina, patamares, nascente, estrada, travessia, poços, cascatas e lago. O botão agora se chama **Variar plantio**.
 
 ## Intenção artística
 
@@ -42,4 +42,8 @@ Essas relações são interpretações de projeto aplicadas ao jardim do jogo. O
 
 ## Cooperação e preservação
 
-O lote parte da v0.11 do Claude (`37d4a9c`), mantendo as espécies, gerador de árvores, plantas aquáticas, paleta, câmeras e transparência já integrados. A nova composição fica em `src/planoMestre.js`; percursos em `src/percursos.js`; água em `src/aguaPercurso.js`; pedra e travessias em `src/relevo.js`. A separação permite continuar a arte e a ecologia sem reintroduzir duas definições concorrentes para a mesma ponte ou escada. Nenhuma cópia local de outro agente foi editada.
+O lote combina o trabalho do Claude até a v0.15 (`9f09819`), mantendo as espécies, gerador de árvores, plantas aquáticas, paleta, câmeras e transparência já integrados. A nova composição fica em `src/planoMestre.js`; percursos em `src/percursos.js`; água em `src/aguaPercurso.js`; pedra e travessias em `src/relevo.js`. A separação permite continuar a arte e a ecologia sem reintroduzir duas definições concorrentes para a mesma ponte ou escada. Nenhuma cópia local de outro agente foi editada.
+
+## Verificação
+
+Passaram **49 verificações**: 31 de percursos em cinco sementes, 5 de relevo no navegador, 6 de câmera e transparência e 7 de ciclo de vida. Elas conferem composição fixa, plantio variável, três quedas, foz, acessos da ponte, perfis dos degraus, piso sob toda a largura da água e reservas de construção. No navegador, interseções reais conferiram 130 pisos e 78 pontos das margens geométricas; também houve renderização em quatro ângulos e conferência de liberação dos recursos. As capturas são da versão combinada; não houve publicação da demo nem benchmark de aparelhos nesta tarefa.

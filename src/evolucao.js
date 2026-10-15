@@ -4,6 +4,7 @@ import { construirVariacao } from "./arvoreProc.js";
 import { ESPECIES } from "./especies.js";
 import { RAMPAS } from "./paleta.js";
 import { criarMaterialPixel } from "./pixel.js";
+import { aplicarEstiloCopa } from "./estiloCopa.js";
 
 const $ = (id) => document.getElementById(id);
 const descricoes = {
@@ -19,6 +20,7 @@ const descricoes = {
   cacto: ["Pequena esfera de cacto rente ao chão.","Coluna curta e gorducha, ainda sem braços.","A coluna cresce e começa a ramificar.","Mandacaru ramificado, com costelas e assinatura adulta."],
 };
 let renderer, cena, camera, rt, material, pixel, tela, ro;
+const direitaCopa = { value: new THREE.Vector2(1, 0) }, eixoDireitaCopa = new THREE.Vector3();
 let geometrias = [], modelos = [], giro = 0, encerrado = false;
 
 function liberarModelos() {
@@ -42,6 +44,8 @@ function desenhar() {
   camera.updateProjectionMatrix();
   pixel.uniforms.uTam.value.set(w, h);
   pixel.uniforms.uTexel.value = 32 / w;
+  eixoDireitaCopa.set(1, 0, 0).applyQuaternion(camera.quaternion);
+  direitaCopa.value.set(eixoDireitaCopa.x, eixoDireitaCopa.z).normalize();
   renderer.setRenderTarget(rt);
   renderer.render(cena, camera);
   renderer.setRenderTarget(null);
@@ -113,6 +117,7 @@ try {
   camera.lookAt(0,2.4,0);
   rt = new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthTexture:new THREE.DepthTexture(1,1)});
   pixel = criarMaterialPixel();
+  aplicarEstiloCopa(material, direitaCopa, pixel.uniforms.uTexel);
   tela = new THREE.Scene();
   tela.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),pixel));
   for (const [id,def] of Object.entries(ESPECIES)) {

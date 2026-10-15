@@ -15,6 +15,7 @@ import { criarMaterialPixel } from "./pixel.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
+import { estiloCopa } from "./estiloCopa.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
 
@@ -131,6 +132,9 @@ export class Jardim {
     this.relogio = new THREE.Timer();
     // Material único das árvores: cor por vértice (gerador) × tom do indivíduo.
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
+    this.uDireita={value:new THREE.Vector2(1,0)};
+    this.matArvore.onBeforeCompile=sh=>estiloCopa(sh,this.uDireita,this.pixel.uniforms.uTexel);
+    this.matArvore.customProgramCacheKey=()=>"arvore-copa-escamas";
     this.cursorArvore = null;
     this.sobrevoo = null;
     this.ultimoRastreio = -Infinity;
@@ -148,17 +152,22 @@ export class Jardim {
     this.verificarAtivo();
     if (this.cargaIniciada) throw new Error("Crie um novo Jardim para carregar outro mundo.");
     this.cargaIniciada = true;
+    this.tempos={}; let marca=performance.now();
+    const medir=nome=>{const agora=performance.now();this.tempos[nome]=Math.round(agora-marca);marca=agora;};
     progresso(0.04, "Semeando o mundo…");
     await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
+    medir("mundo");
     this.alvo.set(m.largura * 0.55, 0, m.altura * 0.55);
 
     progresso(0.1, "Moldando o terreno…");
     await this.ceder();
     this.criarTerreno();
+    medir("terreno");
     this.criarAgua();
     this.criarRiacho();
     this.criarPlantasAquaticas();
+    medir("agua");
 
     const lista = Object.entries(ESPECIES);
     const total = lista.reduce((n, [, e]) => n + e.variacoes, 0);
@@ -174,9 +183,12 @@ export class Jardim {
 
     progresso(0.78, "Plantando o bosque…");
     await this.ceder();
+    medir("arvores");
     this.plantar();
+    medir("plantar");
     this.montarViveiro();
     this.criarDetalhes();
+    medir("detalhes");
 
     progresso(0.9, "Acendendo a luz…");
     await this.ceder();
@@ -195,6 +207,7 @@ export class Jardim {
     }
     this.verificarAtivo();
 
+    medir("luz_e_shaders");
     progresso(1, "Pronto");
     this.verificarAtivo();
     this.ro = new ResizeObserver(() => this.redimensionar());
@@ -235,6 +248,7 @@ export class Jardim {
     const pos = g.attributes.position;
     const cores = new Float32Array(pos.count * 3);
     const rocha = new Float32Array(pos.count); // 1 = pode ter paredão de pedra (longe da trilha)
+    const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
@@ -250,22 +264,29 @@ export class Jardim {
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
       const n1 = m.ruido(x / 22, z / 22 + 9, 3), n2 = m.fino(x / 6, z / 6, 2);
-      const d = m.densidade(x, z), f = m.fatorLago(x, z);
-      const trilha = m.distTrilha(x, z) / m.trilha.largura;
+      // Campos já calculados pelo mundo (mesma grade de 0,5 m): sem recalcular ruído.
+      const gr = m.grade, mesmo = pos.count === gr.nx * gr.ny;
+      const d = mesmo ? gr.DN[i] : m.densidade(x, z), f = mesmo ? gr.FL[i] : m.fatorLago(x, z);
+      const trilha = (mesmo ? gr.DT[i] : m.distTrilha(x, z)) / m.trilha.largura;
       rocha[i] = suave(0.5, 0.62, trilha) * (0.8+0.8*suave(8,14,m.distTrilha(x,z)));
-      // Gramado: sálvia com manchas; salpicos pontuais viram textura após o dither.
-      let idx = n1 < 0.38 ? 2 : n1 < 0.62 ? 3 : 4;
-      if (n2 > 0.72) idx += 1;
-      if (rng() < 0.025) idx += rng() < 0.5 ? -1 : 1;
+      // Gramado: tom de base por platô; as manchas e os tufinhos vêm do shader (desenho limpo).
+      let idx = n1 < 0.5 ? 3 : 4;
       idx += Math.floor(Math.max(0, y + 0.6) / m.DEGRAU) - 1; // cada platô com seu tom: alto mais claro e seco, baixada mais escura
       c.set(S[Math.max(0, Math.min(S.length - 1, idx))]);
       // Chão de mata: mais escuro e terroso sob o bosque.
-      c.lerp(tmp.set(S[1]), suave(0.25, 0.9, d) * 0.8);
-      // Trilha: terra batida com borda mais escura.
-      if (trilha < 0.55) c.set(T[n2 > 0.6 ? 5 : 4]);
-      else if (trilha < 0.75) c.set(T[3]);
+      c.lerp(tmp.set(S[1]), Math.round(suave(0.25, 0.9, d) * 2) / 2 * 0.7); // em degraus: sem degradê (que vira chuvisco no pontilhado)
+      // Sombra de contato ao pé do paredão e brilho na beirada de cima (leitura de volume).
+      // Vizinhos a 1 m (2 pontos da grade), lidos direto da malha: barato.
+      const ix = i % (nx + 1), iz = Math.floor(i / (nx + 1)), h = y;
+      const hv = [pos.getY(iz * (nx + 1) + Math.min(nx, ix + 2)), pos.getY(iz * (nx + 1) + Math.max(0, ix - 2)), pos.getY(Math.min(nz, iz + 2) * (nx + 1) + ix), pos.getY(Math.max(0, iz - 2) * (nx + 1) + ix)];
+      const viz = Math.max(hv[0], hv[1], hv[2], hv[3]), vizMin = Math.min(hv[0], hv[1], hv[2], hv[3]);
+      if (viz - h > 2) c.multiplyScalar(0.72); // pé do paredão
+      else if (h - vizMin > 2) c.set(S[Math.min(S.length - 1, idx + 2)]); // beirada iluminada
+      // Trilha: terra batida limpa, com borda escura de 1 traço e pedrinhas claras raras.
+      if (trilha < 0.56) c.set(T[n2 > 0.8 ? 5 : 4]);
+      else if (trilha < 0.7) c.set(T[2]);
       // Margem e fundo do lago.
-      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.985 ? 1 : 4]);
+      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.985 ? 1 : 4]); // faixa clara rente à margem: a borda ciano das referências
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
@@ -274,10 +295,12 @@ export class Jardim {
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
       // Escada na trilha: degraus de pedra clara com espelho mais escuro.
       if (trilha < 0.62 && inc > 0.12 && f > 1.0) c.set(Math.floor((y + 0.05) / 0.45) % 2 ? P2[3] : P2[2]);
+      grama[i] = trilha > 0.75 && f > 1.04 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
     g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
+    g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
     g.computeVertexNormals();
     // As faces dos barrancos têm normais próprias. O topo continua suave;
     // a quina não se dissolve numa transição arredondada de luz.
@@ -291,7 +314,7 @@ export class Jardim {
     const material=this.materialTerreno();
     if(indicesParede.length) {
       const recorte=new THREE.BufferGeometry();
-      for(const nome of ["position","color","aRocha"])recorte.setAttribute(nome,g.getAttribute(nome));
+      for(const nome of ["position","color","aRocha","aGrama"])recorte.setAttribute(nome,g.getAttribute(nome));
       recorte.setIndex(indicesParede);
       const faces=recorte.toNonIndexed();faces.computeVertexNormals();recorte.dispose();
       const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
@@ -310,7 +333,7 @@ export class Jardim {
    * tons. A luz é desenhada (quase sem depender da malha), por isso fica limpa.
    */
   materialTerreno() {
-    return criarMaterialRelevo(toon);
+    return criarMaterialRelevo(toon,{direita:this.uDireita,texel:this.pixel.uniforms.uTexel});
   }
 
   criarAgua() {
@@ -560,6 +583,8 @@ export class Jardim {
     if (h.ind) h.malha = h.ind.grupo.malhas[h.ind.indice];
     if (!this.fantasma) {
       const material = this.matArvore.clone();
+      material.onBeforeCompile=this.matArvore.onBeforeCompile;
+      material.customProgramCacheKey=this.matArvore.customProgramCacheKey;
       material.transparent = true;
       material.opacity = 0.22;
       material.depthWrite = false;
@@ -635,7 +660,7 @@ export class Jardim {
     // fica corretamente atrás de troncos e pedras.
     const matCapim = toon({ vertexColors: true, side: THREE.DoubleSide, depthWrite: false });
     for (let f = 0; f < 3; f++) {
-      const max = 2600;
+      const max = Math.round(2600 * m.areaRel);
       const im = new THREE.InstancedMesh(touceira(criarRng(m.semente + f)), matCapim, max);
       let n = 0;
       for (let t = 0; t < max * 5 && n < max; t++) {
@@ -708,7 +733,7 @@ export class Jardim {
     }
 
     // Vaga-lumes (noite): pontos de 1 pixel que piscam.
-    const n = 140, pos = new Float32Array(n * 3);
+    const n = Math.round(140 * m.areaRel), pos = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
       const x = rng() * m.largura, z = rng() * m.altura;
       pos.set([x, this.alturaEm(x, z) + 0.6 + rng() * 2.5, z], i * 3);
@@ -978,6 +1003,7 @@ export class Jardim {
     if (this.vagalumes.visible) this.vagalumes.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.3);
 
     this.posicionarCamera();
+    this.uDireita.value.set(Math.cos(this.yaw),-Math.sin(this.yaw));
     this.atualizarSobrevoo(t);
     const u = this.pixel.uniforms;
     this.renderer.setRenderTarget(this.rt);

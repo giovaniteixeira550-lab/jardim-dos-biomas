@@ -123,7 +123,10 @@ export function organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:
     p.ponte=pontes.find(ponte=>p.s>=ponte.s0&&p.s<=ponte.s1)??null;
     if(p.ponte)p.h=p.ponte.h;
   }
-  for(let i=0;i<amostras.length;i++)amostras[i].escada=!amostras[i].ponte&&amostras.slice(Math.max(0,i-2),Math.min(amostras.length,i+3)).some(p=>Math.abs(p.h-amostras[i].h)>0.15);
+  for(let i=0;i<amostras.length;i++) {
+    const patamar=pontes.some(p=>amostras[i].s>=p.s0-1.5&&amostras[i].s<=p.s1+1.5);
+    amostras[i].escada=!patamar&&amostras.slice(Math.max(0,i-2),Math.min(amostras.length,i+3)).some(p=>Math.abs(p.h-amostras[i].h)>0.15);
+  }
   const perfilTrilha=(x,y)=> {
     const p=projetar(x,y,eixo);
     const i=limitar(Math.round(p.s/0.5),0,amostras.length-1),a=amostras[i];

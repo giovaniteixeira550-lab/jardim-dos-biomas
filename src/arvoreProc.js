@@ -60,17 +60,22 @@ function finalizar(g) {
 export function juntar(partes) {
   const total = partes.reduce((n, g) => n + g.attributes.position.count, 0);
   const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), cor = new Float32Array(total * 3).fill(1);
+  // Altura dentro da copa (-1 base … +1 topo): o shader desenha luz, sombra e escamas de folhas.
+  // -9 = não é folhagem (tronco, galho, fruto, flor): fica sem esse desenho.
+  const banda = new Float32Array(total).fill(-9);
   let o = 0;
   for (const g of partes) {
     pos.set(g.attributes.position.array, o * 3);
     nor.set(g.attributes.normal.array, o * 3);
     if (g.attributes.color) cor.set(g.attributes.color.array, o * 3);
+    if (g.attributes.banda) banda.set(g.attributes.banda.array, o);
     o += g.attributes.position.count;
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(cor, 3));
+  geo.setAttribute("banda", new THREE.BufferAttribute(banda, 1));
   geo.computeBoundingBox();
   geo.computeBoundingSphere();
   return geo;
@@ -87,16 +92,18 @@ function volume(raio, c, hex, semente, achatar = 0.85, irregular = 0.4) {
   g = mergeVertices(g);
   const r = criarRuido(semente);
   const p = g.attributes.position;
-  const fatores = new Float32Array(p.count);
+  const fatores = new Float32Array(p.count), bandas = new Float32Array(p.count);
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const n = r(x * 1.7 + z * 0.8 + 3, y * 1.7 + z * 1.2 + 7, 2);
     const k = raio * (1 - irregular / 2 + n * irregular);
     p.setXYZ(i, c.x + x * k, c.y + y * k * achatar, c.z + z * k);
-    fatores[i] = 0.84 + n * 0.24 + y * 0.07;
+    fatores[i] = 0.95 + n * 0.08; // cor quase chapada: a leitura de volume vem das faixas desenhadas
+    bandas[i] = y;
   }
   let idx = 0;
   pintar(g, hex, () => fatores[idx++]);
+  g.setAttribute("banda", new THREE.BufferAttribute(bandas, 1));
   g.computeVertexNormals();
   return g.toNonIndexed();
 }
@@ -168,6 +175,9 @@ function camadaConica(raio, alt, yBase, hex, rng, dentes = 14) {
   }
   let idx = 0;
   pintar(g, hex, () => fatores[idx++]);
+  const bandasC = new Float32Array(p.count);
+  for (let k = 0; k < p.count; k++) bandasC[k] = (p.getY(k) / alt) * 2; // -1 na saia … +1 na ponta
+  g.setAttribute("banda", new THREE.BufferAttribute(bandasC, 1));
   g.computeVertexNormals();
   g.rotateY(rng() * 6.28);
   g.translate(0, yBase + alt / 2, 0);
