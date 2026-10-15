@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.23",
+  "versaoAtual": "v0.24",
   "proximoPasso": {
-    "titulo": "Revisar os acessos do jardim",
-    "descricao": "Continuar os lugares planejados, revendo a chegada após a retirada do caminho antigo."
+    "titulo": "Revisar a nova água",
+    "descricao": "Comparar o lago, a ligação com o riacho e os reflexos antes da próxima melhoria da paisagem."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Duas pontes de madeira: travessia curta entre as encostas e ponte arqueada sobre o riacho. Percurso ocidental removido; acesso pela cascata preservado."
+      "nota": "Lago com profundidade em faixas, reflexos espaçados, costa limpa e plantas aquáticas visíveis; entradas da ponte totalmente em madeira."
     },
     {
       "nome": "Vida e clima",
@@ -78,7 +78,9 @@
       "Relevo em seis regiões do mapa, com curvas e alturas diferentes",
       "Caminho desce pela margem esquerda e cruza abaixo da última cascata",
       "Escadas com lances retos, degraus de 0,25 m, quinas refinadas e juntas regulares",
-      "Pontes de madeira detalhadas; ponte do riacho sobe e desce em arco suave"
+      "Pontes de madeira detalhadas; ponte do riacho sobe e desce em arco suave",
+      "Lago com faixas de profundidade, reflexos largos e encontro limpo com o riacho",
+      "Entradas da ponte de madeira sem muretas de pedra"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -103,6 +105,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.24",
+      "data": "2026-10-15",
+      "titulo": "Água com profundidade e lago mais limpo",
+      "porque": "O lago tinha aparência uniforme e a ponte ainda conservava peças de pedra nas entradas.",
+      "mudancas": [
+        "Faixas rasas e profundas acompanham o fundo do lago",
+        "Reflexos espaçados e ondulações lentas na superfície",
+        "Riacho entra no lago sem barrancos ou águas sobrepostas",
+        "Muretas de pedra removidas; entradas em madeira"
+      ],
+      "resultado": "Água redesenhada no estilo pixel art, preservando a paleta e as plantas aquáticas. Pontes, escadas e cascatas continuam conectadas.",
+      "imagens": [
+        {
+          "src": "historico/v0.24-lago.jpg",
+          "legenda": "Lago com zonas rasas e profundas, reflexos e plantas aquáticas"
+        },
+        {
+          "src": "historico/v0.24-ponte-sem-pedra.jpg",
+          "legenda": "Ponte de madeira com entradas também em madeira, sem as muretas de pedra"
+        }
+      ]
+    },
     {
       "versao": "v0.23",
       "data": "2026-10-15",

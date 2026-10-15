@@ -250,7 +250,7 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
     // A foz faz parte do curso, com o mesmo nível da superfície do lago.
     riacho.pontos.push({x:E.x,y:E.y,h0:altitude(E.x,E.y),agua:-0.55});
   }
-  const percursos=organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:H,DEGRAU,plano});
+  const percursos=organizarPercursos({trilha,riacho,lago,fatorLago,altitude,grade:G,alturas:H,DEGRAU,plano});
   const {distRiacho,larguraRiacho,perfilTrilha,pontes,ponte}=percursos;
   if(ponte)Object.assign(plano.locais.find(l=>l.id==="ponte"),{x:ponte.x,y:ponte.y,largura:ponte.comprimento,profundidade:ponte.largura});
 

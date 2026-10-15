@@ -209,9 +209,10 @@ export function criarTravessias(mundo, toon) {
     if (!A[inicio].escada) { inicio++; continue; }
     let fim = inicio;
     while (fim + 1 < A.length && A[fim + 1].escada) fim++;
+    const acessoMadeira=!!mundo.plano.passarela&&(mundo.pontes??[]).some(p=>A[inicio].s>=p.s0-4&&A[fim].s<=p.s1+4);
     const escada = new THREE.Group();
     escada.name = `escada-pedra-${numeroEscada++}`;
-    escada.userData = { tipo: "escada", s0: A[inicio].s, s1: A[fim].s, larguraLivre: largura, h0: A[inicio].h, h1: A[fim].h };
+    escada.userData = { tipo: "escada", material:acessoMadeira?"madeira":"pedra", s0: A[inicio].s, s1: A[fim].s, larguraLivre: largura, h0: A[inicio].h, h1: A[fim].h };
     grupo.add(escada);
     let numeroPiso = 0;
     for (let j = inicio; j <= fim;) {
@@ -224,7 +225,9 @@ export function criarTravessias(mundo, toon) {
         const frentes = [];
         if (j && A[j - 1].h < A[j].h - EPS) frentes.push("inicio");
         if (k + 1 < A.length && A[k + 1].h < A[k].h - EPS) frentes.push("fim");
-        add(escada, lajeEscada(pontos, largura + 0.025, A[j].h, frentes), `degrau-${numeroPiso++}`, { tipo: "degrau", topo: A[j].h, s0: antes.s, s1: depois.s, larguraLivre: largura, frentes });
+        const geo=lajeEscada(pontos, largura + 0.025,A[j].h,frentes);
+        if(acessoMadeira){const c=geo.attributes.color,tons=RAMPAS.pedra.map(x=>new THREE.Color(x)),madeira=[1,1,2,3,4].map(i=>new THREE.Color(RAMPAS.terra[i]));for(let i=0;i<c.count;i++){const v=new THREE.Color(c.getX(i),c.getY(i),c.getZ(i));let k=0,d=Infinity;tons.forEach((t,j)=>{const dd=(t.r-v.r)**2+(t.g-v.g)**2+(t.b-v.b)**2;if(dd<d){k=j;d=dd;}});c.setXYZ(i,madeira[k].r,madeira[k].g,madeira[k].b);}}
+        add(escada,geo, `degrau-${numeroPiso++}`, { tipo: "degrau", topo: A[j].h, s0: antes.s, s1: depois.s, larguraLivre: largura, frentes });
       }
       j = k + 1;
     }
@@ -232,7 +235,7 @@ export function criarTravessias(mundo, toon) {
     const antes = inicio ? misturar(A[inicio - 1], A[inicio], 0.5) : A[inicio];
     const depois = fim + 1 < A.length ? misturar(A[fim], A[fim + 1], 0.5) : A[fim];
     const laterais = [{ ...antes, h: A[inicio].h }, ...A.slice(inicio, fim + 1), { ...depois, h: A[fim].h }].filter((p, t, ps) => !t || distancia(ps[t - 1], p) > EPS);
-    if (laterais.length > 1) for (const lado of [-1, 1]) {
+    if (!acessoMadeira && laterais.length > 1) for (const lado of [-1, 1]) {
       add(escada, bordaEscada(laterais, largura, lado), `mureta-continua-${lado}`, { tipo: "mureta-escada", lado, s0: antes.s, s1: depois.s, topo: Math.max(...laterais.map((p) => p.h)) + 0.25, terminacao: true });
     }
     inicio = fim + 1;

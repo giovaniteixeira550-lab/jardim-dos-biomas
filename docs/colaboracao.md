@@ -67,3 +67,7 @@ Escopo: lajes e bordas de relevo.js, modulação de 0,25 m em percursos.js e rem
 ## Pontes de madeira aprovadas — v0.23
 
 Proposta 5740c6a aprovada pelo usuário; publica a remoção do percurso ocidental e as duas pontes de madeira. Pedido adicional: ponte inferior arqueada. perfilPonte.js compartilha altura e inclinação entre malha e percurso; o caminho mantém entradas planas. Tábuas giram pela tangente, vigas e guarda-corpos subdividem a curva. Atualizados testes, planta e diário. Nenhuma cópia de outro colaborador foi editada.
+
+## Água e lago — v0.24
+
+Escopo em aguaLago.js, acabamento de aguaPercurso.js e entradas da ponte em relevo.js. O lago tem malha de 40 anéis seguindo a costa real, atributos de profundidade e distância da margem, material opaco toon e reflexos espaçados. O rio recorta sua superfície pelo contorno real do lago e deixa de construir barrancos no interior. No campo de alturas, a foz não pode elevar o fundo existente. As duas escadas curtas de acesso à ponte passam a madeira; suas muretas de pedra foram removidas. Demais escadas e formações preservadas. Importações versionadas em 0.24.
