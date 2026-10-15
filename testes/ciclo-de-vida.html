@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verificação do ciclo de vida — Jardim</title>
+<style>
+  body { background:#141c18; color:#e9e3d1; font:16px system-ui; margin:24px; }
+  canvas { display:block; width:640px; max-width:100%; height:360px; }
+  li { margin:8px 0; } button,input { font:inherit; padding:8px; }
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}
+</script>
+<h1>Verificação do ciclo de vida</h1>
+<p>Usa o motor real e WebGL. Não grava dados de estudo.</p>
+<button id="executar">Executar verificações</button>
+<input aria-label="Campo para teste do teclado" id="texto" placeholder="Campo de texto">
+<p id="estado" role="status">Aguardando.</p>
+<ol id="resultados"></ol>
+<canvas id="canvas"></canvas>
+<script type="module" src="./ciclo-de-vida.js"></script>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#141c18" />
+  <title>Plano do jardim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen&display=swap" rel="stylesheet" />
+  <style>
+    :root { color-scheme: dark; --fundo:#141c18; --painel:#1e2a22; --borda:#3f6e3c; --texto:#e9e3d1; --suave:#a6b67f; --claro:#c6dd84; --ambar:#ecab4c; --azul:#86c2bd; --corpo:"Pixelify Sans",ui-monospace,monospace; --titulo:"Silkscreen",ui-monospace,monospace; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--fundo); color:var(--texto); font:16px/1.5 var(--corpo); }
+    a { color:var(--azul); text-underline-offset:3px; }
+    button,input { font:inherit; }
+    button,a,input { -webkit-tap-highlight-color:transparent; }
+    :focus-visible { outline:3px solid var(--ambar); outline-offset:4px; }
+    [hidden] { display:none!important; }
+    .topo { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding:14px max(20px,calc((100vw - 1400px)/2)); border-bottom:2px solid var(--borda); background:#1e2a22; }
+    .marca { color:var(--claro); font:12px var(--titulo); letter-spacing:.04em; }
+    nav { display:flex; flex-wrap:wrap; gap:16px; }
+    nav a { font-size:15px; color:var(--texto); }
+    main { max-width:1440px; margin:auto; padding:28px 20px 56px; }
+    .abertura { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:22px; }
+    .chamada { margin:0 0 8px; color:var(--suave); font:11px var(--titulo); letter-spacing:.08em; }
+    h1 { margin:0 0 10px; color:var(--claro); font:clamp(22px,3vw,34px)/1.35 var(--titulo); }
+    .abertura p:last-child { max-width:78ch; margin:0; }
+    .medida { flex-shrink:0; border-left:2px solid var(--borda); padding:8px 0 8px 18px; color:var(--suave); }
+    .medida strong { display:block; color:var(--texto); font-size:24px; }
+    .composicao { display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:20px; align-items:start; }
+    .painel { background:var(--painel); border:2px solid var(--borda); box-shadow:4px 4px 0 #0b110d; }
+    .barra { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; padding:12px 16px; border-bottom:1px solid var(--borda); }
+    .barra p { margin:0; color:var(--suave); font-size:14px; }
+    .controles { border:0; padding:12px 16px; margin:0; display:flex; gap:10px 18px; flex-wrap:wrap; }
+    .controles legend { padding:12px 0 0; font:10px var(--titulo); color:var(--suave); }
+    .controles label { display:flex; align-items:center; gap:7px; min-height:30px; cursor:pointer; font-size:14px; }
+    input[type=checkbox] { accent-color:#9cc364; width:17px; height:17px; margin:0; }
+    .mapa-campo { position:relative; margin:0 12px 12px; overflow:hidden; border:1px solid #5d7350; background:#74895c; }
+    #mapa { display:block; width:100%; height:auto; aspect-ratio:3/2; font-family:var(--corpo); }
+    #mapa [role=button] { cursor:pointer; }
+    #mapa [role=button]:focus { outline:none; }
+    #mapa [role=button]:focus .marcador { stroke:#fff3c4; stroke-width:.8; }
+    #mapa .local-area { stroke-width:.5; }
+    #mapa .local-ativo .local-area { stroke:#fff3c4; stroke-width:1; fill-opacity:.24; }
+    #mapa .local-ativo .marcador { stroke:#fff3c4; stroke-width:.8; }
+    .aguarde { position:absolute; inset:0; display:grid; place-content:center; padding:24px; text-align:center; background:#22382be8; color:var(--claro); }
+    .aguarde strong { display:block; margin-bottom:8px; font-family:var(--titulo); font-size:13px; }
+    .legenda { display:flex; flex-wrap:wrap; gap:8px 18px; margin:0; padding:4px 16px 14px; list-style:none; font-size:13px; color:var(--suave); }
+    .legenda li { display:flex; align-items:center; gap:6px; }
+    .amostra { width:16px; height:11px; border:1px solid #3e3126; display:inline-block; }
+    .amostra.trilha { height:5px; background:#dcc69c; }
+    .amostra.agua { background:#4f97a3; }
+    .amostra.pedra { background:#a5ac9f; }
+    .amostra.proposta { border:2px dashed var(--ambar); background:transparent; }
+    .altitudes { display:flex; flex-wrap:wrap; gap:6px 14px; padding:10px 16px; border-top:1px solid var(--borda); color:var(--suave); font-size:13px; }
+    .altitudes span { display:flex; align-items:center; gap:5px; }
+    .resumo { padding:0 16px 12px; color:var(--suave); font-size:13px; margin:0; }
+    .detalhe { padding:18px; }
+    .detalhe h2 { color:var(--claro); font:16px/1.5 var(--titulo); margin:12px 0; }
+    .etiqueta { display:inline-block; padding:3px 8px; border:1px solid var(--claro); color:var(--claro); font-size:12px; }
+    .etiqueta.proposto { border-color:var(--ambar); color:var(--ambar); }
+    .detalhe p { margin:12px 0; }
+    .dados { margin:16px 0; padding-top:14px; border-top:1px solid var(--borda); display:grid; gap:8px; }
+    .dados div { display:flex; flex-wrap:wrap; gap:4px; }
+    .dados dt { color:var(--suave); }
+    .dados dd { margin:0; }
+    .nota { color:var(--suave); font-size:13px; }
+    .botao { display:block; text-align:center; background:#3f6e3c; border:2px solid #75a650; color:#e9e3d1; padding:9px 12px; text-decoration:none; box-shadow:2px 2px 0 #0b110d; }
+    .lugares { margin-top:16px; padding:16px; }
+    .lugares h2 { margin:0 0 12px; font:12px var(--titulo); color:var(--suave); }
+    #lista-locais { list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+    .local-botao { display:flex; align-items:center; gap:9px; width:100%; padding:8px; border:1px solid transparent; text-align:left; color:var(--texto); background:#141c18; cursor:pointer; }
+    .local-botao[aria-pressed=true] { border-color:var(--claro); background:#2f5236; }
+    .numero { display:grid; place-items:center; width:24px; height:24px; flex-shrink:0; border:1px solid var(--claro); color:var(--claro); font-size:13px; }
+    .local-botao.proposto .numero { border-color:var(--ambar); color:var(--ambar); }
+    .local-botao small { display:block; color:var(--suave); font-size:11px; }
+    .referencias { margin-top:26px; padding:20px; }
+    .referencias h2 { font:13px var(--titulo); color:var(--suave); margin:0 0 12px; }
+    .referencias p { margin:8px 0; max-width:110ch; }
+    .referencias .nota { margin-top:12px; }
+    @media(max-width:1050px) { .composicao { grid-template-columns:minmax(0,1fr) 270px; gap:14px; } .detalhe,.lugares { padding:14px; } }
+    @media(max-width:800px) { .composicao { grid-template-columns:1fr; } .lateral { display:grid; grid-template-columns:1fr 1fr; gap:14px; } .lugares { margin:0; } .abertura { align-items:start; } .medida strong { font-size:20px; } }
+    @media(max-width:540px) { main { padding:22px 12px 40px; } .topo { padding:12px; } .marca { font-size:10px; } .abertura { display:block; } .medida { display:none; } .lateral { grid-template-columns:1fr; } .controles { gap:6px 14px; padding:10px 12px; } .controles label { font-size:13px; } .mapa-campo { margin:0 6px 10px; } .barra,.altitudes { padding:10px 12px; } .legenda { padding:0 12px 12px; } .referencias { padding:16px; } }
+  </style>
+</head>
+<body>
+  <header class="topo">
+    <a class="marca" href="./index.html">JARDIM DOS BIOMAS</a>
+    <nav aria-label="Navegação"><a href="./index.html">Voltar ao jardim</a><a href="./historico.html">Diário</a></nav>
+  </header>
+  <main>
+    <section class="abertura" aria-labelledby="titulo">
+      <div><p class="chamada">LUGARES, PERCURSOS E PAISAGEM</p><h1 id="titulo">Plano do jardim</h1><p id="ideia">Um jardim com relevo, água e caminhos que ligam lugares. A planta mostra o mapa atual e os espaços reservados para os próximos passos.</p></div>
+      <div class="medida"><strong id="dimensoes">180 × 120 m</strong>Vista de cima do jardim</div>
+    </section>
+    <div class="composicao">
+      <section class="painel" aria-label="Planta do jardim">
+        <div class="barra"><strong id="nome-plano">O desenho do jardim</strong><p>Escolha um número para conhecer o lugar.</p></div>
+        <fieldset class="controles"><legend>O QUE MOSTRAR</legend>
+          <label><input id="camada-curvas" type="checkbox" checked /> Linhas de altura</label>
+          <label><input id="camada-caminhos" type="checkbox" checked /> Água e caminhos</label>
+          <label><input id="camada-vegetacao" type="checkbox" /> Árvores</label>
+          <label><input id="camada-setores" type="checkbox" checked /> Áreas do jardim</label>
+          <label><input id="camada-propostas" type="checkbox" checked /> Obras propostas</label>
+        </fieldset>
+        <div class="mapa-campo">
+          <svg id="mapa" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" role="group" aria-labelledby="mapa-titulo mapa-descricao"><title id="mapa-titulo">Planta do jardim</title><desc id="mapa-descricao">Alturas do terreno, curso da água, caminhos, escadas, pontes e lugares do plano. Os lugares numerados também estão na lista abaixo.</desc></svg>
+          <div id="aguarde" class="aguarde" role="status"><strong>Preparando a planta</strong>Reunindo os lugares e caminhos do jardim…</div>
+        </div>
+        <ul class="legenda" aria-label="Legenda"><li><i class="amostra trilha"></i>Caminho</li><li><i class="amostra agua"></i>Água · setas indicam a descida</li><li><i class="amostra pedra"></i>Escada ou ponte</li><li><i class="amostra proposta"></i>Espaço proposto</li></ul>
+        <p class="resumo" id="resumo" role="status"></p>
+        <div class="altitudes" id="altitudes" aria-label="Alturas do terreno"></div>
+      </section>
+      <aside class="lateral" aria-label="Lugares do jardim">
+        <section class="painel detalhe" id="detalhe" aria-live="polite" aria-atomic="true">
+          <span class="etiqueta" id="local-status">Plano em preparação</span>
+          <h2 id="local-nome">Conheça os lugares</h2>
+          <p id="local-descricao">Selecione um número na planta ou um lugar na lista.</p>
+          <dl class="dados" id="local-dados" hidden></dl>
+          <p class="nota" id="local-nota"></p>
+          <a class="botao" id="ver-3d" href="./index.html">Ver mapa 3D</a>
+        </section>
+        <section class="painel lugares"><h2>LUGARES DO PLANO</h2><ol id="lista-locais"></ol><p class="nota" id="sem-locais" hidden>Os lugares serão acrescentados ao plano. O relevo, a água e os caminhos acima já vêm do mapa atual.</p></section>
+      </aside>
+    </div>
+    <section class="painel referencias" aria-labelledby="referencias-titulo">
+      <h2 id="referencias-titulo">IDEIAS PARA COMPOR A PAISAGEM</h2>
+      <p><a href="https://whc.unesco.org/en/list/1025/" target="_blank" rel="noopener noreferrer">Villa d’Este · UNESCO</a> — inspira a ligação entre água, escadas e patamares: a descida da água ajuda a organizar o jardim.</p>
+      <p><a href="https://www.nationaltrust.org.uk/visit/wiltshire/stourhead/history-of-the-garden-at-stourhead" target="_blank" rel="noopener noreferrer">Stourhead · National Trust</a> — inspira um percurso entre árvores, água e lugares de contemplação, com vistas que mudam ao caminhar.</p>
+      <p class="nota">Estas referências orientam a organização dos lugares. A linguagem visual continua sendo a do nosso jardim em pixel art. Áreas tracejadas indicam propostas, sem afirmar que as construções já existem.</p>
+    </section>
+    <noscript><p>Ative o JavaScript para ver a planta gerada a partir do jardim.</p></noscript>
+  </main>
+  <script type="module" src="./src/planejamento.js"></script>
+</body>
+</html>

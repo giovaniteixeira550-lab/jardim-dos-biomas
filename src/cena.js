@@ -4,7 +4,7 @@
  * Pipeline: cena 3D (materiais toon de 3 faixas, sombras duras) → alvo de
  * render em baixa resolução → shader de pixel (contorno, brilho de topo,
  * paleta + dithering) → tela com pixels nítidos.
- * Câmera ortográfica em ¾, girando em passos de 45°, com "snap" ao grid de
+ * Câmera ortográfica em ¾, com giro livre e atalhos de 45°, com "snap" ao grid de
  * pixels para o cenário não tremeluzir ao mover.
  */
 import * as THREE from "three";
@@ -15,97 +15,12 @@ import { criarMaterialPixel } from "./pixel.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
+import { estiloCopa } from "./estiloCopa.js";
+import { criarAguaPercurso } from "./aguaPercurso.js";
+import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
+import { criarBordasBarranco } from "./bordasBarranco.js";
 
 const lerp = THREE.MathUtils.lerp;
-
-/**
- * Copas DESENHADAS com anatomia 3D (estilo das referências de pixel art):
- *  - faixas pela altura dentro de cada volume (atributo "banda"): topo claro, base escura;
- *  - AGLOMERADOS DE FOLHAS distribuídos sobre a superfície de cada volume, em
- *    coordenadas da própria esfera (atributo "esfera"): seguem a curvatura e se
- *    comprimem na borda, como um objeto 3D. Cada aglomerado é um pequeno domo:
- *    o shader inclina a normal dentro dele, então ele tem lado iluminado e lado
- *    na sombra conforme o SOL (toon), e não uma marca pintada por cima.
- *  - tamanho do aglomerado proporcional ao volume e rotação própria por volume
- *    (atributos "raioCopa" e "semCopa"): nenhuma copa fica igual a outra.
- */
-function estiloCopa(sh, direita, texel) {
-  sh.uniforms.uTexelC = texel;
-  sh.vertexShader = sh.vertexShader
-    .replace(
-      "#include <common>",
-      `#include <common>
-      attribute float banda; attribute vec3 esfera; attribute float raioCopa; attribute float semCopa;
-      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;`,
-    )
-    .replace(
-      "#include <begin_vertex>",
-      `#include <begin_vertex>
-      vBanda = banda; vEsf = esfera; vRaioC = raioCopa; vSemC = semCopa;
-      // Eixos tangentes da esfera (leste/norte), levados para o espaço da câmera como a normal.
-      vec3 dE = normalize(esfera + vec3(1e-5));
-      vec3 le = normalize(cross(vec3(0.0, 1.0, 0.0), dE) + vec3(1e-4, 0.0, 0.0));
-      vec3 no = cross(dE, le);
-      mat3 mi = mat3(1.0);
-      #ifdef USE_INSTANCING
-        mi = mat3(instanceMatrix);
-      #endif
-      vLeste = normalize(normalMatrix * (mi * le));
-      vNorte = normalize(normalMatrix * (mi * no));`,
-    );
-  sh.fragmentShader = sh.fragmentShader
-    .replace(
-      "#include <common>",
-      `#include <common>
-      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;
-      uniform float uTexelC;`,
-    )
-    .replace(
-      "#include <color_fragment>",
-      `#include <color_fragment>
-      if (vBanda > -2.0) {
-        if (vBanda > 0.5) diffuseColor.rgb *= vec3(1.12, 1.18, 1.04); // topo iluminado
-        else if (vBanda < -0.38) diffuseColor.rgb *= 0.64;            // base na sombra
-      }`,
-    )
-    .replace(
-      "#include <normal_fragment_maps>",
-      `#include <normal_fragment_maps>
-      if (vBanda > -2.0 && length(vEsf) > 0.5 && uTexelC < 0.16) {
-        // Aglomerados = células orgânicas (Voronoi 3D) sobre a superfície do volume:
-        // sem linhas nem polos; cada célula é um domo iluminado pelo sol.
-        vec3 d = normalize(vEsf);
-        float S = clamp(vRaioC * 0.42, 0.5, 1.05);          // tamanho do aglomerado (m)
-        vec3 q = d * vRaioC / S + vSemC * 17.0;
-        vec3 ip = floor(q), fp = fract(q);
-        float d1 = 8.0, d2 = 8.0;
-        vec3 m1 = vec3(0.0);
-        for (int x = -1; x <= 1; x++)
-          for (int y = -1; y <= 1; y++)
-            for (int z = -1; z <= 1; z++) {
-              vec3 g = vec3(float(x), float(y), float(z));
-              vec3 h = ip + g;
-              vec3 o = fract(sin(vec3(dot(h, vec3(127.1, 311.7, 74.7)), dot(h, vec3(269.5, 183.3, 246.1)), dot(h, vec3(113.5, 271.9, 124.6)))) * 43758.5453);
-              vec3 rr = g + o - fp;
-              float dd = dot(rr, rr);
-              if (dd < d1) { d2 = d1; d1 = dd; m1 = rr; } else if (dd < d2) { d2 = dd; }
-            }
-        float borda = sqrt(d2) - sqrt(d1);
-        // Do centro do aglomerado para este ponto, na tangente da esfera.
-        vec3 off = -m1;
-        off -= d * dot(off, d);
-        vec3 le = normalize(cross(vec3(0.0, 1.0, 0.0), d) + vec3(1e-4, 0.0, 0.0));
-        vec3 no = cross(d, le);
-        float fy = dot(off, no);
-        if (borda < 0.18 && fy < -0.05) {
-          diffuseColor.rgb *= 0.62; // sombra só EMBAIXO de cada tufo (a borda de cima fica clara)
-        } else {
-          // Domo: a normal inclina do centro para fora → lado do sol claro, lado oposto escuro.
-          normal = normalize(normal * 0.55 + (vLeste * dot(off, le) + vNorte * fy) * 2.0);
-        }
-      }`,
-    );
-}
 
 // Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
 // setTimeout em vez de requestAnimationFrame: rAF pausa com a aba em segundo
@@ -188,6 +103,12 @@ function pedraGeo(semente) {
 
 export class Jardim {
   constructor(canvas) {
+    // Cada montagem tem seu próprio cancelamento, inclusive para os controles.
+    this.cancelamento = new AbortController();
+    this.descartado = false;
+    this.recursosLiberados = false;
+    this.compilando = false;
+    this.cargaIniciada = false;
     this.canvas = canvas;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
     this.renderer.setPixelRatio(1);
@@ -203,7 +124,7 @@ export class Jardim {
     this.yaw = Math.PI / 4;
     this.yawAlvo = this.yaw;
     this.pitch = THREE.MathUtils.degToRad(38);
-    this.altura = 70; // metros visíveis na vertical
+    this.altura = 92; // vista inicial da encosta, cascatas e travessia
     this.tamPixel = 2; // estilo definido: pixel mínimo, sempre com contorno
     this.crescimento = 0.9;
     this.cresceVisto = -1;
@@ -212,7 +133,13 @@ export class Jardim {
     this.relogio = new THREE.Timer();
     // Material único das árvores: cor por vértice (gerador) × tom do indivíduo.
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
-    this.criarRaioX();
+    this.uDireita={value:new THREE.Vector2(1,0)};
+    this.matArvore.onBeforeCompile=sh=>estiloCopa(sh,this.uDireita,this.pixel.uniforms.uTexel);
+    this.matArvore.customProgramCacheKey=()=>"arvore-copa-celulas-v16";
+    this.cursorArvore = null;
+    this.sobrevoo = null;
+    this.ultimoRastreio = -Infinity;
+    this.matrizZero = new THREE.Matrix4().makeScale(0, 0, 0);
     this.individuos = [];
     this.grupos = [];
     this.pixel = criarMaterialPixel();
@@ -223,24 +150,19 @@ export class Jardim {
   }
 
   async carregar(semente, progresso) {
-    // Tempo de cada etapa (ms), para acompanhar o custo de carregar: jardim.tempos no console.
-    this.tempos = {};
-    let marca = performance.now();
-    const medir = (nome) => {
-      const agora = performance.now();
-      this.tempos[nome] = Math.round(agora - marca);
-      marca = agora;
-    };
+    this.verificarAtivo();
+    if (this.cargaIniciada) throw new Error("Crie um novo Jardim para carregar outro mundo.");
+    this.cargaIniciada = true;
+    this.tempos={}; let marca=performance.now();
+    const medir=nome=>{const agora=performance.now();this.tempos[nome]=Math.round(agora-marca);marca=agora;};
     progresso(0.04, "Semeando o mundo…");
-    await quadro();
-    marca = performance.now();
+    await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
     medir("mundo");
-    this.alvo.set(m.largura * 0.55, 0, m.altura * 0.55);
+    this.irAoViveiro(false);
 
     progresso(0.1, "Moldando o terreno…");
-    await quadro();
-    marca = performance.now();
+    await this.ceder();
     this.criarTerreno();
     medir("terreno");
     this.criarAgua();
@@ -250,22 +172,19 @@ export class Jardim {
 
     const lista = Object.entries(ESPECIES);
     const total = lista.reduce((n, [, e]) => n + e.variacoes, 0);
-    let feitas = 0, somaArvores = 0;
+    let feitas = 0;
     this.variacoes = [];
     for (const [id, e] of lista)
       for (let v = 0; v < e.variacoes; v++) {
         progresso(0.18 + (feitas / total) * 0.55, `Desenhando árvores (${feitas + 1}/${total})…`);
-        await quadro();
-        const t0 = performance.now();
+        await this.ceder();
         this.variacoes.push(this.gerarVariacao(id, e, semente * 31 + feitas * 977));
-        somaArvores += performance.now() - t0;
         feitas++;
       }
 
-    this.tempos.arvores = Math.round(somaArvores);
     progresso(0.78, "Plantando o bosque…");
-    await quadro();
-    marca = performance.now();
+    await this.ceder();
+    medir("arvores");
     this.plantar();
     medir("plantar");
     this.montarViveiro();
@@ -273,24 +192,44 @@ export class Jardim {
     medir("detalhes");
 
     progresso(0.9, "Acendendo a luz…");
-    await quadro();
+    await this.ceder();
     this.criarLuz();
     this.aplicarHora();
     this.redimensionar();
     this.atualizarCrescimento(true);
-    await this.renderer.compileAsync(this.scene, this.camera);
-    medir("luz_e_shaders");
+    // A compilação não é interrompível. Aguarda terminar antes de liberar a GPU,
+    // mas nunca monta observadores, controles ou animação de uma carga cancelada.
+    this.compilando = true;
+    try {
+      await this.renderer.compileAsync(this.scene, this.camera);
+    } finally {
+      this.compilando = false;
+      if (this.descartado) this.liberarRecursos();
+    }
+    this.verificarAtivo();
 
+    medir("luz_e_shaders");
     progresso(1, "Pronto");
+    this.verificarAtivo();
     this.ro = new ResizeObserver(() => this.redimensionar());
     this.ro.observe(this.canvas);
     this.ligarControles();
     this.relogio.reset();
     this.loop = () => {
+      if (this.descartado) return;
       this.quadroAnim();
-      this.raf = requestAnimationFrame(this.loop);
+      if (!this.descartado) this.raf = requestAnimationFrame(this.loop);
     };
     this.raf = requestAnimationFrame(this.loop);
+  }
+
+  verificarAtivo() {
+    if (this.descartado) throw new DOMException("Carregamento do jardim cancelado.", "AbortError");
+  }
+
+  async ceder() {
+    await quadro();
+    this.verificarAtivo();
   }
 
   // --- Terreno e água -----------------------------------------------------
@@ -309,8 +248,9 @@ export class Jardim {
     g.translate(m.largura / 2, 0, m.altura / 2);
     const pos = g.attributes.position;
     const cores = new Float32Array(pos.count * 3);
-    const rocha = new Float32Array(pos.count); // 1 = pode ter paredão de pedra (longe da trilha)
+    const rocha = new Float32Array(pos.count); // máscara dos barrancos naturais, sem alvenaria
     const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
+    const limitesSolo = new Float32Array(pos.count * 2); // topo e pé REAIS do corte local
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
@@ -322,7 +262,6 @@ export class Jardim {
       const c2 = pos.getY(Math.max(0, iz - 1) * (nx + 1) + ix), d2 = pos.getY(Math.min(nz, iz + 1) * (nx + 1) + ix);
       return Math.hypot(b - a, d2 - c2) / (2 * passo);
     };
-    const P2 = RAMPAS.pedra;
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
       const n1 = m.ruido(x / 22, z / 22 + 9, 3), n2 = m.fino(x / 6, z / 6, 2);
@@ -348,105 +287,62 @@ export class Jardim {
       if (trilha < 0.56) c.set(T[n2 > 0.8 ? 5 : 4]);
       else if (trilha < 0.7) c.set(T[2]);
       // Margem e fundo do lago.
-      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.95 ? 1 : 5]); // faixa clara rente à margem: a borda ciano das referências
+      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.985 ? 1 : 4]); // faixa clara rente à margem: a borda ciano das referências
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
-      // (o desenho dos blocos de pedra vem do shader; aqui só a cor de base)
+      // Altura local do corte: acompanha também recortes junto à estrada/água.
+      // A crosta não usa múltiplos globais de 4,5 m, que desenhavam faixas falsas.
+      let topoSolo = h, peSolo = h;
+      if (inc > 0.35) {
+        const gx = hv[0] - hv[1], gz = hv[2] - hv[3], comprimento = Math.hypot(gx, gz) || 1;
+        for (let raio = 1; raio <= 6; raio++) for (const sinal of [-1, 1]) {
+          const jx = Math.max(0, Math.min(nx, Math.round(ix + gx / comprimento * raio * sinal)));
+          const jz = Math.max(0, Math.min(nz, Math.round(iz + gz / comprimento * raio * sinal)));
+          const vizinho = pos.getY(jz * (nx + 1) + jx);
+          topoSolo = Math.max(topoSolo, vizinho); peSolo = Math.min(peSolo, vizinho);
+        }
+      }
+      limitesSolo.set([topoSolo, peSolo], i * 2);
       if (inc > 0.7 && f > 1.0 && trilha > 0.62) c.set(T[3]);
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
-      // Escada na trilha: degraus de pedra clara com espelho mais escuro.
-      if (trilha < 0.62 && inc > 0.12 && f > 1.0) c.set(Math.floor((y + 0.05) / 0.45) % 2 ? P2[3] : P2[2]);
+      // Os degraus são as malhas sólidas das obras; o chão sob eles continua terra.
       grama[i] = trilha > 0.75 && f > 1.04 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
     g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
     g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
+    g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, this.materialTerreno());
+    // As faces dos barrancos têm normais próprias. O topo continua suave;
+    // a quina não se dissolve numa transição arredondada de luz.
+    const indicesChao=[],indicesParede=[],a3=new THREE.Vector3(),b3=new THREE.Vector3(),c3=new THREE.Vector3();
+    for(let i=0;i<g.index.count;i+=3) {
+      const ids=[g.index.getX(i),g.index.getX(i+1),g.index.getX(i+2)];
+      a3.fromBufferAttribute(pos,ids[0]);b3.fromBufferAttribute(pos,ids[1]);c3.fromBufferAttribute(pos,ids[2]);
+      const normal=b3.sub(a3).cross(c3.sub(a3)).normalize();
+      (Math.abs(normal.y)<0.72?indicesParede:indicesChao).push(...ids);
+    }
+    const material=this.materialTerreno();
+    if(indicesParede.length) {
+      const recorte=new THREE.BufferGeometry();
+      for(const nome of ["position","color","aRocha","aGrama","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
+      recorte.setIndex(indicesParede);
+      const faces=recorte.toNonIndexed();faces.computeVertexNormals();recorte.dispose();
+      const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
+    }
+    this.scene.add(criarBordasBarranco(m, g, indicesParede, toon));
+    g.setIndex(indicesChao);
+    const t = new THREE.Mesh(g, material);
     t.receiveShadow = true;
     this.scene.add(t);
     this.terreno = t;
   }
 
-  /**
-   * Chão com paredões de PEDRA no estilo das referências de pixel art: colunas
-   * verticais REGULARES (sempre na vertical da tela), cada uma com chanfro
-   * (luz de um lado, sombra do outro), topo iluminado e pé na sombra, poucos
-   * tons. A luz é desenhada (quase sem depender da malha), por isso fica limpa.
-   */
+  /** Terra natural em camadas; obras de pedra têm material e geometria próprios. */
   materialTerreno() {
-    const mat = toon({ vertexColors: true });
-    const T = RAMPAS.terra;
-    this.uDireita = { value: new THREE.Vector2(1, 0) }; // direita da câmera no chão (atualizada por quadro)
-    mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uT1 = { value: new THREE.Color(T[1]) };
-      sh.uniforms.uT2 = { value: new THREE.Color(T[2]) };
-      sh.uniforms.uT3 = { value: new THREE.Color(T[3]) };
-      sh.uniforms.uT4 = { value: new THREE.Color(T[4]) };
-      sh.uniforms.uDegrau = { value: this.mundo.DEGRAU };
-      sh.uniforms.uDireita = this.uDireita;
-      sh.uniforms.uTexel = this.pixel.uniforms.uTexel; // tamanho do pixel no mundo (zoom)
-      sh.uniforms.uTufo = { value: new THREE.Color(RAMPAS.mata[2]) };
-      sh.uniforms.uTufoLuz = { value: new THREE.Color(RAMPAS.mata[5]) };
-      sh.vertexShader = "attribute float aRocha; attribute float aGrama; varying float vRocha; varying float vGrama; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.vertexShader.replace(
-        "#include <worldpos_vertex>",
-        "#include <worldpos_vertex>\nvRocha = aRocha;\nvGrama = aGrama;\nvMundoT = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvNorT = normalize(mat3(modelMatrix) * objectNormal);",
-      );
-      sh.fragmentShader = `uniform vec3 uT1; uniform vec3 uT2; uniform vec3 uT3; uniform vec3 uT4; uniform float uDegrau; uniform vec2 uDireita; uniform float uTexel; uniform vec3 uTufo; uniform vec3 uTufoLuz;
-varying float vRocha; varying float vGrama; varying vec3 vMundoT; varying vec3 vNorT;
-float hashT(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float ruidoT(vec2 p) {
-  vec2 i = floor(p), f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hashT(i), hashT(i + vec2(1.0, 0.0)), f.x), mix(hashT(i + vec2(0.0, 1.0)), hashT(i + vec2(1.0, 1.0)), f.x), f.y);
-}
-` + sh.fragmentShader.replace(
-        "#include <color_fragment>",
-        `#include <color_fragment>
-        vec3 rochaLuz = vec3(0.0);
-        if (vNorT.y < 0.62 && vRocha > 0.5) {
-          // Colunas de 0,9 m medidas na horizontal da TELA: listras sempre verticais e iguais.
-          float u = dot(vMundoT.xz, uDireita) / 0.9;
-          float col = floor(u), fu = fract(u);
-          float h1 = fract(sin(col * 12.9898) * 43758.5453);
-          vec3 c = h1 < 0.4 ? uT3 : (h1 < 0.8 ? uT2 : uT3); // 2 tons alternando
-          if (fu < 0.16) c = uT4;          // chanfro iluminado
-          else if (fu > 0.84) c = uT1;     // sulco na sombra
-          // Altura dentro do degrau: borda de cima clara, pé escuro.
-          float hr = fract(vMundoT.y / uDegrau + 0.04);
-          if (hr > 0.9) c = uT4;
-          else if (hr < 0.18) c = (fu > 0.84) ? uT1 : uT2;
-          // Uma rachadura horizontal por coluna, em alturas diferentes.
-          if (abs(hr - (0.35 + h1 * 0.4)) < 0.025 && fu > 0.16 && fu < 0.84) c = uT2;
-          diffuseColor.rgb = c * 0.3;
-          rochaLuz = c * 0.78; // luz desenhada: não depende da malha irregular
-        } else if (vGrama > 0.5) {
-          // GRAMADO desenhado: manchas grandes com borda nítida (3 tons) + tufinhos em "V".
-          vec2 p = vMundoT.xz;
-          float n = ruidoT(p / 9.0) * 0.7 + ruidoT(p / 3.1) * 0.3;
-          vec3 g = diffuseColor.rgb * (n < 0.36 ? 0.8 : (n > 0.66 ? 1.16 : 1.0)); // degraus fortes: sobrevivem à paleta
-          // Tufinhos só quando o pixel é pequeno o bastante para desenhá-los (sem chuvisco no zoom longe).
-          if (uTexel < 0.2) {
-            vec2 cel = floor(p / 1.1);
-            float h = hashT(cel);
-            if (h > 0.55) {
-              vec2 o = (cel + 0.25 + vec2(fract(h * 7.3), fract(h * 13.1)) * 0.5) * 1.1; // centro do tufo
-              vec2 cima = vec2(uDireita.y, -uDireita.x); // "para cima" na tela, no plano do chão
-              vec2 d = p - o;
-              float ax = dot(d, uDireita), ay = dot(d, cima) / 0.62; // compensa o encurtamento da vista ¾
-              float esp = max(0.05, uTexel * 0.75);
-              float folhas = step(0.0, ay) * step(ay, 0.38) * max(step(abs(ax + ay * 0.5), esp), max(step(abs(ax - ay * 0.5), esp), step(abs(ax), esp) * step(ay, 0.48)));
-              if (folhas > 0.5) g = h > 0.9 ? uTufoLuz : uTufo; // cor própria da paleta (verde-mata)
-            }
-          }
-          diffuseColor.rgb = g;
-        }`,
-      ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += rochaLuz;");
-    };
-    mat.customProgramCacheKey = () => "terreno-desenhado-3";
-    return mat;
+    return criarMaterialRelevo(toon,{direita:this.uDireita,texel:this.pixel.uniforms.uTexel});
   }
 
   criarAgua() {
@@ -484,147 +380,10 @@ float ruidoT(vec2 p) {
    * como nos jogos de pixel art de referência.
    */
   criarRiacho() {
-    const m = this.mundo, P = m.riacho.pontos, n = P.length;
-    if (n < 2) return;
-    const w = m.riacho.largura / 2 + 0.3;
-    const pos = new Float32Array(n * 2 * 3), dist = new Float32Array(n * 2), lado = new Float32Array(n * 2), queda = new Float32Array(n * 2);
-    const quedaEm = (i) => {
-      const a = P[Math.max(0, i - 2)], b = P[Math.min(n - 1, i + 2)];
-      return THREE.MathUtils.clamp((a.agua - b.agua) / 2 / 1.2, 0, 1); // ~1 num paredão
-    };
-    let acc = 0;
-    for (let i = 0; i < n; i++) {
-      const a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)];
-      let tx = b.x - a.x, tz = b.y - a.y;
-      const l = Math.hypot(tx, tz) || 1;
-      tx /= l; tz /= l;
-      if (i > 0) acc += Math.hypot(P[i].x - P[i - 1].x, P[i].y - P[i - 1].y, P[i].agua - P[i - 1].agua);
-      const q = quedaEm(i);
-      for (const [s, o] of [[-1, 0], [1, 1]]) {
-        const k = i * 2 + o;
-        pos.set([P[i].x - tz * w * s, P[i].agua, P[i].y + tx * w * s], k * 3);
-        dist[k] = acc;
-        lado[k] = s;
-        queda[k] = q;
-      }
-    }
-    const idx = [];
-    for (let i = 0; i < n - 1; i++) {
-      const a = i * 2, b = i * 2 + 1, c = i * 2 + 2, d = i * 2 + 3;
-      idx.push(a, c, b, b, c, d);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    g.setAttribute("aDist", new THREE.BufferAttribute(dist, 1));
-    g.setAttribute("aLado", new THREE.BufferAttribute(lado, 1));
-    g.setAttribute("aQueda", new THREE.BufferAttribute(queda, 1));
-    g.setIndex(idx);
-    g.computeVertexNormals();
-    const A = RAMPAS.agua;
-    const mat = toon({ color: A[3], side: THREE.DoubleSide });
-    mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uTime = { value: 0 };
-      sh.uniforms.uBorda = { value: new THREE.Color(A[5]) };
-      sh.uniforms.uEspuma = { value: new THREE.Color(RAMPAS.betula[0]) };
-      mat.userData.shader = sh;
-      sh.vertexShader = "attribute float aDist; attribute float aLado; attribute float aQueda; varying float vDist; varying float vLado; varying float vQueda;\n" +
-        sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvDist = aDist; vLado = aLado; vQueda = aQueda;");
-      sh.fragmentShader = "uniform float uTime; uniform vec3 uBorda; uniform vec3 uEspuma; varying float vDist; varying float vLado; varying float vQueda;\n" +
-        sh.fragmentShader.replace(
-          "#include <color_fragment>",
-          `#include <color_fragment>
-          float faixa = floor((vLado * 0.5 + 0.5) * 9.0);
-          float h = fract(sin(faixa * 17.13) * 4375.85);
-          vec3 luz = vec3(0.0);
-          if (vQueda > 0.45) {
-            // Cascata: cortina clara com listras brancas que descem.
-            diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, 0.35);
-            float listra = step(0.55, fract(vDist * 1.4 - uTime * 2.2 + h * 3.0));
-            diffuseColor.rgb = mix(diffuseColor.rgb, uEspuma, listra * (0.6 + 0.4 * step(0.5, h)));
-            luz = diffuseColor.rgb * 0.4;
-          } else {
-            // Correnteza: tracinhos claros andando rio abaixo; borda ciano junto à margem.
-            float traco = step(0.9, fract(vDist * 0.45 - uTime * 0.7 + h * 5.0)) * step(0.4, h);
-            diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, max(traco, step(0.8, abs(vLado))));
-            luz = diffuseColor.rgb * 0.2;
-          }`,
-        ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += luz;");
-    };
-    mat.customProgramCacheKey = () => "riacho";
-    this.riacho = new THREE.Mesh(g, mat);
-    this.riacho.receiveShadow = true;
-    this.scene.add(this.riacho);
-
-    // Espuma e pedras no pé de cada cascata.
-    const rng = criarRng(m.semente ^ 0x5ca);
-    const partes = [], pedras = [];
-    const bola = (r, x, y, z, ach, lista) => {
-      const b = new THREE.IcosahedronGeometry(r, 1);
-      b.scale(1, ach, 1);
-      b.translate(x, y, z);
-      lista.push(b);
-    };
-    for (let i = 3; i < n - 1; i++) {
-      if (!(quedaEm(i - 1) > 0.45 && quedaEm(i + 1) <= 0.45)) continue;
-      const p = P[Math.min(n - 1, i + 2)];
-      for (let k = 0; k < 9; k++) bola(lerp(0.25, 0.5, rng()), p.x + (rng() - 0.5) * w * 1.6, p.agua + 0.05, p.y + (rng() - 0.5) * w * 1.6, 0.45, partes);
-      for (let k = 0; k < 3; k++) {
-        const ang = rng() * 6.28;
-        bola(lerp(0.4, 0.8, rng()), p.x + Math.cos(ang) * w * 1.3, p.agua + 0.1, p.y + Math.sin(ang) * w * 1.3, 0.7, pedras);
-      }
-    }
-    const juntarEm = (lista, cor) => {
-      if (!lista.length) return;
-      const tot = lista.reduce((s, b) => s + b.toNonIndexed().attributes.position.count, 0);
-      const arr = new Float32Array(tot * 3);
-      let o = 0;
-      for (const b of lista) {
-        const nb = b.toNonIndexed();
-        arr.set(nb.attributes.position.array, o);
-        o += nb.attributes.position.array.length;
-      }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
-      geo.computeVertexNormals();
-      const malha = new THREE.Mesh(geo, toon({ color: cor }));
-      malha.castShadow = malha.receiveShadow = true;
-      this.scene.add(malha);
-    };
-    juntarEm(partes, RAMPAS.betula[0]);
-    juntarEm(pedras, RAMPAS.pedra[3]);
-
-    // Ponte de madeira onde a trilha cruza o riacho.
-    let melhor = null;
-    for (let i = 0; i < n; i += 2) {
-      const d = m.distTrilha(P[i].x, P[i].y);
-      if (d < m.trilha.largura * 0.5 && (!melhor || d < melhor.d)) melhor = { i, d };
-    }
-    if (melhor) {
-      const p = P[melhor.i], a = P[Math.max(0, melhor.i - 2)], b = P[Math.min(n - 1, melhor.i + 2)];
-      const ang = Math.atan2(b.y - a.y, b.x - a.x);
-      const ponte = new THREE.Group();
-      const madeira = toon({ color: RAMPAS.terra[3] }), escura = toon({ color: RAMPAS.terra[1] });
-      const vao = m.riacho.largura + 2.2;
-      for (let k = 0; k < 7; k++) {
-        const tabua = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, vao), k % 2 ? madeira : escura);
-        tabua.position.set((k - 3) * 0.45, 0, 0);
-        ponte.add(tabua);
-      }
-      for (const s of [-1, 1]) {
-        const corrimao = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, vao), escura);
-        corrimao.position.set(s * 1.6, 0.7, 0);
-        ponte.add(corrimao);
-        for (const z of [-vao / 2 + 0.3, 0, vao / 2 - 0.3]) {
-          const poste = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.75, 0.14), escura);
-          poste.position.set(s * 1.6, 0.35, z);
-          ponte.add(poste);
-        }
-      }
-      ponte.traverse((o) => (o.castShadow = o.receiveShadow = true));
-      ponte.rotation.y = -ang; // tábuas no sentido do riacho, vão atravessando-o
-      ponte.position.set(p.x, Math.max(p.h0, p.agua + 0.5) + 0.05, p.y);
-      this.scene.add(ponte);
-    }
+    this.aguaPercurso = criarAguaPercurso(this.mundo, toon);
+    this.scene.add(this.aguaPercurso);
+    this.travessias = criarTravessias(this.mundo, toon);
+    this.scene.add(this.travessias);
   }
 
   /** Vitórias-régias e taboas na beira do lago. */
@@ -778,82 +537,113 @@ float ruidoT(vec2 p) {
     this.selecionarNDC(new THREE.Vector2(((clienteX - r.left) / r.width) * 2 - 1, -((clienteY - r.top) / r.height) * 2 + 1));
   }
 
-  // --- Raio-X: copas na frente do cursor ficam "rendadas" -----------------
-  //
-  // Árvores altas escondem as baixas. Em volta do ponto do chão sob o cursor,
-  // tudo o que está NA FRENTE dele (mais perto da câmera) é desenhado em
-  // xadrez de pixels (descarte por matriz de Bayer 2×2), mais aberto no centro.
-  // É a mesma linguagem do pontilhado da paleta: continua sendo pixel art.
+  // --- Transparência da árvore inteira sob o ponteiro --------------------
 
-  criarRaioX() {
-    this.raioX = {
-      uFoco: { value: new THREE.Vector3() }, // ponto focado, no espaço da câmera
-      uRaio: { value: 8 },
-      uAtivo: { value: 0 },
-    };
-    this.focoMundo = null;
-    this.matArvore.onBeforeCompile = (sh) => {
-      Object.assign(sh.uniforms, this.raioX);
-      sh.vertexShader = sh.vertexShader
-        .replace("#include <common>", "#include <common>\nvarying vec3 vVista;")
-        .replace("#include <project_vertex>", "#include <project_vertex>\nvVista = mvPosition.xyz;");
-      sh.fragmentShader = sh.fragmentShader
-        .replace("#include <common>", "#include <common>\nuniform vec3 uFoco;\nuniform float uRaio;\nuniform float uAtivo;\nvarying vec3 vVista;")
-        .replace("void main() {", `void main() {
-  if (uAtivo > 0.5) {
-    float k = (1.0 - smoothstep(uRaio * 0.55, uRaio, length(vVista.xy - uFoco.xy))) * step(uFoco.z + 1.5, vVista.z);
-    vec2 p = mod(floor(gl_FragCoord.xy), 2.0);
-    float limiar = p.x < 0.5 ? (p.y < 0.5 ? 0.125 : 0.875) : (p.y < 0.5 ? 0.625 : 0.375);
-    if (k * 0.7 > limiar) discard;
-  }`);
-      estiloCopa(sh, this.uDireita ?? { value: new THREE.Vector2(1, 0) }, this.pixel.uniforms.uTexel);
-    };
-    this.matArvore.customProgramCacheKey = () => "arvore-raiox-copa-celulas";
-  }
-
-  /** Atualiza o ponto focado a partir da posição do cursor na tela (null = desliga). */
   focarEm(clienteX, clienteY) {
-    if (clienteX == null || !this.terreno) return (this.focoMundo = null);
-    const caixa = this.canvas.getBoundingClientRect();
-    const r = caixa.width && caixa.height ? caixa : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(new THREE.Vector2(((clienteX - r.left) / r.width) * 2 - 1, -((clienteY - r.top) / r.height) * 2 + 1), this.camera);
-    this.focoMundo = ray.intersectObject(this.terreno, false)[0]?.point ?? null;
+    if (!this.cursorArvore || clienteX == null) this.ultimoRastreio = -Infinity;
+    this.cursorArvore = clienteX == null ? null : { x: clienteX, y: clienteY };
+    if (!this.cursorArvore) this.restaurarSobrevoo();
   }
 
-  /** O ponto (mundo) está rendado pelo raio-X? Cliques atravessam essas partes. */
-  rendado(p) {
-    if (!this.raioX.uAtivo.value) return false;
-    const v = p.clone().applyMatrix4(this.camera.matrixWorldInverse), f = this.raioX.uFoco.value;
-    return v.z > f.z + 1.5 && Math.hypot(v.x - f.x, v.y - f.y) < this.raioX.uRaio.value * 0.8;
+  /** Devolve a árvore opaca antes de atualizar crescimento ou fazer raycast.
+   * A cópia translúcida nunca participa dos testes de interseção: não oscila
+   * entre a árvore da frente e as que ficaram visíveis atrás dela.
+   */
+  restaurarSobrevoo() {
+    const h = this.sobrevoo;
+    if (!h) return;
+    if (h.ind) {
+      h.malha.setMatrixAt(h.ind.vaga, h.matriz);
+      h.malha.instanceMatrix.needsUpdate = true;
+    } else h.malha.visible = true;
+    this.fantasma.visible = false;
+    this.sobrevoo = null;
+  }
+
+  encontrarArvore(ndc) {
+    this.camera.updateMatrixWorld();
+    this.scene.updateMatrixWorld();
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(ndc, this.camera);
+    const malhas = [...(this.viveiro ?? []), ...this.grupos.flatMap(g => g.malhas)];
+    for (const hit of ray.intersectObjects(malhas, false)) {
+      if (hit.object.userData.viveiro) return { malha: hit.object };
+      const info = this.malhaParaGrupo.get(hit.object);
+      const ind = info?.grupo.membros[hit.instanceId];
+      if (ind && ind.indice === info.estagio) return { malha: hit.object, ind };
+    }
+    return null;
+  }
+
+  atualizarSobrevoo(t) {
+    if (!this.cursorArvore) return;
+    // No máximo 15 buscas por segundo; movimento da câmera e crescimento
+    // também atualizam a interseção quando o cursor fica parado.
+    if (t - this.ultimoRastreio >= 1 / 15) {
+      const r = this.canvas.getBoundingClientRect(), p = this.cursorArvore;
+      this.alvoSobrevoo = this.encontrarArvore(new THREE.Vector2(
+        (p.x - r.left) / r.width * 2 - 1, -(p.y - r.top) / r.height * 2 + 1));
+      this.ultimoRastreio = t;
+    }
+    const h = this.alvoSobrevoo;
+    if (!h) return;
+    if (h.ind && h.ind.indice < 0) return; // o crescimento pode recuar para antes do nascimento
+    // O estágio pode mudar entre duas buscas. Usa sempre o modelo atual.
+    if (h.ind) h.malha = h.ind.grupo.malhas[h.ind.indice];
+    if (!this.fantasma) {
+      const material = this.matArvore.clone();
+      material.onBeforeCompile=this.matArvore.onBeforeCompile;
+      material.customProgramCacheKey=this.matArvore.customProgramCacheKey;
+      material.transparent = true;
+      material.opacity = 0.22;
+      material.depthWrite = false;
+      // Uma única superfície translúcida por pixel evita escurecer copas
+      // fechadas pela soma de frente e verso da mesma folha/lóbulo.
+      material.side = THREE.FrontSide;
+      this.fantasma = new THREE.Mesh(h.malha.geometry, material);
+      this.fantasma.matrixAutoUpdate = false;
+      this.fantasma.renderOrder = 2;
+      this.scene.add(this.fantasma);
+    }
+    const f = this.fantasma;
+    f.geometry = h.malha.geometry;
+    f.visible = true;
+    if (h.ind) {
+      h.matriz = new THREE.Matrix4();
+      h.malha.getMatrixAt(h.ind.vaga, h.matriz);
+      f.matrix.multiplyMatrices(h.malha.matrixWorld, h.matriz);
+      h.malha.getColorAt(h.ind.vaga, f.material.color);
+      h.malha.setMatrixAt(h.ind.vaga, this.matrizZero);
+      h.malha.instanceMatrix.needsUpdate = true;
+    } else {
+      f.matrix.copy(h.malha.matrixWorld);
+      f.material.color.copy(h.malha.material.color);
+      h.malha.visible = false;
+    }
+    f.matrixWorldNeedsUpdate = true;
+    this.sobrevoo = h;
   }
 
   /** Seleção a partir de coordenadas normalizadas da tela (-1..1). */
   selecionarNDC(ndc) {
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(ndc, this.camera);
+    this.restaurarSobrevoo();
+    const hit = this.encontrarArvore(ndc);
     const anterior = this.selecionado;
     const cor = new THREE.Color();
     if (anterior) for (const im of anterior.grupo.malhas) im.setColorAt(anterior.vaga, cor.setScalar(anterior.tom));
     this.selecionado = null;
-    const peca = ray.intersectObjects(this.viveiro ?? [], false).find((h) => !this.rendado(h.point));
+    const peca = hit?.malha.userData.viveiro ? hit.malha : null;
     if (peca) {
-      const d = peca.object.userData.viveiro;
+      const d = peca.userData.viveiro;
       const def = ESPECIES[d.especie];
       const enfeite = def.fruto ?? def.flor;
       const ESTAG = ["Broto", "Muda", "Jovem", "Adulta"];
       for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
       return this.aoSelecionar?.({ numero: "viveiro", nome: d.nome, especie: d.especie, estagio: ESTAG[d.estagio], extra: ["Vitrine do viveiro", ...(enfeite ? [`Adulta: com ${enfeite.nome}`] : [])] });
     }
-    for (const hit of ray.intersectObjects(this.grupos.flatMap((g) => g.malhas), false)) {
-      if (this.rendado(hit.point)) continue;
-      const info = this.malhaParaGrupo.get(hit.object);
-      const ind = info?.grupo.membros[hit.instanceId];
-      if (ind && ind.indice === info.estagio) {
-        this.selecionado = ind;
-        ind.grupo.malhas[ind.indice].setColorAt(ind.vaga, cor.setScalar(ind.tom * 1.35));
-        break;
-      }
+    if (hit?.ind) {
+      this.selecionado = hit.ind;
+      hit.malha.setColorAt(hit.ind.vaga, cor.setScalar(hit.ind.tom * 1.35));
     }
     for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
     const i = this.selecionado;
@@ -884,7 +674,7 @@ float ruidoT(vec2 p) {
       let n = 0;
       for (let t = 0; t < max * 5 && n < max; t++) {
         const x = rng() * m.largura, z = rng() * m.altura;
-        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5 || m.distRiacho(x, z) < m.riacho.largura * 0.5 + 0.6) continue;
+        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5 || m.distRiacho(x, z) < m.larguraRiacho(x,z) * 0.5 + 0.6) continue;
         const mancha = m.fino(x / 9, z / 9, 3);
         const margem = 1 - suave(1.05, 1.4, m.fatorLago(x, z));
         if (rng() > Math.min(1, suave(0.35, 0.65, mancha) * (1 - m.densidade(x, z) * 0.5) + margem)) continue;
@@ -1001,6 +791,7 @@ float ruidoT(vec2 p) {
   // --- Câmera e controles -------------------------------------------------
 
   redimensionar() {
+    if (this.descartado) return;
     // Sem tamanho ainda (aba/painel oculto): usa a janela; o ResizeObserver corrige depois.
     const caixa = this.canvas.getBoundingClientRect();
     const r = caixa.width && caixa.height ? caixa : { width: window.innerWidth || 800, height: window.innerHeight || 600 };
@@ -1038,8 +829,9 @@ float ruidoT(vec2 p) {
 
   ligarControles() {
     const c = this.canvas;
+    const signal = this.cancelamento.signal;
     const ponteiros = new Map();
-    let pinca = 0;
+    let pinca = 0, angulo = null;
     const mover = (dx, dy) => {
       // Arrastar move o chão sob o cursor (direita/frente da câmera projetadas no plano).
       const mpp = this.altura / c.clientHeight;
@@ -1050,53 +842,75 @@ float ruidoT(vec2 p) {
       this.limitar();
     };
     let inicio = null;
+    c.addEventListener("contextmenu", e => e.preventDefault(), { signal });
+    c.addEventListener("auxclick", e => { if (e.button === 1) e.preventDefault(); }, { signal });
     c.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && ![0, 1, 2].includes(e.button)) return;
+      if (e.button === 1) e.preventDefault(); // impede a rolagem automática da rodinha
       c.setPointerCapture(e.pointerId);
-      ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      inicio = ponteiros.size === 1 ? { x: e.clientX, y: e.clientY } : null;
-    });
+      this.focarEm(null);
+      const giro = e.button === 2 ? "inclinar" : e.button === 1 || e.shiftKey ? "girar" : null;
+      ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY, giro });
+      inicio = ponteiros.size === 1 && !giro ? { x: e.clientX, y: e.clientY } : null;
+      if (ponteiros.size === 2) {
+        const [p, q] = [...ponteiros.values()];
+        pinca = Math.hypot(p.x - q.x, p.y - q.y);
+        angulo = Math.atan2(q.y - p.y, q.x - p.x);
+      }
+    }, { signal });
     c.addEventListener("pointermove", (e) => {
       const a = ponteiros.get(e.pointerId);
       if (!a) {
-        if (e.pointerType === "mouse") this.focarEm(e.clientX, e.clientY); // mouse parado sobre o mapa
+        if (e.pointerType === "mouse" && !e.buttons) this.focarEm(e.clientX, e.clientY);
         return;
       }
-      const b = { x: e.clientX, y: e.clientY };
-      if (ponteiros.size === 1) mover(b.x - a.x, b.y - a.y);
+      const b = { x: e.clientX, y: e.clientY, giro: a.giro };
+      if (ponteiros.size === 1) {
+        if (a.giro === "inclinar") this.pitch = THREE.MathUtils.clamp(this.pitch + (b.y - a.y) * 0.006, THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(75));
+        else if (a.giro === "girar") this.yaw = this.yawAlvo += (b.x - a.x) * 0.008;
+        else mover(b.x - a.x, b.y - a.y);
+      }
       ponteiros.set(e.pointerId, b);
       if (ponteiros.size === 2) {
         const [p, q] = [...ponteiros.values()];
         const dd = Math.hypot(p.x - q.x, p.y - q.y);
-        if (pinca) this.zoom(pinca / dd);
-        pinca = dd;
+        const aa = Math.atan2(q.y - p.y, q.x - p.x);
+        if (pinca && dd > 2) this.zoom(pinca / dd);
+        if (angulo !== null && dd > 2) {
+          const delta = Math.atan2(Math.sin(aa - angulo), Math.cos(aa - angulo));
+          this.yaw = this.yawAlvo += delta;
+        }
+        pinca = dd; angulo = aa;
       }
-    });
+    }, { signal });
     const soltar = (e) => {
+      if (!ponteiros.has(e.pointerId)) return;
       ponteiros.delete(e.pointerId);
-      pinca = 0;
-      // Toque/clique curto (sem arrastar) seleciona a árvore sob o cursor.
-      if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) {
-        // No toque não há "passar o mouse": o raio-X fica onde se tocou.
-        if (e.pointerType !== "mouse") this.focarEm(e.clientX, e.clientY);
-        this.selecionarEm(e.clientX, e.clientY);
-      }
+      pinca = 0; angulo = null;
+      if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
       inicio = null;
+      const r = c.getBoundingClientRect();
+      if (!ponteiros.size && e.pointerType === "mouse" && e.type === "pointerup" && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) this.focarEm(e.clientX, e.clientY);
     };
-    c.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") this.focarEm(null); });
-    c.addEventListener("pointerup", soltar);
-    c.addEventListener("pointercancel", soltar);
+    c.addEventListener("pointerup", soltar, { signal });
+    c.addEventListener("pointercancel", soltar, { signal });
+    c.addEventListener("lostpointercapture", soltar, { signal });
+    c.addEventListener("pointerleave", () => this.focarEm(null), { signal });
     c.addEventListener("wheel", (e) => {
       e.preventDefault();
       this.zoom(Math.exp(e.deltaY * 0.0012));
-    }, { passive: false });
+    }, { passive: false, signal });
     this.teclas = new Set();
     window.addEventListener("keydown", (e) => {
-      if (e.target instanceof HTMLInputElement) return;
+      if (e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
       if (e.key === "q" || e.key === "Q") this.girar(-1);
       else if (e.key === "e" || e.key === "E") this.girar(1);
       else this.teclas.add(e.key.toLowerCase());
-    });
-    window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()));
+    }, { signal });
+    window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()), { signal });
+    window.addEventListener("blur", () => {
+      this.teclas.clear(); ponteiros.clear(); inicio = null; pinca = 0; angulo = null; this.focarEm(null);
+    }, { signal });
     this._mover = mover;
   }
 
@@ -1138,13 +952,28 @@ float ruidoT(vec2 p) {
       this.alvo.set(14, 0, this.mundo.altura + 28);
       this.altura = 46;
     } else {
-      this.alvo.set(this.mundo.largura * 0.55, 0, this.mundo.altura * 0.55);
-      this.altura = 70;
+      this.alvo.set(this.mundo.largura * 0.38, 4, this.mundo.altura * 0.38);
+      this.altura = 92;
     }
   }
 
+  recentrar() {
+    this.irAoViveiro(false);
+    this.yaw = this.yawAlvo = Math.PI / 4;
+    this.pitch = THREE.MathUtils.degToRad(38);
+  }
+
+  irParaLocal(id) {
+    const local=this.mundo.plano?.locais.find(l=>l.id===id);
+    if(!local)return false;
+    this.focarEm(null);
+    this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
+    this.altura=local.tipo==="agua"&&id==="lago"?52:32;
+    return true;
+  }
+
   zoom(f) {
-    this.altura = THREE.MathUtils.clamp(this.altura * f, 22, 130);
+    this.altura = THREE.MathUtils.clamp(this.altura * f, 8, 240);
   }
   girar(sentido) {
     this.yawAlvo += (sentido * Math.PI) / 4;
@@ -1162,6 +991,7 @@ float ruidoT(vec2 p) {
     this.relogio.update();
     const t = this.relogio.getElapsed();
     const dt = Math.min(0.05, this.relogio.getDelta());
+    this.restaurarSobrevoo();
     this.atualizarCrescimento();
     // Teclado: WASD / setas movem; giro animado até o próximo passo de 45°.
     const k = this.teclas, v = 280 * dt;
@@ -1175,19 +1005,15 @@ float ruidoT(vec2 p) {
       sa.uniforms.uTime.value = t;
       sa.uniforms.uBrilho.value = this.hora === "noite" ? 0.22 : this.hora === "entardecer" ? 0.7 : 1;
     }
-    const sr = this.riacho?.material.userData.shader;
-    if (sr) sr.uniforms.uTime.value = t;
+    for (const material of this.aguaPercurso?.userData.materiaisAnimados ?? []) {
+      const sr = material.userData.shader;
+      if (sr) sr.uniforms.uTime.value = t;
+    }
     if (this.vagalumes.visible) this.vagalumes.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.3);
 
     this.posicionarCamera();
-    this.uDireita?.value.set(Math.cos(this.yaw), -Math.sin(this.yaw));
-    const rx = this.raioX;
-    rx.uAtivo.value = this.focoMundo ? 1 : 0;
-    if (this.focoMundo) {
-      this.camera.updateMatrixWorld();
-      rx.uFoco.value.copy(this.focoMundo).applyMatrix4(this.camera.matrixWorldInverse);
-      rx.uRaio.value = this.altura * 0.17; // acompanha o zoom
-    }
+    this.uDireita.value.set(Math.cos(this.yaw),-Math.sin(this.yaw));
+    this.atualizarSobrevoo(t);
     const u = this.pixel.uniforms;
     this.renderer.setRenderTarget(this.rt);
     this.renderer.render(this.scene, this.camera);
@@ -1200,14 +1026,52 @@ float ruidoT(vec2 p) {
   }
 
   dispose() {
+    if (this.descartado) return;
+    this.descartado = true;
+    this.restaurarSobrevoo();
+    this.cursorArvore = this.alvoSobrevoo = null;
+    this.cancelamento.abort();
     cancelAnimationFrame(this.raf);
+    this.raf = null;
     this.ro?.disconnect();
-    this.scene.traverse((o) => {
-      o.geometry?.dispose();
-      for (const m of [].concat(o.material ?? [])) m.dispose();
-    });
+    this.ro = null;
+    this.teclas?.clear();
+    this.aoSelecionar = null;
+    this.selecionado = null;
+    if (!this.compilando) this.liberarRecursos();
+  }
+
+  liberarRecursos() {
+    if (this.recursosLiberados) return;
+    this.recursosLiberados = true;
+    // Geometrias e materiais de instâncias são compartilhados: liberar uma vez.
+    // Inclui variações ainda não plantadas e o quad de pós-processamento.
+    const geometrias = new Set(), materiais = new Set();
+    for (const cena of [this.scene, this.cena2d]) {
+      cena.traverse((o) => {
+        if (o.geometry) geometrias.add(o.geometry);
+        for (const m of [].concat(o.material ?? [])) materiais.add(m);
+        if (o.isInstancedMesh) o.dispose();
+        o.shadow?.dispose();
+      });
+      cena.clear();
+    }
+    for (const v of this.variacoes ?? []) {
+      for (const g of v.estagios) geometrias.add(g);
+    }
+    materiais.add(this.matArvore);
+    for (const g of geometrias) g.dispose();
+    for (const m of materiais) m.dispose();
+    // A rampa toon é um cache do módulo, reutilizado entre Jardins; não pertence
+    // à instância, portanto continua disponível para o próximo Jardim.
     this.rt?.dispose();
+    this.relogio.dispose();
     this.renderer.dispose();
+    this.variacoes = [];
+    this.individuos = [];
+    this.grupos = [];
+    this.viveiro = [];
+    this.malhaParaGrupo?.clear();
   }
 
   info() {

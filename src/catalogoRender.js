@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { construirVariacao } from "./arvoreProc.js";
 import { criarMaterialPixel } from "./pixel.js";
 import { RAMPAS } from "./paleta.js";
+import { aplicarEstiloCopa } from "./estiloCopa.js";
 
 export function criarRenderizadorCatalogo() {
   const canvas=document.createElement("canvas");
@@ -22,6 +23,8 @@ export function criarRenderizadorCatalogo() {
   cena.add(sol,sol.target);
   const rt=new THREE.WebGLRenderTarget(160,120,{type:THREE.HalfFloatType,minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthTexture:new THREE.DepthTexture(160,120)});
   const pixel=criarMaterialPixel(), tela=new THREE.Scene();
+  const direitaCopa={value:new THREE.Vector2(1,0)}, eixoDireitaCopa=new THREE.Vector3();
+  aplicarEstiloCopa(material,direitaCopa,pixel.uniforms.uTexel);
   const quad=new THREE.PlaneGeometry(2,2); tela.add(new THREE.Mesh(quad,pixel));
   const camTela=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   let encerrado=false;
@@ -43,6 +46,9 @@ export function criarRenderizadorCatalogo() {
         camera.top=margem; camera.bottom=-margem;
         camera.position.set(margem*2.3,margem*2.5,margem*3.1); camera.lookAt(0,0,0);
         camera.updateProjectionMatrix();
+        eixoDireitaCopa.set(1,0,0).applyQuaternion(camera.quaternion);
+        direitaCopa.value.set(eixoDireitaCopa.x,eixoDireitaCopa.z).normalize();
+        pixel.uniforms.uTexel.value=margem*2/120;
         sol.position.set(-margem*3,margem*5,margem*3);
         const sc=sol.shadow.camera;
         sc.left=sc.bottom=-margem*2; sc.right=sc.top=margem*2;

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verificação de câmera e transparência</title>
+<style>body{font:16px system-ui;background:#141c18;color:#e9e3d1;margin:20px}button{padding:8px;margin:4px}canvas{display:block;width:min(960px,100%);height:580px;touch-action:none}li{margin:6px}#resultados{height:240px;overflow:auto}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<h1>Câmera e transparência por árvore</h1>
+<button id="executar">Executar verificações</button><button id="opaca" disabled>Mostrar árvore opaca</button><button id="transparente" disabled>Mostrar transparência</button>
+<p id="estado" role="status">Aguardando.</p><ol id="resultados"></ol>
+<canvas id="canvas"></canvas>
+<script type="module" src="./camera-transparencia.js"></script>
+</html>

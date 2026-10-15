@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-14",
-  "versaoAtual": "v0.17",
+  "atualizado": "2026-10-15",
+  "versaoAtual": "v0.18",
   "proximoPasso": {
-    "titulo": "Revisar o mapa maior; depois a seca das árvores",
-    "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
+    "titulo": "Revisar a paisagem e construir os lugares",
+    "descricao": "Conferir encostas, cascatas e escadas na demo pública. Depois desenvolver chegada, mirante e pavilhão nas áreas reservadas."
   },
   "frentes": [
     {
@@ -15,8 +15,8 @@
     {
       "nome": "Árvores",
       "status": "andamento",
-      "progresso": 88,
-      "nota": "36 espécies + 4 arbustos (14 brasileiras), 19 formas; catálogo com todas no diário."
+      "progresso": 84,
+      "nota": "36 espécies e 4 arbustos, incluindo as oito brasileiras da v0.17; folhagem com volume da v0.16 preservada."
     },
     {
       "nome": "Ecossistema",
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Mapa 260 × 170 m com terraços, riacho com cascatas e lago proporcional. Falta: acabamento da escada, segundo riacho."
+      "nota": "Encostas largas em crista, ombro e saia; terra em camadas, bordas de grama, escadas legíveis e cascatas com espuma."
     },
     {
       "nome": "Vida e clima",
@@ -46,51 +46,88 @@
   "quadro": {
     "funciona": [
       "Pixel art com pixel mínimo e contorno",
-      "28 espécies e 4 arbustos, cada um com 4 fases diferentes de verdade",
+      "36 espécies e 4 arbustos, com quatro estágios",
       "Flores e frutos nas adultas (maçãs, laranjas, cocos, frutinhas)",
-      "Formas variadas: copa redonda, oval, cônica, colunar, pendente, guarda-chuva, palmeira, bananeira, baobá, bambu, araucária, cogumelo, cristal",
+      "Formas variadas, incluindo candelabro, palmeira de leque, açaí em touceira e copa esparramada",
       "Cada fase com identidade: broto no montinho, muda com estaca, jovem esguia com primeira florada, adulta com raízes e frutos",
       "Ecossistema: solo, luz, nicho e vigor",
       "Viveiro para ver todas as espécies",
       "Clique mostra a ficha da árvore",
       "Carregamento rápido (sem biblioteca de árvores)",
       "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
-      "Raio-X: copas na frente do cursor ficam rendadas em pixel (cliques atravessam)",
-      "Relevo em terraços: platôs planos, paredões verticais de pedra em blocos, escadas de pedra na trilha",
-      "Riacho que desce do platô mais alto até o lago, com cascatas nos paredões, espuma, pedras e ponte de madeira",
-      "Paredões com padrão limpo: colunas regulares com chanfro, topo claro e pé na sombra",
-      "Mapa 2× maior (260 × 170 m), carregando no mesmo tempo de antes (~4,5 s de cálculo)",
+      "Encostas de terra em camadas e três patamares assimétricos, sem anéis concêntricos",
+      "Mapa de 260 × 170 m, com cache dos campos do terreno",
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
       "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
-      "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)",
-      "Folhagem com anatomia 3D: tufos orgânicos sobre cada volume, iluminados pelo sol, sombra só embaixo de cada tufo",
-      "8 árvores brasileiras novas: embaúba, buriti, açaí, cajueiro, paineira, pau-brasil, quaresmeira, jequitibá",
-      "Catálogo de espécies no diário (feito pelo GPT) com filtro 'Brasileiras' e as 4 fases de cada uma"
+      "Copas com topo claro, base sombreada e aglomerados de folhas iluminados em 3D",
+      "Folhagem volumétrica da v0.16 em todas as prévias e no bosque",
+      "Troca de mundo cancela a carga anterior e remove controles antigos",
+      "Transformações de arquitetura entre broto, muda, jovem e adulta",
+      "Vitrine Evolução para comparar formas sem depender do tamanho",
+      "Catálogo visual de todas as espécies no diário, com busca e prévias por estágio",
+      "Giro livre, inclinação e zoom ampliado, com resolução constante",
+      "Árvore sob o mouse fica translúcida por inteira, revelando as de trás",
+      "Terreno planejado: variar o plantio preserva lugares e percursos",
+      "Ponte alinhada com a estrada, patamares de acesso e degraus de pedra sólidos",
+      "Cascatas verticais, poços alargados e margens 3D conectadas",
+      "Planta interativa do terreno com reservas de construção e acesso aos lugares em 3D",
+      "Escadas com pisos claros, espelhos escuros e bordas baixas contínuas",
+      "Cascatas com fios variados e espuma em arcos quebrados"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça",
       "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
-      "Encontro da escada da trilha com o barranco ainda tem uma faixa cinza sem acabamento",
-      "Prévias do catálogo ainda sem a folhagem desenhada (v0.14–v0.16) — usar o mesmo material do jogo"
+      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
-      "Próximas brasileiras: pequizeiro (cerrado, tronco torto), aroeira, sibipiruna, ipê-branco, carnaúba, cambuci, guapuruvu",
-      "Segundo riacho e lagoas menores; regiões para os 5 biomas no mapa maior",
+      "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
+      "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
       "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
       "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
       "Clima e bichos refletem o ritmo geral de estudo",
+      "Próximas espécies: pau-brasil, araçá, embaúba; fantasia: cogumelo azul, árvore-nuvem",
       "Estações do ano (ipês florindo, outono, inverno sem folhas)",
       "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago",
       "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
       "Botão 'ver troncos' (abaixa as copas por um instante)",
-      "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões",
-      "Mesmo cuidado de textura nos troncos (casca com veios) e nas pedras soltas"
+      "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões"
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.18",
+      "data": "2026-10-15",
+      "titulo": "Encostas de terra e escadarias com leitura de jogo",
+      "porque": "Os paredões pareciam barras repetidas, e a forma do terreno produzia anéis e recortes estreitos sem continuidade.",
+      "mudancas": [
+        "Crista, ombro e saia com contornos próprios, largos e conectados",
+        "Terra em camadas, crosta sob a grama e pequenas bordas em volume",
+        "Pisos claros, espelhos escuros e bordas baixas nas escadas de pedra",
+        "Cascatas com fios variados, lábios claros e espuma organizada"
+      ],
+      "resultado": "Mantidos pixel 2, paleta, contorno e luz toon. Incorpora as árvores e a folhagem do Claude até a v0.17. Vista inicial enquadra a paisagem; as construções do plano continuam propostas.",
+      "imagens": [
+        {
+          "src": "historico/v0.18-encostas.jpg",
+          "legenda": "Terra, escadas e cascata no terreno redesenhado"
+        },
+        {
+          "src": "historico/v0.18-paisagem.jpg",
+          "legenda": "Vista inicial da paisagem conectada"
+        },
+        {
+          "src": "historico/v0.18-planta.jpg",
+          "legenda": "Crista, ombro e saia com contornos próprios, sem círculos concêntricos"
+        },
+        {
+          "src": "historico/codex-relevo-antes.jpg",
+          "legenda": "Antes: paredes em blocos regulares e acabamento anterior das escadas"
+        }
+      ]
+    },
     {
       "versao": "v0.17",
       "data": "2026-10-14",
@@ -134,6 +171,117 @@
         {
           "src": "historico/v0.16-folhagem-perto.jpg",
           "legenda": "De perto: tufos iluminados pelo sol, sombra embaixo"
+        }
+      ]
+    },
+    {
+      "versao": "v0.15 + jardim planejado",
+      "data": "2026-10-14",
+      "titulo": "Um jardim desenhado, com caminhos que chegam aos lugares",
+      "porque": "O terreno precisava de continuidade e composição, com água, escadas e arquitetura planejadas em conjunto.",
+      "mudancas": [
+        "Desenho fixo do relevo, estrada, nascente, três cascatas, dois poços e lago",
+        "Ponte de pedra alinhada à estrada e escadas com pisos e espelhos reais",
+        "Margens contínuas e textura da rocha presa ao mundo, sem listras que giram com a câmera",
+        "Planta interativa com oito lugares e áreas reservadas para chegada, mirante e pavilhão"
+      ],
+      "resultado": "Plano e correções combinados com a v0.15 do Claude: mapa de 260×170m, novo chão e folhas preservados. Os edifícios continuam propostas; lote ainda sem publicação na demo.",
+      "imagens": [
+        {
+          "src": "historico/codex-plano-terreno.jpg",
+          "legenda": "Planta do terreno real, com percursos e lugares planejados"
+        },
+        {
+          "src": "historico/codex-ponte-escadas.jpg",
+          "legenda": "Ponte e escadas de pedra conectadas à estrada"
+        },
+        {
+          "src": "historico/codex-cascatas-margens.jpg",
+          "legenda": "Cascatas e margens contínuas no terreno planejado"
+        }
+      ]
+    },
+    {
+      "versao": "v0.9 + câmera e transparência",
+      "data": "2026-10-14",
+      "titulo": "Ver o bosque por todos os ângulos",
+      "porque": "O círculo quadriculado escondia a forma das árvores; a intenção é enxergar as que estão atrás.",
+      "mudancas": [
+        "Só a árvore sob o mouse fica translúcida por inteira, com 22% de opacidade",
+        "Sem círculo ou furos quadriculados; sair do mouse restaura a árvore",
+        "Botão do meio gira, direito inclina, rodinha aproxima/afasta e casa recentra",
+        "Modelos, paleta, contornos e resolução preservados durante o movimento"
+      ],
+      "resultado": "Testado em proposta de integração; ainda sem publicação na demo.",
+      "imagens": [
+        {
+          "src": "historico/codex-arvore-translucida.jpg",
+          "legenda": "Árvore inteira translúcida; árvores vizinhas permanecem opacas"
+        },
+        {
+          "src": "historico/codex-arvore-opaca.jpg",
+          "legenda": "Mesma vista antes da transparência: copa cobre o fundo"
+        }
+      ]
+    },
+    {
+      "versao": "v0.7 + catálogo",
+      "data": "2026-10-14",
+      "titulo": "Todas as espécies visíveis no diário",
+      "porque": "O diário mostrava as versões, mas faltava uma maneira de ver cada espécie presente.",
+      "mudancas": [
+        "Catálogo visual das 28 espécies, atualizado a partir do jogo",
+        "Busca por nome, forma, flor ou fruto e filtros por grupo",
+        "Prévia de broto, muda, jovem ou adulta",
+        "Cada cartão abre os quatro estágios da espécie escolhida"
+      ],
+      "resultado": "Catálogo integrado ao diário; linha do tempo e registros anteriores preservados. Alteração na proposta de integração, ainda sem publicação na demo.",
+      "imagens": [
+        {
+          "src": "historico/codex-catalogo-diario.jpg",
+          "legenda": "Catálogo do diário: imagens, busca, filtros e acesso aos estágios"
+        }
+      ]
+    },
+    {
+      "versao": "v0.7 + transformações",
+      "data": "2026-10-14",
+      "titulo": "Crescer é ganhar uma nova forma",
+      "porque": "Cada etapa deve parecer uma conquista, além de aumentar tamanho e volume.",
+      "mudancas": [
+        "Broto com folhas isoladas; muda com primeiros ramos",
+        "Jovem bifurcada e aberta; adulta com raízes e copa consolidada",
+        "Palmeiras, coníferas, arbustos e cogumelos com sequências próprias",
+        "Vitrine Evolução compara as quatro formas de cada espécie"
+      ],
+      "resultado": "Transformações combinadas com as oito novas espécies do Claude; 28 espécies na comparação. Proposta separada, ainda sem publicação na demo.",
+      "imagens": [
+        {
+          "src": "historico/codex-transformacoes-carvalho.jpg",
+          "legenda": "Carvalho: folhas, ramos, copa aberta e maturidade"
+        },
+        {
+          "src": "historico/codex-transformacoes-cogumelo.jpg",
+          "legenda": "Cogumelo: botão fechado, abertura do chapéu e colônia"
+        }
+      ]
+    },
+    {
+      "versao": "v0.6 + preparação",
+      "data": "2026-10-14",
+      "titulo": "Cena pronta para entrar e sair do site",
+      "porque": "Ao trocar de mundo ou sair da página, uma cena antiga não deve continuar trabalhando.",
+      "mudancas": [
+        "Carregamento antigo para entre etapas",
+        "Teclado e animação são desligados ao encerrar",
+        "Recursos gráficos são liberados uma vez",
+        "Escopo registrado para combinar com o Claude"
+      ],
+      "resultado": "Lote combinado com a v0.6 do Claude em branch separada; ainda sem dados de estudo.",
+      "imagens": [
+        {
+          "src": "historico/codex-ciclo-de-vida.jpg",
+          "legenda": "Clareira da v0.6 preservada após a preparação do encerramento da cena"
         }
       ]
     },

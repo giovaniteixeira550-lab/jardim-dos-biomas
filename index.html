@@ -23,7 +23,7 @@
   #mapa:active { cursor: grabbing; }
 
   .hud { position: fixed; z-index: 2; background: var(--painel); border: 2px solid var(--borda); box-shadow: 4px 4px 0 var(--tinta); }
-  .titulo { top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; padding: 8px 12px; max-width: calc(100% - 24px); }
+  .titulo { top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; padding: 8px 12px; max-width: calc(100% - 330px); }
   .titulo h1 { margin: 0; font-family: var(--display); font-size: 15px; letter-spacing: 0.06em; color: var(--acento); font-weight: 400; }
   .titulo p { margin: 4px 0 0; font-size: 12px; color: var(--suave); }
   .link-historico { margin-left: 8px; font-family: var(--corpo); font-size: 11px; color: var(--alerta); letter-spacing: 0; vertical-align: middle; }
@@ -61,6 +61,9 @@
 
   @media (max-width: 560px) {
     .titulo p { display: none; }
+    .titulo { max-width: calc(100% - 24px); }
+    .giro { top: calc(68px + env(safe-area-inset-top, 0px)); }
+    .ficha { top: calc(116px + env(safe-area-inset-top, 0px)); }
     .painel { gap: 8px; padding: 8px; }
     .dica { display: none; }
   }
@@ -79,8 +82,8 @@
 <canvas id="mapa" aria-label="Mapa do jardim: clareira com bosque, lago e trilha, em pixel art vista do alto em ângulo"></canvas>
 
 <header class="hud titulo">
-  <h1>JARDIM DOS BIOMAS <a class="link-historico" href="historico.html">Histórico</a></h1>
-  <p>Demo de arte · clareira · arraste para mover · roda/pinça = zoom · Q/E gira · clique numa árvore</p>
+  <h1>JARDIM DOS BIOMAS <a class="link-historico" href="historico.html">Histórico</a> <a class="link-historico" href="evolucao.html">Evolução</a> <a class="link-historico" href="planejamento.html">Plano</a></h1>
+  <p>Demo de arte · clareira · arraste para mover · meio/Shift + arraste = giro · direito + arraste vertical = inclinação · roda/pinça = zoom · passe o mouse na árvore para ver atrás</p>
 </header>
 
 <div class="hud giro" role="group" aria-label="Câmera">
@@ -88,6 +91,7 @@
   <button id="zoom-mais" type="button" title="Aproximar" aria-label="Aproximar">+</button>
   <button id="zoom-menos" type="button" title="Afastar" aria-label="Afastar">−</button>
   <button id="girar-dir" type="button" title="Girar 45° (E)" aria-label="Girar câmera para a direita">⟳</button>
+  <button id="recentrar" type="button" title="Voltar à visão inicial" aria-label="Recentrar câmera">⌂</button>
   <button id="viveiro" type="button" aria-pressed="false" title="Ver todas as espécies e estágios">Viveiro</button>
 </div>
 
@@ -110,7 +114,7 @@
       <button type="button" data-hora="entardecer" aria-pressed="false">Entardecer</button>
       <button type="button" data-hora="noite" aria-pressed="false">Noite</button>
     </div>
-    <button id="novo" type="button">Novo mundo</button>
+    <button id="novo" type="button">Variar plantio</button>
   </div>
   <p class="dica" id="info">Semente 1234</p>
 </section>
