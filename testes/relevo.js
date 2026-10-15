@@ -20,7 +20,7 @@ $("executar").onclick=async()=>{
     const margemRay=new THREE.Raycaster();let margensConferidas=0;
     for(let i=3;i<m.riacho.pontos.length-3;i+=8) {
       const p=m.riacho.pontos[i],a=m.riacho.pontos[i-1],b=m.riacho.pontos[i+1];
-      const d=Math.hypot(b.x-a.x,b.y-a.y);if(!d||a.agua!==b.agua)continue;
+      const d=Math.hypot(b.x-a.x,b.y-a.y);if(!d||a.agua!==b.agua||m.fatorLago(p.x,p.y)<1.06)continue;
       for(const lado of [-1,1]) {
         const r=(p.largura/2+0.25)*lado,x=p.x-(b.y-a.y)/d*r,y=p.y+(b.x-a.x)/d*r;
         margemRay.set(new THREE.Vector3(x,p.agua+2,y),new THREE.Vector3(0,-1,0));

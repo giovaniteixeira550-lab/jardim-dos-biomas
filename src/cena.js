@@ -16,6 +16,7 @@ import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
 import { estiloCopa } from "./estiloCopa.js";
+import { criarLago } from "./aguaLago.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarPonteMadeira } from "./ponteMadeira.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
@@ -288,7 +289,7 @@ export class Jardim {
       if (trilha < 0.56) c.set(T[n2 > 0.8 ? 5 : 4]);
       else if (trilha < 0.7) c.set(T[2]);
       // Margem e fundo do lago.
-      if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : f < 0.985 ? 1 : 4]); // faixa clara rente à margem: a borda ciano das referências
+      if (f < 1.0) c.set(f < .85 ? RAMPAS.agua[0] : f < .975 ? RAMPAS.terra[2] : RAMPAS.salvia[2]); // faixa clara rente à margem: a borda ciano das referências
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
@@ -347,31 +348,7 @@ export class Jardim {
   }
 
   criarAgua() {
-    const L = this.mundo.lago;
-    const forma = new THREE.Shape(L.contorno.map((p) => new THREE.Vector2(p.x, -p.y)));
-    const g = new THREE.ShapeGeometry(forma, 6);
-    g.rotateX(-Math.PI / 2);
-    const mat = toon({ color: BASE.agua, transparent: true, opacity: 0.9 });
-    // Reflexos: faixas que andam e viram pixels claros depois da quantização.
-    mat.onBeforeCompile = (shader) => {
-      shader.uniforms.uTime = { value: 0 };
-      shader.uniforms.uBrilho = { value: 1 };
-      mat.userData.shader = shader;
-      shader.vertexShader = "varying vec3 vMundo;\n" + shader.vertexShader.replace("#include <worldpos_vertex>", "#include <worldpos_vertex>\nvMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-      shader.fragmentShader =
-        "uniform float uTime; uniform float uBrilho; varying vec3 vMundo;\n" +
-        shader.fragmentShader.replace(
-          "#include <emissivemap_fragment>",
-          `#include <emissivemap_fragment>
-          // Brilhos curtos e esparsos (1–2 pixels), que andam devagar.
-          float onda = sin(vMundo.x * 3.1 + vMundo.z * 1.1 + uTime * 0.8) * sin(vMundo.z * 3.7 - vMundo.x * 1.3 - uTime * 0.6) * sin(vMundo.x * 0.9 + vMundo.z * 0.7 + uTime * 0.25);
-          totalEmissiveRadiance += vec3(0.5, 0.7, 0.7) * uBrilho * step(0.8, onda);`,
-        );
-    };
-    this.agua = new THREE.Mesh(g, mat);
-    this.agua.position.y = -0.55;
-    this.agua.receiveShadow = true;
-    this.scene.add(this.agua);
+    this.agua=criarLago(this.mundo,toon);this.scene.add(this.agua);
   }
 
   /**

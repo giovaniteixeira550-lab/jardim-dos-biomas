@@ -42,7 +42,7 @@ function amostraEm(pontos,s) {
   return {...p,x:misturar(p.x,q.x,t),y:misturar(p.y,q.y,t),s,h:misturar(p.h,q.h,t)};
 }
 
-export function organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:H,DEGRAU,plano}) {
+export function organizarPercursos({trilha,riacho,lago,fatorLago,altitude,grade:G,alturas:H,DEGRAU,plano}) {
   const eixo=medir(trilha.pontos), comprimento=eixo.at(-1).s;
   const amostras=[];
   for(let s=0;s<comprimento;s+=0.5) {
@@ -148,6 +148,7 @@ export function organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:
     }
     if(rio&&rio.d<meia+1.8) {
       const leito=rio.agua-0.5;
+      if(fatorLago?.(x,y)<.98){H[k]=Math.min(H[k],leito);continue;}
       const margem=Math.max(H[k],rio.agua+0.18);
       const canal=misturar(leito,margem,suave(meia+0.45,meia+0.95,rio.d));
       H[k]=misturar(canal,H[k],suave(meia+0.95,meia+1.8,rio.d));

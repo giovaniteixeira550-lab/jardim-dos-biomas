@@ -42,21 +42,30 @@ function quadColorido(faces, a, b, c, d, cor) {
   for (let i = inicio; i < faces.pos.length / 3; i++) faces.cores.push(tinta.r, tinta.g, tinta.b);
 }
 
-function materialCorrenteza(toon) {
+function materialCorrenteza(toon,lago) {
   const mat = toon({ color: RAMPAS.agua[3], side: THREE.DoubleSide });
   mat.name = "agua-correnteza-toon";
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = { value: 0 };
+    shader.uniforms.uCostaLago={value:lago.contorno.map(p=>new THREE.Vector2(p.x,p.y))};
+    shader.uniforms.uCaixaLago={value:new THREE.Vector4(lago.cx,lago.cy,lago.rx*1.35,lago.ry*1.35)};
     shader.uniforms.uBorda = { value: new THREE.Color(RAMPAS.agua[4]) };
     shader.uniforms.uEspuma = { value: new THREE.Color(RAMPAS.agua[5]) };
     shader.uniforms.uAguaFunda = { value: new THREE.Color(RAMPAS.agua[2]) };
     mat.userData.shader = shader;
-    shader.vertexShader = "attribute float aDist; attribute float aLado; attribute float aQueda; varying float vDist; varying float vLado; varying float vQueda;\n" +
-      shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvDist = aDist; vLado = aLado; vQueda = aQueda;");
-    shader.fragmentShader = "uniform float uTime; uniform vec3 uBorda; uniform vec3 uEspuma; uniform vec3 uAguaFunda; varying float vDist; varying float vLado; varying float vQueda;\n" +
+    shader.vertexShader = "varying vec2 vPlanoAgua; attribute float aDist; attribute float aLado; attribute float aQueda; varying float vDist; varying float vLado; varying float vQueda;\n" +
+      shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvPlanoAgua=position.xz; vDist = aDist; vLado = aLado; vQueda = aQueda;");
+    shader.fragmentShader = `uniform vec2 uCostaLago[${lago.contorno.length}]; uniform vec4 uCaixaLago; varying vec2 vPlanoAgua;\n` + "uniform float uTime; uniform vec3 uBorda; uniform vec3 uEspuma; uniform vec3 uAguaFunda; varying float vDist; varying float vLado; varying float vQueda;\n" +
       shader.fragmentShader.replace(
         "#include <color_fragment>",
         `#include <color_fragment>
+        // A superfície do rio termina na costa exata: não há duas águas
+        // coplanares competindo no interior do lago.
+        if(vQueda<.5 && abs(vPlanoAgua.x-uCaixaLago.x)<uCaixaLago.z && abs(vPlanoAgua.y-uCaixaLago.y)<uCaixaLago.w){
+          bool dentro=false;vec2 b=uCostaLago[${lago.contorno.length-1}];
+          for(int i=0;i<${lago.contorno.length};i++){vec2 a=uCostaLago[i];if((a.y>vPlanoAgua.y)!=(b.y>vPlanoAgua.y)){if(vPlanoAgua.x<(b.x-a.x)*(vPlanoAgua.y-a.y)/(b.y-a.y)+a.x)dentro=!dentro;}b=a;}
+          if(dentro)discard;
+        }
         // Cortina: a coordenada lateral deformada produz fios de larguras
         // diferentes; o desenho acompanha a água, sem uma grade de pontos.
         float u = vLado * 0.5 + 0.5;
@@ -76,6 +85,8 @@ function materialCorrenteza(toon) {
         } else {
           // Poucas meias-luas largas no trecho calmo, com uma abertura por
           // arco. Não há brilho independente em cada coluna do riacho.
+          float profundidade=1.0-abs(vLado);
+          diffuseColor.rgb=mix(diffuseColor.rgb,uAguaFunda,step(.34,profundidade)*.28);
           float viagem = vDist * 0.245 - uTime * 0.2;
           float celula = floor(viagem);
           float sorte = fract(sin(celula * 91.31 + 37.13) * 15731.743);
@@ -88,7 +99,7 @@ function materialCorrenteza(toon) {
         }`,
       ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += luzAgua;");
   };
-  mat.customProgramCacheKey = () => "agua-percurso-arcos-cortinas-2";
+  mat.customProgramCacheKey = () => "agua-percurso-costa-4-"+lago.contorno.length;
   return mat;
 }
 
@@ -144,6 +155,7 @@ export function criarAguaPercurso(mundo, materialToon) {
     // Bordas laterais fechadas compartilham exatamente a meia-esquadria da
     // água. O tampo estreito cobre a interpolação do leito, sem cruzar o canal.
     for (const lado of [-1, 1]) {
+      if(mundo.fatorLago?.((a.x+b.x)/2,(a.z+b.z)/2)<1.025)continue;
       const secaoMargem = (p) => {
         const nl = Math.hypot(p.nx, p.nz) || 1;
         const x = p.x + p.nx * lado, z = p.z + p.nz * lado;
@@ -219,7 +231,7 @@ export function criarAguaPercurso(mundo, materialToon) {
   }
 
   if (!fita.pos.length && !cortinas.pos.length) return grupo;
-  const material = materialCorrenteza(materialToon);
+  const material = materialCorrenteza(materialToon,mundo.lago);
   grupo.userData.materiaisAnimados.push(material);
   for (const [faces, nome] of [[fita, "superficie-riacho"], [cortinas, "cortinas-cascatas"]]) {
     if (!faces.pos.length) continue;
