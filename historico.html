@@ -61,6 +61,22 @@
   .proximo strong { display: block; font-size: 18px; color: var(--ambar); margin-bottom: 4px; }
   .proximo p { margin: 0; max-width: 70ch; }
 
+  /* Plano */
+  .plano { border-color: var(--azul); display: grid; gap: 12px; }
+  .plano > strong { font-size: 18px; color: var(--azul); }
+  .plano > p { margin: 0; max-width: 75ch; }
+  .plano h3 { margin: 0 0 6px; font-family: var(--display); font-weight: 400; font-size: 12px; letter-spacing: 0.05em; color: var(--azul); }
+  .regras { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+  .regras li { background: var(--fundo); padding: 8px 10px; border-left: 4px solid var(--azul); font-size: 14px; }
+  .regras strong { display: block; color: var(--azul); }
+  .mapa { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mapa span { background: var(--fundo); border: 2px solid #2f5236; padding: 3px 8px; font-size: 13px; }
+  .mapa b { color: var(--ambar); font-weight: 600; }
+  .passos { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: p; }
+  .passos li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; background: var(--fundo); padding: 6px 10px; font-size: 14px; }
+  .passos li::before { counter-increment: p; content: counter(p); font-family: var(--display); color: var(--azul); }
+  .passos small { white-space: nowrap; }
+
   /* Frentes */
   .frentes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
   .frente { background: var(--painel2); border: 2px solid #2f5236; padding: 12px; display: grid; gap: 6px; min-width: 0; }
@@ -135,6 +151,15 @@
     <p id="proximo-descricao"></p>
   </section>
 
+  <section class="bloco plano" aria-labelledby="t-plano" id="plano" hidden>
+    <h2 id="t-plano">PLANO</h2>
+    <strong id="plano-titulo"></strong>
+    <p id="plano-resumo"></p>
+    <div><h3>COMO VAI FUNCIONAR</h3><ul class="regras" id="plano-regras"></ul></div>
+    <div><h3>ESPÉCIE DE CADA TEMA (RASCUNHO)</h3><div class="mapa" id="plano-mapa"></div></div>
+    <div><h3>PASSOS</h3><ol class="passos" id="plano-passos"></ol></div>
+  </section>
+
   <section aria-labelledby="t-frentes">
     <h2 id="t-frentes">ONDE ESTAMOS <span class="atualizado" id="atualizado"></span></h2>
     <div class="frentes" id="frentes"></div>
@@ -190,6 +215,16 @@
       $("atualizado").textContent = `· atualizado em ${fmt(h.atualizado)}`;
       $("proximo-titulo").textContent = h.proximoPasso.titulo;
       $("proximo-descricao").textContent = h.proximoPasso.descricao;
+
+      if (h.plano) {
+        const p = h.plano;
+        $("plano").hidden = false;
+        $("plano-titulo").textContent = p.titulo;
+        $("plano-resumo").textContent = p.resumo;
+        for (const r of p.regras) $("plano-regras").append(el("li", {}, el("strong", {}, r.titulo), r.texto));
+        for (const m of p.especies) $("plano-mapa").append(el("span", { title: m.porque }, `${m.tema} → `, el("b", {}, m.especie)));
+        for (const s of p.passos) $("plano-passos").append(el("li", {}, el("span", {}, s.nome), el("small", { class: s.status }, `${s.tamanho} · ${STATUS[s.status]}`)));
+      }
 
       for (const f of h.frentes) {
         const barra = el("div", { class: "barra", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(f.progresso), "aria-label": f.nome }, el("i"));

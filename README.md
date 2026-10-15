@@ -16,7 +16,7 @@ Demo **independente** do Med Study Flow para definir e lapidar a arte do Jardim 
 
 | Pilar | Regra |
 |---|---|
-| Câmera | Ortográfica em ¾ (38° acima do horizonte), gira em passos de 45°; "snap" ao grid de pixels para não tremer |
+| Câmera | Ortográfica (38° inicial, inclinação de 20° a 75° pelo arraste vertical com botão direito), gira livremente com botão do meio/Shift + arraste ou torção de dois dedos; Q/E e botões giram 45°; "snap" ao grid de pixels para não tremer |
 | Pixel | Cena renderizada com pixel mínimo (2); ampliada sem suavização |
 | Luz | Toon em 3 faixas (sombra 105 / meio-tom 178 / luz 255); sombras duras (`BasicShadowMap`) |
 | Cor | **Só a paleta** (`src/paleta.js`, ~40 cores em rampas); quantização + Bayer 4×4 no pós-processamento |
@@ -46,9 +46,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.7 + preparação, transformações e catálogo)
+## 3. Estado atual (v0.9 + câmera, transparência e catálogo)
 
-- O histórico acompanha v0.1–v0.7. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.9. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
@@ -63,12 +63,16 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 
 Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar verificações**. A página usa o motor real e testa cancelamento imediato, descarte parcial, espera de compilação, renderização/teclado/foco, remontagem, duas trocas rápidas na página real e eventos de saída/restauração com preservação da semente e do viveiro. A compilação cancelada usa uma barreira controlada, e os eventos de restauração são disparados pelo teste; a renderização ativa usa WebGL real. Não grava dados de estudo.
 
-- **Transformações por estágio:** broto com folhas isoladas, muda com caule e primeiros ramos, jovem com bifurcações e copa aberta, adulta com raízes e arquitetura consolidada. Palmeira, coníferas, arbustos e cogumelo têm percursos próprios; o cogumelo adulto forma uma colônia.
+- **v0.8 do Claude preservada:** 28 espécies + 4 arbustos, 15 formas, broto no montinho, mudas com identidade própria, jovem esguia e adulta consolidada. O gerador mais recente substitui a proposta artística anterior; a galeria acompanha os modelos atuais.
 - **Evolução:** `evolucao.html` usa as mesmas geometrias do jogo. A escala de comparação destaca a arquitetura (com limite de largura para folhas abertas); desligue-a para ver os tamanhos reais do jogo. Não altera o crescimento no bosque.
 - Verificações e limites do lote em [docs/transformacoes.md](docs/transformacoes.md).
 
 - **Catálogo no diário:** `historico.html#catalogo` mostra todas as espécies do mesmo catálogo do jogo, com imagens, busca sem acentos, grupos e estágio da prévia. Cada cartão abre `evolucao.html?especie=...` na planta correspondente. As miniaturas são produzidas pelo gerador atual, usando um único contexto gráfico, sem capturas manuais por espécie.
 - Escopo e verificação em [docs/catalogo-diario.md](docs/catalogo-diario.md).
+
+- **Câmera:** giro livre em 360° com o botão do meio/Shift, inclinação de 20° a 75° com o botão direito, zoom de detalhes (8 m) até visão ampla (240 m), roda/pinça, botões +/− e botão de recentrar. Nenhuma redução de resolução durante o movimento.
+- **Transparência:** apenas a árvore inteira sob o mouse usa opacidade de 22%; o restante fica opaco. A saída do ponteiro restaura o modelo. Substitui o raio-X circular quadriculado da v0.9 para permitir enxergar as árvores de trás.
+- Verificação: seis cenários em `testes/camera-transparencia.html`; detalhes e controles em [docs/camera-transparencia.md](docs/camera-transparencia.md).
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 

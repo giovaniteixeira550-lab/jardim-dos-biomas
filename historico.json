@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.7 + catálogo",
+  "versaoAtual": "v0.9 + câmera e transparência",
   "proximoPasso": {
-    "titulo": "Revisar as transformações por espécie",
-    "descricao": "Comparar broto, muda, jovem e adulta no link Evolução. Depois: identidade persistente das plantas e continuidade da frente de estações/sucessão."
+    "titulo": "Relevo de verdade: terraços com barrancos",
+    "descricao": "O chão é quase plano (±1,6 m). Próximo: platôs em degraus com barrancos de pedra, uma colina alta e uma baixada úmida — dá leitura ao mapa e lugar para as espécies de altitude e de baixada. Depois: seca das árvores (passo 1 do PLANO)."
   },
   "frentes": [
     {
@@ -15,8 +15,8 @@
     {
       "nome": "Árvores",
       "status": "andamento",
-      "progresso": 78,
-      "nota": "24 espécies + 4 arbustos. Estágios mudam arquitetura e estruturas de maturidade; comparação em Evolução. Catálogo visual no diário, com busca e acesso à evolução de cada espécie."
+      "progresso": 84,
+      "nota": "28 espécies + 4 arbustos; cada fase tem cara própria (não só tamanho). 15 formas. Catálogo visual no diário e galeria de estágios."
     },
     {
       "nome": "Ecossistema",
@@ -40,40 +40,72 @@
       "nome": "Ligação com os estudos",
       "status": "nao_iniciado",
       "progresso": 0,
-      "nota": "Encerramento da cena preparado. Vínculos com tópicos e banco de estudos ainda pendentes."
+      "nota": "Plano definido (ver PLANO): árvore = tópico, crescimento = domínio, seca = tempo sem revisar."
     }
   ],
   "quadro": {
     "funciona": [
       "Pixel art com pixel mínimo e contorno",
-      "24 espécies e 4 arbustos, cada um com 4 estágios",
+      "28 espécies e 4 arbustos, cada um com 4 fases diferentes de verdade",
       "Flores e frutos nas adultas (maçãs, laranjas, cocos, frutinhas)",
       "Formas variadas: copa redonda, oval, cônica, colunar, pendente, guarda-chuva, palmeira, bananeira, baobá, bambu, araucária, cogumelo, cristal",
-      "Floríferas verdes quando jovens, coloridas quando adultas",
+      "Cada fase com identidade: broto no montinho, muda com estaca, jovem esguia com primeira florada, adulta com raízes e frutos",
       "Ecossistema: solo, luz, nicho e vigor",
       "Viveiro para ver todas as espécies",
       "Clique mostra a ficha da árvore",
       "Carregamento rápido (sem biblioteca de árvores)",
+      "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
       "Troca de mundo cancela a carga anterior e remove controles antigos",
       "Transformações de arquitetura entre broto, muda, jovem e adulta",
       "Vitrine Evolução para comparar formas sem depender do tamanho",
-      "Catálogo visual de todas as espécies no diário, com busca e prévias por estágio"
+      "Catálogo visual de todas as espécies no diário, com busca e prévias por estágio",
+      "Giro livre, inclinação e zoom ampliado, com resolução constante",
+      "Árvore sob o mouse fica translúcida por inteira, revelando as de trás"
     ],
     "corrigir": [
+      "Terreno quase plano: falta relevo visível",
       "Espécies de terreno alto ou baixada (araucária, coqueiro, cristal) quase não aparecem: o mapa tem pouco desses terrenos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
-      "Viveiro sem nomes escritos: é preciso clicar em cada peça"
+      "Viveiro sem nomes escritos: é preciso clicar em cada peça",
+      "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas"
     ],
     "ideias": [
-      "Próximas espécies: abacateiro, pau-brasil, oliveira, cacto, árvores de fantasia (cogumelo azul, árvore-nuvem)",
-      "Estações e sucessão do bosque",
-      "Pássaros e borboletas em pixel",
-      "Folhas caídas e flores no chão sob as árvores floridas",
-      "Plantas que representam tópicos de estudo"
+      "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
+      "Árvores secam quando o tema fica sem revisão; revisar 'rega' (nunca morrem)",
+      "5ª fase 'anciã' para temas dominados há muito tempo (musgo, tronco grosso)",
+      "Clima e bichos refletem o ritmo geral de estudo",
+      "Próximas espécies: pau-brasil, araçá, embaúba; fantasia: cogumelo azul, árvore-nuvem",
+      "Estações do ano (ipês florindo, outono, inverno sem folhas)",
+      "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago",
+      "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
+      "Botão 'ver troncos' (abaixa as copas por um instante)"
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.9 + câmera e transparência",
+      "data": "2026-10-14",
+      "titulo": "Ver o bosque por todos os ângulos",
+      "porque": "O círculo quadriculado escondia a forma das árvores; a intenção é enxergar as que estão atrás.",
+      "mudancas": [
+        "Só a árvore sob o mouse fica translúcida por inteira, com 22% de opacidade",
+        "Sem círculo ou furos quadriculados; sair do mouse restaura a árvore",
+        "Botão do meio gira, direito inclina, rodinha aproxima/afasta e casa recentra",
+        "Modelos, paleta, contornos e resolução preservados durante o movimento"
+      ],
+      "resultado": "Testado em proposta de integração; ainda sem publicação na demo.",
+      "imagens": [
+        {
+          "src": "historico/codex-arvore-translucida.jpg",
+          "legenda": "Árvore inteira translúcida; árvores vizinhas permanecem opacas"
+        },
+        {
+          "src": "historico/codex-arvore-opaca.jpg",
+          "legenda": "Mesma vista antes da transparência: copa cobre o fundo"
+        }
+      ]
+    },
     {
       "versao": "v0.7 + catálogo",
       "data": "2026-10-14",
@@ -132,6 +164,56 @@
         {
           "src": "historico/codex-ciclo-de-vida.jpg",
           "legenda": "Clareira da v0.6 preservada após a preparação do encerramento da cena"
+        }
+      ]
+    },
+    {
+      "versao": "v0.9",
+      "data": "2026-10-14",
+      "titulo": "Raio-X: ver o que está atrás das copas",
+      "porque": "Árvores altas escondiam as menores e o chão.",
+      "mudancas": [
+        "Ao passar o mouse, as copas NA FRENTE do ponto apontado ficam rendadas (xadrez de pixels)",
+        "Mais aberto no centro, fechando nas bordas; o raio acompanha o zoom",
+        "Clique atravessa a parte rendada e seleciona a árvore de trás",
+        "No celular, o raio-X fica onde se tocou"
+      ],
+      "resultado": "Dá para ver mudas e o chão no meio do bosque sem esconder as árvores grandes.",
+      "imagens": [
+        {
+          "src": "historico/v0.9-raio-x.jpg",
+          "legenda": "Copas rendadas em volta do cursor (canto esquerdo)"
+        }
+      ]
+    },
+    {
+      "versao": "v0.8",
+      "data": "2026-10-14",
+      "titulo": "Fases de crescimento com cara própria",
+      "porque": "As etapas pareciam a mesma árvore em tamanhos diferentes; agora cada uma mostra evolução.",
+      "mudancas": [
+        "Broto no montinho de terra (folhas-semente, coco, pinhão, rebento de bambu); muda com estaca e laço",
+        "Jovem esguia e mais clara, com primeira florada; adulta com raízes, cores plenas e frutos",
+        "Mudanças por espécie: coqueiro sem tronco quando jovem, baobá incha, cogumelo abre o chapéu, pinheiro levanta a saia, bétula fica branca",
+        "Novas: jabuticabeira (frutos no tronco), abacateiro, oliveira, mandacaru; bambuzal refeito"
+      ],
+      "resultado": "Dá para reconhecer a fase de cada árvore de longe, e cada espécie cresce do seu jeito.",
+      "imagens": [
+        {
+          "src": "historico/v0.8-carvalho-4-fases.jpg",
+          "legenda": "Carvalho: broto, muda com estaca, jovem esguia e adulta com raízes"
+        },
+        {
+          "src": "historico/v0.8-coqueiro-baoba-bambu.jpg",
+          "legenda": "Coqueiro: coco, roseta, jovem sem tronco, adulto"
+        },
+        {
+          "src": "historico/v0.8-cogumelo-4-fases.jpg",
+          "legenda": "Cogumelo: alfinetes, ovo, sino fechado, chapéu aberto"
+        },
+        {
+          "src": "historico/v0.8-bambuzal.jpg",
+          "legenda": "Bambuzal refeito em touceira"
         }
       ]
     },
@@ -287,5 +369,119 @@
         }
       ]
     }
-  ]
+  ],
+  "plano": {
+    "titulo": "Ligar o jardim aos estudos",
+    "resumo": "Cada árvore é um tópico de estudo. O jardim vira um diagnóstico visual: de longe dá para ver o que está forte, o que está fraco e o que pede revisão. Tudo é testado primeiro na demo, sem mexer no site.",
+    "regras": [
+      {
+        "titulo": "Árvore = tópico",
+        "texto": "Grande área → bioma (região do mapa). Sistema/tema → espécie. Tópico → uma árvore."
+      },
+      {
+        "titulo": "Crescimento = domínio",
+        "texto": "Broto → muda → jovem → adulta conforme acertos e revisões. Nunca regride: o que foi aprendido fica."
+      },
+      {
+        "titulo": "Seca = tempo sem revisar",
+        "texto": "Verde → folhas amarelando → caindo → dormente (viva, com broto esperando). Revisar 'rega' e o verde volta. Nada morre."
+      },
+      {
+        "titulo": "Ritmo da seca = repetição espaçada",
+        "texto": "Tópico revisado poucas vezes seca em dias; bem dominado aguenta semanas (como no Anki)."
+      },
+      {
+        "titulo": "Antiga ≠ seca",
+        "texto": "Árvore anciã (tronco grosso, musgo) = tema dominado há muito tempo. É prêmio, não alerta."
+      },
+      {
+        "titulo": "Estudo em geral = ambiente",
+        "texto": "Sequência de dias estudando → sol, bichos e vaga-lumes; dias parados → nublado e garoa."
+      }
+    ],
+    "especies": [
+      {
+        "tema": "Pneumo",
+        "especie": "araucária/pinheiro",
+        "porque": "galhos como a árvore brônquica"
+      },
+      {
+        "tema": "Nefro",
+        "especie": "salgueiro",
+        "porque": "vive na beira d'água"
+      },
+      {
+        "tema": "Hemato",
+        "especie": "jabuticabeira",
+        "porque": "bolinhas roxas pelo tronco, como células"
+      },
+      {
+        "tema": "Infecto",
+        "especie": "cogumelo",
+        "porque": "fungo, cresce no úmido"
+      },
+      {
+        "tema": "Neuro",
+        "especie": "árvore-de-cristal",
+        "porque": "rede brilhante"
+      },
+      {
+        "tema": "Cardio",
+        "especie": "macieira",
+        "porque": "frutos vermelhos"
+      },
+      {
+        "tema": "GO",
+        "especie": "floríferas (ipês, jacarandá, cerejeira)",
+        "porque": "flores"
+      },
+      {
+        "tema": "PED",
+        "especie": "frutíferas pequenas (limoeiro, laranjeira)",
+        "porque": "pequenas e alegres"
+      },
+      {
+        "tema": "Preventiva",
+        "especie": "bambuzal",
+        "porque": "touceira = comunidade"
+      },
+      {
+        "tema": "Cirurgia",
+        "especie": "baobá/carvalho",
+        "porque": "robustos"
+      }
+    ],
+    "passos": [
+      {
+        "nome": "Estados de seca na demo (amarelando, caindo, dormente) e a rega",
+        "tamanho": "pequeno",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Painel de teste: temas fictícios + controles 'dias sem revisar' e 'domínio'",
+        "tamanho": "pequeno",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Fechar a lista de espécie por tema (decidir junto)",
+        "tamanho": "só uma lista",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Regra da seca com repetição espaçada",
+        "tamanho": "pequeno",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Biomas por grande área no mapa",
+        "tamanho": "médio",
+        "status": "nao_iniciado"
+      },
+      {
+        "nome": "Levar ao site e ligar aos dados reais (só com a demo aprovada)",
+        "tamanho": "médio",
+        "status": "nao_iniciado"
+      }
+    ]
+  }
 }

@@ -81,6 +81,11 @@ $("girar-esq").addEventListener("click", () => jardim?.girar(-1));
 $("girar-dir").addEventListener("click", () => jardim?.girar(1));
 $("zoom-mais").addEventListener("click", () => jardim?.zoom(0.8));
 $("zoom-menos").addEventListener("click", () => jardim?.zoom(1.25));
+$("recentrar").addEventListener("click", () => {
+  jardim?.recentrar();
+  $("viveiro").setAttribute("aria-pressed", "false");
+  $("viveiro").textContent = "Viveiro";
+});
 $("novo").addEventListener("click", () => iniciar(Math.floor(Math.random() * 1e6)));
 // Viveiro: todas as espécies, do broto à adulta, lado a lado.
 $("viveiro").addEventListener("click", () => {

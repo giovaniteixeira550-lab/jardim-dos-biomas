@@ -1,5 +1,7 @@
 # Transformações de crescimento
 
+> Registro histórico da proposta baseada na v0.7. Na integração com a v0.9, foi adotado integralmente o gerador artístico da v0.8 do Claude, com 32 espécies/arbustos. As sequências abaixo descrevem a proposta anterior; a galeria e o catálogo agora exibem os modelos atuais.
+
 Pedido: cada estágio deve transmitir progresso com mudanças de arquitetura, sem exigir realismo botânico estrito.
 
 ## Sequências implementadas

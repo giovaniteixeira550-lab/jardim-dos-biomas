@@ -7,15 +7,16 @@ import { criarMaterialPixel } from "./pixel.js";
 
 const $ = (id) => document.getElementById(id);
 const descricoes = {
-  folhosa: ["Duas folhas separadas anunciam o nascimento.", "Caule flexível, folhas grandes e primeiros ramos; ainda sem copa fechada.", "Tronco bifurcado, galhos aparentes e ilhas de folhagem. A árvore ganha sua estrutura.", "Copa consolidada, tronco sustentado por raízes aparentes e assinatura da espécie. Flores ou frutos completam as espécies que os possuem."],
-  conifera: ["Agulhas abertas ao redor de um eixo, sem cone adulto.", "Primeiros braços espaçados e folhas nas pontas.", "Andares de ramos expostos, tufos nas extremidades e ponta em formação.", "Arquitetura característica: camadas, coluna ou candelabro, apoiada em raízes aparentes."],
-  palmeira: ["Três folhas saem junto ao chão.", "Leque erguido, folhas largas e base curta: uma roseta, sem tronco alto.", "Tronco começa a se destacar, com anéis e folhas em arco.", "Tronco longo e curvo, frondes pendentes, raízes e cachos de cocos."],
-  cogumelo: ["Botão fechado junto ao solo, ainda sem chapéu aberto.", "O pé aparece, mas o chapéu continua arredondado e fechado.", "Chapéu aberto, primeiras pintas e lamelas visíveis.", "Chapéu amplo, anel no pé e pequenos cogumelos ao redor: a conquista forma uma colônia."],
-  moita: ["Duas folhas sobre um caule curto.", "Um eixo flexível com folhas isoladas.", "Ramos se abrem em várias direções, com espaços entre os tufos.", "Moita consolidada e ramificada; flores ou bagas nas variedades que as possuem."],
-  garrafa: ["Duas folhas anunciam o nascimento.","Caule flexível, primeiros ramos e folhas separadas.","O tronco começa a engrossar; pequenos braços sustentam tufos afastados.","Tronco largo em garrafa, braços no alto e raízes aparentes: uma presença monumental."],
-  bananeira: ["Folhas pequenas saem junto ao chão.","Duas folhas largas e erguidas envolvem uma base curta.","Pseudocaule emergente e folhas abertas em leque.","Folhas arqueadas, base robusta, cacho de bananas e coração roxo."],
-  bambu: ["Brotos fechados surgem do chão.","Um colmo com nós e primeiras folhas.","Três colmos se separam, com braços de folhas.","Touceira consolidada de colmos e folhagem abundante."],
-  cristal: ["Uma única ponta de cristal emerge da pedra.","Três pontas formam um núcleo próximo à base.","Braços de pedra elevam e separam os cristais.","Coroa radial de cristais, sustentada por tronco e raízes de pedra."],
+  folhosa: ["Folhas-semente sobre um pequeno montinho de terra.","Caule fino, folhas alternadas, estaca e laço de apoio.","Tronco esguio e copa em formação; primeira florada nas espécies que a possuem.","Copa consolidada, raízes e cores da maturidade; flores ou frutos conforme a espécie."],
+  conifera: ["Pequeno eixo com agulhas; araucária também mostra o pinhão.","Miniatura com três andares de agulhas desde o chão.","Porte jovem; araucária ainda cônica, antes do candelabro adulto.","Camadas, coluna ou candelabro característicos da espécie e raízes aparentes."],
+  palmeira: ["Coco parcialmente enterrado com primeiras folhas em lança.","Roseta de folhas junto ao chão, ainda sem tronco.","Folhas abertas em roseta; a palmeira jovem ainda não tem o tronco longo da adulta.","Tronco longo e curvo, frondes pendentes e cachos de cocos."],
+  cogumelo: ["Pequenas cabeças de alfinete surgem juntas do chão.","Forma de ovo, com o chapéu ainda fechado no véu.","Chapéu em sino, começando sua abertura.","Chapéu amplo e aberto, com as pintas características."],
+  moita: ["Duas folhas-semente num caule curto.","Tufo baixo e solto de folhagem.","Moita em formação, com porte e cores juvenis.","Moita consolidada; flores ou bagas conforme a variedade."],
+  garrafa: ["Folhas-semente junto ao solo.","Caule fino, folhas alternadas e estaca de apoio.","Tronco jovem e esguio, antes de ganhar volume.","Tronco monumental em garrafa, braços no alto e raízes aparentes."],
+  bananeira: ["Folha enrolada em charuto saindo da terra.","Roseta com três folhas e pseudocaule curto.","Folhas abertas sobre o pseudocaule em desenvolvimento.","Folhas arqueadas, base robusta, bananas e coração roxo."],
+  bambu: ["Rebentos pontudos ainda com bainha marrom.","Três colmos finos, com nós e pequenas folhas.","Touceira jovem ganhando altura e folhagem.","Touceira consolidada, colmos arqueados e folhagem no alto."],
+  cristal: ["Uma ponta de cristal emerge da pedra.","Cinco pontas formam um núcleo junto ao chão.","Estrutura jovem começa a elevar os cristais.","Coroa de cristais sustentada por estrutura de pedra."],
+  cacto: ["Pequena esfera de cacto rente ao chão.","Coluna curta e gorducha, ainda sem braços.","A coluna cresce e começa a ramificar.","Mandacaru ramificado, com costelas e assinatura adulta."],
 };
 let renderer, cena, camera, rt, material, pixel, tela, ro;
 let geometrias = [], modelos = [], giro = 0, encerrado = false;

@@ -3,7 +3,7 @@ import { ESPECIES, ESTAGIOS } from "./especies.js";
 
 const $ = id => document.getElementById(id);
 const fantasias = new Set(["cogumelo", "arvoreCristal", "salgueiroLanterna"]);
-const formas = { redonda:"Copa redonda", oval:"Copa alongada", conica:"Copa em camadas", colunar:"Copa em coluna", pendente:"Copa pendente", "guarda-chuva":"Copa em guarda-chuva", palmeira:"Palmeira", araucaria:"Copa em candelabro", cogumelo:"Cogumelo de fantasia", moita:"Moita", garrafa:"Tronco em garrafa", bananeira:"Folhas em leque", bambu:"Colmos agrupados", cristal:"Coroa de cristais" };
+const formas = { cacto:"Cacto ramificado", redonda:"Copa redonda", oval:"Copa alongada", conica:"Copa em camadas", colunar:"Copa em coluna", pendente:"Copa pendente", "guarda-chuva":"Copa em guarda-chuva", palmeira:"Palmeira", araucaria:"Copa em candelabro", cogumelo:"Cogumelo de fantasia", moita:"Moita", garrafa:"Tronco em garrafa", bananeira:"Folhas em leque", bambu:"Colmos agrupados", cristal:"Coroa de cristais" };
 const normalizar = texto => texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 const imagens = new Map();
 const itens = [];

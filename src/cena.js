@@ -4,7 +4,7 @@
  * Pipeline: cena 3D (materiais toon de 3 faixas, sombras duras) → alvo de
  * render em baixa resolução → shader de pixel (contorno, brilho de topo,
  * paleta + dithering) → tela com pixels nítidos.
- * Câmera ortográfica em ¾, girando em passos de 45°, com "snap" ao grid de
+ * Câmera ortográfica em ¾, com giro livre e atalhos de 45°, com "snap" ao grid de
  * pixels para o cenário não tremeluzir ao mover.
  */
 import * as THREE from "three";
@@ -127,6 +127,10 @@ export class Jardim {
     this.relogio = new THREE.Timer();
     // Material único das árvores: cor por vértice (gerador) × tom do indivíduo.
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
+    this.cursorArvore = null;
+    this.sobrevoo = null;
+    this.ultimoRastreio = -Infinity;
+    this.matrizZero = new THREE.Matrix4().makeScale(0, 0, 0);
     this.individuos = [];
     this.grupos = [];
     this.pixel = criarMaterialPixel();
@@ -252,6 +256,7 @@ export class Jardim {
     const t = new THREE.Mesh(g, toon({ vertexColors: true }));
     t.receiveShadow = true;
     this.scene.add(t);
+    this.terreno = t;
   }
 
   criarAgua() {
@@ -389,31 +394,110 @@ export class Jardim {
     this.selecionarNDC(new THREE.Vector2(((clienteX - r.left) / r.width) * 2 - 1, -((clienteY - r.top) / r.height) * 2 + 1));
   }
 
-  /** Seleção a partir de coordenadas normalizadas da tela (-1..1). */
-  selecionarNDC(ndc) {
+  // --- Transparência da árvore inteira sob o ponteiro --------------------
+
+  focarEm(clienteX, clienteY) {
+    if (!this.cursorArvore || clienteX == null) this.ultimoRastreio = -Infinity;
+    this.cursorArvore = clienteX == null ? null : { x: clienteX, y: clienteY };
+    if (!this.cursorArvore) this.restaurarSobrevoo();
+  }
+
+  /** Devolve a árvore opaca antes de atualizar crescimento ou fazer raycast.
+   * A cópia translúcida nunca participa dos testes de interseção: não oscila
+   * entre a árvore da frente e as que ficaram visíveis atrás dela.
+   */
+  restaurarSobrevoo() {
+    const h = this.sobrevoo;
+    if (!h) return;
+    if (h.ind) {
+      h.malha.setMatrixAt(h.ind.vaga, h.matriz);
+      h.malha.instanceMatrix.needsUpdate = true;
+    } else h.malha.visible = true;
+    this.fantasma.visible = false;
+    this.sobrevoo = null;
+  }
+
+  encontrarArvore(ndc) {
+    this.camera.updateMatrixWorld();
+    this.scene.updateMatrixWorld();
     const ray = new THREE.Raycaster();
     ray.setFromCamera(ndc, this.camera);
+    const malhas = [...(this.viveiro ?? []), ...this.grupos.flatMap(g => g.malhas)];
+    for (const hit of ray.intersectObjects(malhas, false)) {
+      if (hit.object.userData.viveiro) return { malha: hit.object };
+      const info = this.malhaParaGrupo.get(hit.object);
+      const ind = info?.grupo.membros[hit.instanceId];
+      if (ind && ind.indice === info.estagio) return { malha: hit.object, ind };
+    }
+    return null;
+  }
+
+  atualizarSobrevoo(t) {
+    if (!this.cursorArvore) return;
+    // No máximo 15 buscas por segundo; movimento da câmera e crescimento
+    // também atualizam a interseção quando o cursor fica parado.
+    if (t - this.ultimoRastreio >= 1 / 15) {
+      const r = this.canvas.getBoundingClientRect(), p = this.cursorArvore;
+      this.alvoSobrevoo = this.encontrarArvore(new THREE.Vector2(
+        (p.x - r.left) / r.width * 2 - 1, -(p.y - r.top) / r.height * 2 + 1));
+      this.ultimoRastreio = t;
+    }
+    const h = this.alvoSobrevoo;
+    if (!h) return;
+    // O estágio pode mudar entre duas buscas. Usa sempre o modelo atual.
+    if (h.ind) h.malha = h.ind.grupo.malhas[h.ind.indice];
+    if (!this.fantasma) {
+      const material = this.matArvore.clone();
+      material.transparent = true;
+      material.opacity = 0.22;
+      material.depthWrite = false;
+      // Uma única superfície translúcida por pixel evita escurecer copas
+      // fechadas pela soma de frente e verso da mesma folha/lóbulo.
+      material.side = THREE.FrontSide;
+      this.fantasma = new THREE.Mesh(h.malha.geometry, material);
+      this.fantasma.matrixAutoUpdate = false;
+      this.fantasma.renderOrder = 2;
+      this.scene.add(this.fantasma);
+    }
+    const f = this.fantasma;
+    f.geometry = h.malha.geometry;
+    f.visible = true;
+    if (h.ind) {
+      h.matriz = new THREE.Matrix4();
+      h.malha.getMatrixAt(h.ind.vaga, h.matriz);
+      f.matrix.multiplyMatrices(h.malha.matrixWorld, h.matriz);
+      h.malha.getColorAt(h.ind.vaga, f.material.color);
+      h.malha.setMatrixAt(h.ind.vaga, this.matrizZero);
+      h.malha.instanceMatrix.needsUpdate = true;
+    } else {
+      f.matrix.copy(h.malha.matrixWorld);
+      f.material.color.copy(h.malha.material.color);
+      h.malha.visible = false;
+    }
+    f.matrixWorldNeedsUpdate = true;
+    this.sobrevoo = h;
+  }
+
+  /** Seleção a partir de coordenadas normalizadas da tela (-1..1). */
+  selecionarNDC(ndc) {
+    this.restaurarSobrevoo();
+    const hit = this.encontrarArvore(ndc);
     const anterior = this.selecionado;
     const cor = new THREE.Color();
     if (anterior) for (const im of anterior.grupo.malhas) im.setColorAt(anterior.vaga, cor.setScalar(anterior.tom));
     this.selecionado = null;
-    const peca = ray.intersectObjects(this.viveiro ?? [], false)[0];
+    const peca = hit?.malha.userData.viveiro ? hit.malha : null;
     if (peca) {
-      const d = peca.object.userData.viveiro;
+      const d = peca.userData.viveiro;
       const def = ESPECIES[d.especie];
       const enfeite = def.fruto ?? def.flor;
       const ESTAG = ["Broto", "Muda", "Jovem", "Adulta"];
       for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
       return this.aoSelecionar?.({ numero: "viveiro", nome: d.nome, especie: d.especie, estagio: ESTAG[d.estagio], extra: ["Vitrine do viveiro", ...(enfeite ? [`Adulta: com ${enfeite.nome}`] : [])] });
     }
-    for (const hit of ray.intersectObjects(this.grupos.flatMap((g) => g.malhas), false)) {
-      const info = this.malhaParaGrupo.get(hit.object);
-      const ind = info?.grupo.membros[hit.instanceId];
-      if (ind && ind.indice === info.estagio) {
-        this.selecionado = ind;
-        ind.grupo.malhas[ind.indice].setColorAt(ind.vaga, cor.setScalar(ind.tom * 1.35));
-        break;
-      }
+    if (hit?.ind) {
+      this.selecionado = hit.ind;
+      hit.malha.setColorAt(hit.ind.vaga, cor.setScalar(hit.ind.tom * 1.35));
     }
     for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
     const i = this.selecionado;
@@ -601,7 +685,7 @@ export class Jardim {
     const c = this.canvas;
     const signal = this.cancelamento.signal;
     const ponteiros = new Map();
-    let pinca = 0;
+    let pinca = 0, angulo = null;
     const mover = (dx, dy) => {
       // Arrastar move o chão sob o cursor (direita/frente da câmera projetadas no plano).
       const mpp = this.altura / c.clientHeight;
@@ -612,33 +696,60 @@ export class Jardim {
       this.limitar();
     };
     let inicio = null;
+    c.addEventListener("contextmenu", e => e.preventDefault(), { signal });
+    c.addEventListener("auxclick", e => { if (e.button === 1) e.preventDefault(); }, { signal });
     c.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && ![0, 1, 2].includes(e.button)) return;
+      if (e.button === 1) e.preventDefault(); // impede a rolagem automática da rodinha
       c.setPointerCapture(e.pointerId);
-      ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      inicio = ponteiros.size === 1 ? { x: e.clientX, y: e.clientY } : null;
+      this.focarEm(null);
+      const giro = e.button === 2 ? "inclinar" : e.button === 1 || e.shiftKey ? "girar" : null;
+      ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY, giro });
+      inicio = ponteiros.size === 1 && !giro ? { x: e.clientX, y: e.clientY } : null;
+      if (ponteiros.size === 2) {
+        const [p, q] = [...ponteiros.values()];
+        pinca = Math.hypot(p.x - q.x, p.y - q.y);
+        angulo = Math.atan2(q.y - p.y, q.x - p.x);
+      }
     }, { signal });
     c.addEventListener("pointermove", (e) => {
       const a = ponteiros.get(e.pointerId);
-      if (!a) return;
-      const b = { x: e.clientX, y: e.clientY };
-      if (ponteiros.size === 1) mover(b.x - a.x, b.y - a.y);
+      if (!a) {
+        if (e.pointerType === "mouse" && !e.buttons) this.focarEm(e.clientX, e.clientY);
+        return;
+      }
+      const b = { x: e.clientX, y: e.clientY, giro: a.giro };
+      if (ponteiros.size === 1) {
+        if (a.giro === "inclinar") this.pitch = THREE.MathUtils.clamp(this.pitch + (b.y - a.y) * 0.006, THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(75));
+        else if (a.giro === "girar") this.yaw = this.yawAlvo += (b.x - a.x) * 0.008;
+        else mover(b.x - a.x, b.y - a.y);
+      }
       ponteiros.set(e.pointerId, b);
       if (ponteiros.size === 2) {
         const [p, q] = [...ponteiros.values()];
         const dd = Math.hypot(p.x - q.x, p.y - q.y);
-        if (pinca) this.zoom(pinca / dd);
-        pinca = dd;
+        const aa = Math.atan2(q.y - p.y, q.x - p.x);
+        if (pinca && dd > 2) this.zoom(pinca / dd);
+        if (angulo !== null && dd > 2) {
+          const delta = Math.atan2(Math.sin(aa - angulo), Math.cos(aa - angulo));
+          this.yaw = this.yawAlvo += delta;
+        }
+        pinca = dd; angulo = aa;
       }
     }, { signal });
     const soltar = (e) => {
+      if (!ponteiros.has(e.pointerId)) return;
       ponteiros.delete(e.pointerId);
-      pinca = 0;
-      // Toque/clique curto (sem arrastar) seleciona a árvore sob o cursor.
+      pinca = 0; angulo = null;
       if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
       inicio = null;
+      const r = c.getBoundingClientRect();
+      if (!ponteiros.size && e.pointerType === "mouse" && e.type === "pointerup" && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) this.focarEm(e.clientX, e.clientY);
     };
     c.addEventListener("pointerup", soltar, { signal });
     c.addEventListener("pointercancel", soltar, { signal });
+    c.addEventListener("lostpointercapture", soltar, { signal });
+    c.addEventListener("pointerleave", () => this.focarEm(null), { signal });
     c.addEventListener("wheel", (e) => {
       e.preventDefault();
       this.zoom(Math.exp(e.deltaY * 0.0012));
@@ -651,7 +762,9 @@ export class Jardim {
       else this.teclas.add(e.key.toLowerCase());
     }, { signal });
     window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()), { signal });
-    window.addEventListener("blur", () => this.teclas.clear(), { signal });
+    window.addEventListener("blur", () => {
+      this.teclas.clear(); ponteiros.clear(); inicio = null; pinca = 0; angulo = null; this.focarEm(null);
+    }, { signal });
     this._mover = mover;
   }
 
@@ -698,8 +811,14 @@ export class Jardim {
     }
   }
 
+  recentrar() {
+    this.irAoViveiro(false);
+    this.yaw = this.yawAlvo = Math.PI / 4;
+    this.pitch = THREE.MathUtils.degToRad(38);
+  }
+
   zoom(f) {
-    this.altura = THREE.MathUtils.clamp(this.altura * f, 22, 130);
+    this.altura = THREE.MathUtils.clamp(this.altura * f, 8, 240);
   }
   girar(sentido) {
     this.yawAlvo += (sentido * Math.PI) / 4;
@@ -717,6 +836,7 @@ export class Jardim {
     this.relogio.update();
     const t = this.relogio.getElapsed();
     const dt = Math.min(0.05, this.relogio.getDelta());
+    this.restaurarSobrevoo();
     this.atualizarCrescimento();
     // Teclado: WASD / setas movem; giro animado até o próximo passo de 45°.
     const k = this.teclas, v = 280 * dt;
@@ -733,6 +853,7 @@ export class Jardim {
     if (this.vagalumes.visible) this.vagalumes.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.3);
 
     this.posicionarCamera();
+    this.atualizarSobrevoo(t);
     const u = this.pixel.uniforms;
     this.renderer.setRenderTarget(this.rt);
     this.renderer.render(this.scene, this.camera);
@@ -747,6 +868,8 @@ export class Jardim {
   dispose() {
     if (this.descartado) return;
     this.descartado = true;
+    this.restaurarSobrevoo();
+    this.cursorArvore = this.alvoSobrevoo = null;
     this.cancelamento.abort();
     cancelAnimationFrame(this.raf);
     this.raf = null;
