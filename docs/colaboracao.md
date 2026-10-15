@@ -51,3 +51,7 @@ Este lote concentra-se na paisagem: `formacaoTerreno.js` define crista/ombro/sai
 ## Paredões gráficos (v0.19)
 
 Escopo limitado ao acabamento dos paredões: `solo.js`, `bordasBarranco.js` e correção de falsas bordas em `pixel.js`. A malha e os campos da topografia, as árvores, a câmera e a água continuam os da versão publicada. As referências originais orientam faces angulares grandes, poucos tons, fraturas interrompidas e capa verde recortada. A correção do contorno mantém as silhuetas e evita tratar o gradiente contínuo de uma parede oblíqua como várias bordas. A força de pontilhado é menor somente nas faces do barranco, marcada no alfa do alvo intermediário; o resultado final continua opaco e quantizado na paleta. Os demais materiais mantêm a força anterior.
+
+## Relevo distribuído (v0.20)
+
+Correção da composição solicitada pelo usuário: seis regiões autorais com curvas suaves e cumes deslocados. Mudanças em formacaoTerreno, lugares da planta e enquadramento inicial. Solo, folhas, água e controles anteriores preservados. Trabalho isolado em codex/relevo-distribuido, sem modificar a cópia do Claude. Publicação na demo autorizada pelo usuário.

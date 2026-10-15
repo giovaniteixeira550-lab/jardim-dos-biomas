@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.19",
+  "versaoAtual": "v0.20",
   "proximoPasso": {
-    "titulo": "Revisar o acabamento dos paredões",
-    "descricao": "Comparar as faces e a borda de grama com as referências; depois continuar os lugares já reservados no plano."
+    "titulo": "Avaliar a nova composição do mapa",
+    "descricao": "Revisar as seis regiões na vista geral e de perto antes de desenvolver os lugares de descanso."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Paredões com massas angulares grandes, fendas seletivas e capa de grama recortada; encostas, escadas, cascatas e percursos preservados."
+      "nota": "Seis regiões de relevo com curvas autorais, vales abertos, cumes deslocados e três cascatas conectadas ao lago."
     },
     {
       "nome": "Vida e clima",
@@ -74,7 +74,8 @@
       "Escadas com pisos claros, espelhos escuros e bordas baixas contínuas",
       "Cascatas com fios variados e espuma em arcos quebrados",
       "Paredões com poucas áreas de cor, fendas desencontradas e grama em volume",
-      "Contorno de silhueta sem riscar planos oblíquos contínuos"
+      "Contorno de silhueta sem riscar planos oblíquos contínuos",
+      "Relevo em seis regiões do mapa, com curvas e alturas diferentes"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -99,6 +100,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.20",
+      "data": "2026-10-15",
+      "titulo": "Relevo distribuído pelo jardim",
+      "porque": "Os patamares estavam concentrados num canto e os contornos tinham ficado retos demais.",
+      "mudancas": [
+        "Seis regiões de relevo com contornos curvos próprios",
+        "Espigões e cumes deslocados, com vales largos entre encostas",
+        "Cinco lugares na planta para visitar as novas elevações",
+        "Vista inicial mais ampla para mostrar a composição"
+      ],
+      "resultado": "Nascente, norte, leste, chegada, sul e promontório do lago têm elevações planejadas. Água, circulação e reservas de construção continuam conectadas.",
+      "imagens": [
+        {
+          "src": "historico/v0.20-relevo-distribuido.jpg",
+          "legenda": "Vista geral em 3D das encostas distribuídas pelo mapa"
+        },
+        {
+          "src": "historico/v0.20-planta.jpg",
+          "legenda": "Planta do terreno real: seis regiões, vales, lago e percursos"
+        }
+      ]
+    },
     {
       "versao": "v0.19",
       "data": "2026-10-15",
