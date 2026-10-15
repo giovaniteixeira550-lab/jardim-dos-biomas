@@ -1,4 +1,4 @@
-/** Pequenos recortes de terra e capim presos às quinas reais dos barrancos. */
+/** Capas verdes gráficas, com recortes angulosos presos às quinas dos barrancos. */
 import * as THREE from "three";
 import { RAMPAS } from "./paleta.js";
 
@@ -15,24 +15,23 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
   const grupo = new THREE.Group();
   grupo.name = "bordas-barrancos";
   const pos = geometriaTerreno.getAttribute("position");
-  const coresTerreno = geometriaTerreno.getAttribute("color");
   const limites = geometriaTerreno.getAttribute("aLimitesSolo");
-  if (!pos || !coresTerreno || !limites || !indicesParede?.length) return grupo;
+  if (!pos || !limites || !indicesParede?.length) return grupo;
 
-  const vertices = [], cores = [], folhas = [], coresFolhas = [];
+  const vertices = [], cores = [];
   const vistas = new Set();
   const terraEscura = new THREE.Color(RAMPAS.terra[1]);
   const terraMedia = new THREE.Color(RAMPAS.terra[2]);
-  const terraClara = new THREE.Color(RAMPAS.terra[3]);
+  const verdeTopo = [new THREE.Color(RAMPAS.salvia[3]), new THREE.Color(RAMPAS.salvia[4])];
+  const verdeLado = new THREE.Color(RAMPAS.salvia[2]);
   const limiteTriangulos = 4800;
-  let triangulos = 0, labios = 0, tufos = 0;
+  let triangulos = 0, labios = 0, arestasConsolidadas = 0;
   let inverterFaces = false;
   const vertice = (i) => new THREE.Vector3().fromBufferAttribute(pos, i);
-  const corVertice = (i) => new THREE.Color().fromBufferAttribute(coresTerreno, i);
-  const triangulo = (a, b, c, tinta, destino = vertices, tintas = cores) => {
+  const triangulo = (a, b, c, tinta) => {
     for (const p of [a, b, c]) {
-      destino.push(p.x, p.y, p.z);
-      tintas.push(tinta.r, tinta.g, tinta.b);
+      vertices.push(p.x, p.y, p.z);
+      cores.push(tinta.r, tinta.g, tinta.b);
     }
     triangulos++;
   };
@@ -50,16 +49,8 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
       && Math.abs(x - l.x) < l.largura / 2 + 0.4 && Math.abs(z - l.y) < l.profundidade / 2 + 0.4);
   };
 
-  // Distribui o orçamento pelo mapa, mantendo grupos vizinhos. A ordem linear
-  // da grade concentraria todas as bordas na primeira metade do jardim.
-  const ordem = Array.from({ length: Math.floor(indicesParede.length / 3) }, (_, n) => {
-    const i = n * 3;
-    const x = (pos.getX(indicesParede[i]) + pos.getX(indicesParede[i + 1]) + pos.getX(indicesParede[i + 2])) / 3;
-    const z = (pos.getZ(indicesParede[i]) + pos.getZ(indicesParede[i + 1]) + pos.getZ(indicesParede[i + 2])) / 3;
-    return { i, prioridade: hash(Math.floor(x / 3.4), Math.floor(z / 3.4), 29) + hash(x, z, 31) * 0.005 };
-  }).sort((a, b) => a.prioridade - b.prioridade);
-  for (const { i } of ordem) {
-    if (triangulos + 16 > limiteTriangulos) break;
+  const arestas = [], porVertice = new Map();
+  for (let i = 0; i < indicesParede.length; i += 3) {
     const ids = [indicesParede[i], indicesParede[i + 1], indicesParede[i + 2]];
     const pontos = ids.map(vertice);
     // A aresta precisa tocar o topo local e ter uma face descendendo logo abaixo.
@@ -72,8 +63,8 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
       vistas.add(chave);
       const meio = a.clone().add(b).multiplyScalar(0.5);
       if (!livre(meio.x, meio.z)) continue;
-      // Células largas formam grupos interrompidos, sem um dente por célula da grade.
-      if (hash(Math.floor(meio.x / 3.4), Math.floor(meio.z / 3.4), 2) < 0.32) continue;
+      // As interrupções pertencem a massas largas, não a cada quadrado de 0,5 m.
+      if (hash(Math.floor(meio.x / 5.2), Math.floor(meio.z / 5.2), 2) < 0.18) continue;
       const tangente = b.clone().sub(a); tangente.y = 0;
       const comprimento = tangente.length();
       if (comprimento < 0.15 || comprimento > 1.5) continue;
@@ -82,50 +73,76 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
       fora.addScaledVector(tangente, -fora.dot(tangente));
       if (fora.lengthSq() < 1e-6) continue;
       fora.normalize();
-      inverterFaces = tangente.z * fora.x - tangente.x * fora.z > 0;
-      const aleatorio = hash(meio.x, meio.z, 5);
-      const inicio = 0.015 + hash(meio.x, meio.z, 7) * 0.07;
-      const fim = 0.985 - hash(meio.x, meio.z, 9) * 0.07;
-      const e0 = a.clone().lerp(b, inicio), e1 = a.clone().lerp(b, fim);
-      const recuo = 0.08;
-      const a0 = e0.clone().addScaledVector(fora, -recuo);
-      const a1 = e1.clone().addScaledVector(fora, -recuo);
-      const f0 = e0.clone().addScaledVector(fora, 0.15 + aleatorio * 0.15);
-      const f1 = e1.clone().addScaledVector(fora, 0.15 + hash(meio.x, meio.z, 11) * 0.15);
-      if (![a0, a1, f0, f1].every((p) => livre(p.x, p.z))) continue;
-      const espessura = 0.2 + hash(meio.x, meio.z, 13) * 0.2;
-      a0.y += 0.012; a1.y += 0.012;
-      f0.y -= 0.035 + aleatorio * 0.035;
-      f1.y -= 0.035 + hash(meio.x, meio.z, 15) * 0.035;
-      const b0 = a0.clone(), b1 = a1.clone(), f2 = f0.clone(), f3 = f1.clone();
-      b0.y -= espessura; b1.y -= espessura;
-      f2.y -= espessura; f3.y -= espessura;
-      const topo = corVertice(ids[ia]).lerp(corVertice(ids[ib]), 0.5);
-      const frente = aleatorio > 0.62 ? terraMedia : terraEscura;
-      quad(a0, f0, f1, a1, topo);
-      quad(f0, f2, f3, f1, frente);
-      quad(a0, b0, f2, f0, terraMedia);
-      quad(a1, f1, f3, b1, terraMedia);
-      quad(b0, b1, f3, f2, terraEscura);
-      quad(a0, a1, b1, b0, terraClara);
-      labios++;
-
-      // Poucas lâminas fixas, com planos distintos: capim 3D, sem billboard ou vento.
-      if (aleatorio > 0.42) {
-        const raiz = e0.clone().lerp(e1, 0.25 + hash(meio.x, meio.z, 17) * 0.5);
-        raiz.addScaledVector(fora, 0.025); raiz.y += 0.018;
-        for (const sentido of [-1, 1]) {
-          const base0 = raiz.clone().addScaledVector(tangente, -0.028);
-          const base1 = raiz.clone().addScaledVector(tangente, 0.028);
-          const ponta = raiz.clone().addScaledVector(tangente, sentido * 0.07)
-            .addScaledVector(fora, 0.025 + sentido * 0.025);
-          ponta.y += 0.13 + hash(meio.x, meio.z, 19 + sentido) * 0.12;
-          triangulo(base0, base1, ponta, topo, folhas, coresFolhas);
-        }
-        tufos++;
+      const aresta = { a, b, ia: ids[ia], ib: ids[ib], fora,
+        prioridade: hash(Math.floor(meio.x / 5.2), Math.floor(meio.z / 5.2), 29) + hash(meio.x, meio.z, 31) * 0.005 };
+      arestas.push(aresta);
+      for (const id of [aresta.ia, aresta.ib]) {
+        if (!porVertice.has(id)) porVertice.set(id, []);
+        porVertice.get(id).push(aresta);
       }
       break;
     }
+  }
+
+  // Junta segmentos realmente colineares e apoiados no mesmo topo. As placas
+  // maiores eliminam os retalhos repetidos a cada célula, sem atalhar curvas.
+  const usadas = new Set();
+  for (const inicial of arestas.sort((a, b) => a.prioridade - b.prioridade)) {
+    if (triangulos + 18 > limiteTriangulos) break;
+    if (usadas.has(inicial)) continue;
+    usadas.add(inicial);
+    let a = inicial.a.clone(), b = inicial.b.clone(), ia = inicial.ia, ib = inicial.ib, unidos = 1;
+    const fora = inicial.fora;
+    for (let rodada = 0; rodada < 5; rodada++) {
+      let cresceu = false;
+      for (const inicio of [true, false]) {
+        const id = inicio ? ia : ib, ponta = inicio ? a : b, outra = inicio ? b : a;
+        const direcao = ponta.clone().sub(outra); direcao.y = 0; direcao.normalize();
+        for (const vizinha of porVertice.get(id) ?? []) {
+          if (usadas.has(vizinha) || fora.dot(vizinha.fora) < 0.98) continue;
+          const novoId = vizinha.ia === id ? vizinha.ib : vizinha.ia;
+          const novaPonta = (vizinha.ia === id ? vizinha.b : vizinha.a).clone();
+          const extensao = novaPonta.clone().sub(ponta); extensao.y = 0; extensao.normalize();
+          if (extensao.dot(direcao) < 0.995 || Math.abs(novaPonta.y - outra.y) > 0.18
+            || Math.hypot(novaPonta.x - outra.x, novaPonta.z - outra.z) > 2.2) continue;
+          if (inicio) { a = novaPonta; ia = novoId; } else { b = novaPonta; ib = novoId; }
+          usadas.add(vizinha); unidos++; cresceu = true;
+          break;
+        }
+      }
+      if (!cresceu) break;
+    }
+    const meio = a.clone().add(b).multiplyScalar(0.5);
+    const celX = Math.floor(meio.x / 5.2), celZ = Math.floor(meio.z / 5.2);
+    const variacao = hash(celX, celZ, 5);
+    const tangente = b.clone().sub(a); tangente.y = 0;
+    const comprimento = tangente.length(); tangente.divideScalar(comprimento);
+    inverterFaces = tangente.z * fora.x - tangente.x * fora.z > 0;
+    const e0 = a.clone().lerp(b, 0.006 / comprimento), e1 = a.clone().lerp(b, 1 - 0.006 / comprimento);
+    const a0 = e0.clone().addScaledVector(fora, -0.14), a1 = e1.clone().addScaledVector(fora, -0.14);
+    // Dois avanços francos dão pequenas línguas angulosas, sem micro-serrilhado.
+    const avanco = variacao > 0.63 ? 0.3 : 0.22;
+    const f0 = e0.clone().addScaledVector(fora, avanco), f1 = e1.clone().addScaledVector(fora, avanco);
+    if (![a0, a1, f0, f1].every((p) => livre(p.x, p.z))) continue;
+    a0.y += 0.012; a1.y += 0.012; f0.y -= 0.025; f1.y -= 0.025;
+    const verde = variacao > 0.7 ? verdeTopo[1] : verdeTopo[0];
+    const frente = variacao > 0.5 ? terraMedia : terraEscura;
+    const espessuraVerde = variacao > 0.63 ? 0.22 : 0.16;
+    const espessuraTotal = espessuraVerde + 0.24;
+    const g0 = a0.clone(), g1 = a1.clone(), gf0 = f0.clone(), gf1 = f1.clone();
+    for (const p of [g0, g1, gf0, gf1]) p.y -= espessuraVerde;
+    const b0 = a0.clone(), b1 = a1.clone(), f2 = f0.clone(), f3 = f1.clone();
+    for (const p of [b0, b1, f2, f3]) p.y -= espessuraTotal;
+    quad(a0, f0, f1, a1, verde);
+    quad(f0, gf0, gf1, f1, verdeLado);
+    quad(gf0, f2, f3, gf1, frente);
+    quad(a0, g0, gf0, f0, verdeLado);
+    quad(g0, b0, f2, gf0, frente);
+    quad(a1, f1, gf1, g1, verdeLado);
+    quad(g1, gf1, f3, b1, frente);
+    quad(b0, b1, f3, f2, terraEscura);
+    quad(a0, a1, b1, b0, terraMedia);
+    labios++; arestasConsolidadas += unidos;
   }
 
   const adicionar = (pontos, tintas, nome, duplaFace = false) => {
@@ -141,7 +158,7 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
     grupo.add(malha);
   };
   adicionar(vertices, cores, "labios-terra");
-  adicionar(folhas, coresFolhas, "tufos-borda", true);
-  grupo.userData = { labios, tufos, triangulos, referencia: "mundo", alteraAltura: false };
+  grupo.userData = { labios, placas: labios, tufos: 0, arestasConsolidadas, triangulos,
+    referencia: "mundo", alteraAltura: false, estilo: "capas-graficas" };
   return grupo;
 }

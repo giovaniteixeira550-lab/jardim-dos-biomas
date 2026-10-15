@@ -37,7 +37,7 @@ Essas relações são interpretações de projeto aplicadas ao jardim do jogo. O
 - A ponte nasce da interseção real entre estrada e água. O trecho de estrada que a cruza é reto; os acessos possuem patamares compartilhados com o tabuleiro.
 - Escadas são malhas sólidas com pisos e espelhos, calculadas pelo avanço ao longo da estrada. A subida não depende da direção do gradiente do terreno.
 - Água tem patamares e cortinas verticais com os mesmos vértices, largura variável nos poços e foz no nível do lago. A escavação consulta o segmento correto, preservando o lábio superior da queda.
-- Barrancos têm quinas com normais próprias, terra em camadas incompletas, crosta sob a grama e rochas esparsas. Topo e pé locais controlam as faixas, sem repetir juntas de blocos ou usar níveis globais indevidos. Pequenos lábios e tufos acrescentam volume às bordas, excluindo canais, circulação e reservas.
+- Barrancos têm quinas com normais próprias e, desde a v0.19, massas angulares largas com três tons principais, fraturas seletivas e capa verde recortada. A interpretação segue a linguagem gráfica das referências: grandes volumes de cor, sem estratos realistas, granulação miúda ou fiadas regulares. Topo e pé locais controlam o encontro da grama e a sombra de apoio. Placas de até 2,2 m dão volume à borda, excluindo canais, circulação e reservas.
 - Escadarias distinguem piso claro, espelho escuro e nariz chanfrado; juntas são curtas e desencontradas. Bordas baixas contínuas substituem as antigas caixas laterais seriadas. A textura e os detalhes ficam presos ao mundo quando a câmera gira.
 - Vegetação não ocupa as faixas de circulação, o canal, os paredões ou as reservas de construção.
 
