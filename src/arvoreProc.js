@@ -13,6 +13,7 @@
 import * as THREE from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { criarRng, criarRuido } from "./mundo.js";
+import { distribuirEnfeites, validarEspecie } from "./ornamentos.js";
 import { RAMPAS } from "./paleta.js";
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -121,7 +122,9 @@ function volume(raio, c, hex, semente, achatar = 0.85, irregular = 0.4) {
   g.setAttribute("raioCopa", new THREE.BufferAttribute(raios, 1));
   g.setAttribute("semCopa", new THREE.BufferAttribute(sems, 1));
   g.computeVertexNormals();
-  return g.toNonIndexed();
+  const geo = g.toNonIndexed();
+  geo.userData.copa = { centro: c.clone(), raio, achatar, cor: hex };
+  return geo;
 }
 
 /** Tronco cônico com leve curva; marcas de bétula ou anéis de palmeira opcionais. */
@@ -147,7 +150,9 @@ function tronco({ altura, r0, r1, curva = [0, 0], hex, segs = 8, marcas = false,
   let idx = 0;
   pintar(g, hex, () => fatores[idx++]);
   g.computeVertexNormals();
-  return { geo: g.toNonIndexed(), topo: V(curva[0], altura, curva[1]) };
+  const geo = g.toNonIndexed();
+  geo.userData.tronco = { altura, r0, r1, curva };
+  return { geo, topo: V(curva[0], altura, curva[1]) };
 }
 
 /** Galho reto de a até b, afinando. */
@@ -276,13 +281,6 @@ function colunaCacto(base, alt, raio, hex) {
   topo.translate(base.x, base.y + alt, base.z);
   pintar(topo, hex, () => 1.05);
   return [finalizar(g), finalizar(topo)];
-}
-
-/** Ponto na superfície de uma copa (para frutos/flores), preferindo topo e frente. */
-function pontoNaCopa(copas, rng) {
-  const c = copas[Math.floor(rng() * copas.length)];
-  const d = V(rng() - 0.5, rng() * 0.9 - 0.15, rng() - 0.5).normalize();
-  return c.c.clone().addScaledVector(d, c.r * 0.92);
 }
 
 // ---------------------------------------------------------------------------
@@ -837,8 +835,8 @@ const RAIZ = { candelabro: 0.03, esparramada: 0.06, redonda: 0.045, oval: 0.03, 
 
 /**
  * Cores de cada fase. Folhas novas são mais claras; espécies de folha
- * colorida (outono, ipês, cristal-salgueiro…) nascem verdes e "viram" aos poucos:
- * a jovem já mostra manchas da cor adulta (primeira florada / primeiro outono).
+ * colorida nascem verdes. Na jovem, a primeira florada são flores menores
+ * apoiadas na copa; volumes inteiros só recebem a cor madura na adulta.
  */
 function coresDaFase(def, fase) {
   const c = def.cores;
@@ -847,7 +845,7 @@ function coresDaFase(def, fase) {
   const casca = c.cascaJovem ?? c.casca;
   if (fase === "jovem") {
     const colorida = c.folhaJovem || !ehVerde(c.folha);
-    return { ...c, casca, folha: c.folhaJovem ? verdeBase : deslocar(verdeBase, 1), folha2: colorida ? c.folha : deslocar(c.folha2 ?? c.folha, 1) };
+    return { ...c, casca, folha: c.folhaJovem ? verdeBase : deslocar(verdeBase, 1), folha2: colorida ? (c.folhaJovem2 ?? verdeBase) : deslocar(c.folha2 ?? c.folha, 1) };
   }
   const clara = c.broto ?? deslocar(verdeBase, 2);
   return { ...c, casca, folha: clara, folha2: deslocar(clara, -1) };
@@ -1034,15 +1032,23 @@ function formaDoEstagio(def, estagio) {
   return def.forma;
 }
 
-/** Flores/frutos espalhados sobre as copas. */
-function salpicar(partes, copas, extras, rng) {
-  if (!copas.length) return;
-  for (const extra of extras)
-    for (let i = 0; i < extra.quantidade; i++) {
-      const tamanho = extra.raio * lerp(0.85, 1.15, rng());
+/** Enfeites usam a superfície real ou os pontos próprios da arquitetura. */
+function salpicar(partes, copas, extras, rng, registros) {
+  for (const extra of extras) {
+    const pontos = distribuirEnfeites(partes, copas, extra, rng);
+    for (const ponto of pontos) {
+      const { centro, apoio, tamanho } = ponto;
       const cor = extra.cores ? extra.cores[Math.floor(rng() * extra.cores.length)] : extra.cor;
-      partes.push(bolinha(tamanho, pontoNaCopa(copas, rng), cor, extra.achatar ?? 1, 1));
+      // Pedúnculo curto: fruto pendente ligado à folhagem, nunca uma esfera solta.
+      if (ponto.haste) {
+        partes.push(galho(copas[ponto.suporte].c, ponto.haste[0], tamanho * .14, tamanho * .12, RAMPAS.terra[2]));
+        partes.push(galho(...ponto.haste, tamanho * .14, tamanho * .1, RAMPAS.terra[2]));
+      }
+      if (extra.tipo === "fruto") partes.push(galho(apoio, centro, tamanho * .09, tamanho * .06, RAMPAS.terra[2]));
+      partes.push(bolinha(tamanho, centro, cor, extra.achatar ?? 1, 1));
+      registros.push({ ...ponto, tipo: extra.tipo ?? "flor", cor, disposicao: extra.disposicao ?? "copa" });
     }
+  }
 }
 
 /** Tapete de pétalas caídas sob a copa (ipês, jacarandá, cerejeira). */
@@ -1058,24 +1064,31 @@ function tapete(def, H, rng) {
 
 /**
  * Frutos (ou flores) colados no tronco, como na jabuticabeira (cauliflora).
- * Segue o tronco da forma "redonda": base r0 = 0,045·h·grossura, afinando até 2/3.
+ * Segue altura, curva e afunilamento registrados pelo tronco gerado.
  */
-function noTronco(h, grossura, cor, n, raio, rng) {
-  const partes = [];
-  const th = h * 0.37, r0 = h * 0.045 * grossura;
+function noTronco(partes, cor, n, raio, rng, registros, tipo) {
+  const t = partes.find(g => g.userData.tronco)?.userData.tronco;
+  if (!t) throw Error("Frutos no tronco sem eixo de apoio");
+  const resultado = [];
   for (let i = 0; i < n; i++) {
-    const y = lerp(0.06 * h, th * 0.8, rng()), a = rng() * 6.28;
-    const rr = r0 * (1 - 0.33 * (y / th)) + raio * 0.4;
-    partes.push(bolinha(raio * lerp(0.85, 1.15, rng()), V(Math.cos(a) * rr, y, Math.sin(a) * rr), cor, 1, 1));
+    const u = lerp(.15, .8, rng()), a = i * 2.39996 + rng() * .35;
+    const r = lerp(t.r0, t.r1, u), tamanho = raio * lerp(.85, 1.15, rng());
+    const eixo = V(t.curva[0] * u * u, u * t.altura, t.curva[1] * u * u);
+    const apoio = eixo.clone().add(V(Math.cos(a) * r, 0, Math.sin(a) * r));
+    const centro = apoio.clone().add(V(Math.cos(a) * tamanho * .55, 0, Math.sin(a) * tamanho * .55));
+    resultado.push(bolinha(tamanho, centro, cor, 1, 1));
+    registros.push({ centro, apoio, tamanho, tipo, cor, disposicao: "tronco", suporte: 0 });
   }
-  return partes;
+  return resultado;
 }
+
 
 /**
  * Constrói os 4 estágios de uma variação. Devolve { estagios: [geo×4], alturas: [m×4] }.
  * Mesma semente ⇒ mesma variação (o mundo é reprodutível).
  */
 export function construirVariacao(def, semente) {
+  validarEspecie(def, Object.keys(FORMAS));
   const rngAltura = criarRng(semente);
   const H = lerp(def.altura[0], def.altura[1], rngAltura());
   const estagios = [];
@@ -1091,6 +1104,7 @@ export function construirVariacao(def, semente) {
       largura: fase === "jovem" ? def.larguraJovem ?? def.largura : def.largura,
     };
     let partes;
+    const ornamentos = [];
     if (e === 0) partes = broto(defE, rng);
     else if (e === 1) partes = muda(defE, H, rng).partes;
     else {
@@ -1104,16 +1118,17 @@ export function construirVariacao(def, semente) {
         if (def.flor) extras.push({ ...def.flor, quantidade: Math.round(def.flor.quantidade * 0.35) });
         else if (def.fruto?.quantidade && def.floracao !== null)
           extras.push({ cor: def.floracao ?? RAMPAS.betula[0], raio: def.fruto.raio * 0.75, quantidade: Math.round(def.fruto.quantidade * 0.8), achatar: 0.6 });
-        salpicar(partes, r.copas, extras, rngExtra);
-        if (def.noTronco) partes.push(...noTronco(h, defE.grossura, RAMPAS.betula[0], Math.round(def.noTronco * 0.6), def.fruto.raio * 0.8, rngExtra));
+        salpicar(partes, r.copas, extras, rngExtra, ornamentos);
+        if (def.noTronco) partes.push(...noTronco(partes, RAMPAS.betula[0], Math.round(def.noTronco * 0.6), def.fruto.raio * 0.8, rngExtra, ornamentos, "flor"));
       } else {
-        if (def.noTronco) partes.push(...noTronco(h, defE.grossura, def.fruto.cor, def.noTronco, def.fruto.raio, rngExtra));
-        salpicar(partes, r.copas, [def.flor, def.fruto].filter(Boolean), rngExtra);
+        if (def.noTronco) partes.push(...noTronco(partes, def.fruto.cor, def.noTronco, def.fruto.raio, rngExtra, ornamentos, "fruto"));
+        salpicar(partes, r.copas, [def.flor && { ...def.flor, tipo: "flor" }, def.fruto && { ...def.fruto, tipo: "fruto" }].filter(Boolean), rngExtra, ornamentos);
         if (RAIZ[forma] && !def.arbusto) partes.push(...raizes(H * RAIZ[forma] * (def.grossura ?? 1), def.cores.casca, rng));
         if (def.tapete && def.flor) partes.push(...tapete(def, H, rngExtra));
       }
     }
     const geo = juntar(partes);
+    geo.userData.arvore = { especie: def.nome, fase, ornamentos, copas: partes.filter(g => g.userData.copa).map(g => g.userData.copa) };
     if (e === 0) geo.scale(1.8, 1.8, 1.8), geo.computeBoundingBox(); // exagero de jogo: o broto precisa ser visto
     estagios.push(geo);
     alturas.push(geo.boundingBox.max.y);

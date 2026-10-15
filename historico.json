@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-15",
-  "versaoAtual": "v0.24",
+  "versaoAtual": "v0.25",
   "proximoPasso": {
-    "titulo": "Revisar a nova água",
-    "descricao": "Comparar o lago, a ligação com o riacho e os reflexos antes da próxima melhoria da paisagem."
+    "titulo": "Revisar as espécies corrigidas",
+    "descricao": "Conferir paineira, frutíferas e cachos no catálogo e no jardim antes de acrescentar espécies."
   },
   "frentes": [
     {
@@ -15,8 +15,8 @@
     {
       "nome": "Árvores",
       "status": "andamento",
-      "progresso": 84,
-      "nota": "36 espécies e 4 arbustos, incluindo as oito brasileiras da v0.17; folhagem com volume da v0.16 preservada."
+      "progresso": 88,
+      "nota": "Identidade por estágio e frutos apoiados na geometria; catálogo protegido e auditoria de 40 espécies."
     },
     {
       "nome": "Ecossistema",
@@ -80,7 +80,9 @@
       "Escadas com lances retos, degraus de 0,25 m, quinas refinadas e juntas regulares",
       "Pontes de madeira detalhadas; ponte do riacho sobe e desce em arco suave",
       "Lago com faixas de profundidade, reflexos largos e encontro limpo com o riacho",
-      "Entradas da ponte de madeira sem muretas de pedra"
+      "Entradas da ponte de madeira sem muretas de pedra",
+      "Paineira com florada coerente, frutos distribuídos pela copa e cachos com apoio próprio",
+      "Catálogo imutável e verificação automática das espécies e estágios"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -105,6 +107,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.25",
+      "data": "2026-10-15",
+      "titulo": "Identidade das árvores e frutos bem apoiados",
+      "porque": "Copas verdes e rosas inteiras se misturavam na paineira e os frutos não seguiam o formato real das árvores.",
+      "mudancas": [
+        "Paineira e jovens floríferas com cores coerentes por estágio",
+        "Flores e frutos acompanham a superfície real da copa",
+        "Cachos de palmeiras e jabuticabas com suporte próprio",
+        "Catálogo protegido e testes para espécies atuais e futuras"
+      ],
+      "resultado": "Distribuição mais legível, sem perder a arquitetura e o estilo pixel art das espécies.",
+      "imagens": [
+        {
+          "src": "historico/v0.25-paineira.jpg",
+          "legenda": "Paineira: folhagem jovem e florada adulta coerentes"
+        },
+        {
+          "src": "historico/v0.25-macieira.jpg",
+          "legenda": "Maçãs espalhadas pela superfície da copa, com apoio e espaço entre elas"
+        }
+      ]
+    },
     {
       "versao": "v0.24",
       "data": "2026-10-15",
