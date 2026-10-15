@@ -122,3 +122,5 @@ O site (repositório `study-compass-26`, branch `codex/medtermo-claude-context`)
 
 - Árvores e presets de arbustos das versões anteriores à v0.6: [ez-tree](https://github.com/dgreenheck/ez-tree), Daniel Greenheck — MIT. Na v0.6, gerador próprio em `src/arvoreProc.js`.
 - [three.js](https://threejs.org) — MIT.
+
+Publicação v0.20: importações do terreno recebem versão no endereço para evitar que o cache misture a cena antiga com o diário novo. A planta usa as mesmas versões dos módulos.
