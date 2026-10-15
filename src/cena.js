@@ -190,24 +190,36 @@ export class Jardim {
     const m = this.mundo;
     const borda = 50, passo = 0.5;
     const L = m.largura + borda * 2, P = m.altura + borda * 2;
-    const g = new THREE.PlaneGeometry(L, P, Math.round(L / passo), Math.round(P / passo));
+    const nx = Math.round(L / passo), nz = Math.round(P / passo);
+    const g = new THREE.PlaneGeometry(L, P, nx, nz);
     g.rotateX(-Math.PI / 2);
     g.translate(m.largura / 2, 0, m.altura / 2);
     const pos = g.attributes.position;
     const cores = new Float32Array(pos.count * 3);
+    const rocha = new Float32Array(pos.count); // 1 = pode ter paredão de pedra (longe da trilha)
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
+    for (let i = 0; i < pos.count; i++) pos.setY(i, this.alturaEm(pos.getX(i), pos.getZ(i)));
+    // Inclinação pelos vizinhos da grade (barranco = degrau entre platôs).
+    const inclinacao = (i) => {
+      const ix = i % (nx + 1), iz = Math.floor(i / (nx + 1));
+      const a = pos.getY(iz * (nx + 1) + Math.max(0, ix - 1)), b = pos.getY(iz * (nx + 1) + Math.min(nx, ix + 1));
+      const c2 = pos.getY(Math.max(0, iz - 1) * (nx + 1) + ix), d2 = pos.getY(Math.min(nz, iz + 1) * (nx + 1) + ix);
+      return Math.hypot(b - a, d2 - c2) / (2 * passo);
+    };
+    const P2 = RAMPAS.pedra;
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), z = pos.getZ(i);
-      pos.setY(i, this.alturaEm(x, z));
+      const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
       const n1 = m.ruido(x / 22, z / 22 + 9, 3), n2 = m.fino(x / 6, z / 6, 2);
       const d = m.densidade(x, z), f = m.fatorLago(x, z);
       const trilha = m.distTrilha(x, z) / m.trilha.largura;
+      rocha[i] = suave(0.5, 0.62, trilha);
       // Gramado: sálvia com manchas; salpicos pontuais viram textura após o dither.
       let idx = n1 < 0.38 ? 2 : n1 < 0.62 ? 3 : 4;
       if (n2 > 0.72) idx += 1;
       if (rng() < 0.025) idx += rng() < 0.5 ? -1 : 1;
+      idx += Math.floor(Math.max(0, y + 0.6) / m.DEGRAU) - 1; // cada platô com seu tom: alto mais claro e seco, baixada mais escura
       c.set(S[Math.max(0, Math.min(S.length - 1, idx))]);
       // Chão de mata: mais escuro e terroso sob o bosque.
       c.lerp(tmp.set(S[1]), suave(0.25, 0.9, d) * 0.8);
@@ -217,14 +229,62 @@ export class Jardim {
       // Margem e fundo do lago.
       if (f < 1.0) c.set(RAMPAS.agua[f < 0.85 ? 0 : 1]);
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
+      // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
+      const inc = inclinacao(i);
+      // (o desenho dos blocos de pedra vem do shader; aqui só a cor de base)
+      if (inc > 0.7 && f > 1.0 && trilha > 0.62) c.set(T[3]);
+      else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
+      // Escada na trilha: degraus de pedra clara com espelho mais escuro.
+      if (trilha < 0.62 && inc > 0.12 && f > 1.0) c.set(Math.floor((y + 0.05) / 0.45) % 2 ? P2[3] : P2[2]);
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
+    g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, toon({ vertexColors: true }));
+    const t = new THREE.Mesh(g, this.materialTerreno());
     t.receiveShadow = true;
     this.scene.add(t);
     this.terreno = t;
+  }
+
+  /**
+   * Chão com paredões de PEDRA EM BLOCOS: onde o terreno fica quase vertical,
+   * o shader desenha colunas de pedra com rachaduras (cor por bloco, no mundo),
+   * como nos barrancos de jogos em pixel art. O resto usa a cor por vértice.
+   */
+  materialTerreno() {
+    const mat = toon({ vertexColors: true });
+    const T = RAMPAS.terra, P = RAMPAS.pedra;
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uRochaEsc = { value: new THREE.Color(T[2]) };
+      sh.uniforms.uRochaClara = { value: new THREE.Color(T[4]) };
+      sh.uniforms.uPedra = { value: new THREE.Color(P[3]) };
+      sh.vertexShader = "attribute float aRocha; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.vertexShader.replace(
+        "#include <worldpos_vertex>",
+        "#include <worldpos_vertex>\nvRocha = aRocha;\nvMundoT = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvNorT = normalize(mat3(modelMatrix) * objectNormal);",
+      );
+      sh.fragmentShader = "uniform vec3 uRochaEsc; uniform vec3 uRochaClara; uniform vec3 uPedra; varying float vRocha; varying vec3 vMundoT; varying vec3 vNorT;\n" + sh.fragmentShader.replace(
+        "#include <color_fragment>",
+        `#include <color_fragment>
+        vec3 rochaLuz = vec3(0.0);
+        if (vNorT.y < 0.62 && vRocha > 0.5) {
+          // Coordenada ao longo do paredão: colunas de ~0,75 m; fiadas de ~1,1 m desencontradas.
+          vec2 tg = normalize(vec2(-vNorT.z, vNorT.x) + 1e-4);
+          float u = dot(vMundoT.xz, tg) / 0.75;
+          float col = floor(u);
+          float h1 = fract(sin(col * 12.9898) * 43758.5453);
+          float v = (vMundoT.y + h1 * 0.9) / 1.1;
+          float h2 = fract(sin(col * 78.233 + floor(v) * 37.719) * 43758.5453);
+          vec3 rocha = h2 > 0.82 ? uPedra : mix(uRochaEsc, uRochaClara, h2);
+          float fenda = max(step(fract(u), 0.12), step(fract(v), 0.1));
+          rocha *= 1.0 - fenda * 0.4;
+          diffuseColor.rgb = rocha;
+          rochaLuz = rocha * 0.45; // paredão vertical não pode sumir na sombra do toon
+        }`,
+      ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += rochaLuz;");
+    };
+    mat.customProgramCacheKey = () => "terreno-rocha";
+    return mat;
   }
 
   criarAgua() {
@@ -467,7 +527,7 @@ export class Jardim {
       let n = 0;
       for (let t = 0; t < max * 5 && n < max; t++) {
         const x = rng() * m.largura, z = rng() * m.altura;
-        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6) continue;
+        if (m.fatorLago(x, z) < 1.05 || m.distTrilha(x, z) < m.trilha.largura * 0.6 || m.declive(x, z) > 0.5) continue;
         const mancha = m.fino(x / 9, z / 9, 3);
         const margem = 1 - suave(1.05, 1.4, m.fatorLago(x, z));
         if (rng() > Math.min(1, suave(0.35, 0.65, mancha) * (1 - m.densidade(x, z) * 0.5) + margem)) continue;

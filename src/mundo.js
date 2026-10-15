@@ -165,7 +165,61 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     return d;
   };
 
-  const fora = (x, y) => fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9;
+  // Relevo em TERRAÇOS: uma elevação contínua (colina no lado oposto ao lago,
+  // baixada em volta da água) é fatiada em platôs planos separados por barrancos
+  // íngremes de DEGRAU metros. Onde a trilha cruza um degrau, vira rampa.
+  const DEGRAU = 4.5, PAREDE = 1.1, ESCADA = 8; // altura do degrau e largura do paredão (m)
+  const morro = { x: lago.cx < largura / 2 ? largura * 0.8 : largura * 0.2, y: lago.cy < altura / 2 ? altura * 0.8 : altura * 0.2 };
+  const elevacao = (x, y) => {
+    let c = 1.0 + (ruido(x / 55 + 3, y / 55, 3) - 0.5) * 3.2;
+    c += 2.6 * Math.exp(-((x - morro.x) ** 2 + (y - morro.y) ** 2) / (2 * 38 * 38));
+    c = lerp(0.5, c, suave(1.15, 2.1, fatorLago(x, y))); // baixada plana em volta do lago
+    c = lerp(0.5, c, 1 - suave(altura + 2, altura + 8, y)); // viveiro (além da borda sul) plano
+    return Math.min(3.45, Math.max(0.3, c));
+  };
+  /** Altura (m) a partir da elevação c e do gradiente dela (níveis por metro). */
+  const alturaDe = (x, y, c, grad) => {
+    const nivel = Math.floor(c);
+    // Paredão de largura FIXA (PAREDE m): quantos metros faltam até o próximo
+    // nível, pelo gradiente — fica vertical mesmo onde o morro é suave.
+    const falta = (1 - (c - nivel)) / Math.max(1e-3, grad);
+    const degraus = nivel + suave(PAREDE, 0, falta);
+    // Na trilha: ESCADA de pedra encaixada no paredão — estreita (só a trilha),
+    // curta e íngreme (sobe nos últimos ESCADA m antes do degrau), degraus de 0,45 m.
+    const naTrilha = 1 - suave(trilha.largura * 0.55, trilha.largura * 0.75, distTrilha(x, y));
+    const escada = Math.floor((nivel + Math.max(0, 1 - falta / ESCADA)) * DEGRAU / 0.45) * 0.45;
+    const h = lerp(degraus * DEGRAU, escada, naTrilha) + (fino(x / 9, y / 9, 2) - 0.5) * 0.25 * (1 - naTrilha);
+    return h - (1 - suave(0.6, 1.08, fatorLago(x, y))) * 2.4; // lago escavado
+  };
+  const alturaExata = (x, y) =>
+    alturaDe(x, y, elevacao(x, y), Math.hypot(elevacao(x + 0.5, y) - elevacao(x - 0.5, y), elevacao(x, y + 0.5) - elevacao(x, y - 0.5)));
+
+  // Grade de alturas (0,5 m) cobrindo o mapa, a borda e o viveiro: calculada UMA vez;
+  // depois a altitude é só consulta (bilinear). Mantém o carregamento rápido.
+  const G = { x0: -50, y0: -50, passo: 0.5 };
+  G.nx = Math.round((largura + 100) / G.passo) + 1;
+  G.ny = Math.round((altura + 100) / G.passo) + 1;
+  const C = new Float32Array(G.nx * G.ny), H = new Float32Array(G.nx * G.ny);
+  for (let j = 0; j < G.ny; j++) for (let i = 0; i < G.nx; i++) C[j * G.nx + i] = elevacao(G.x0 + i * G.passo, G.y0 + j * G.passo);
+  for (let j = 0; j < G.ny; j++)
+    for (let i = 0; i < G.nx; i++) {
+      const k = j * G.nx + i;
+      const gx = C[j * G.nx + Math.min(G.nx - 1, i + 1)] - C[j * G.nx + Math.max(0, i - 1)];
+      const gy = C[Math.min(G.ny - 1, j + 1) * G.nx + i] - C[Math.max(0, j - 1) * G.nx + i];
+      H[k] = alturaDe(G.x0 + i * G.passo, G.y0 + j * G.passo, C[k], Math.hypot(gx, gy));
+    }
+  const altitude = (x, y) => {
+    const fx = (x - G.x0) / G.passo, fy = (y - G.y0) / G.passo;
+    const i = Math.floor(fx), j = Math.floor(fy);
+    if (i < 0 || j < 0 || i >= G.nx - 1 || j >= G.ny - 1) return alturaExata(x, y);
+    const tx = fx - i, ty = fy - j, k = j * G.nx + i;
+    return lerp(lerp(H[k], H[k + 1], tx), lerp(H[k + G.nx], H[k + G.nx + 1], tx), ty);
+  };
+  /** Inclinação (m/m) — barrancos passam de ~0,6. */
+  const declive = (x, y) => Math.hypot(altitude(x + 0.5, y) - altitude(x - 0.5, y), altitude(x, y + 0.5) - altitude(x, y - 0.5));
+  const ingreme = (x, y) => declive(x, y) > 0.45 || declive(x + 1.2, y) > 0.45 || declive(x - 1.2, y) > 0.45 || declive(x, y + 1.2) > 0.45 || declive(x, y - 1.2) > 0.45;
+
+  const fora = (x, y) => fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9 && !ingreme(x, y);
   const nascer = (d) => clamp01(0.85 - d * 0.75 + (rng() - 0.5) * 0.35);
   const objetos = [];
 
@@ -222,12 +276,5 @@ export function gerarMundo(semente, largura = 180, altura = 120) {
     objetos.push({ tipo: "flor", x, y, cor: Math.floor(rng() * 4), nasce: 0 });
   }
 
-  /** Altitude do terreno (m): colinas suaves e o lago escavado na depressão. */
-  const altitude = (x, y) => {
-    let h = (ruido(x / 60 + 3, y / 60, 3) - 0.5) * 3.2;
-    const f = fatorLago(x, y);
-    return h * suave(0.9, 1.5, f) - (1 - suave(0.6, 1.08, f)) * 2.4;
-  };
-
-  return { semente, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, altitude, objetos, ruido, fino };
+  return { semente, largura, altura, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, objetos, ruido, fino };
 }
