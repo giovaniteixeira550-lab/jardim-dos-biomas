@@ -121,6 +121,7 @@ export class Jardim {
     this.relogio = new THREE.Timer();
     // Material único das árvores: cor por vértice (gerador) × tom do indivíduo.
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
+    this.criarRaioX();
     this.individuos = [];
     this.grupos = [];
     this.pixel = criarMaterialPixel();
@@ -223,6 +224,7 @@ export class Jardim {
     const t = new THREE.Mesh(g, toon({ vertexColors: true }));
     t.receiveShadow = true;
     this.scene.add(t);
+    this.terreno = t;
   }
 
   criarAgua() {
@@ -360,6 +362,55 @@ export class Jardim {
     this.selecionarNDC(new THREE.Vector2(((clienteX - r.left) / r.width) * 2 - 1, -((clienteY - r.top) / r.height) * 2 + 1));
   }
 
+  // --- Raio-X: copas na frente do cursor ficam "rendadas" -----------------
+  //
+  // Árvores altas escondem as baixas. Em volta do ponto do chão sob o cursor,
+  // tudo o que está NA FRENTE dele (mais perto da câmera) é desenhado em
+  // xadrez de pixels (descarte por matriz de Bayer 2×2), mais aberto no centro.
+  // É a mesma linguagem do pontilhado da paleta: continua sendo pixel art.
+
+  criarRaioX() {
+    this.raioX = {
+      uFoco: { value: new THREE.Vector3() }, // ponto focado, no espaço da câmera
+      uRaio: { value: 8 },
+      uAtivo: { value: 0 },
+    };
+    this.focoMundo = null;
+    this.matArvore.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, this.raioX);
+      sh.vertexShader = sh.vertexShader
+        .replace("#include <common>", "#include <common>\nvarying vec3 vVista;")
+        .replace("#include <project_vertex>", "#include <project_vertex>\nvVista = mvPosition.xyz;");
+      sh.fragmentShader = sh.fragmentShader
+        .replace("#include <common>", "#include <common>\nuniform vec3 uFoco;\nuniform float uRaio;\nuniform float uAtivo;\nvarying vec3 vVista;")
+        .replace("void main() {", `void main() {
+  if (uAtivo > 0.5) {
+    float k = (1.0 - smoothstep(uRaio * 0.55, uRaio, length(vVista.xy - uFoco.xy))) * step(uFoco.z + 1.5, vVista.z);
+    vec2 p = mod(floor(gl_FragCoord.xy), 2.0);
+    float limiar = p.x < 0.5 ? (p.y < 0.5 ? 0.125 : 0.875) : (p.y < 0.5 ? 0.625 : 0.375);
+    if (k * 0.7 > limiar) discard;
+  }`);
+    };
+    this.matArvore.customProgramCacheKey = () => "arvore-raiox";
+  }
+
+  /** Atualiza o ponto focado a partir da posição do cursor na tela (null = desliga). */
+  focarEm(clienteX, clienteY) {
+    if (clienteX == null || !this.terreno) return (this.focoMundo = null);
+    const caixa = this.canvas.getBoundingClientRect();
+    const r = caixa.width && caixa.height ? caixa : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(((clienteX - r.left) / r.width) * 2 - 1, -((clienteY - r.top) / r.height) * 2 + 1), this.camera);
+    this.focoMundo = ray.intersectObject(this.terreno, false)[0]?.point ?? null;
+  }
+
+  /** O ponto (mundo) está rendado pelo raio-X? Cliques atravessam essas partes. */
+  rendado(p) {
+    if (!this.raioX.uAtivo.value) return false;
+    const v = p.clone().applyMatrix4(this.camera.matrixWorldInverse), f = this.raioX.uFoco.value;
+    return v.z > f.z + 1.5 && Math.hypot(v.x - f.x, v.y - f.y) < this.raioX.uRaio.value * 0.8;
+  }
+
   /** Seleção a partir de coordenadas normalizadas da tela (-1..1). */
   selecionarNDC(ndc) {
     const ray = new THREE.Raycaster();
@@ -368,7 +419,7 @@ export class Jardim {
     const cor = new THREE.Color();
     if (anterior) for (const im of anterior.grupo.malhas) im.setColorAt(anterior.vaga, cor.setScalar(anterior.tom));
     this.selecionado = null;
-    const peca = ray.intersectObjects(this.viveiro ?? [], false)[0];
+    const peca = ray.intersectObjects(this.viveiro ?? [], false).find((h) => !this.rendado(h.point));
     if (peca) {
       const d = peca.object.userData.viveiro;
       const def = ESPECIES[d.especie];
@@ -378,6 +429,7 @@ export class Jardim {
       return this.aoSelecionar?.({ numero: "viveiro", nome: d.nome, especie: d.especie, estagio: ESTAG[d.estagio], extra: ["Vitrine do viveiro", ...(enfeite ? [`Adulta: com ${enfeite.nome}`] : [])] });
     }
     for (const hit of ray.intersectObjects(this.grupos.flatMap((g) => g.malhas), false)) {
+      if (this.rendado(hit.point)) continue;
       const info = this.malhaParaGrupo.get(hit.object);
       const ind = info?.grupo.membros[hit.instanceId];
       if (ind && ind.indice === info.estagio) {
@@ -588,7 +640,10 @@ export class Jardim {
     });
     c.addEventListener("pointermove", (e) => {
       const a = ponteiros.get(e.pointerId);
-      if (!a) return;
+      if (!a) {
+        if (e.pointerType === "mouse") this.focarEm(e.clientX, e.clientY); // mouse parado sobre o mapa
+        return;
+      }
       const b = { x: e.clientX, y: e.clientY };
       if (ponteiros.size === 1) mover(b.x - a.x, b.y - a.y);
       ponteiros.set(e.pointerId, b);
@@ -603,9 +658,14 @@ export class Jardim {
       ponteiros.delete(e.pointerId);
       pinca = 0;
       // Toque/clique curto (sem arrastar) seleciona a árvore sob o cursor.
-      if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
+      if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) {
+        // No toque não há "passar o mouse": o raio-X fica onde se tocou.
+        if (e.pointerType !== "mouse") this.focarEm(e.clientX, e.clientY);
+        this.selecionarEm(e.clientX, e.clientY);
+      }
       inicio = null;
     };
+    c.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") this.focarEm(null); });
     c.addEventListener("pointerup", soltar);
     c.addEventListener("pointercancel", soltar);
     c.addEventListener("wheel", (e) => {
@@ -701,6 +761,13 @@ export class Jardim {
     if (this.vagalumes.visible) this.vagalumes.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.3);
 
     this.posicionarCamera();
+    const rx = this.raioX;
+    rx.uAtivo.value = this.focoMundo ? 1 : 0;
+    if (this.focoMundo) {
+      this.camera.updateMatrixWorld();
+      rx.uFoco.value.copy(this.focoMundo).applyMatrix4(this.camera.matrixWorldInverse);
+      rx.uRaio.value = this.altura * 0.17; // acompanha o zoom
+    }
     const u = this.pixel.uniforms;
     this.renderer.setRenderTarget(this.rt);
     this.renderer.render(this.scene, this.camera);

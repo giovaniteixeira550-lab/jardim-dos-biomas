@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.8",
+  "versaoAtual": "v0.9",
   "proximoPasso": {
-    "titulo": "Passo 1 do plano: árvores que secam sem revisão",
-    "descricao": "Antes: revisar as 4 fases no Viveiro. Depois, na demo: folhas amarelando, caindo e árvore dormente, e a 'rega' que traz o verde de volta. Só arte, sem dados reais ainda."
+    "titulo": "Relevo de verdade: terraços com barrancos",
+    "descricao": "O chão é quase plano (±1,6 m). Próximo: platôs em degraus com barrancos de pedra, uma colina alta e uma baixada úmida — dá leitura ao mapa e lugar para as espécies de altitude e de baixada. Depois: seca das árvores (passo 1 do PLANO)."
   },
   "frentes": [
     {
@@ -54,9 +54,11 @@
       "Viveiro para ver todas as espécies",
       "Clique mostra a ficha da árvore",
       "Carregamento rápido (sem biblioteca de árvores)",
-      "Bambuzal em touceira (colmos arqueados, folhagem no alto)"
+      "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
+      "Raio-X: copas na frente do cursor ficam rendadas em pixel (cliques atravessam)"
     ],
     "corrigir": [
+      "Terreno quase plano: falta relevo visível",
       "Espécies de terreno alto ou baixada (araucária, coqueiro, cristal) quase não aparecem: o mapa tem pouco desses terrenos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
@@ -70,10 +72,31 @@
       "Clima e bichos refletem o ritmo geral de estudo",
       "Próximas espécies: pau-brasil, araçá, embaúba; fantasia: cogumelo azul, árvore-nuvem",
       "Estações do ano (ipês florindo, outono, inverno sem folhas)",
-      "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago"
+      "Chão mais rico: folhas caídas, trevos, juncos e vitórias-régias no lago",
+      "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
+      "Botão 'ver troncos' (abaixa as copas por um instante)"
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.9",
+      "data": "2026-10-14",
+      "titulo": "Raio-X: ver o que está atrás das copas",
+      "porque": "Árvores altas escondiam as menores e o chão.",
+      "mudancas": [
+        "Ao passar o mouse, as copas NA FRENTE do ponto apontado ficam rendadas (xadrez de pixels)",
+        "Mais aberto no centro, fechando nas bordas; o raio acompanha o zoom",
+        "Clique atravessa a parte rendada e seleciona a árvore de trás",
+        "No celular, o raio-X fica onde se tocou"
+      ],
+      "resultado": "Dá para ver mudas e o chão no meio do bosque sem esconder as árvores grandes.",
+      "imagens": [
+        {
+          "src": "historico/v0.9-raio-x.jpg",
+          "legenda": "Copas rendadas em volta do cursor (canto esquerdo)"
+        }
+      ]
+    },
     {
       "versao": "v0.8",
       "data": "2026-10-14",

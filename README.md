@@ -42,13 +42,14 @@ src/presets/      presets de arbustos do ez-tree (MIT)
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.8)
+## 3. Estado atual (v0.9)
 
 - Carrega em ~2,5 s; ~160 FPS numa placa dedicada; sem erros de console.
 - 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
 - **Vento em degraus de pixel:** folhas e capim se movem só em passos de 1 pixel inteiro (sem tremor sub-pixel); capim mais lento, sem contorno de tinta (não grava profundidade) e com lâminas mais grossas.
+- **v0.9 — raio-X:** copas na frente do cursor ficam rendadas em xadrez de pixels (shader no material das árvores, `criarRaioX` em cena.js); cliques atravessam a parte rendada.
 - **v0.8 — fases com cara própria:** broto no montinho (folhas-semente, coco, pinhão, rebento), muda com estaca, jovem esguia com primeira florada, adulta com raízes e frutos; mudanças por espécie (coqueiro jovem sem tronco, baobá incha, cogumelo abre, pinheiro levanta a saia, bétula embranquece). Novas: jabuticabeira, abacateiro, oliveira, mandacaru (forma cacto); bambuzal refeito em touceira.
 - **v0.7 — leva 2:** mangueira, limoeiro, ipê-roxo, bananeira, baobá, bambuzal, árvore-de-cristal e salgueiro-lanterna; formas novas bananeira, garrafa, bambu e cristal; viveiro em 3 fileiras.
 - **v0.6 — variedade:** gerador próprio de árvores (src/arvoreProc.js), 16 espécies + 4 arbustos, 4 estágios cada (broto, muda, jovem, adulta), flores e frutos; sem vento; pixel mínimo e contorno fixos; botão Viveiro.
