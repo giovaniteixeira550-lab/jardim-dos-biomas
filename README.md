@@ -42,13 +42,14 @@ src/presets/      presets de arbustos do ez-tree (MIT)
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.15)
+## 3. Estado atual (v0.16)
 
 - Carrega em ~2,5 s; ~160 FPS numa placa dedicada; sem erros de console.
 - 11 espécies/variações (carvalho, freixo, bétula, pinheiro, salgueiro, outonal, bétula dourada, cerejeira, 3 arbustos).
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
 - **Vento em degraus de pixel:** folhas e capim se movem só em passos de 1 pixel inteiro (sem tremor sub-pixel); capim mais lento, sem contorno de tinta (não grava profundidade) e com lâminas mais grossas.
+- **v0.16 — folhagem 3D:** atributos `esfera`, `raioCopa`, `semCopa` nos volumes; `estiloCopa` faz células Voronoi 3D sobre cada volume e inclina a normal em cada tufo (luz do sol de verdade). Substitui o padrão de tela da v0.15.
 - **v0.15 — folhas em escama:** `estiloCopa` desenha aglomerados em fileiras desencontradas (coordenadas de tela fixas no mundo); `banda = -9` marca o que não é folhagem.
 - **v0.14 — copas desenhadas:** atributo `banda` nos volumes de folhagem (arvoreProc.js) e `estiloCopa` no shader das árvores (cena.js): topo claro, base escura.
 - **v0.13 — chão desenhado:** gramado com manchas e tufinhos no shader do terreno (`materialTerreno`, atributo `aGrama`), sombra de contato e beirada clara nos paredões, pontilhado `uDither` 0,22 em pixel.js.

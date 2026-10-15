@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.15",
+  "versaoAtual": "v0.16",
   "proximoPasso": {
     "titulo": "Revisar o mapa maior; depois a seca das árvores",
     "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
@@ -63,7 +63,7 @@
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
       "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
       "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)",
-      "Textura de folhas nas copas: aglomerados em escama com sombra embaixo e brilho em cima"
+      "Folhagem com anatomia 3D: tufos orgânicos sobre cada volume, iluminados pelo sol, sombra só embaixo de cada tufo"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -88,6 +88,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.16",
+      "data": "2026-10-14",
+      "titulo": "Folhagem que segue o volume 3D (refaz a v0.15)",
+      "porque": "Na v0.15 as escamas pareciam um carimbo igual colado por cima, sem seguir a forma de cada árvore.",
+      "mudancas": [
+        "Tufos de folhas distribuídos SOBRE a superfície de cada volume (células orgânicas em 3D, sem linhas nem polos)",
+        "Cada tufo é um pequeno domo iluminado pelo sol: lado claro e lado escuro de verdade, não pintados",
+        "Sombra só embaixo de cada tufo; a borda de cima fica clara, como nas referências",
+        "Tamanho do tufo proporcional ao volume e sorteio próprio por volume: nenhuma copa igual"
+      ],
+      "resultado": "Copas fofas e irregulares, com luz coerente; a textura acompanha a forma de cada árvore.",
+      "imagens": [
+        {
+          "src": "historico/v0.16-folhagem.jpg",
+          "legenda": "Zoom de jogo: tufos seguindo cada copa"
+        },
+        {
+          "src": "historico/v0.16-folhagem-perto.jpg",
+          "legenda": "De perto: tufos iluminados pelo sol, sombra embaixo"
+        }
+      ]
+    },
     {
       "versao": "v0.15",
       "data": "2026-10-14",

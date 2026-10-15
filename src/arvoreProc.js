@@ -63,12 +63,20 @@ export function juntar(partes) {
   // Altura dentro da copa (-1 base … +1 topo): o shader desenha luz, sombra e escamas de folhas.
   // -9 = não é folhagem (tronco, galho, fruto, flor): fica sem esse desenho.
   const banda = new Float32Array(total).fill(-9);
+  // Folhagem: direção na esfera do volume, raio e semente — o shader distribui os aglomerados
+  // de folhas SOBRE a superfície de cada volume (seguem a curvatura e a luz do sol).
+  const esfera = new Float32Array(total * 3), raioCopa = new Float32Array(total), semCopa = new Float32Array(total);
   let o = 0;
   for (const g of partes) {
     pos.set(g.attributes.position.array, o * 3);
     nor.set(g.attributes.normal.array, o * 3);
     if (g.attributes.color) cor.set(g.attributes.color.array, o * 3);
     if (g.attributes.banda) banda.set(g.attributes.banda.array, o);
+    if (g.attributes.esfera) {
+      esfera.set(g.attributes.esfera.array, o * 3);
+      raioCopa.set(g.attributes.raioCopa.array, o);
+      semCopa.set(g.attributes.semCopa.array, o);
+    }
     o += g.attributes.position.count;
   }
   const geo = new THREE.BufferGeometry();
@@ -76,6 +84,9 @@ export function juntar(partes) {
   geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(cor, 3));
   geo.setAttribute("banda", new THREE.BufferAttribute(banda, 1));
+  geo.setAttribute("esfera", new THREE.BufferAttribute(esfera, 3));
+  geo.setAttribute("raioCopa", new THREE.BufferAttribute(raioCopa, 1));
+  geo.setAttribute("semCopa", new THREE.BufferAttribute(semCopa, 1));
   geo.computeBoundingBox();
   geo.computeBoundingSphere();
   return geo;
@@ -93,6 +104,7 @@ function volume(raio, c, hex, semente, achatar = 0.85, irregular = 0.4) {
   const r = criarRuido(semente);
   const p = g.attributes.position;
   const fatores = new Float32Array(p.count), bandas = new Float32Array(p.count);
+  const esf = new Float32Array(p.count * 3), raios = new Float32Array(p.count).fill(raio), sems = new Float32Array(p.count).fill(((semente * 0.6180339) % 1 + 1) % 1);
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const n = r(x * 1.7 + z * 0.8 + 3, y * 1.7 + z * 1.2 + 7, 2);
@@ -100,10 +112,14 @@ function volume(raio, c, hex, semente, achatar = 0.85, irregular = 0.4) {
     p.setXYZ(i, c.x + x * k, c.y + y * k * achatar, c.z + z * k);
     fatores[i] = 0.95 + n * 0.08; // cor quase chapada: a leitura de volume vem das faixas desenhadas
     bandas[i] = y;
+    esf.set([x, y, z], i * 3);
   }
   let idx = 0;
   pintar(g, hex, () => fatores[idx++]);
   g.setAttribute("banda", new THREE.BufferAttribute(bandas, 1));
+  g.setAttribute("esfera", new THREE.BufferAttribute(esf, 3));
+  g.setAttribute("raioCopa", new THREE.BufferAttribute(raios, 1));
+  g.setAttribute("semCopa", new THREE.BufferAttribute(sems, 1));
   g.computeVertexNormals();
   return g.toNonIndexed();
 }
