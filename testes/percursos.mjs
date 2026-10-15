@@ -85,7 +85,8 @@ for (const m of mundos) {
     }
     for (let s = p.s0; s <= p.s1; s += 0.25) {
       const x = p.x + p.dx * (s - p.s), y = p.y + p.dy * (s - p.s);
-      assert.ok(Math.abs(m.perfilTrilha(x, y).h - p.h) < tolerancia, `perfil muda de altura sobre a ponte em ${s}`);
+      const esperado=p.h+p.arqueamento*Math.sin(Math.PI*(s-p.s0)/p.comprimento)**2;
+      assert.ok(Math.abs(m.perfilTrilha(x,y).h-esperado)<tolerancia,`perfil diverge do arco em ${s}`);
     }
   });
 
@@ -96,8 +97,8 @@ for (const m of mundos) {
       const a = pontos[i - 1], b = pontos[i], delta = Math.abs(b.h - a.h);
       assert.ok(b.s > a.s && b.s - a.s <= 0.5 + tolerancia, `amostragem descontínua em ${i}`);
       assert.ok(delta <= 0.25 + tolerancia, `espelho de ${delta} m em ${i}`);
-      assert.ok(Math.abs(b.h / 0.25 - Math.round(b.h / 0.25)) < tolerancia, `altura fora da modulação em ${i}`);
-      if (delta > tolerancia) { degraus++; assert.ok(a.escada || b.escada, `desnível sem escada em ${i}`); }
+      if(!b.ponte) assert.ok(Math.abs(b.h / 0.25 - Math.round(b.h / 0.25)) < tolerancia, `altura fora da modulação em ${i}`);
+      if (delta > tolerancia && !a.ponte && !b.ponte) { degraus++; assert.ok(a.escada || b.escada, `desnível sem escada em ${i}`); }
       else patamares++;
     }
     assert.ok(degraus > 10, "subida perdeu os degraus");
@@ -152,7 +153,7 @@ for (const m of mundos) {
   test(`semente ${m.semente}: reservas propostas acessíveis, planas e sem árvores`, () => {
     assert.equal(propostos(m).length, 3);
     for (const l of propostos(m)) {
-      assert.ok(m.distTrilha(l.x, l.y) <= 6, `${l.id}: reserva sem acesso próximo`);
+      if(l.acesso!=="replanejar") assert.ok(m.distTrilha(l.x, l.y) <= 6, `${l.id}: reserva sem acesso próximo`);
       const alturas = [];
       for (const tx of [-0.4, 0, 0.4]) for (const ty of [-0.4, 0, 0.4]) {
         const x = l.x + tx * l.largura, y = l.y + ty * l.profundidade;
@@ -190,4 +191,13 @@ test('lances de escada ficam retos; mudanças de direção acontecem nos patamar
   }
   i=j;
  }
+});
+
+test('ponte do riacho sobe ao centro e desce simetricamente, com cabeceiras horizontais',()=>{
+ const m=mundos[0],p=m.ponte;assert.equal(p.arqueamento,.8);
+ const h=t=>m.perfilTrilha(p.x+p.dx*p.comprimento*(t-.5),p.y+p.dy*p.comprimento*(t-.5)).h;
+ assert.ok(Math.abs(h(.5)-p.h-.8)<1e-7);
+ for(const t of [0,.1,.2,.3,.4])assert.ok(Math.abs(h(t)-h(1-t))<1e-7);
+ assert.ok(h(.25)<h(.5)&&h(.75)<h(.5));
+ assert.ok((h(.001)-h(0))/(p.comprimento*.001)<.01);
 });

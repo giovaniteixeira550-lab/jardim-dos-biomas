@@ -1,4 +1,5 @@
 /** Percursos compartilhados pelo chão, pelas escadas, pontes e água. */
+import {alturaTabuleiro} from "./perfilPonte.js";
 const limitar = (v,a,b) => Math.max(a,Math.min(b,v));
 const misturar = (a,b,t) => a+(b-a)*t;
 const suave = (a,b,x) => {const t=limitar((x-a)/(b-a),0,1);return t*t*(3-2*t);};
@@ -76,7 +77,7 @@ export function organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:
     const len=Math.hypot(ux,uy),dx=ux/len,dy=uy/len;
     const seno=Math.abs(det)/(len*Math.hypot(vx,vy));
     const vao=Math.max(7,(Math.max(p.largura,q.largura)+2.8)/Math.max(0.2,seno));
-    pontes.push({x:a.x+ux*t,y:a.y+uy*t,dx,dy,s,sRio,comprimento:vao,largura:trilha.largura,s0:s-vao/2,s1:s+vao/2});
+    pontes.push({x:a.x+ux*t,y:a.y+uy*t,dx,dy,s,sRio,comprimento:vao,arqueamento:plano?.arqueamentoPonte??0,largura:trilha.largura,s0:s-vao/2,s1:s+vao/2});
     // Uma ponte nunca nasce no meio de uma cortina: conserva um patamar de água.
     const entrada=bruto.findLast(r=>r.s<sRio-4)??bruto[0];
     for(const r of bruto)if(r.s>=sRio-4&&r.s<=sRio+4)r.agua=entrada.agua;
@@ -127,10 +128,12 @@ export function organizarPercursos({trilha,riacho,lago,altitude,grade:G,alturas:
     const patamar=pontes.some(p=>amostras[i].s>=p.s0-1.5&&amostras[i].s<=p.s1+1.5);
     amostras[i].escada=!patamar&&amostras.slice(Math.max(0,i-2),Math.min(amostras.length,i+3)).some(p=>Math.abs(p.h-amostras[i].h)>0.15);
   }
+  for(const p of amostras)if(p.ponte)p.h=alturaTabuleiro(p.ponte.h,p.ponte.arqueamento,(p.s-p.ponte.s0)/p.ponte.comprimento);
   const perfilTrilha=(x,y)=> {
     const p=projetar(x,y,eixo);
     const i=limitar(Math.round(p.s/0.5),0,amostras.length-1),a=amostras[i];
-    return {...p,h:a.h,escada:a.escada,ponte:pontes.find(ponte=>p.s>=ponte.s0&&p.s<=ponte.s1)??null};
+    const ponte=pontes.find(ponte=>p.s>=ponte.s0&&p.s<=ponte.s1)??null;
+    return {...p,h:ponte?alturaTabuleiro(ponte.h,ponte.arqueamento,(p.s-ponte.s0)/ponte.comprimento):a.h,escada:a.escada,ponte};
   };
 
   // Uma única projeção por célula evita que a queda de baixo escave o lábio

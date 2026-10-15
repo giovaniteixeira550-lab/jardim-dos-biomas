@@ -17,6 +17,7 @@ import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } 
 import { construirVariacao } from "./arvoreProc.js";
 import { estiloCopa } from "./estiloCopa.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
+import { criarPonteMadeira } from "./ponteMadeira.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
 import { criarBordasBarranco } from "./bordasBarranco.js";
 
@@ -384,6 +385,7 @@ export class Jardim {
     this.scene.add(this.aguaPercurso);
     this.travessias = criarTravessias(this.mundo, toon);
     this.scene.add(this.travessias);
+    if(this.mundo.plano.passarela)this.travessias.add(criarPonteMadeira(this.mundo.plano.passarela,toon,this.mundo.altitude));
   }
 
   /** Vitórias-régias e taboas na beira do lago. */
@@ -968,7 +970,7 @@ export class Jardim {
     if(!local)return false;
     this.focarEm(null);
     this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
-    this.altura=local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32;
+    this.altura=local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32;
     return true;
   }
 

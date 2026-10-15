@@ -1,5 +1,6 @@
 /** Materiais de solo e geometrias das obras de pedra. */
 import * as THREE from "three";
+import {criarPonteMadeira} from "./ponteMadeira.js";
 import { RAMPAS } from "./paleta.js";
 export { criarMaterialRelevo } from "./solo.js";
 
@@ -239,6 +240,10 @@ export function criarTravessias(mundo, toon) {
 
   const pontes = mundo.pontes ?? (mundo.ponte ? [mundo.ponte] : []);
   pontes.forEach((p, numero) => {
+    if(mundo.plano.passarela) {
+      const madeira=criarPonteMadeira({inicio:{x:p.x-p.dx*p.comprimento/2,y:p.y-p.dy*p.comprimento/2},fim:{x:p.x+p.dx*p.comprimento/2,y:p.y+p.dy*p.comprimento/2},largura:p.largura,altura:p.h,arqueamento:p.arqueamento,apoiosInteriores:false},toon,mundo.altitude);
+      madeira.name="ponte-madeira-riacho";madeira.children[0].userData.tipo="piso-ponte";grupo.add(madeira);return;
+    }
     const norma = Math.hypot(p.dx, p.dy);
     if (!(norma > EPS && p.comprimento > 0 && p.largura > 0 && Number.isFinite(p.h))) return;
     const dx = p.dx / norma, dy = p.dy / norma;

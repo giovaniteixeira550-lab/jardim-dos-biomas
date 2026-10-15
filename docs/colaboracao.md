@@ -63,3 +63,7 @@ Alteração delimitada ao traçado de planoMestre, conforme imagem do usuário. 
 ## Refinamento das escadas — v0.22
 
 Escopo: lajes e bordas de relevo.js, modulação de 0,25 m em percursos.js e remoção de dois pontos de inflexão no meio dos lances da margem esquerda. O desvio e a ponte inferior continuam no mesmo lugar. Normais transversais vêm de um corredor comum; quinas em três faixas e subdivisões de 0,125 m refinam as faces. Copas, paleta, solo e água preservados. Importações atualizadas para 0.22.
+
+## Pontes de madeira aprovadas — v0.23
+
+Proposta 5740c6a aprovada pelo usuário; publica a remoção do percurso ocidental e as duas pontes de madeira. Pedido adicional: ponte inferior arqueada. perfilPonte.js compartilha altura e inclinação entre malha e percurso; o caminho mantém entradas planas. Tábuas giram pela tangente, vigas e guarda-corpos subdividem a curva. Atualizados testes, planta e diário. Nenhuma cópia de outro colaborador foi editada.

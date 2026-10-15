@@ -20,11 +20,12 @@ const coresAltura = [RAMPAS.salvia[2], RAMPAS.salvia[3], RAMPAS.salvia[4], RAMPA
 
 function terreno(m) {
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(m.largura * 2); canvas.height = Math.round(m.altura * 2);
+  const xmin=m.plano.passarela?-24:0;
+  canvas.width = Math.round((m.largura-xmin) * 2); canvas.height = Math.round(m.altura * 2);
   const ctx = canvas.getContext("2d"), imagem = ctx.createImageData(canvas.width, canvas.height);
   const tons = coresAltura.map(rgb), pedra = rgb(RAMPAS.terra[2]);
   for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
-    const px = (x + 0.5) / 2, py = (y + 0.5) / 2, h = m.altitude(px, py);
+    const px = xmin+(x + 0.5) / 2, py = (y + 0.5) / 2, h = m.altitude(px, py);
     const nivel = Math.max(0, Math.min(3, Math.round(h / (m.DEGRAU || 4.5))));
     const inclinacao = Math.hypot(m.altitude(px + 0.5, py) - m.altitude(px - 0.5, py), m.altitude(px, py + 0.5) - m.altitude(px, py - 0.5));
     const c = inclinacao > 1.3 ? pedra : tons[nivel];
@@ -32,7 +33,7 @@ function terreno(m) {
     imagem.data[k] = c[0]; imagem.data[k + 1] = c[1]; imagem.data[k + 2] = c[2]; imagem.data[k + 3] = 255;
   }
   ctx.putImageData(imagem, 0, 0);
-  SVG.append(elemento("image", { x: 0, y: 0, width: m.largura, height: m.altura, href: canvas.toDataURL(), "image-rendering": "pixelated", "data-tipo": "relevo-real" }));
+  SVG.append(elemento("image", { x: xmin, y: 0, width: m.largura-xmin, height: m.altura, href: canvas.toDataURL(), "image-rendering": "pixelated", "data-tipo": "relevo-real" }));
   coresAltura.forEach((cor, i) => {
     const item = document.createElement("span"), amostra = document.createElement("i");
     amostra.className = "amostra"; amostra.style.backgroundColor = cor;
@@ -46,7 +47,7 @@ function curvas(m, pai) {
   const passo = 1.5;
   for (let h = (m.DEGRAU || 4.5) / 2; h < 18; h += m.DEGRAU || 4.5) {
     const linhas = [];
-    for (let y = 0; y < m.altura; y += passo) for (let x = 0; x < m.largura; x += passo) {
+    for (let y = 0; y < m.altura; y += passo) for (let x = m.plano.passarela?-24:0; x < m.largura; x += passo) {
       const q = [{ x, y }, { x: Math.min(m.largura, x + passo), y }, { x: Math.min(m.largura, x + passo), y: Math.min(m.altura, y + passo) }, { x, y: Math.min(m.altura, y + passo) }];
       const alturas = q.map((p) => m.altitude(p.x, p.y)), encontros = [];
       for (let k = 0; k < 4; k++) {
@@ -139,12 +140,14 @@ function percursos(m, pai) {
     e.append(elemento("path", { d: `M${b.x - 0.65},${b.y - 0.7}v1.4m0.65,-1.4v1.4m0.65,-1.4v1.4`, stroke: RAMPAS.agua[5], "stroke-width": 0.25, fill: "none" }));
     adicionarTitulo(e, `Cascata · queda de ${numero(a.agua - b.agua, 1)} m`); pai.append(e); quedas++;
   }
-  const pontes = m.pontes ?? (m.ponte ? [m.ponte] : []);
+  const pontes = [...(m.pontes ?? (m.ponte ? [m.ponte] : []))];
+  const extra=m.plano.passarela;
+  if(extra){const dx=extra.fim.x-extra.inicio.x,dy=extra.fim.y-extra.inicio.y;const L=Math.hypot(dx,dy);pontes.push({x:(extra.inicio.x+extra.fim.x)/2,y:(extra.inicio.y+extra.fim.y)/2,dx:dx/L,dy:dy/L,comprimento:L,largura:extra.largura,arqueamento:extra.arqueamento});}
   for (const p of pontes) {
     const e = elemento("g", { transform: `translate(${p.x} ${p.y}) rotate(${Math.atan2(p.dy, p.dx) * 180 / Math.PI})`, "data-tipo": "ponte-real" });
-    e.append(elemento("rect", { x: -p.comprimento / 2, y: -p.largura / 2 - 0.25, width: p.comprimento, height: p.largura + 0.5, fill: RAMPAS.pedra[3], stroke: RAMPAS.pedra[1], "stroke-width": 0.45 }));
-    for (let x = -p.comprimento / 2 + 1.7; x < p.comprimento / 2; x += 1.7) e.append(elemento("line", { x1: x, y1: -p.largura / 2, x2: x, y2: p.largura / 2, stroke: RAMPAS.pedra[2], "stroke-width": 0.2 }));
-    adicionarTitulo(e, "Ponte de pedra sobre o riacho"); pai.append(e);
+    e.append(elemento("rect", { x: -p.comprimento / 2, y: -p.largura / 2 - 0.25, width: p.comprimento, height: p.largura + 0.5, fill: RAMPAS.terra[3], stroke: RAMPAS.terra[1], "stroke-width": 0.45 }));
+    for (let x = -p.comprimento / 2 + 1.7; x < p.comprimento / 2; x += 1.7) e.append(elemento("line", { x1: x, y1: -p.largura / 2, x2: x, y2: p.largura / 2, stroke: RAMPAS.terra[1], "stroke-width": 0.2 }));
+    adicionarTitulo(e, "Ponte de madeira em arco"); pai.append(e);
   }
   $("resumo").textContent = `${numero(escadas)} ${escadas === 1 ? "escada" : "escadas"} · ${numero(pontes.length)} ${pontes.length === 1 ? "ponte" : "pontes"} · ${numero(quedas)} ${quedas === 1 ? "cascata" : "cascatas"} no mapa atual. As alturas, posições e trajetos vêm do mesmo jardim em 3D.`;
 }
@@ -169,7 +172,7 @@ function locais(m, implantados, propostos) {
       linha("Área prevista", `${numero(l.largura * l.profundidade)} m²`);
     }
     linha("Altura do terreno", `${numero(m.altitude(l.x, l.y), 1)} m`);
-    $("local-nota").textContent = proposto ? "O espaço está reservado no plano. A construção ainda será desenvolvida." : "Este lugar já faz parte do jardim. Sua posição acompanha o mapa atual.";
+    $("local-nota").textContent = l.acesso==="replanejar" ? "Acesso em revisão após a retirada do caminho antigo." : proposto ? "O espaço está reservado no plano. A construção ainda será desenvolvida." : "Este lugar já faz parte do jardim. Sua posição acompanha o mapa atual.";
     $("ver-3d").href = `./index.html?local=${encodeURIComponent(l.id)}`;
     $("ver-3d").setAttribute("aria-label", `Ver ${l.nome} no mapa 3D`);
   };
@@ -213,7 +216,7 @@ async function preparar() {
   // Dá ao navegador um quadro para mostrar a preparação antes de gerar o mundo.
   await new Promise((resolver) => setTimeout(resolver, 0));
   const m = gerarMundo(1234);
-  SVG.setAttribute("viewBox", `0 0 ${m.largura} ${m.altura}`);
+  SVG.setAttribute("viewBox", `${m.plano.passarela?-24:0} 0 ${m.largura+(m.plano.passarela?24:0)} ${m.altura}`);
   $("dimensoes").textContent = `${numero(m.largura)} × ${numero(m.altura)} m`;
   if (m.plano?.nome) $("nome-plano").textContent = m.plano.nome;
   if (m.plano?.ideia) $("ideia").textContent = m.plano.ideia;
