@@ -1,0 +1,47 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Integridade das espécies</title>
+<style>body{font:16px system-ui;background:#141c18;color:#e9e3d1;margin:24px}li{margin:12px}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<h1>Integridade das espécies e apoio dos frutos</h1><button id="executar">Executar verificações</button><p id="estado">Aguardando</p><ol id="resultados"></ol>
+<script type="module">
+import * as THREE from 'three';
+import {ESPECIES} from '../src/especies.js';
+import {construirVariacao} from '../src/arvoreProc.js';
+import {distribuirEnfeites} from '../src/ornamentos.js';
+import {criarRng} from '../src/mundo.js';
+import {RAMPAS as R} from '../src/paleta.js';
+const $=id=>document.getElementById(id),ok=(v,m)=>{if(!v)throw Error(m)},passou=m=>{const li=document.createElement('li');li.textContent='PASSOU — '+m;$('resultados').append(li)};
+function assinatura(v){let h=2166136261;for(const g of v.estagios)for(const nome of Object.keys(g.attributes)){const a=g.attributes[nome].array,b=new Uint8Array(a.buffer,a.byteOffset,a.byteLength);for(const x of b)h=Math.imul(h^x,16777619);}return h>>>0;}
+function liberar(v){v.estagios.forEach(g=>g.dispose());}
+$('executar').onclick=async()=>{try{
+ $('executar').disabled=true;const antes=JSON.stringify(ESPECIES), hashes=new Map();let modelos=0,frutos=0;
+ for(const [id,def] of Object.entries(ESPECIES)){
+  $('estado').textContent='Conferindo '+def.nome;await new Promise(r=>requestAnimationFrame(r));
+  for(const seed of [1234,917,40281]){
+   const v=construirVariacao(def,seed);if(seed===1234)hashes.set(id,assinatura(v));
+   v.estagios.forEach((g,e)=>{
+    modelos++;for(const [nome,a] of Object.entries(g.attributes))ok(a.array.every(Number.isFinite),`${id}/${e}: ${nome} contém valor inválido`);
+    const meta=g.userData.arvore;ok(meta.especie===def.nome,'identidade trocada');
+    if(e===3 && def.fruto?.quantidade>0)ok(meta.ornamentos.filter(p=>p.tipo==='fruto').length>=Math.floor(def.fruto.quantidade*.8),id+': frutos desaparecidos');
+    if(e<2)ok(meta.ornamentos.length===0,'fruto/flor apareceu antes da fase permitida');
+    for(const p of meta.ornamentos){
+     ok([p.centro,p.apoio].every(v=>[v.x,v.y,v.z].every(Number.isFinite)),'enfeite inválido');
+     ok(p.centro.distanceTo(p.apoio)<p.tamanho*40,'enfeite longe do apoio');
+     if(p.tipo==='fruto'){frutos++;ok(e===3,'fruto antes da adulta');ok(p.disposicao===def.fruto.disposicao,'fruto na arquitetura errada');ok((def.fruto.cores??[def.fruto.cor]).includes(p.cor),'cor de outra espécie');}
+    }
+    if(id==='paineira')for(const c of meta.copas)ok((e===3?[R.flor[2],R.flor[1]]:[R.mata[3],R.mata[4],R.mata[5]]).includes(c.cor),'paineira com copa de outra fase');
+   });liberar(v);
+  }
+ }
+ passou(`${Object.keys(ESPECIES).length} espécies × quatro estágios × três sementes: ${modelos} modelos finitos, com identidade e estágio preservados; ${frutos} frutos conferidos.`);
+ for(const [id,def] of Object.entries(ESPECIES).reverse()){const v=construirVariacao(def,1234);ok(assinatura(v)===hashes.get(id),id+': resultado depende da espécie anterior');liberar(v);}
+ ok(JSON.stringify(ESPECIES)===antes,'catálogo foi alterado');let bloqueou=false;try{ESPECIES.paineira.cores.folha=0;}catch{bloqueou=true;}ok(bloqueou,'catálogo mutável');passou('Ordem invertida produz as mesmas geometrias; cores e regras do catálogo não podem ser sobrescritas.');
+ const g=new THREE.IcosahedronGeometry(2,2);g.scale(1,.25,1);g.userData.copa={centro:new THREE.Vector3(),raio:2,achatar:.25};
+ const ps=distribuirEnfeites([g],[],{tipo:'fruto',disposicao:'copa',quantidade:26,raio:.08},criarRng(42));
+ ok(ps.length===26,'faltam frutos em copa com espaço');const p=g.attributes.position,a=new THREE.Vector3(),b=a.clone(),c=a.clone();
+ for(const q of ps){let d=Infinity;for(let i=0;i<p.count;i+=3){a.fromBufferAttribute(p,i);b.fromBufferAttribute(p,i+1);c.fromBufferAttribute(p,i+2);const t=new THREE.Triangle(a,b,c);d=Math.min(d,t.closestPointToPoint(q.apoio,new THREE.Vector3()).distanceTo(q.apoio));}ok(d<1e-6,'apoio fora da superfície real');}
+ for(let i=0;i<ps.length;i++)for(let j=0;j<i;j++)ok(ps[i].centro.distanceTo(ps[j].centro)>=(ps[i].tamanho+ps[j].tamanho)*.92,'frutos sobrepostos');
+ ok(new Set(ps.map(q=>Math.floor((Math.atan2(q.centro.z,q.centro.x)+Math.PI)/(Math.PI/2))%4)).size===4,'frutos concentrados numa face');g.dispose();passou('Copa achatada: 26 frutos presos a triângulos reais, separados e distribuídos pelos quatro lados.');
+ for(const mod of [{fruto:{...ESPECIES.macieira.fruto,disposicao:undefined}},{forma:'inexistente'},{espinhos:true}]){let falhou=false;try{construirVariacao({...ESPECIES.macieira,...mod},1);}catch{falhou=true;}ok(falhou,'nova espécie incompatível foi aceita');}passou('Espécie nova com forma, fruto ou espinhos incompatíveis é recusada com erro explícito.');
+ $('estado').textContent='Todas as verificações passaram';
+}catch(e){$('estado').textContent='FALHOU — '+e.message;console.error(e);}finally{$('executar').disabled=false;}};
+</script>

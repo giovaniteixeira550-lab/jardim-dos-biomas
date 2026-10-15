@@ -15,7 +15,7 @@
  *  - altura [min, max] em metros da adulta; largura e grossura: proporções
  *  - cores: folha (e folha2 para manchas), casca, broto; folhaJovem (cor antes
  *    de florescer, nas floríferas); cogumelo: pinta, lamela
- *  - flor / fruto: { cor, raio, quantidade, nome } — aparecem na adulta
+ *  - flor / fruto: { disposicao: "copa", cor, raio, quantidade, nome } — aparecem na adulta
  *  - FASES (cada estágio tem cara própria, ver arvoreProc.js):
  *    cascaJovem (bétula nasce marrom), larguraJovem, floracao (cor das flores
  *    da jovem nas frutíferas; null = não floresce à vista), tapete (pétalas
@@ -100,19 +100,19 @@ export const ESPECIES = {
   macieira: {
     nome: "Macieira", forma: "redonda", altura: [5, 7], largura: 1.15, grossura: 1.1,
     cores: { folha: R.mata[4], folha2: R.mata[3], casca: R.terra[2] }, variacoes: 2,
-    fruto: { cor: R.vermelho[1], raio: 0.17, quantidade: 22, nome: "maçãs" }, floracao: R.flor[3],
+    fruto: { disposicao: "copa", cor: R.vermelho[1], raio: 0.17, quantidade: 22, nome: "maçãs" }, floracao: R.flor[3],
     nicho: { umidade: [0.5, 0.25], sombra: 0.25, altitude: null }, raridade: 0.3,
   },
   laranjeira: {
     nome: "Laranjeira", forma: "redonda", altura: [5, 7], largura: 1.0,
     cores: { folha: R.mata[2], folha2: R.mata[3], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.outono[3], raio: 0.16, quantidade: 26, nome: "laranjas" },
+    fruto: { disposicao: "copa", cor: R.outono[3], raio: 0.16, quantidade: 26, nome: "laranjas" },
     nicho: { umidade: [0.45, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
   },
   coqueiro: {
     nome: "Coqueiro", forma: "palmeira", altura: [9, 12],
     cores: { folha: R.mata[4], casca: R.terra[3], broto: R.mata[4] }, variacoes: 2,
-    fruto: { cor: R.terra[1], raio: 0.26, quantidade: 5, nome: "cocos" }, floracao: null,
+    fruto: { disposicao: "cacho", cor: R.terra[1], raio: 0.26, quantidade: 5, nome: "cocos" }, floracao: null,
     nicho: { umidade: [0.75, 0.2], sombra: 0.15, altitude: [0.25, 0.3] }, raridade: 0.3, // baixada úmida e ensolarada
   },
 
@@ -151,13 +151,13 @@ export const ESPECIES = {
   mangueira: {
     nome: "Mangueira", forma: "redonda", altura: [10, 13], largura: 1.35, grossura: 1.3,
     cores: { folha: R.mata[2], folha2: R.mata[1], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.outono[3], raio: 0.2, quantidade: 20, achatar: 1.3, nome: "mangas" }, floracao: R.amarelo[2],
+    fruto: { disposicao: "copa", cor: R.outono[3], raio: 0.2, quantidade: 20, achatar: 1.3, nome: "mangas" }, floracao: R.amarelo[2],
     nicho: { umidade: [0.55, 0.25], sombra: 0.3, altitude: [0.3, 0.35] }, raridade: 0.3, // copa densa e escura
   },
   limoeiro: {
     nome: "Limoeiro", forma: "redonda", altura: [4, 6], largura: 1.0,
     cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.terra[2] }, variacoes: 2,
-    fruto: { cor: R.amarelo[2], raio: 0.13, quantidade: 24, achatar: 1.2, nome: "limões" },
+    fruto: { disposicao: "copa", cor: R.amarelo[2], raio: 0.13, quantidade: 24, achatar: 1.2, nome: "limões" },
     nicho: { umidade: [0.5, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
   },
   ipeRoxo: {
@@ -169,7 +169,7 @@ export const ESPECIES = {
   bananeira: {
     nome: "Bananeira", forma: "bananeira", altura: [4, 6],
     cores: { folha: R.mata[4], folha2: R.mata[5], casca: R.salvia[2], coracao: R.lilas[0], broto: R.mata[4] }, variacoes: 2,
-    fruto: { cor: R.amarelo[1], raio: 0.1, quantidade: 0, nome: "bananas" }, // cacho desenhado pela forma
+    fruto: { disposicao: "proprio", cor: R.amarelo[1], raio: 0.1, quantidade: 0, nome: "bananas" }, // cacho desenhado pela forma
     nicho: { umidade: [0.75, 0.2], sombra: 0.3, altitude: [0.25, 0.35] }, raridade: 0.3, // baixada úmida
   },
   baoba: {
@@ -192,7 +192,7 @@ export const ESPECIES = {
   salgueiroLanterna: {
     nome: "Salgueiro-lanterna", forma: "pendente", altura: [6, 8], largura: 1.0,
     cores: { folha: R.agua[3], folha2: R.mata[4], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.luz[0], raio: 0.2, quantidade: 14, nome: "lanternas" }, floracao: R.agua[5],
+    fruto: { disposicao: "copa", cor: R.luz[0], raio: 0.2, quantidade: 14, nome: "lanternas" }, floracao: R.agua[5],
     nicho: { umidade: [0.8, 0.2], sombra: 0.5, altitude: null }, raridade: 0.06, // rara, junto à água
   },
 
@@ -200,20 +200,20 @@ export const ESPECIES = {
   jabuticabeira: {
     nome: "Jabuticabeira", brasil: true, forma: "redonda", altura: [5, 7], largura: 1.25, grossura: 1.5,
     cores: { folha: R.mata[3], folha2: R.mata[2], casca: R.terra[3] }, variacoes: 2,
-    fruto: { cor: R.lilas[0], raio: 0.09, quantidade: 0, nome: "jabuticabas no tronco" },
+    fruto: { disposicao: "tronco", cor: R.lilas[0], raio: 0.09, quantidade: 0, nome: "jabuticabas no tronco" },
     noTronco: 54, // frutos (e antes, flores brancas) colados no tronco
     nicho: { umidade: [0.6, 0.22], sombra: 0.45, altitude: null }, raridade: 0.2,
   },
   abacateiro: {
     nome: "Abacateiro", forma: "oval", altura: [10, 13], largura: 1.45, grossura: 1.2,
     cores: { folha: R.mata[2], folha2: R.mata[3], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.mata[5], raio: 0.2, quantidade: 14, achatar: 1.4, nome: "abacates" }, floracao: R.amarelo[2],
+    fruto: { disposicao: "copa", cor: R.mata[5], raio: 0.2, quantidade: 14, achatar: 1.4, nome: "abacates" }, floracao: R.amarelo[2],
     nicho: { umidade: [0.55, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25,
   },
   oliveira: {
     nome: "Oliveira", forma: "redonda", altura: [5, 7], largura: 1.2, grossura: 1.5,
     cores: { folha: R.salvia[3], folha2: R.salvia[4], casca: R.pedra[2] }, variacoes: 2,
-    fruto: { cor: R.lilas[0], raio: 0.08, quantidade: 30, achatar: 1.3, nome: "azeitonas" },
+    fruto: { disposicao: "copa", cor: R.lilas[0], raio: 0.08, quantidade: 30, achatar: 1.3, nome: "azeitonas" },
     nicho: { umidade: [0.3, 0.2], sombra: 0.15, altitude: [0.6, 0.35] }, raridade: 0.25, // seca e ensolarada
   },
   mandacaru: {
@@ -232,24 +232,24 @@ export const ESPECIES = {
   buriti: {
     nome: "Buriti", forma: "leque", altura: [12, 16], brasil: true,
     cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.pedra[2] }, variacoes: 2,
-    fruto: { cor: R.vermelho[0], raio: 0.13, quantidade: 34, nome: "cachos de buriti" }, floracao: null,
+    fruto: { disposicao: "cacho", cor: R.vermelho[0], raio: 0.13, quantidade: 34, nome: "cachos de buriti" }, floracao: null,
     nicho: { umidade: [0.85, 0.22], sombra: 0.2, altitude: null }, raridade: 0.4, // veredas: solo encharcado
   },
   acai: {
     nome: "Açaizeiro", forma: "acai", altura: [8, 12], brasil: true,
     cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.salvia[2] }, variacoes: 2,
-    fruto: { cor: R.lilas[0], raio: 0.07, quantidade: 44, nome: "cachos de açaí" }, floracao: null,
+    fruto: { disposicao: "cacho", cor: R.lilas[0], raio: 0.07, quantidade: 44, nome: "cachos de açaí" }, floracao: null,
     nicho: { umidade: [0.85, 0.15], sombra: 0.45, altitude: [0.2, 0.3] }, raridade: 0.3, // várzea úmida
   },
   cajueiro: {
     nome: "Cajueiro", forma: "esparramada", altura: [5, 7], largura: 1.2, grossura: 1.2, brasil: true,
     cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.terra[1] }, variacoes: 2,
-    fruto: { cor: R.vermelho[2], cores: [R.vermelho[2], R.amarelo[1]], raio: 0.14, quantidade: 20, achatar: 1.4, nome: "cajus" },
+    fruto: { disposicao: "copa", cor: R.vermelho[2], cores: [R.vermelho[2], R.amarelo[1]], raio: 0.14, quantidade: 20, achatar: 1.4, nome: "cajus" },
     nicho: { umidade: [0.3, 0.25], sombra: 0.15, altitude: null }, raridade: 0.25, // solo arenoso e sol
   },
   paineira: {
     nome: "Paineira (barriguda)", forma: "garrafa", altura: [10, 13], grossura: 1.0, espinhos: true, tapete: true, brasil: true,
-    cores: { folhaJovem: R.mata[3], folhaJovem2: R.mata[4], folha: R.flor[2], folha2: R.mata[3], casca: R.salvia[2] }, variacoes: 2,
+    cores: { folhaJovem: R.mata[3], folhaJovem2: R.mata[4], folha: R.flor[2], folha2: R.flor[1], casca: R.salvia[2] }, variacoes: 2,
     flor: { cor: R.flor[2], raio: 0.2, quantidade: 22, achatar: 0.6, nome: "flores" },
     nicho: { umidade: [0.4, 0.25], sombra: 0.15, altitude: null }, raridade: 0.2,
   },
@@ -280,7 +280,7 @@ export const ESPECIES = {
   arbustoFrutinhas: {
     nome: "Arbusto de frutinhas", forma: "moita", altura: [1.1, 1.8], arbusto: true,
     cores: { folha: R.mata[2], casca: CASCA }, variacoes: 1,
-    fruto: { cor: R.vermelho[2], raio: 0.07, quantidade: 14, nome: "frutinhas" },
+    fruto: { disposicao: "copa", cor: R.vermelho[2], raio: 0.07, quantidade: 14, nome: "frutinhas" },
     nicho: { umidade: [0.55, 0.4], sombra: 0.8, altitude: null }, raridade: 0.5,
   },
   arbustoFlorido: {
@@ -292,7 +292,14 @@ export const ESPECIES = {
   arbustoBagas: {
     nome: "Arbusto de bagas", forma: "moita", altura: [1.0, 1.5], arbusto: true,
     cores: { folha: R.mata[3], casca: CASCA }, variacoes: 1,
-    fruto: { cor: R.lilas[1], raio: 0.06, quantidade: 16, nome: "bagas" },
+    fruto: { disposicao: "copa", cor: R.lilas[1], raio: 0.06, quantidade: 16, nome: "bagas" },
     nicho: { umidade: [0.6, 0.35], sombra: 0.85, altitude: null }, raridade: 0.4,
   },
 };
+
+// Catálogo imutável: uma variação não pode alterar as características da próxima.
+function congelar(obj) {
+  for (const valor of Object.values(obj)) if (valor && typeof valor === "object") congelar(valor);
+  return Object.freeze(obj);
+}
+congelar(ESPECIES);

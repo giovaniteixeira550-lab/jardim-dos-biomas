@@ -54,9 +54,10 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.24)
+## 3. Estado atual (v0.25)
 
-- O histórico acompanha v0.1–v0.24 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.25 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- **v0.25 — identidade das árvores:** paineira adulta com florada rosa coerente, cores juvenis próprias e frutos apoiados na superfície real das copas. Cachos de palmeiras e jabuticabas têm suportes próprios. Catálogo imutável, validação de espécies novas e auditoria em `testes/especies.html`; critérios em [docs/integridade-especies.md](docs/integridade-especies.md).
 - **v0.24 — água e lago:** superfície refinada com profundidade calculada pelo fundo, faixas rasas, reflexos largos e ondulações lentas. O riacho termina na costa exata, sem superfícies competindo ou barrancos dentro do lago; o canal já não eleva o fundo da foz. As plantas aquáticas permanecem visíveis. Entradas da ponte em madeira, sem as muretas de pedra.
 - **v0.23 — pontes de madeira:** proposta aprovada, percurso ocidental removido e travessia curta entre as encostas. A ponte do riacho tem arco de 0,8 m, com subida e descida suaves, tábuas inclinadas e guarda-corpos acompanhando o tabuleiro. As duas pontes aparecem na planta; o acesso do jardim de chegada continua marcado para revisão.
 - **v0.22 — escadas refinadas:** lances retos com mudanças de direção nos patamares, degraus de 0,25 m em vez de 0,30 m e pisos regulares. Uma referência comum alinha as bordas; quatro pedras por piso, juntas rebaixadas e quinas em três faces substituem as divisões irregulares. Malhas mais densas, com amostras a cada 0,125 m. Atalho para ver a Escada do vale de perto na planta.
