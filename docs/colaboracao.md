@@ -41,3 +41,9 @@ Na conferência final, também integrada a v0.10 do Claude (f1a84c9): terraços,
 Incorporada a v0.11 do Claude (37d4a9c), preservando plantas aquáticas, catálogo e gerador de árvores. O usuário solicitou substituir a composição aleatória por planejamento de terreno e arquitetura. Os novos módulos planoMestre, percursos, relevo e aguaPercurso definem lugares e conexões compartilhados. Planta em planejamento.html. Escopo e estudos em docs/plano-terreno.md. O lote segue na proposta de integração; não modifica a cópia do Claude nem publica main.
 
 Conferência final: integradas também as versões v0.12–v0.15 do Claude (9f09819), preservando mapa de 260×170m, cache dos campos do mundo, medições de carga, desenho do chão, pontilhado suave e textura de folhas. O plano foi ajustado à dimensão maior; o estilo das copas é compartilhado com o catálogo e a galeria.
+
+## Encostas naturais e publicação solicitada (15/10/2026)
+
+Integradas v0.16–v0.17 do Claude (3599561): novas espécies, formas, filtro de brasileiras e anatomia de folhagem preservados. O material das copas foi extraído para o helper compartilhado, sem restaurar o raio-X circular que o usuário já rejeitou.
+
+Este lote concentra-se na paisagem: `formacaoTerreno.js` define crista/ombro/saia, `solo.js` desenha terra sem fiadas, `bordasBarranco.js` acrescenta volume às bordas; água e escadarias usam seus módulos existentes. O campo de alturas continua sendo a referência de apoio. Paleta, pixel 2, contorno, iluminação toon e modelos do Claude foram mantidos. Em 15/10 o usuário pediu explicitamente que as alterações fossem visíveis na demo pública; a entrega inclui publicação de main e conferência do endereço GitHub Pages. Nenhuma cópia local de outro agente foi editada.

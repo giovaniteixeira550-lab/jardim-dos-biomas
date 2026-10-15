@@ -18,6 +18,7 @@ import { construirVariacao } from "./arvoreProc.js";
 import { estiloCopa } from "./estiloCopa.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
+import { criarBordasBarranco } from "./bordasBarranco.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -123,7 +124,7 @@ export class Jardim {
     this.yaw = Math.PI / 4;
     this.yawAlvo = this.yaw;
     this.pitch = THREE.MathUtils.degToRad(38);
-    this.altura = 70; // metros visíveis na vertical
+    this.altura = 92; // vista inicial da encosta, cascatas e travessia
     this.tamPixel = 2; // estilo definido: pixel mínimo, sempre com contorno
     this.crescimento = 0.9;
     this.cresceVisto = -1;
@@ -134,7 +135,7 @@ export class Jardim {
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
     this.uDireita={value:new THREE.Vector2(1,0)};
     this.matArvore.onBeforeCompile=sh=>estiloCopa(sh,this.uDireita,this.pixel.uniforms.uTexel);
-    this.matArvore.customProgramCacheKey=()=>"arvore-copa-escamas";
+    this.matArvore.customProgramCacheKey=()=>"arvore-copa-celulas-v16";
     this.cursorArvore = null;
     this.sobrevoo = null;
     this.ultimoRastreio = -Infinity;
@@ -158,7 +159,7 @@ export class Jardim {
     await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
     medir("mundo");
-    this.alvo.set(m.largura * 0.55, 0, m.altura * 0.55);
+    this.irAoViveiro(false);
 
     progresso(0.1, "Moldando o terreno…");
     await this.ceder();
@@ -247,8 +248,9 @@ export class Jardim {
     g.translate(m.largura / 2, 0, m.altura / 2);
     const pos = g.attributes.position;
     const cores = new Float32Array(pos.count * 3);
-    const rocha = new Float32Array(pos.count); // 1 = pode ter paredão de pedra (longe da trilha)
+    const rocha = new Float32Array(pos.count); // máscara dos barrancos naturais, sem alvenaria
     const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
+    const limitesSolo = new Float32Array(pos.count * 2); // topo e pé REAIS do corte local
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
@@ -260,7 +262,6 @@ export class Jardim {
       const c2 = pos.getY(Math.max(0, iz - 1) * (nx + 1) + ix), d2 = pos.getY(Math.min(nz, iz + 1) * (nx + 1) + ix);
       return Math.hypot(b - a, d2 - c2) / (2 * passo);
     };
-    const P2 = RAMPAS.pedra;
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
       const n1 = m.ruido(x / 22, z / 22 + 9, 3), n2 = m.fino(x / 6, z / 6, 2);
@@ -268,7 +269,7 @@ export class Jardim {
       const gr = m.grade, mesmo = pos.count === gr.nx * gr.ny;
       const d = mesmo ? gr.DN[i] : m.densidade(x, z), f = mesmo ? gr.FL[i] : m.fatorLago(x, z);
       const trilha = (mesmo ? gr.DT[i] : m.distTrilha(x, z)) / m.trilha.largura;
-      rocha[i] = suave(0.5, 0.62, trilha) * (0.8+0.8*suave(8,14,m.distTrilha(x,z)));
+      rocha[i] = suave(0.5, 0.62, trilha);
       // Gramado: tom de base por platô; as manchas e os tufinhos vêm do shader (desenho limpo).
       let idx = n1 < 0.5 ? 3 : 4;
       idx += Math.floor(Math.max(0, y + 0.6) / m.DEGRAU) - 1; // cada platô com seu tom: alto mais claro e seco, baixada mais escura
@@ -290,17 +291,29 @@ export class Jardim {
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
-      // (o desenho dos blocos de pedra vem do shader; aqui só a cor de base)
+      // Altura local do corte: acompanha também recortes junto à estrada/água.
+      // A crosta não usa múltiplos globais de 4,5 m, que desenhavam faixas falsas.
+      let topoSolo = h, peSolo = h;
+      if (inc > 0.35) {
+        const gx = hv[0] - hv[1], gz = hv[2] - hv[3], comprimento = Math.hypot(gx, gz) || 1;
+        for (let raio = 1; raio <= 6; raio++) for (const sinal of [-1, 1]) {
+          const jx = Math.max(0, Math.min(nx, Math.round(ix + gx / comprimento * raio * sinal)));
+          const jz = Math.max(0, Math.min(nz, Math.round(iz + gz / comprimento * raio * sinal)));
+          const vizinho = pos.getY(jz * (nx + 1) + jx);
+          topoSolo = Math.max(topoSolo, vizinho); peSolo = Math.min(peSolo, vizinho);
+        }
+      }
+      limitesSolo.set([topoSolo, peSolo], i * 2);
       if (inc > 0.7 && f > 1.0 && trilha > 0.62) c.set(T[3]);
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
-      // Escada na trilha: degraus de pedra clara com espelho mais escuro.
-      if (trilha < 0.62 && inc > 0.12 && f > 1.0) c.set(Math.floor((y + 0.05) / 0.45) % 2 ? P2[3] : P2[2]);
+      // Os degraus são as malhas sólidas das obras; o chão sob eles continua terra.
       grama[i] = trilha > 0.75 && f > 1.04 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
     g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
     g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
+    g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
     g.computeVertexNormals();
     // As faces dos barrancos têm normais próprias. O topo continua suave;
     // a quina não se dissolve numa transição arredondada de luz.
@@ -314,11 +327,12 @@ export class Jardim {
     const material=this.materialTerreno();
     if(indicesParede.length) {
       const recorte=new THREE.BufferGeometry();
-      for(const nome of ["position","color","aRocha","aGrama"])recorte.setAttribute(nome,g.getAttribute(nome));
+      for(const nome of ["position","color","aRocha","aGrama","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
       recorte.setIndex(indicesParede);
       const faces=recorte.toNonIndexed();faces.computeVertexNormals();recorte.dispose();
       const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
     }
+    this.scene.add(criarBordasBarranco(m, g, indicesParede, toon));
     g.setIndex(indicesChao);
     const t = new THREE.Mesh(g, material);
     t.receiveShadow = true;
@@ -326,12 +340,7 @@ export class Jardim {
     this.terreno = t;
   }
 
-  /**
-   * Chão com paredões de PEDRA no estilo das referências de pixel art: colunas
-   * verticais REGULARES (sempre na vertical da tela), cada uma com chanfro
-   * (luz de um lado, sombra do outro), topo iluminado e pé na sombra, poucos
-   * tons. A luz é desenhada (quase sem depender da malha), por isso fica limpa.
-   */
+  /** Terra natural em camadas; obras de pedra têm material e geometria próprios. */
   materialTerreno() {
     return criarMaterialRelevo(toon,{direita:this.uDireita,texel:this.pixel.uniforms.uTexel});
   }
@@ -943,8 +952,8 @@ export class Jardim {
       this.alvo.set(14, 0, this.mundo.altura + 28);
       this.altura = 46;
     } else {
-      this.alvo.set(this.mundo.largura * 0.55, 0, this.mundo.altura * 0.55);
-      this.altura = 70;
+      this.alvo.set(this.mundo.largura * 0.38, 4, this.mundo.altura * 0.38);
+      this.altura = 92;
     }
   }
 

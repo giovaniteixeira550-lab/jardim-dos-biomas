@@ -3,7 +3,7 @@ import { ESPECIES, ESTAGIOS } from "./especies.js";
 
 const $ = id => document.getElementById(id);
 const fantasias = new Set(["cogumelo", "arvoreCristal", "salgueiroLanterna"]);
-const formas = { cacto:"Cacto ramificado", redonda:"Copa redonda", oval:"Copa alongada", conica:"Copa em camadas", colunar:"Copa em coluna", pendente:"Copa pendente", "guarda-chuva":"Copa em guarda-chuva", palmeira:"Palmeira", araucaria:"Copa em candelabro", cogumelo:"Cogumelo de fantasia", moita:"Moita", garrafa:"Tronco em garrafa", bananeira:"Folhas em leque", bambu:"Colmos agrupados", cristal:"Coroa de cristais" };
+const formas = { cacto:"Cacto ramificado", redonda:"Copa redonda", oval:"Copa alongada", conica:"Copa em camadas", colunar:"Copa em coluna", pendente:"Copa pendente", "guarda-chuva":"Copa em guarda-chuva", palmeira:"Palmeira", araucaria:"Copa em candelabro", cogumelo:"Cogumelo de fantasia", moita:"Moita", garrafa:"Tronco em garrafa", bananeira:"Folhas em leque", bambu:"Colmos agrupados", cristal:"Coroa de cristais", candelabro:"Candelabro de guarda-sóis", leque:"Palmeira de leque", acai:"Touceira de palmeiras", esparramada:"Copa baixa e esparramada" };
 const normalizar = texto => texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 const imagens = new Map();
 const itens = [];
@@ -22,7 +22,7 @@ for (const [id, def] of Object.entries(ESPECIES).sort((a,b)=>a[1].nome.localeCom
   const corpo = document.createElement("div"); corpo.className="catalogo-card-conteudo";
   const nome = document.createElement("h3"); nome.textContent=def.nome;
   const tipo = document.createElement("p"); tipo.className="catalogo-tipo";
-  tipo.textContent=`${grupo==="arbustos"?"Arbusto":grupo==="fantasia"?"Fantasia":"Árvore ou planta"} · ${formas[def.forma] ?? def.forma}`;
+  tipo.textContent=`${grupo==="arbustos"?"Arbusto":grupo==="fantasia"?"Fantasia":"Árvore ou planta"} · ${formas[def.forma] ?? def.forma}${def.brasil?" · nativa do Brasil":""}`;
   const etapa = document.createElement("p");
   const extra = document.createElement("p"); extra.textContent=detalhe?`Na maturidade: ${detalhe}.`:"Quatro formas de crescimento.";
   const link = document.createElement("a"); link.className="botao";
@@ -31,14 +31,14 @@ for (const [id, def] of Object.entries(ESPECIES).sort((a,b)=>a[1].nome.localeCom
   link.setAttribute("aria-label",`Ver os 4 estágios de ${def.nome}`);
   corpo.append(nome,tipo,etapa,extra,link); card.append(figura,corpo);
   $("catalogo-grade").append(card);
-  itens.push({id,def,grupo,card,img,espera,etapa,busca:normalizar(`${def.nome} ${id} ${formas[def.forma]??def.forma} ${detalhe}`)});
+  itens.push({id,def,grupo,card,img,espera,etapa,busca:normalizar(`${def.nome} ${id} ${formas[def.forma]??def.forma} ${detalhe} ${def.brasil?"brasil brasileira nativa":""}`)});
 }
 
 async function atualizar() {
   const atual=++versao, etapa=Number($("catalogo-estagio").value);
   const busca=normalizar($("catalogo-busca").value.trim()), grupo=$("catalogo-grupo").value;
   const visiveis=itens.filter(item=>{
-    item.card.hidden=!(item.busca.includes(busca)&&(grupo==="todos"||grupo===item.grupo));
+    item.card.hidden=!(item.busca.includes(busca)&&(grupo==="todos"||grupo===item.grupo||(grupo==="brasileiras"&&item.def.brasil)));
     return !item.card.hidden;
   });
   $("catalogo-contagem").textContent=`${visiveis.length} de ${itens.length} espécies`;

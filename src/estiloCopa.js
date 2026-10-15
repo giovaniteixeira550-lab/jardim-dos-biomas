@@ -1,54 +1,84 @@
-/**
- * Copas DESENHADAS (estilo das referências de pixel art): faixas nítidas pela
- * altura dentro de cada volume de folhagem (atributo "banda" do gerador):
- * topo com brilho, base na sombra. Fixas no mundo (não dependem da câmera),
- * somadas ao toon do sol. Fatores fortes para sobreviver à paleta.
- */
+/** Estilo de folhagem compartilhado: anatomia 3D da v0.16 do Claude. */
 export function estiloCopa(sh, direita, texel) {
-  // Escamas de folhas: aglomerados em fileiras desencontradas, medidos na horizontal
-  // da tela (direita da câmera) e na vertical do mundo — ficam parados ao arrastar o mapa.
-  sh.uniforms.uDireitaC = direita;
   sh.uniforms.uTexelC = texel;
   sh.vertexShader = sh.vertexShader
-    .replace("#include <common>", "#include <common>\nattribute float banda;\nvarying float vBanda;\nvarying vec3 vMundoC;")
+    .replace(
+      "#include <common>",
+      `#include <common>
+      attribute float banda; attribute vec3 esfera; attribute float raioCopa; attribute float semCopa;
+      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;`,
+    )
     .replace(
       "#include <begin_vertex>",
       `#include <begin_vertex>
-      vBanda = banda;
-      vec4 mc = vec4(transformed, 1.0);
+      vBanda = banda; vEsf = esfera; vRaioC = raioCopa; vSemC = semCopa;
+      // Eixos tangentes da esfera (leste/norte), levados para o espaço da câmera como a normal.
+      vec3 dE = normalize(esfera + vec3(1e-5));
+      vec3 le = normalize(cross(vec3(0.0, 1.0, 0.0), dE) + vec3(1e-4, 0.0, 0.0));
+      vec3 no = cross(dE, le);
+      mat3 mi = mat3(1.0);
       #ifdef USE_INSTANCING
-        mc = instanceMatrix * mc;
+        mi = mat3(instanceMatrix);
       #endif
-      vMundoC = (modelMatrix * mc).xyz;`,
+      vLeste = normalize(normalMatrix * (mi * le));
+      vNorte = normalize(normalMatrix * (mi * no));`,
     );
   sh.fragmentShader = sh.fragmentShader
-    .replace("#include <common>", "#include <common>\nvarying float vBanda;\nvarying vec3 vMundoC;\nuniform vec2 uDireitaC;\nuniform float uTexelC;")
+    .replace(
+      "#include <common>",
+      `#include <common>
+      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;
+      uniform float uTexelC;`,
+    )
     .replace(
       "#include <color_fragment>",
       `#include <color_fragment>
       if (vBanda > -2.0) {
-        if (vBanda > 0.5) diffuseColor.rgb *= vec3(1.12, 1.18, 1.04); // topo iluminado (mais verde-amarelo que branco)
-        else if (vBanda < -0.38) diffuseColor.rgb *= 0.64; // base na sombra
-        // Escama: cada aglomerado é um meio-círculo com arco escuro embaixo e brilho em cima.
-        if (uTexelC < 0.13) {
-          vec2 cima = vec2(uDireitaC.y, -uDireitaC.x);
-          float u = dot(vMundoC.xz, uDireitaC) / 1.0;
-          float v = (vMundoC.y + dot(vMundoC.xz, cima) * 0.62) / 0.7;
-          float linha = floor(v);
-          u += mod(linha, 2.0) * 0.5; // fileiras desencontradas, como telhas
-          float hc = fract(sin(dot(vec2(floor(u), linha), vec2(12.9898, 78.233))) * 43758.5453); // sorteio por aglomerado
-          vec2 f = vec2(fract(u) - 0.5, fract(v));
-          float d = length(vec2(f.x, (f.y - 0.62) * 1.25));
-          if (hc > 0.18 && d > 0.46 && d < 0.62 && f.y < 0.62) diffuseColor.rgb *= 0.7;          // sombra sob o aglomerado
-          else if (hc > 0.55 && d < 0.2 && f.y > 0.66 && vBanda > -0.38) diffuseColor.rgb *= 1.16; // brilho no alto do aglomerado
+        if (vBanda > 0.5) diffuseColor.rgb *= vec3(1.12, 1.18, 1.04); // topo iluminado
+        else if (vBanda < -0.38) diffuseColor.rgb *= 0.64;            // base na sombra
+      }`,
+    )
+    .replace(
+      "#include <normal_fragment_maps>",
+      `#include <normal_fragment_maps>
+      if (vBanda > -2.0 && length(vEsf) > 0.5 && uTexelC < 0.16) {
+        // Aglomerados = células orgânicas (Voronoi 3D) sobre a superfície do volume:
+        // sem linhas nem polos; cada célula é um domo iluminado pelo sol.
+        vec3 d = normalize(vEsf);
+        float S = clamp(vRaioC * 0.42, 0.5, 1.05);          // tamanho do aglomerado (m)
+        vec3 q = d * vRaioC / S + vSemC * 17.0;
+        vec3 ip = floor(q), fp = fract(q);
+        float d1 = 8.0, d2 = 8.0;
+        vec3 m1 = vec3(0.0);
+        for (int x = -1; x <= 1; x++)
+          for (int y = -1; y <= 1; y++)
+            for (int z = -1; z <= 1; z++) {
+              vec3 g = vec3(float(x), float(y), float(z));
+              vec3 h = ip + g;
+              vec3 o = fract(sin(vec3(dot(h, vec3(127.1, 311.7, 74.7)), dot(h, vec3(269.5, 183.3, 246.1)), dot(h, vec3(113.5, 271.9, 124.6)))) * 43758.5453);
+              vec3 rr = g + o - fp;
+              float dd = dot(rr, rr);
+              if (dd < d1) { d2 = d1; d1 = dd; m1 = rr; } else if (dd < d2) { d2 = dd; }
+            }
+        float borda = sqrt(d2) - sqrt(d1);
+        // Do centro do aglomerado para este ponto, na tangente da esfera.
+        vec3 off = -m1;
+        off -= d * dot(off, d);
+        vec3 le = normalize(cross(vec3(0.0, 1.0, 0.0), d) + vec3(1e-4, 0.0, 0.0));
+        vec3 no = cross(d, le);
+        float fy = dot(off, no);
+        if (borda < 0.18 && fy < -0.05) {
+          diffuseColor.rgb *= 0.62; // sombra só EMBAIXO de cada tufo (a borda de cima fica clara)
+        } else {
+          // Domo: a normal inclina do centro para fora → lado do sol claro, lado oposto escuro.
+          normal = normalize(normal * 0.55 + (vLeste * dot(off, le) + vNorte * fy) * 2.0);
         }
       }`,
     );
 }
 
-/** Aplica a mesma pintura de folhas do bosque, compartilhando os uniformes. */
 export function aplicarEstiloCopa(material, direita, texel) {
   material.onBeforeCompile = (shader) => estiloCopa(shader, direita, texel);
-  material.customProgramCacheKey = () => "copa-escamas-compartilhada-v15";
+  material.customProgramCacheKey = () => "copa-celulas-compartilhada-v16";
   return material;
 }

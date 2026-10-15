@@ -1,113 +1,7 @@
-/** Pedra, terraços e travessias: medidas e texturas pertencem ao mundo 3D. */
+/** Materiais de solo e geometrias das obras de pedra. */
 import * as THREE from "three";
 import { RAMPAS } from "./paleta.js";
-
-/** A rocha fica presa ao mundo; os tufinhos desenhados acompanham a leitura da vista. */
-export function criarMaterialRelevo(toon, opcoes = {}) {
-  const mat = toon({ vertexColors: true });
-  const direita = opcoes.direita ?? { value: new THREE.Vector2(1, 0) };
-  const texel = opcoes.texel ?? { value: 0.1 };
-  mat.name = "terreno-blocos-mundo";
-  mat.userData.relevo = { versao: 1, referencia: "mundo", cursos: 1.05, larguraBloco: 2.15 };
-  mat.userData.gramado = { direita, texel };
-  mat.onBeforeCompile = (sh) => {
-    const cores = {
-      uPedraSombra: RAMPAS.terra[1], uPedraBase: RAMPAS.terra[3],
-      uPedraClara: RAMPAS.terra[4], uPedraCinza: RAMPAS.pedra[2],
-      uJunta: RAMPAS.terra[0], uMusgo: RAMPAS.mata[2],
-      uRochaBase: RAMPAS.pedra[2], uRochaClara: RAMPAS.pedra[3], uRochaEscura: RAMPAS.pedra[1],
-      uTufo: RAMPAS.mata[2], uTufoLuz: RAMPAS.mata[5],
-    };
-    for (const [nome, cor] of Object.entries(cores)) sh.uniforms[nome] = { value: new THREE.Color(cor) };
-    sh.uniforms.uDireita = direita;
-    sh.uniforms.uTexel = texel;
-    sh.vertexShader = `attribute float aRocha;
-      attribute float aGrama;
-      varying float vRocha;
-      varying float vGrama;
-      varying vec3 vPedraMundo;
-      varying vec3 vPedraNormal;
-    ` + sh.vertexShader.replace("#include <worldpos_vertex>", `#include <worldpos_vertex>
-      vRocha = aRocha;
-      vGrama = aGrama;
-      vPedraMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;
-      vPedraNormal = normalize(mat3(modelMatrix) * objectNormal);
-    `);
-    sh.fragmentShader = `uniform vec3 uPedraSombra;
-      uniform vec3 uPedraBase;
-      uniform vec3 uPedraClara;
-      uniform vec3 uPedraCinza;
-      uniform vec3 uJunta;
-      uniform vec3 uMusgo;
-      uniform vec3 uRochaBase; uniform vec3 uRochaClara; uniform vec3 uRochaEscura;
-      uniform vec2 uDireita; uniform float uTexel;
-      uniform vec3 uTufo; uniform vec3 uTufoLuz;
-      varying float vRocha;
-      varying float vGrama;
-      varying vec3 vPedraMundo;
-      varying vec3 vPedraNormal;
-      float pedraHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-      float ruidoGrama(vec2 p) {
-        vec2 i = floor(p), f = fract(p);
-        f = f * f * (3.0 - 2.0 * f);
-        return mix(mix(pedraHash(i), pedraHash(i + vec2(1.0, 0.0)), f.x), mix(pedraHash(i + vec2(0.0, 1.0)), pedraHash(i + vec2(1.0, 1.0)), f.x), f.y);
-      }
-    ` + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
-      vec3 normalPedra = normalize(vPedraNormal);
-      if (normalPedra.y < 0.68 && vRocha > 0.5) {
-        // Dois eixos fixos: cada face usa o eixo do chão que acompanha sua parede.
-        // Cursos alternados desfazem as antigas colunas verticais repetidas.
-        float lateral = abs(normalPedra.x) > abs(normalPedra.z) ? vPedraMundo.z : vPedraMundo.x;
-        float natural = step(1.15,vRocha);
-        float alturaFiada = mix(1.05,1.8,natural);
-        float fiada = floor(vPedraMundo.y / alturaFiada);
-        float desloca = mod(fiada, 2.0) * 0.51 + (pedraHash(vec2(fiada, 6.0)) - 0.5) * 0.19;
-        float u = lateral / mix(2.15,2.4+pedraHash(vec2(fiada,3.0))*1.2,natural) + desloca;
-        float coluna = floor(u);
-        float fx = fract(u), fy = fract(vPedraMundo.y / alturaFiada);
-        float tom = pedraHash(vec2(coluna, fiada));
-        vec3 pedra = tom < 0.20 ? uPedraCinza : mix(uPedraSombra, uPedraBase, tom < 0.48 ? 0.72 : 1.0);
-        // Chanfro: topo claro e face inferior escura; a iluminação toon continua ativa.
-        if (fy > 0.87 || fx < 0.055) pedra = mix(pedra, uPedraClara, 0.65);
-        if (fy < 0.105 || fx > 0.945) pedra = mix(pedra, uPedraSombra, 0.72);
-        if (fy < 0.045 || fx > 0.978) pedra = uJunta;
-        if(natural>0.5) {
-          pedra=mix(uRochaEscura,uRochaBase,tom<0.25?0.2:0.85);
-          if(fy>0.87||fx<0.07)pedra=mix(pedra,uRochaClara,0.65);
-          if(fy<0.07||fx>0.94)pedra=uRochaEscura;
-          if(tom>0.84)pedra=mix(pedra,uPedraBase,0.35);
-        }
-        // Crosta de terra e musgo em bordas superiores de cada patamar de 4,5 m.
-        float topoPatamar = fract((vPedraMundo.y + 0.015) / 4.5);
-        if (topoPatamar > 0.962) pedra = tom > 0.65 ? uMusgo : uPedraSombra;
-        else if (topoPatamar < 0.07) pedra = mix(pedra, uPedraSombra, 0.65);
-        diffuseColor.rgb = pedra;
-      } else if (vGrama > 0.5) {
-        // Gramado da versão principal: três tons em manchas e tufinhos em V.
-        vec2 p = vPedraMundo.xz;
-        float n = ruidoGrama(p / 9.0) * 0.7 + ruidoGrama(p / 3.1) * 0.3;
-        vec3 grama = diffuseColor.rgb * (n < 0.36 ? 0.8 : (n > 0.66 ? 1.16 : 1.0));
-        // Os tufos somem no afastamento para não virarem chuvisco na paleta.
-        if (uTexel < 0.2) {
-          vec2 cel = floor(p / 1.1);
-          float h = pedraHash(cel);
-          if (h > 0.55) {
-            vec2 o = (cel + 0.25 + vec2(fract(h * 7.3), fract(h * 13.1)) * 0.5) * 1.1;
-            vec2 cima = vec2(uDireita.y, -uDireita.x);
-            vec2 d = p - o;
-            float ax = dot(d, uDireita), ay = dot(d, cima) / 0.62;
-            float esp = max(0.05, uTexel * 0.75);
-            float folhas = step(0.0, ay) * step(ay, 0.38) * max(step(abs(ax + ay * 0.5), esp), max(step(abs(ax - ay * 0.5), esp), step(abs(ax), esp) * step(ay, 0.48)));
-            if (folhas > 0.5) grama = h > 0.9 ? uTufoLuz : uTufo;
-          }
-        }
-        diffuseColor.rgb = grama;
-      }
-    `);
-  };
-  mat.customProgramCacheKey = () => "relevo-blocos-no-mundo-2-gramado";
-  return mat;
-}
+export { criarMaterialRelevo } from "./solo.js";
 
 const EPS = 1e-4;
 const misturar = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, s: a.s + (b.s - a.s) * t });
@@ -171,6 +65,109 @@ function caixaChanfrada(comprimento, altura, largura, cor=RAMPAS.pedra[3]) {
   return faixaPedra([{ x: -comprimento / 2, y: 0, s: 0 }, { x: comprimento / 2, y: 0, s: comprimento }], largura, altura / 2, -altura / 2, cor);
 }
 
+/** Piso claro e espelho escuro: a aresta pertence ao degrau, sem uma placa por cima. */
+function lajeEscada(pontos, largura, topo, frentes, indice) {
+  const externas = bordas(pontos, largura / 2), internas = bordas(pontos, largura / 2 - 0.045);
+  const bisel = 0.075, base = topo - 0.46;
+  for (const inicio of [true, false]) {
+    if (!frentes.includes(inicio ? "inicio" : "fim")) continue;
+    const k = inicio ? 0 : pontos.length - 1, vizinho = inicio ? 1 : k - 1;
+    const d = Math.max(EPS, distancia(pontos[k], pontos[vizinho]));
+    const passo = Math.min(0.085, d * 0.35);
+    for (const p of internas[k]) { p.x += (pontos[vizinho].x - pontos[k].x) / d * passo; p.z += (pontos[vizinho].y - pontos[k].y) / d * passo; }
+  }
+  const vertices = [], cores = [];
+  const piso = new THREE.Color(RAMPAS.pedra[indice % 7 === 4 ? 4 : 3]);
+  const espelho = new THREE.Color(RAMPAS.pedra[1]), nariz = new THREE.Color(RAMPAS.pedra[4]);
+  const junta = new THREE.Color(RAMPAS.pedra[2]);
+  const v = (p, h) => [p.x, h, p.z];
+  const quad = (a, b, c, d, cor) => {
+    for (let triangulo of [[a, b, c], [a, c, d]]) {
+      // Curvas fechadas podem inverter um leque na borda interna. O piso olha para cima.
+      if (triangulo.every((p) => Math.abs(p[1] - topo) < EPS)) {
+        const [p, q, r] = triangulo;
+        if ((q[2] - p[2]) * (r[0] - p[0]) - (q[0] - p[0]) * (r[2] - p[2]) < 0) triangulo = [p, r, q];
+      }
+      for (const p of triangulo) { vertices.push(...p); cores.push(cor.r, cor.g, cor.b); }
+    }
+  };
+  const entre = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t });
+  const s0 = pontos[0].s, comprimento = Math.max(EPS, pontos.at(-1).s - s0);
+  // Uma junta curta por laje, desencontrada nas seguintes: nunca vira um xadrez.
+  const junta0 = 0.13 + indice % 3 * 0.08, junta1 = 0.72 + indice % 2 * 0.12;
+  const eixoJunta = 0.23 + (indice * 7 % 11) * 0.049, meiaJunta = 0.032 / largura;
+  for (let i = 0; i + 1 < pontos.length; i++) {
+    const e = externas[i], f = externas[i + 1], a = internas[i], b = internas[i + 1];
+    const t0 = (pontos[i].s - s0) / comprimento, t1 = (pontos[i + 1].s - s0) / comprimento;
+    const cortes = [t0, ...[junta0, junta1].filter((t) => t > t0 + EPS && t < t1 - EPS), t1];
+    for (let k = 0; k + 1 < cortes.length; k++) {
+      const lo = cortes[k], hi = cortes[k + 1];
+      const al = entre(a[0], b[0], (lo - t0) / (t1 - t0)), ar = entre(a[1], b[1], (lo - t0) / (t1 - t0));
+      const bl = entre(a[0], b[0], (hi - t0) / (t1 - t0)), br = entre(a[1], b[1], (hi - t0) / (t1 - t0));
+      if ((lo + hi) / 2 < junta0 || (lo + hi) / 2 > junta1) quad(v(al, topo), v(ar, topo), v(br, topo), v(bl, topo), piso);
+      else {
+        const ca = eixoJunta + (lo - 0.5) * 0.04, cb = eixoJunta + (hi - 0.5) * 0.04;
+        const aj = entre(al, ar, ca - meiaJunta), ak = entre(al, ar, ca + meiaJunta);
+        const bj = entre(bl, br, cb - meiaJunta), bk = entre(bl, br, cb + meiaJunta);
+        quad(v(al, topo), v(aj, topo), v(bj, topo), v(bl, topo), piso);
+        quad(v(aj, topo), v(ak, topo), v(bk, topo), v(bj, topo), junta);
+        quad(v(ak, topo), v(ar, topo), v(br, topo), v(bk, topo), piso);
+      }
+    }
+    for (let lado = 0; lado < 2; lado++) {
+      const q = lado ? [e[lado], f[lado], b[lado], a[lado]] : [f[lado], e[lado], a[lado], b[lado]];
+      quad(v(q[0], topo - bisel), v(q[1], topo - bisel), v(q[2], topo), v(q[3], topo), piso);
+      quad(v(q[0], base), v(q[1], base), v(q[1], topo - bisel), v(q[0], topo - bisel), espelho);
+    }
+    quad(v(e[1], base), v(e[0], base), v(f[0], base), v(f[1], base), espelho);
+  }
+  for (const inicio of [true, false]) {
+    const k = inicio ? 0 : pontos.length - 1, e = externas[k], n = internas[k];
+    const l = inicio ? 0 : 1, r = 1 - l;
+    quad(v(e[l], base), v(e[r], base), v(e[r], topo - bisel), v(e[l], topo - bisel), espelho);
+    quad(v(e[l], topo - bisel), v(e[r], topo - bisel), v(n[r], topo), v(n[l], topo), frentes.includes(inicio ? "inicio" : "fim") ? nariz : piso);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(cores, 3));
+  geo.computeVertexNormals(); geo.computeBoundingSphere();
+  return geo;
+}
+
+/** Borda baixa contínua, com cabeças rebaixadas; acompanha a subida sem serrilhar. */
+function bordaEscada(pontos, larguraLivre, lado) {
+  const externas = bordas(pontos, 0.16, lado * (larguraLivre / 2 + 0.22));
+  const internas = bordas(pontos, 0.125, lado * (larguraLivre / 2 + 0.22));
+  const vertices = [], cores = [];
+  const topo = pontos.map((p, i) => p.h + (i === 0 || i === pontos.length - 1 ? 0.11 : 0.25));
+  const base = pontos.map((p) => p.h - 0.25);
+  const cFace = new THREE.Color(RAMPAS.pedra[2]), cTopo = new THREE.Color(RAMPAS.pedra[3]), cPe = new THREE.Color(RAMPAS.pedra[1]);
+  const v = (p, h) => [p.x, h, p.z];
+  const quad = (a, b, c, d, cor) => { for (const p of [a, b, c, a, c, d]) { vertices.push(...p); cores.push(cor.r, cor.g, cor.b); } };
+  for (let i = 0; i + 1 < pontos.length; i++) {
+    const a = externas[i], b = externas[i + 1], ai = internas[i], bi = internas[i + 1];
+    quad(v(ai[0], topo[i]), v(ai[1], topo[i]), v(bi[1], topo[i + 1]), v(bi[0], topo[i + 1]), cTopo);
+    for (let s = 0; s < 2; s++) {
+      const q = s ? [a[s], b[s], bi[s], ai[s]] : [b[s], a[s], ai[s], bi[s]];
+      const h = s ? [i, i + 1, i + 1, i] : [i + 1, i, i, i + 1];
+      quad(v(q[0], topo[h[0]] - 0.045), v(q[1], topo[h[1]] - 0.045), v(q[2], topo[h[2]]), v(q[3], topo[h[3]]), cTopo);
+      quad(v(q[0], base[h[0]] + 0.12), v(q[1], base[h[1]] + 0.12), v(q[1], topo[h[1]] - 0.045), v(q[0], topo[h[0]] - 0.045), cFace);
+      quad(v(q[0], base[h[0]]), v(q[1], base[h[1]]), v(q[1], base[h[1]] + 0.12), v(q[0], base[h[0]] + 0.12), cPe);
+    }
+    quad(v(a[1], base[i]), v(a[0], base[i]), v(b[0], base[i + 1]), v(b[1], base[i + 1]), cPe);
+  }
+  for (const inicio of [true, false]) {
+    const k = inicio ? 0 : pontos.length - 1, e = externas[k], n = internas[k], l = inicio ? 0 : 1, r = 1 - l;
+    quad(v(e[l], base[k]), v(e[r], base[k]), v(e[r], topo[k] - 0.045), v(e[l], topo[k] - 0.045), cFace);
+    quad(v(e[l], topo[k] - 0.045), v(e[r], topo[k] - 0.045), v(n[r], topo[k]), v(n[l], topo[k]), cTopo);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(cores, 3));
+  geo.computeVertexNormals(); geo.computeBoundingSphere();
+  return geo;
+}
+
 /** Escadas e pontes obedecem ao perfil caminhável já decidido pela geração. */
 export function criarTravessias(mundo, toon) {
   const grupo = new THREE.Group();
@@ -205,24 +202,19 @@ export function criarTravessias(mundo, toon) {
       const depois = k + 1 < A.length ? misturar(A[k], A[k + 1], 0.5) : A[k];
       const pontos = [antes, ...A.slice(j, k + 1), depois].filter((p, t, ps) => !t || distancia(ps[t - 1], p) > EPS);
       if (pontos.length > 1) {
-        add(escada, faixaPedra(pontos, largura + 0.025, A[j].h, A[j].h - 0.46, tomPedra(numeroPiso)), `degrau-${numeroPiso++}`, { tipo: "degrau", topo: A[j].h, s0: antes.s, s1: depois.s, larguraLivre: largura });
+        const frentes = [];
+        if (j && A[j - 1].h < A[j].h - EPS) frentes.push("inicio");
+        if (k + 1 < A.length && A[k + 1].h < A[k].h - EPS) frentes.push("fim");
+        add(escada, lajeEscada(pontos, largura + 0.025, A[j].h, frentes, numeroPiso), `degrau-${numeroPiso++}`, { tipo: "degrau", topo: A[j].h, s0: antes.s, s1: depois.s, larguraLivre: largura, frentes });
       }
       j = k + 1;
     }
-    // Pequenas muretas só acompanham as escadas; nada atravessa o piso livre.
-    let trecho = 0;
-    for (let j = inicio; j <= fim; j += 2) {
-      const k = Math.min(fim, j + 1);
-      const antes = j ? misturar(A[j - 1], A[j], 0.5) : A[j];
-      const depois = k + 1 < A.length ? misturar(A[k], A[k + 1], 0.5) : A[k];
-      const pontos = [antes, ...A.slice(j, k + 1), depois].filter((p, t, ps) => !t || distancia(ps[t - 1], p) > EPS);
-      if (pontos.length < 2) continue;
-      const alto = Math.max(...A.slice(j, k + 1).map((p) => p.h));
-      const baixo = Math.min(...A.slice(j, k + 1).map((p) => p.h));
-      for (const lado of [-1, 1]) {
-        add(escada, faixaPedra(pontos, 0.38, alto + 0.46, baixo - 0.2, RAMPAS.pedra[3], lado * (largura / 2 + 0.24)), `mureta-${trecho}-${lado}`, { tipo: "mureta-escada", lado, s0: antes.s, s1: depois.s, topo: alto + 0.46, terminacao: j === inicio || k === fim });
-      }
-      trecho++;
+    // Duas bordas inteiras substituem a sucessão de caixotes em cada degrau.
+    const antes = inicio ? misturar(A[inicio - 1], A[inicio], 0.5) : A[inicio];
+    const depois = fim + 1 < A.length ? misturar(A[fim], A[fim + 1], 0.5) : A[fim];
+    const laterais = [{ ...antes, h: A[inicio].h }, ...A.slice(inicio, fim + 1), { ...depois, h: A[fim].h }].filter((p, t, ps) => !t || distancia(ps[t - 1], p) > EPS);
+    if (laterais.length > 1) for (const lado of [-1, 1]) {
+      add(escada, bordaEscada(laterais, largura, lado), `mureta-continua-${lado}`, { tipo: "mureta-escada", lado, s0: antes.s, s1: depois.s, topo: Math.max(...laterais.map((p) => p.h)) + 0.25, terminacao: true });
     }
     inicio = fim + 1;
   }

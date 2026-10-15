@@ -63,12 +63,20 @@ export function juntar(partes) {
   // Altura dentro da copa (-1 base … +1 topo): o shader desenha luz, sombra e escamas de folhas.
   // -9 = não é folhagem (tronco, galho, fruto, flor): fica sem esse desenho.
   const banda = new Float32Array(total).fill(-9);
+  // Folhagem: direção na esfera do volume, raio e semente — o shader distribui os aglomerados
+  // de folhas SOBRE a superfície de cada volume (seguem a curvatura e a luz do sol).
+  const esfera = new Float32Array(total * 3), raioCopa = new Float32Array(total), semCopa = new Float32Array(total);
   let o = 0;
   for (const g of partes) {
     pos.set(g.attributes.position.array, o * 3);
     nor.set(g.attributes.normal.array, o * 3);
     if (g.attributes.color) cor.set(g.attributes.color.array, o * 3);
     if (g.attributes.banda) banda.set(g.attributes.banda.array, o);
+    if (g.attributes.esfera) {
+      esfera.set(g.attributes.esfera.array, o * 3);
+      raioCopa.set(g.attributes.raioCopa.array, o);
+      semCopa.set(g.attributes.semCopa.array, o);
+    }
     o += g.attributes.position.count;
   }
   const geo = new THREE.BufferGeometry();
@@ -76,6 +84,9 @@ export function juntar(partes) {
   geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(cor, 3));
   geo.setAttribute("banda", new THREE.BufferAttribute(banda, 1));
+  geo.setAttribute("esfera", new THREE.BufferAttribute(esfera, 3));
+  geo.setAttribute("raioCopa", new THREE.BufferAttribute(raioCopa, 1));
+  geo.setAttribute("semCopa", new THREE.BufferAttribute(semCopa, 1));
   geo.computeBoundingBox();
   geo.computeBoundingSphere();
   return geo;
@@ -93,6 +104,7 @@ function volume(raio, c, hex, semente, achatar = 0.85, irregular = 0.4) {
   const r = criarRuido(semente);
   const p = g.attributes.position;
   const fatores = new Float32Array(p.count), bandas = new Float32Array(p.count);
+  const esf = new Float32Array(p.count * 3), raios = new Float32Array(p.count).fill(raio), sems = new Float32Array(p.count).fill(((semente * 0.6180339) % 1 + 1) % 1);
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const n = r(x * 1.7 + z * 0.8 + 3, y * 1.7 + z * 1.2 + 7, 2);
@@ -100,10 +112,14 @@ function volume(raio, c, hex, semente, achatar = 0.85, irregular = 0.4) {
     p.setXYZ(i, c.x + x * k, c.y + y * k * achatar, c.z + z * k);
     fatores[i] = 0.95 + n * 0.08; // cor quase chapada: a leitura de volume vem das faixas desenhadas
     bandas[i] = y;
+    esf.set([x, y, z], i * 3);
   }
   let idx = 0;
   pintar(g, hex, () => fatores[idx++]);
   g.setAttribute("banda", new THREE.BufferAttribute(bandas, 1));
+  g.setAttribute("esfera", new THREE.BufferAttribute(esf, 3));
+  g.setAttribute("raioCopa", new THREE.BufferAttribute(raios, 1));
+  g.setAttribute("semCopa", new THREE.BufferAttribute(sems, 1));
   g.computeVertexNormals();
   return g.toNonIndexed();
 }
@@ -550,6 +566,20 @@ const FORMAS = {
       copas.push({ c: ponta.clone().add(V(0, r * 0.3, 0)), r });
       partes.push(volume(r, ponta.clone().add(V(0, r * 0.3, 0)), corDaCopa(def, rng), Math.floor(rng() * 1e6), 0.5, 0.35));
     }
+    if (def.espinhos) {
+      // Paineira (barriguda): acúleos cônicos espalhados pelo tronco.
+      for (let i = 0; i < (jovem ? 14 : 30); i++) {
+        const u = rng() * 0.85, a = rng() * 6.28;
+        const rr = rMax * (0.75 + bojo * Math.sin(Math.PI * Math.min(1, u * 1.1)) - u * 0.35);
+        const dir = V(Math.cos(a), 0.15, Math.sin(a)).normalize();
+        const g = new THREE.ConeGeometry(H * 0.012, H * 0.035, 4);
+        g.translate(0, H * 0.0175, 0);
+        g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), dir));
+        g.translate(Math.cos(a) * rr * 0.95, u * th, Math.sin(a) * rr * 0.95);
+        pintar(g, RAMPAS.pedra[1]);
+        partes.push(finalizar(g));
+      }
+    }
     return { partes, copas };
   },
 
@@ -602,6 +632,133 @@ const FORMAS = {
         partes.push(finalizar(g));
       }
     return { partes, copas: [] };
+  },
+
+  /**
+   * Embaúba (Cecropia): tronco claro com anéis; folhas grandes e recortadas em
+   * guarda-sol nas pontas. Jovem = um guarda-sol só no topo; adulta = braços em candelabro.
+   */
+  candelabro(def, H, d, rng) {
+    const jovem = def.fase === "jovem";
+    const th = H * (jovem ? 0.82 : 0.58);
+    const t = tronco({ altura: th, r0: H * 0.028 * (def.grossura ?? 1), r1: H * 0.018, curva: [(rng() - 0.5) * H * 0.06, (rng() - 0.5) * H * 0.06], hex: def.cores.casca, segs: 10, aneis: true, rng });
+    const partes = [t.geo], copas = [], pontas = [t.topo];
+    if (!jovem) {
+      const n = 3 + Math.floor(rng() * 2);
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * 6.28 + rng() * 0.6;
+        const base = t.topo.clone().multiplyScalar(lerp(0.82, 0.95, rng()));
+        const L = H * lerp(0.13, 0.2, rng());
+        const meio = base.clone().add(V(Math.cos(a) * L, H * 0.04, Math.sin(a) * L));
+        const ponta = meio.clone().add(V(Math.cos(a) * L * 0.25, H * lerp(0.16, 0.3, rng()), Math.sin(a) * L * 0.25));
+        partes.push(galho(base, meio, H * 0.014, H * 0.011, def.cores.casca), galho(meio, ponta, H * 0.011, H * 0.008, def.cores.casca));
+        pontas.push(ponta);
+      }
+    }
+    for (const p of pontas) {
+      const nf = 7;
+      for (let i = 0; i < nf; i++) {
+        const a = (i / nf) * 6.28 + rng() * 0.3;
+        partes.push(lamina({ origem: p, direcao: V(Math.cos(a), 0, Math.sin(a)), comprimento: H * lerp(0.1, 0.14, rng()), largura: H * 0.075, queda: 0.7, elevacao: 0.15, hex: i % 2 ? (def.cores.folha2 ?? def.cores.folha) : def.cores.folha, segs: 4 }));
+      }
+      copas.push({ c: p.clone().add(V(0, -H * 0.02, 0)), r: H * 0.05 });
+    }
+    return { partes, copas };
+  },
+
+  /**
+   * Buriti (Mauritia): estipe reto e alto, folhas em LEQUE na ponta de pecíolos
+   * longos, saia de folhas secas e cachos de frutos. Jovem: leques saindo do chão.
+   */
+  leque(def, H, d, rng) {
+    const jovem = def.fase === "jovem";
+    const th = H * (jovem ? 0.1 : 0.78);
+    const t = tronco({ altura: th, r0: H * (jovem ? 0.06 : 0.034), r1: H * (jovem ? 0.05 : 0.03), hex: def.cores.casca, segs: jovem ? 2 : 12, aneis: true, rng });
+    const partes = [t.geo];
+    const n = jovem ? 6 : 12;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * 6.28 + rng() * 0.4;
+      const el = jovem ? lerp(0.6, 1.1, rng()) : lerp(-0.15, 1.1, rng());
+      const dir = V(Math.cos(a) * Math.cos(el), Math.sin(el), Math.sin(a) * Math.cos(el)).normalize();
+      const fim = t.topo.clone().addScaledVector(dir, H * (jovem ? 0.3 : 0.16));
+      partes.push(galho(t.topo, fim, H * 0.008, H * 0.006, def.cores.casca));
+      // Leque: setor de círculo pregueado (gomos claros/escuros), voltado para fora.
+      const raio = H * (jovem ? 0.16 : 0.12);
+      const g = new THREE.CircleGeometry(raio, 12, Math.PI * 0.5 - 1.2, 2.4);
+      const p = g.attributes.position, fat = new Float32Array(p.count);
+      for (let k = 0; k < p.count; k++) fat[k] = Math.floor(((Math.atan2(p.getY(k), p.getX(k)) + 3.2) / 6.4) * 24) % 2 ? 0.86 : 1.06;
+      let idx = 0;
+      pintar(g, i % 3 ? def.cores.folha : (def.cores.folha2 ?? def.cores.folha), () => fat[idx++]);
+      const lado = Math.abs(dir.y) > 0.95 ? V(1, 0, 0) : V().crossVectors(dir, V(0, 1, 0)).normalize();
+      const normal = V().crossVectors(lado, dir).normalize();
+      g.applyMatrix4(new THREE.Matrix4().makeBasis(lado, dir, normal));
+      g.translate(fim.x, fim.y, fim.z);
+      partes.push(finalizar(g));
+    }
+    if (!jovem) {
+      // Saia de folhas secas pendendo sob a copa.
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * 6.28 + rng() * 0.5;
+        partes.push(lamina({ origem: t.topo.clone().add(V(0, -H * 0.02, 0)), direcao: V(Math.cos(a), 0, Math.sin(a)), comprimento: H * 0.14, largura: H * 0.05, queda: 2.2, elevacao: -0.3, hex: RAMPAS.terra[2], segs: 3 }));
+      }
+    }
+    return { partes, copas: [{ c: t.topo.clone().add(V(0, -H * 0.06, 0)), r: H * 0.05 }] };
+  },
+
+  /**
+   * Açaí (Euterpe): touceira de estipes finos e curvos; cada um com o "palmito"
+   * verde (bainha) sob a coroa de folhas pinadas pendentes e cachos roxos.
+   */
+  acai(def, H, d, rng) {
+    const jovem = def.fase === "jovem";
+    const partes = [], copas = [];
+    const n = jovem ? 2 : 4 + Math.floor(rng() * 3);
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * 6.28 + rng() * 0.6, dist = i === 0 ? 0 : H * lerp(0.03, 0.07, rng());
+      const h = H * (i === 0 ? 1 : lerp(0.65, 0.95, rng()));
+      const abre = h * lerp(0.06, 0.16, rng());
+      const t = tronco({ altura: h, r0: H * 0.013, r1: H * 0.01, curva: [Math.cos(a) * abre, Math.sin(a) * abre], hex: def.cores.casca, segs: 10, aneis: true, rng });
+      t.geo.translate(Math.cos(a) * dist, 0, Math.sin(a) * dist);
+      partes.push(t.geo);
+      const topo = t.topo.clone().add(V(Math.cos(a) * dist, 0, Math.sin(a) * dist));
+      const palmito = new THREE.CylinderGeometry(H * 0.013, H * 0.016, H * 0.1, 7);
+      palmito.translate(topo.x, topo.y - H * 0.05, topo.z);
+      pintar(palmito, RAMPAS.mata[4], (x, y) => 0.9 + (y - topo.y) / H);
+      partes.push(finalizar(palmito));
+      for (let f = 0; f < 7; f++) {
+        const b = (f / 7) * 6.28 + rng() * 0.4;
+        partes.push(lamina({ origem: topo, direcao: V(Math.cos(b), 0, Math.sin(b)), comprimento: H * lerp(0.2, 0.26, rng()), largura: H * 0.04, queda: 1.5, elevacao: lerp(0.5, 0.9, rng()), hex: f % 3 ? def.cores.folha : (def.cores.folha2 ?? def.cores.folha), segs: 6 }));
+      }
+      copas.push({ c: topo.clone().add(V(0, -H * 0.12, 0)), r: H * 0.035 });
+    }
+    return { partes, copas };
+  },
+
+  /**
+   * Cajueiro: tronco curto e grosso que logo se abre em galhos quase horizontais,
+   * longos e tortos; copa baixa e larga em volumes achatados.
+   */
+  esparramada(def, H, d, rng) {
+    const jovem = def.fase === "jovem";
+    const casca = def.cores.casca;
+    const th = H * 0.2;
+    const t = tronco({ altura: th, r0: H * 0.07 * (def.grossura ?? 1), r1: H * 0.05 * (def.grossura ?? 1), curva: [(rng() - 0.5) * H * 0.1, (rng() - 0.5) * H * 0.1], hex: casca, rng });
+    const partes = [t.geo], copas = [];
+    const n = jovem ? 3 : 5;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * 6.28 + rng() * 0.7;
+      const L = H * lerp(0.4, 0.65, rng()) * (def.largura ?? 1);
+      const meio = t.topo.clone().add(V(Math.cos(a) * L * 0.5, H * lerp(0.0, 0.12, rng()), Math.sin(a) * L * 0.5));
+      const ponta = t.topo.clone().add(V(Math.cos(a) * L, H * lerp(0.1, 0.3, rng()), Math.sin(a) * L));
+      partes.push(galho(t.topo, meio, H * 0.035, H * 0.026, casca), galho(meio, ponta, H * 0.026, H * 0.015, casca));
+      for (const u of [0.55, 1]) {
+        const c = meio.clone().lerp(ponta, (u - 0.5) * 2).add(V(0, H * 0.1, 0));
+        const r = H * lerp(0.15, 0.22, rng()) * (u === 1 ? 1 : 0.85);
+        copas.push({ c, r });
+        partes.push(volume(r, c, corDaCopa(def, rng), Math.floor(rng() * 1e6), 0.55, 0.35));
+      }
+    }
+    return { partes, copas };
   },
 
   /** Cacto colunar (mandacaru): jovem é uma coluna só; adulto vira candelabro com braços e flores. */
@@ -673,9 +830,10 @@ const FORMAS = {
 
 const FASES = ["broto", "muda", "jovem", "adulta"];
 const FANTASIA = ["cogumelo", "cristal"];
+const PALMAS = ["palmeira", "leque", "acai"];
 const CONIFERAS = ["conica", "colunar", "araucaria"];
 /** Raio da base do tronco (fração de H) por forma — onde nascem as raízes aparentes. */
-const RAIZ = { redonda: 0.045, oval: 0.03, pendente: 0.047, "guarda-chuva": 0.035, conica: 0.035, araucaria: 0.03, garrafa: 0.09 };
+const RAIZ = { candelabro: 0.03, esparramada: 0.06, redonda: 0.045, oval: 0.03, pendente: 0.047, "guarda-chuva": 0.035, conica: 0.035, araucaria: 0.03, garrafa: 0.09 };
 
 /**
  * Cores de cada fase. Folhas novas são mais claras; espécies de folha
@@ -730,9 +888,10 @@ function broto(def, rng) {
     }
     return partes;
   }
-  if (def.forma === "palmeira") {
-    // O coco meio enterrado, com a primeira folha em lança.
-    partes.push(bolinha(0.2, V(0, 0.1, 0), RAMPAS.terra[1], 0.85, 1));
+  if (PALMAS.includes(def.forma)) {
+    // A semente meio enterrada (coco, no coqueiro), com a primeira folha em lança.
+    const coco = def.forma === "palmeira";
+    partes.push(bolinha(coco ? 0.2 : 0.1, V(0, coco ? 0.1 : 0.05, 0), coco ? RAMPAS.terra[1] : def.fruto?.cor ?? RAMPAS.terra[1], 0.85, 1));
     for (let i = 0; i < 2; i++) {
       const a = i * 3.14 + rng();
       partes.push(lamina({ origem: V(0, 0.22, 0), direcao: V(Math.cos(a), 0, Math.sin(a)), comprimento: 0.5 - i * 0.15, largura: 0.08, queda: 0.15, elevacao: 1.3, hex: verde, segs: 3 }));
@@ -805,19 +964,20 @@ function muda(def, Hadulta, rng) {
     }
     return { partes, copas };
   }
-  if (def.forma === "palmeira" || def.forma === "bananeira") {
+  if (PALMAS.includes(def.forma) || def.forma === "bananeira") {
     // Roseta de folhas saindo do chão (a palmeira ainda no coco), sem tronco.
+    const palma = PALMAS.includes(def.forma);
     if (def.forma === "palmeira") partes.push(bolinha(0.22, V(0.12, 0.08, 0), RAMPAS.terra[1], 0.85, 1));
-    else {
+    else if (!palma) {
       const t = tronco({ altura: h * 0.35, r0: 0.09, r1: 0.07, hex: casca, segs: 2, aneis: true, rng });
       partes.push(t.geo);
     }
-    const n = def.forma === "palmeira" ? 4 : 3;
+    const n = palma ? 4 : 3;
     for (let i = 0; i < n; i++) {
       const a = (i / n) * 6.28 + rng() * 0.4;
       partes.push(lamina({
-        origem: V(0, def.forma === "palmeira" ? 0.15 : h * 0.35, 0), direcao: V(Math.cos(a), 0, Math.sin(a)),
-        comprimento: h * lerp(0.7, 0.9, rng()), largura: def.forma === "palmeira" ? 0.16 : 0.3,
+        origem: V(0, palma ? 0.15 : h * 0.35, 0), direcao: V(Math.cos(a), 0, Math.sin(a)),
+        comprimento: h * lerp(0.7, 0.9, rng()), largura: palma ? 0.16 : 0.3,
         queda: 0.6, elevacao: lerp(1.05, 1.3, rng()), hex: i % 2 ? (def.cores.folha2 ?? verde) : verde, segs: 4,
       }));
     }
@@ -880,7 +1040,8 @@ function salpicar(partes, copas, extras, rng) {
   for (const extra of extras)
     for (let i = 0; i < extra.quantidade; i++) {
       const tamanho = extra.raio * lerp(0.85, 1.15, rng());
-      partes.push(bolinha(tamanho, pontoNaCopa(copas, rng), extra.cor, extra.achatar ?? 1, 1));
+      const cor = extra.cores ? extra.cores[Math.floor(rng() * extra.cores.length)] : extra.cor;
+      partes.push(bolinha(tamanho, pontoNaCopa(copas, rng), cor, extra.achatar ?? 1, 1));
     }
 }
 

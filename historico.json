@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-14",
-  "versaoAtual": "v0.15 + jardim planejado",
+  "atualizado": "2026-10-15",
+  "versaoAtual": "v0.18",
   "proximoPasso": {
-    "titulo": "Consolidar os lugares do plano",
-    "descricao": "Revisar a planta e as vistas do terreno. Próximas construções propostas: jardim de chegada, praça do mirante e pavilhão de estudos, preservando as passagens e margens da água."
+    "titulo": "Revisar a paisagem e construir os lugares",
+    "descricao": "Conferir encostas, cascatas e escadas na demo pública. Depois desenvolver chegada, mirante e pavilhão nas áreas reservadas."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 84,
-      "nota": "28 espécies + 4 arbustos; cada fase tem cara própria (não só tamanho). 15 formas."
+      "nota": "36 espécies e 4 arbustos, incluindo as oito brasileiras da v0.17; folhagem com volume da v0.16 preservada."
     },
     {
       "nome": "Ecossistema",
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Desenho fixo, três cascatas, dois poços, lago, escadas sólidas e ponte de pedra com acessos conectados. Planta interativa com propostas de arquitetura."
+      "nota": "Encostas largas em crista, ombro e saia; terra em camadas, bordas de grama, escadas legíveis e cascatas com espuma."
     },
     {
       "nome": "Vida e clima",
@@ -46,21 +46,21 @@
   "quadro": {
     "funciona": [
       "Pixel art com pixel mínimo e contorno",
-      "28 espécies e 4 arbustos, cada um com 4 fases diferentes de verdade",
+      "36 espécies e 4 arbustos, com quatro estágios",
       "Flores e frutos nas adultas (maçãs, laranjas, cocos, frutinhas)",
-      "Formas variadas: copa redonda, oval, cônica, colunar, pendente, guarda-chuva, palmeira, bananeira, baobá, bambu, araucária, cogumelo, cristal",
+      "Formas variadas, incluindo candelabro, palmeira de leque, açaí em touceira e copa esparramada",
       "Cada fase com identidade: broto no montinho, muda com estaca, jovem esguia com primeira florada, adulta com raízes e frutos",
       "Ecossistema: solo, luz, nicho e vigor",
       "Viveiro para ver todas as espécies",
       "Clique mostra a ficha da árvore",
       "Carregamento rápido (sem biblioteca de árvores)",
       "Bambuzal em touceira (colmos arqueados, folhagem no alto)",
-      "Relevo em terraços: platôs planos, paredões verticais de pedra em blocos, escadas de pedra na trilha",
+      "Encostas de terra em camadas e três patamares assimétricos, sem anéis concêntricos",
       "Mapa de 260 × 170 m, com cache dos campos do terreno",
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
       "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
-      "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)",
-      "Textura de folhas nas copas: aglomerados em escama com sombra embaixo e brilho em cima",
+      "Copas com topo claro, base sombreada e aglomerados de folhas iluminados em 3D",
+      "Folhagem volumétrica da v0.16 em todas as prévias e no bosque",
       "Troca de mundo cancela a carga anterior e remove controles antigos",
       "Transformações de arquitetura entre broto, muda, jovem e adulta",
       "Vitrine Evolução para comparar formas sem depender do tamanho",
@@ -70,7 +70,9 @@
       "Terreno planejado: variar o plantio preserva lugares e percursos",
       "Ponte alinhada com a estrada, patamares de acesso e degraus de pedra sólidos",
       "Cascatas verticais, poços alargados e margens 3D conectadas",
-      "Planta interativa do terreno com reservas de construção e acesso aos lugares em 3D"
+      "Planta interativa do terreno com reservas de construção e acesso aos lugares em 3D",
+      "Escadas com pisos claros, espelhos escuros e bordas baixas contínuas",
+      "Cascatas com fios variados e espuma em arcos quebrados"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -95,6 +97,83 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.18",
+      "data": "2026-10-15",
+      "titulo": "Encostas de terra e escadarias com leitura de jogo",
+      "porque": "Os paredões pareciam barras repetidas, e a forma do terreno produzia anéis e recortes estreitos sem continuidade.",
+      "mudancas": [
+        "Crista, ombro e saia com contornos próprios, largos e conectados",
+        "Terra em camadas, crosta sob a grama e pequenas bordas em volume",
+        "Pisos claros, espelhos escuros e bordas baixas nas escadas de pedra",
+        "Cascatas com fios variados, lábios claros e espuma organizada"
+      ],
+      "resultado": "Mantidos pixel 2, paleta, contorno e luz toon. Incorpora as árvores e a folhagem do Claude até a v0.17. Vista inicial enquadra a paisagem; as construções do plano continuam propostas.",
+      "imagens": [
+        {
+          "src": "historico/v0.18-encostas.jpg",
+          "legenda": "Terra, escadas e cascata no terreno redesenhado"
+        },
+        {
+          "src": "historico/v0.18-paisagem.jpg",
+          "legenda": "Vista inicial da paisagem conectada"
+        },
+        {
+          "src": "historico/v0.18-planta.jpg",
+          "legenda": "Crista, ombro e saia com contornos próprios, sem círculos concêntricos"
+        },
+        {
+          "src": "historico/codex-relevo-antes.jpg",
+          "legenda": "Antes: paredes em blocos regulares e acabamento anterior das escadas"
+        }
+      ]
+    },
+    {
+      "versao": "v0.17",
+      "data": "2026-10-14",
+      "titulo": "Árvores brasileiras e catálogo no diário",
+      "porque": "Foco do projeto em árvores do Brasil e um lugar no diário para ver todos os estilos de árvore.",
+      "mudancas": [
+        "Formas novas: candelabro (embaúba), leque (buriti), touceira de palmeiras (açaí), copa esparramada (cajueiro); paineira com acúleos no tronco",
+        "Cada uma muda de verdade ao crescer: embaúba de guarda-sol a candelabro; buriti sem tronco → estipe alto com saia de folhas secas; açaí de 2 para vários estipes",
+        "Pau-brasil (casca vermelha, flores amarelas), quaresmeira (roxa), jequitibá (gigante raro); nichos ecológicos próprios (veredas, várzea, cerrado, mata)",
+        "Catálogo do GPT trazido ao diário, com filtro 'Brasileiras' (14 espécies) e página das 4 fases de cada uma"
+      ],
+      "resultado": "40 espécies no total; as brasileiras aparecem no mapa conforme o terreno (úmido, seco, mata).",
+      "imagens": [
+        {
+          "src": "historico/v0.17-catalogo-brasileiras.jpg",
+          "legenda": "Catálogo do diário filtrado em 'Brasileiras'"
+        },
+        {
+          "src": "historico/v0.17-buriti-fases.jpg",
+          "legenda": "Buriti: semente, muda, jovem sem tronco, adulto"
+        }
+      ]
+    },
+    {
+      "versao": "v0.16",
+      "data": "2026-10-14",
+      "titulo": "Folhagem que segue o volume 3D (refaz a v0.15)",
+      "porque": "Na v0.15 as escamas pareciam um carimbo igual colado por cima, sem seguir a forma de cada árvore.",
+      "mudancas": [
+        "Tufos de folhas distribuídos SOBRE a superfície de cada volume (células orgânicas em 3D, sem linhas nem polos)",
+        "Cada tufo é um pequeno domo iluminado pelo sol: lado claro e lado escuro de verdade, não pintados",
+        "Sombra só embaixo de cada tufo; a borda de cima fica clara, como nas referências",
+        "Tamanho do tufo proporcional ao volume e sorteio próprio por volume: nenhuma copa igual"
+      ],
+      "resultado": "Copas fofas e irregulares, com luz coerente; a textura acompanha a forma de cada árvore.",
+      "imagens": [
+        {
+          "src": "historico/v0.16-folhagem.jpg",
+          "legenda": "Zoom de jogo: tufos seguindo cada copa"
+        },
+        {
+          "src": "historico/v0.16-folhagem-perto.jpg",
+          "legenda": "De perto: tufos iluminados pelo sol, sombra embaixo"
+        }
+      ]
+    },
     {
       "versao": "v0.15 + jardim planejado",
       "data": "2026-10-14",

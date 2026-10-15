@@ -1,5 +1,6 @@
 import { organizarPercursos } from "./percursos.js";
 import { criarPlano } from "./planoMestre.js";
+import { elevacaoPlanejada } from "./formacaoTerreno.js";
 
 /**
  * Geração do mundo (demo pequena: uma clareira com bosque, lago e trilha).
@@ -173,11 +174,8 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   const DEGRAU = 4.5, PAREDE = 0.65; // altura do degrau e largura do paredão (m)
   const elevacao = (x, y, f=fatorLago(x,y)) => {
     const px=x/(largura/180),py=y/(altura/120);
-    const dx=(px-24)/1.12,dy=(py-20)/0.95;
-    const r=Math.hypot(dx,dy);
-    // Contornos compostos, fixos e discretamente recortados; três patamares
-    // concentram a composição na diagonal entre mirante, cascatas e lago.
-    let c=3.48-r/28+0.12*Math.sin(px/11+0.3)*Math.sin(py/14)+0.07*Math.sin(py/9);
+    // Crista, ombro e saia com contornos próprios: não são anéis de um cone.
+    let c=elevacaoPlanejada(px,py);
     c=lerp(0.5,c,suave(1.12,1.7,f));
     c=lerp(0.5,c,1-suave(altura+2,altura+8,y));
     return Math.min(3.45,Math.max(0.3,c));

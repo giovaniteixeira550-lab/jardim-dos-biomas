@@ -40,6 +40,9 @@ src/mundo.js      terreno do plano e plantio por semente
 src/planoMestre.js desenho fixo: lugares, percursos, água e reservas de construção
 src/percursos.js  perfis compartilhados pelo terreno, escadas, pontes e água
 src/relevo.js     pedra, escadarias e ponte com geometrias próprias
+src/solo.js       terra natural em camadas, com crosta e afloramentos esparsos
+src/formacaoTerreno.js crista, ombro e saia com contornos autorais conectados
+src/bordasBarranco.js lábios de terra e capim presos às quinas reais
 src/aguaPercurso.js superfícies, cortinas, espuma e margens do riacho
 planejamento.html planta interativa do mesmo terreno, com propostas de arquitetura
 src/arvoreProc.js gerador próprio dos quatro estágios por espécie
@@ -51,9 +54,11 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.15 + jardim planejado)
+## 3. Estado atual (v0.18)
 
-- O histórico acompanha v0.1–v0.15 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- O histórico acompanha v0.1–v0.18 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- **v0.18 — encostas naturais:** crista, ombro e saia com contornos próprios e conectados substituem os anéis de uma colina cônica. Paredes de terra em camadas, crosta sob a grama e pequenos lábios em volume substituem as fiadas repetidas. Escadas têm pisos claros, espelhos escuros, nariz chanfrado e bordas baixas contínuas. Água calma tem poucos arcos; cascatas têm fios variados e espuma de impacto. A vista inicial enquadra encostas e travessia.
+- **v0.16–v0.17 do Claude preservadas:** folhagem com anatomia 3D, oito espécies brasileiras, quatro formas novas e filtro de brasileiras no catálogo. O estilo da folhagem também é aplicado às prévias e à galeria.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
 - **v0.2 — silhuetas:** pinheiro em camadas de cones; carvalho largo e lobado; bétula com casca branca de marcas escuras; salgueiro com cortina de galhos pendentes; tom de cada árvore em degraus (mais escura / normal / mais clara).
 - Carregamento continua mesmo com a aba em segundo plano; erros mostram a causa real.
@@ -85,7 +90,7 @@ Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar veri
 
 - O macroterreno de 260 × 170 m tem desenho fixo. **Variar plantio** muda vegetação e detalhes; preserva relevo, lago, riacho, estrada e travessias.
 - Estrada da chegada ao mirante, trechos de escada, ponte de pedra alinhada com seus acessos, três cascatas verticais, dois poços e lago principal.
-- Blocos presos ao mundo, quinas dos paredões com normais próprias, pisos de pedra sólidos e margens geométricas evitam triângulos de terra atravessando a água.
+- Terra em estratos presos ao mundo, quinas com normais próprias, pisos de pedra sólidos e margens geométricas evitam triângulos de terra atravessando a água. Juntas de alvenaria ficam nas obras de pedra, não no terreno natural.
 - **Plano** abre a planta interativa: relevo real, caminhos, sentido da água, vegetação, áreas e oito lugares. Chegada, mirante e pavilhão têm reservas e estudos de construção; os edifícios ainda são propostas.
 - Decisões, dimensões e estudos de paisagem em [docs/plano-terreno.md](docs/plano-terreno.md). Testes: `node --test testes/percursos.mjs` e `testes/relevo.html` no navegador.
 

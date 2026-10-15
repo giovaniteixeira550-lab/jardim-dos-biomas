@@ -49,37 +49,46 @@ function materialCorrenteza(toon) {
     shader.uniforms.uTime = { value: 0 };
     shader.uniforms.uBorda = { value: new THREE.Color(RAMPAS.agua[4]) };
     shader.uniforms.uEspuma = { value: new THREE.Color(RAMPAS.agua[5]) };
+    shader.uniforms.uAguaFunda = { value: new THREE.Color(RAMPAS.agua[2]) };
     mat.userData.shader = shader;
     shader.vertexShader = "attribute float aDist; attribute float aLado; attribute float aQueda; varying float vDist; varying float vLado; varying float vQueda;\n" +
       shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvDist = aDist; vLado = aLado; vQueda = aQueda;");
-    shader.fragmentShader = "uniform float uTime; uniform vec3 uBorda; uniform vec3 uEspuma; varying float vDist; varying float vLado; varying float vQueda;\n" +
+    shader.fragmentShader = "uniform float uTime; uniform vec3 uBorda; uniform vec3 uEspuma; uniform vec3 uAguaFunda; varying float vDist; varying float vLado; varying float vQueda;\n" +
       shader.fragmentShader.replace(
         "#include <color_fragment>",
         `#include <color_fragment>
-        // Faixas de larguras diferentes: a espuma avança ao longo da água,
-        // sem cruzamento de grades nem recorte quadriculado da superfície.
-        float canal = floor((vLado * 0.5 + 0.5) * 15.0);
+        // Cortina: a coordenada lateral deformada produz fios de larguras
+        // diferentes; o desenho acompanha a água, sem uma grade de pontos.
+        float u = vLado * 0.5 + 0.5;
+        float faixas = u * 12.0 + sin(u * 14.0) * 0.32 + sin(u * 33.0) * 0.15;
+        float canal = floor(faixas);
         float r = fract(sin(canal * 71.73 + 13.6) * 43758.5453);
-        float margem = step(0.957, abs(vLado));
+        float margem = step(0.972, abs(vLado));
         vec3 luzAgua = vec3(0.0);
         if (vQueda > 0.5) {
-          float fase = fract(vDist * (0.76 + r * 0.22) - uTime * (1.65 + r * 0.3) + r * 7.0);
-          float fio = step(0.67 + r * 0.18, fase) * step(0.24, r);
-          diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, 0.3);
-          diffuseColor.rgb = mix(diffuseColor.rgb, uEspuma, max(fio * 0.83, margem * 0.72));
-          luzAgua = diffuseColor.rgb * 0.24;
+          float fase = fract(vDist / (1.25 + r * 2.8) - uTime * (0.8 + r * 0.55) + r * 7.0);
+          float larguraFio = step(0.11 + r * 0.15, fract(faixas)) * (1.0 - step(0.57 + r * 0.31, fract(faixas)));
+          float fio = larguraFio * step(0.38 + r * 0.23, fase) * step(0.19, r);
+          diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, 0.44);
+          diffuseColor.rgb = mix(diffuseColor.rgb, uAguaFunda, step(r, 0.19) * 0.28);
+          diffuseColor.rgb = mix(diffuseColor.rgb, uEspuma, max(fio * 0.88, margem * 0.5));
+          luzAgua = diffuseColor.rgb * 0.19;
         } else {
-          float viagem = vDist * 0.48 - uTime * 0.55 + r * 3.7;
+          // Poucas meias-luas largas no trecho calmo, com uma abertura por
+          // arco. Não há brilho independente em cada coluna do riacho.
+          float viagem = vDist * 0.245 - uTime * 0.2;
           float celula = floor(viagem);
-          float sorte = fract(sin(celula * 91.31 + canal * 37.13) * 15731.743);
-          float trecho = fract(viagem);
-          float brilho = step(0.77, sorte) * step(0.45, trecho) * (1.0 - step(0.56 + r * 0.09, trecho));
-          diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, max(margem * 0.78, brilho * 0.7));
-          luzAgua = diffuseColor.rgb * 0.12;
+          float sorte = fract(sin(celula * 91.31 + 37.13) * 15731.743);
+          float arco = abs(fract(viagem + vLado * vLado * 0.095) - 0.53);
+          float abertura = step(0.12, abs(vLado - (sorte - 0.5) * 0.65));
+          float extensao = 1.0 - step(0.52 + sorte * 0.29, abs(vLado));
+          float brilho = (1.0 - step(0.014 + sorte * 0.009, arco)) * step(0.67, sorte) * abertura * extensao;
+          diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, max(margem * 0.23, brilho * 0.68));
+          luzAgua = diffuseColor.rgb * 0.1;
         }`,
       ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += luzAgua;");
   };
-  mat.customProgramCacheKey = () => "agua-percurso-correnteza-1";
+  mat.customProgramCacheKey = () => "agua-percurso-arcos-cortinas-2";
   return mat;
 }
 
@@ -123,6 +132,7 @@ export function criarAguaPercurso(mundo, materialToon) {
   const fita = { pos: [], dist: [], lado: [], queda: [] };
   const cortinas = { pos: [], dist: [], lado: [], queda: [] };
   const espuma = { pos: [] };
+  const labios = { pos: [] };
   const margens = { pos: [], cores: [] };
   const gramaMargens = { pos: [], cores: [] };
   const bordas = (p, h = p.h) => [[p.x + p.nx, h, p.z + p.nz], [p.x - p.nx, h, p.z - p.nz]];
@@ -137,19 +147,25 @@ export function criarAguaPercurso(mundo, materialToon) {
       const secaoMargem = (p) => {
         const nl = Math.hypot(p.nx, p.nz) || 1;
         const x = p.x + p.nx * lado, z = p.z + p.nz * lado;
-        const ox = x + p.nx / nl * 0.65 * lado, oz = z + p.nz / nl * 0.65 * lado;
+        // A costura interna continua exata; o recorte varia só para fora do
+        // canal. A função espacial é igual dos dois lados de uma emenda.
+        const faixa = 0.59 + (0.5 + 0.5 * Math.sin(p.x * 0.83 - p.z * 0.47 + lado)) * 0.06;
+        const recorte = 0.12 + Math.round(1 + Math.sin(p.x * 0.62 + p.z * 0.29 + lado * 1.7)) * 0.02;
+        const ox = x + p.nx / nl * faixa * lado, oz = z + p.nz / nl * faixa * lado;
         const externo = mundo.altitude?.(ox, oz);
-        const topoExterno = Number.isFinite(externo) ? Math.max(p.h + 0.16, Math.min(p.h + 0.65, externo + 0.015)) : p.h + 0.16;
+        const topoExterno = Number.isFinite(externo) ? Math.max(p.h + recorte, Math.min(p.h + 0.65, externo + 0.015)) : p.h + recorte;
         return {
-          base: [x, p.h - 0.55, z], topo: [x, p.h + 0.16, z],
+          base: [x, p.h - 0.55, z], meio: [x, p.h - 0.04, z], topo: [x, p.h + recorte, z],
           foraBase: [ox, p.h - 0.55, oz], foraTopo: [ox, topoExterno, oz],
         };
       };
       const ma = secaoMargem(a), mb = secaoMargem(b);
       if (distancia > EPS) {
-        quadColorido(margens, ma.base, ma.topo, mb.base, mb.topo, lado < 0 ? RAMPAS.terra[2] : RAMPAS.terra[3]);
+        quadColorido(margens, ma.base, ma.meio, mb.base, mb.meio, RAMPAS.terra[1]);
+        quadColorido(margens, ma.meio, ma.topo, mb.meio, mb.topo, RAMPAS.terra[2]);
         quadColorido(margens, ma.foraTopo, ma.foraBase, mb.foraTopo, mb.foraBase, RAMPAS.terra[2]);
-        quadColorido(gramaMargens, ma.topo, ma.foraTopo, mb.topo, mb.foraTopo, i % 5 === 0 ? RAMPAS.salvia[3] : RAMPAS.salvia[2]);
+        const mancha = Math.sin((a.x + b.x) * 0.17 + (a.z + b.z) * 0.105 + lado * 2.1);
+        quadColorido(gramaMargens, ma.topo, ma.foraTopo, mb.topo, mb.foraTopo, mancha > 0.62 ? RAMPAS.salvia[3] : RAMPAS.salvia[2]);
       } else if (desnivel > 0.025) {
         // Na cortina, esta faixa vira uma face rochosa apenas por FORA das
         // duas bordas; o vão entre elas permanece inteiramente de água.
@@ -167,17 +183,31 @@ export function criarAguaPercurso(mundo, materialToon) {
       const info = { indice: i + 1, x: b.x, z: b.z, superior: a.h, inferior: b.h, altura: desnivel, largura: b.meia * 2 };
       grupo.userData.quedas.push(info);
 
-      // Uma linha baixa e quebrada no pé; deixa a lâmina azul aparente.
-      for (let faixa = 0; faixa < 2; faixa++) {
-        const total = 9, afastamento = faixa ? 0.78 : 0.12;
+      // O lábio anuncia a queda antes da cortina; a lâmina permanece inteira
+      // sob o desenho de espuma, inclusive nos pequenos intervalos do arco.
+      for (let k = 0; k < 11; k++) {
+        if (k === 2 || k === 8) continue;
+        const s0 = (k / 11 * 2 - 1) * 0.93, s1 = ((k + 1) / 11 * 2 - 1) * 0.93;
+        const pontoLabio = (s, t) => [b.x + b.nx * s + b.dx * t, a.h + 0.028, b.z + b.nz * s + b.dz * t];
+        const curva0 = -0.06 - (1 - s0 * s0) * 0.075, curva1 = -0.06 - (1 - s1 * s1) * 0.075;
+        quad(labios, pontoLabio(s0, curva0 - 0.12), pontoLabio(s1, curva1 - 0.12), pontoLabio(s0, curva0), pontoLabio(s1, curva1));
+      }
+      // Impacto em meias-luas quebradas; a espuma se abre rio abaixo e fica
+      // mais fina e esparsa à medida que se afasta da cortina.
+      for (let faixa = 0; faixa < 3; faixa++) {
+        const total = 13, afastamento = [0.11, 0.64, 1.18][faixa];
         for (let k = 0; k < total; k++) {
-          if (faixa && (k % 3 === 0 || k === total - 1)) continue;
-          const lado0 = (k / total * 2 - 1) * 0.94, lado1 = ((k + 1) / total * 2 - 1) * 0.94;
+          const parte = k / total;
+          if (faixa === 0 && (k === 1 || k === total - 2)) continue;
+          if (faixa === 1 && ((parte > 0.25 && parte < 0.44) || parte > 0.77)) continue;
+          if (faixa === 2 && !(parte > 0.18 && parte < 0.36 || parte > 0.62 && parte < 0.76)) continue;
+          const lado0 = (k / total * 2 - 1) * 0.9, lado1 = ((k + 1) / total * 2 - 1) * 0.9;
           const ponto = (lado, frente) => {
-            const arco = (1 - lado * lado) * (faixa ? 0.23 : 0.11);
-            return [b.x + b.nx * lado + b.dx * (afastamento + arco + frente), b.h + 0.035 + faixa * 0.012, b.z + b.nz * lado + b.dz * (afastamento + arco + frente)];
+            const arco = (1 - lado * lado) * [0.24, 0.36, 0.46][faixa];
+            const dente = Math.sin(lado * 8.1 + faixa * 1.7) * (faixa ? 0.025 : 0.045);
+            return [b.x + b.nx * lado + b.dx * (afastamento + arco + frente + dente), b.h + 0.032 + faixa * 0.008, b.z + b.nz * lado + b.dz * (afastamento + arco + frente + dente)];
           };
-          const espessura = faixa ? 0.065 : 0.12 + (k % 3) * 0.025;
+          const espessura = faixa ? 0.055 : 0.12 + (0.5 + 0.5 * Math.sin(k * 1.31)) * 0.07;
           quad(espuma, ponto(lado0, 0), ponto(lado1, 0), ponto(lado0, espessura), ponto(lado1, espessura));
         }
       }
@@ -209,17 +239,20 @@ export function criarAguaPercurso(mundo, materialToon) {
     malha.receiveShadow = true;
     grupo.add(malha);
   }
-  if (espuma.pos.length) {
+  if (espuma.pos.length || labios.pos.length) {
     const matEspuma = materialToon({ color: RAMPAS.agua[5], emissive: RAMPAS.agua[4], emissiveIntensity: 0.18, side: THREE.DoubleSide });
-    const malha = new THREE.Mesh(geometriaDe(espuma), matEspuma);
-    malha.name = "espuma-cascatas";
-    grupo.add(malha);
+    for (const [faces, nome] of [[espuma, "espuma-cascatas"], [labios, "labios-cascatas"]]) {
+      if (!faces.pos.length) continue;
+      const malha = new THREE.Mesh(geometriaDe(faces), matEspuma);
+      malha.name = nome;
+      grupo.add(malha);
+    }
   }
 
   // Pedras apoiadas nas margens, fora do canal, nunca sorteadas no pé da
   // cortina: o caminho da água continua livre e se lê em qualquer giro.
   if (grupo.userData.quedas.length) {
-    const rng = criarRng((mundo.semente ?? 1) ^ 0x67a3);
+    const rng = criarRng(0x67a3); // pedras pertencem ao projeto, não ao plantio
     const geoPedra = new THREE.IcosahedronGeometry(1, 0);
     const cores = [];
     const pp = geoPedra.attributes.position;

@@ -12,7 +12,7 @@ export function criarPlano(largura=260,altura=170) {
     {id:"pavilhao",nome:"Pavilhão de estudos",x:153,y:57,largura:12,profundidade:10,status:"proposto",tipo:"pavilhao",descricao:"Possibilidade de abrigo aberto de madeira e pedra, baixo e voltado ao lago. A entrada nasce da estrada; a implantação reserva vista e evita a margem inundada."},
   ].map(l=>({...l,...ponto([l.x,l.y]),largura:l.id==="lago"?l.largura/180*largura:l.largura,profundidade:l.id==="lago"?l.profundidade/120*altura:l.profundidade}));
   return {
-    nome:"Jardim dos Patamares",versao:1,
+    nome:"Jardim dos Patamares",versao:2,
     ideia:"Uma caminhada sobe ao mirante, atravessa o vale por uma ponte e termina junto à vista do lago. A água conta o caminho inverso: nasce no alto, passa pelos poços e cascatas e chega à clareira.",
     locais,
     trilha:[[-5,88],[15,76],[24,58],[17,43],[21,32],[30,24],[44,31],[50,41],[60,47],[74,49],[92,51.57142857],[113,49],[134,54],[153,57],[185,62]].map(ponto),
@@ -21,7 +21,7 @@ export function criarPlano(largura=260,altura=170) {
     colina:ponto([24,20]),
     bosques:[[12,34,24],[80,8,28],[106,111,27],[169,29,24]].map(([x,y,r])=>({...ponto([x,y]),raio:r/180*largura})),
     setores:[
-      {nome:"Colina e mirante",x:28,y:24,largura:48,profundidade:44,descricao:"Pedra, subida em escadas e vista longa."},
+      {nome:"Crista e mirante",x:28,y:24,largura:48,profundidade:44,descricao:"Topo largo, encosta de terra, subida em escadas e vista longa."},
       {nome:"Vale das cascatas",x:73,y:45,largura:64,profundidade:46,descricao:"Curso d’água, poços e ponte conectada à estrada."},
       {nome:"Clareira do lago",x:130,y:81,largura:64,profundidade:54,descricao:"Água aberta, bordas naturais e contemplação."},
       {nome:"Jardim habitado",x:156,y:52,largura:38,profundidade:30,descricao:"Reserva para pavilhão discreto junto ao caminho."},
