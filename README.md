@@ -46,7 +46,7 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.7 + preparação e transformações)
+## 3. Estado atual (v0.7 + preparação, transformações e catálogo)
 
 - O histórico acompanha v0.1–v0.7. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
 - **v0.4–v0.5:** indivíduos selecionáveis, estágios, nichos de umidade/luz/altitude, vigor e competição por luz; mata ciliar.
@@ -66,6 +66,9 @@ Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar veri
 - **Transformações por estágio:** broto com folhas isoladas, muda com caule e primeiros ramos, jovem com bifurcações e copa aberta, adulta com raízes e arquitetura consolidada. Palmeira, coníferas, arbustos e cogumelo têm percursos próprios; o cogumelo adulto forma uma colônia.
 - **Evolução:** `evolucao.html` usa as mesmas geometrias do jogo. A escala de comparação destaca a arquitetura (com limite de largura para folhas abertas); desligue-a para ver os tamanhos reais do jogo. Não altera o crescimento no bosque.
 - Verificações e limites do lote em [docs/transformacoes.md](docs/transformacoes.md).
+
+- **Catálogo no diário:** `historico.html#catalogo` mostra todas as espécies do mesmo catálogo do jogo, com imagens, busca sem acentos, grupos e estágio da prévia. Cada cartão abre `evolucao.html?especie=...` na planta correspondente. As miniaturas são produzidas pelo gerador atual, usando um único contexto gráfico, sem capturas manuais por espécie.
+- Escopo e verificação em [docs/catalogo-diario.md](docs/catalogo-diario.md).
 
 ## 4. Próximos passos (um de cada vez, com revisão)
 

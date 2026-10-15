@@ -118,6 +118,9 @@ try {
     const o = document.createElement("option");
     o.value=id; o.textContent=def.nome; $("especie").append(o);
   }
+  // Links do catálogo abrem diretamente a espécie solicitada.
+  const solicitada=new URLSearchParams(window.location.search).get("especie");
+  if(solicitada&&Object.hasOwn(ESPECIES,solicitada))$("especie").value=solicitada;
   $("especie").addEventListener("change",apresentar);
   $("normalizar").addEventListener("change",apresentar);
   $("girar").addEventListener("click",()=>{giro+=Math.PI/4; for(const m of modelos)m.rotation.y=giro; desenhar();});
