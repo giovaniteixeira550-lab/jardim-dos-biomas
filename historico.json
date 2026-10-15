@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-14",
-  "versaoAtual": "v0.13",
+  "versaoAtual": "v0.14",
   "proximoPasso": {
     "titulo": "Revisar o mapa maior; depois a seca das árvores",
     "descricao": "Passeie pelo mapa novo (260 × 170 m). Próximos: acabamento da escada no barranco e o passo 1 do PLANO (árvores que secam sem revisão)."
@@ -61,7 +61,8 @@
       "Paredões com padrão limpo: colunas regulares com chanfro, topo claro e pé na sombra",
       "Mapa 2× maior (260 × 170 m), carregando no mesmo tempo de antes (~4,5 s de cálculo)",
       "Tempo de cada etapa do carregamento visível em jardim.tempos (console)",
-      "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa"
+      "Chão desenhado: manchas de grama nítidas, tufinhos em V, sombra ao pé dos paredões, beirada clara, trilha com borda limpa",
+      "Copas desenhadas: topo iluminado e base na sombra, em faixas nítidas (todas as espécies e arbustos)"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -82,10 +83,29 @@
       "Rotação: botões mais visíveis, gesto de dois dedos no celular e girar em volta da árvore selecionada",
       "Botão 'ver troncos' (abaixa as copas por um instante)",
       "Grama 'transbordando' na borda dos platôs e pedras soltas ao pé dos paredões",
-      "Mesmo tratamento 'desenhado' nas copas: brilho na borda de cima e sombra limpa embaixo, como nas referências"
+      "Textura de folhas nas copas (aglomerados em escama, como nas referências)"
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.14",
+      "data": "2026-10-14",
+      "titulo": "Copas desenhadas: luz em cima, sombra embaixo",
+      "porque": "Mesmo tratamento limpo do chão nas árvores, como nas referências de pixel art.",
+      "mudancas": [
+        "Cada volume de folhagem sabe sua altura interna (atributo 'banda' do gerador)",
+        "Shader desenha faixas nítidas: topo verde-claro, base escura — somadas à luz do sol",
+        "Cor da folhagem quase chapada (sem manchas de ruído): o volume vem das faixas",
+        "Vale para todas as espécies, coníferas e arbustos; troncos e frutos não mudam"
+      ],
+      "resultado": "Árvores com leitura de volume de desenho à mão, sem ruído.",
+      "imagens": [
+        {
+          "src": "historico/v0.14-copas.jpg",
+          "legenda": "Copas com topo claro e base sombreada, junto ao lago"
+        }
+      ]
+    },
     {
       "versao": "v0.13",
       "data": "2026-10-14",

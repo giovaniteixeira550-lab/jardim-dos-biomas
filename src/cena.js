@@ -18,6 +18,26 @@ import { construirVariacao } from "./arvoreProc.js";
 
 const lerp = THREE.MathUtils.lerp;
 
+/**
+ * Copas DESENHADAS (estilo das referências de pixel art): faixas nítidas pela
+ * altura dentro de cada volume de folhagem (atributo "banda" do gerador):
+ * topo com brilho, base na sombra. Fixas no mundo (não dependem da câmera),
+ * somadas ao toon do sol. Fatores fortes para sobreviver à paleta.
+ */
+function estiloCopa(sh) {
+  sh.vertexShader = sh.vertexShader
+    .replace("#include <common>", "#include <common>\nattribute float banda;\nvarying float vBanda;")
+    .replace("#include <begin_vertex>", "#include <begin_vertex>\nvBanda = banda;");
+  sh.fragmentShader = sh.fragmentShader
+    .replace("#include <common>", "#include <common>\nvarying float vBanda;")
+    .replace(
+      "#include <color_fragment>",
+      `#include <color_fragment>
+      if (vBanda > 0.5) diffuseColor.rgb *= vec3(1.12, 1.18, 1.04); // topo iluminado (mais verde-amarelo que branco)
+      else if (vBanda < -0.38) diffuseColor.rgb *= 0.64; // base na sombra`,
+    );
+}
+
 // Cede a vez ao navegador entre etapas do carregamento (atualiza a barra).
 // setTimeout em vez de requestAnimationFrame: rAF pausa com a aba em segundo
 // plano, e o carregamento ficaria parado até o usuário voltar.
@@ -717,8 +737,9 @@ float ruidoT(vec2 p) {
     float limiar = p.x < 0.5 ? (p.y < 0.5 ? 0.125 : 0.875) : (p.y < 0.5 ? 0.625 : 0.375);
     if (k * 0.7 > limiar) discard;
   }`);
+      estiloCopa(sh);
     };
-    this.matArvore.customProgramCacheKey = () => "arvore-raiox";
+    this.matArvore.customProgramCacheKey = () => "arvore-raiox-copa";
   }
 
   /** Atualiza o ponto focado a partir da posição do cursor na tela (null = desliga). */
