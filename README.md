@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.30)
+## 3. Estado atual (v0.31)
+
+- **v0.31 — Salgueiro das Canções aprovado (Pneumologia e alergia):** gerador próprio em `src/salgueiroCancoes.js`. Folhas estreitas aos pares no broto e na muda, pernadas em arco, cerca de 70 ramos pendentes com folhas caindo sobre uma cúpula baixa, passagem aberta pela frente e três vagens-sino douradas. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição perto da água. Substitui a proposta paralela do Codex, guardada intacta no stash do repositório.
 
 - **v0.30 — Paineira dos Abraços aprovada (Neonatologia):** gerador próprio em `src/paineiraAbracos.js`. Folha digitada no broto e na muda, tronco que engorda até a garrafa, braços visíveis sob uma copa em arco, sapopemas, flores sobre as folhas e frutos presos à copa (fechados e abertos com paina). Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no bosque de Pediatria. A Paineira (barriguda) do catálogo geral continua igual.
 

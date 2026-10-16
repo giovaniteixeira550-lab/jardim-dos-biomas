@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-16",
-  "versaoAtual": "v0.30",
+  "versaoAtual": "v0.31",
   "proximoPasso": {
-    "titulo": "Criar o Salgueiro das Canções",
-    "descricao": "Próxima espécie do bosque de Pediatria (Pneumologia e alergia), em prévia isolada para aprovação."
+    "titulo": "Criar a Araucária dos Cometas",
+    "descricao": "Próxima espécie do bosque de Pediatria (Endocrinologia, genética e metabolismo), em prévia isolada para aprovação."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "49 espécies; Pitanga, Catavento e Paineira dos Abraços aprovadas para o bosque de Pediatria."
+      "nota": "50 espécies; Pitanga, Catavento, Paineira dos Abraços e Salgueiro das Canções aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -87,7 +87,8 @@
       "Árvore-Catavento no catálogo, evolução e viveiro, com folhas coloridas e quatro modelos próprios",
       "Crescimento sem redução na troca de broto para muda; evolução verificada nas 48 espécies",
       "Viveiro com espaçamento pelo tamanho real, placas de nomes e acesso direto por espécie",
-      "Paineira dos Abraços no catálogo, evolução e viveiro, com copa em arco e frutos com paina"
+      "Paineira dos Abraços no catálogo, evolução e viveiro, com copa em arco e frutos com paina",
+      "Salgueiro das Canções no catálogo, evolução e viveiro, com ramos pendentes e sinos dourados"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -110,6 +111,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.31",
+      "data": "2026-10-16",
+      "titulo": "Salgueiro das Canções chega ao projeto",
+      "porque": "O salgueiro com sinos dourados foi aprovado para representar Pneumologia e alergia no bosque de Pediatria.",
+      "mudancas": [
+        "Ramos pendentes com folhas caem por cima de uma cúpula baixa, como no salgueiro-chorão",
+        "Passagem aberta pela frente, sob a copa",
+        "Três sinos dourados com alça, cintura e boca alargada",
+        "Broto e muda com folhas estreitas aos pares e o primeiro ramo em arco"
+      ],
+      "resultado": "Arte aprovada integrada; posição perto da água aguarda a composição do bosque.",
+      "imagens": [
+        {
+          "src": "historico/v0.31-salgueiro.jpg",
+          "legenda": "Os quatro estágios do Salgueiro das Canções na página de evolução"
+        }
+      ]
+    },
     {
       "versao": "v0.30",
       "data": "2026-10-16",

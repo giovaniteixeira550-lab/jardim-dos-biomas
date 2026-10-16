@@ -96,3 +96,9 @@ Pedido direto do usuário: corrigir erros das espécies e prioridades do quadro.
 ## Paineira dos Abraços — v0.30 (Claude)
 
 Segunda espécie do bosque de Pediatria aprovada pelo usuário em 16/10/2026, a partir da revisão `propostas-arvores/paineira-abracos-02` (a proposta 01 do Codex foi mantida para comparação). O gerador fica em `src/paineiraAbracos.js`, adaptado da prévia sem alterar a arte. Em `arvoreProc.js`, a forma `paineiraAbracos` usa o mesmo desvio da `catavento` (arquitetura própria, sem enfeites genéricos); `ornamentos.js` recusa enfeites de outra espécie nessa forma. Verificações: `testes/especies.html` (49 espécies, 588 modelos, 1.398 frutos), `testes/crescimento-viveiro.html` e `testes/ciclo-de-vida.html` passaram. A divisão em 11 espécies e os subtemas de cada uma estão em `BASE-ESPECIES-PEDIATRIA.md`, na pasta do projeto.
+
+## Salgueiro das Canções — v0.31 (Claude)
+
+Terceira espécie do bosque de Pediatria, aprovada pelo usuário em 16/10/2026 a partir de `propostas-arvores/salgueiro-cancoes` (três revisões: cortinas trocadas por ramos pendentes com folhas; sinos maiores, dourados e de formato clássico). O gerador fica em `src/salgueiroCancoes.js`. `arvoreProc.js` passou a reunir os geradores próprios aprovados num único mapa `PROPRIOS` (catavento, paineiraAbracos, salgueiroCancoes), em vez de encadear comparações.
+
+**Trabalho paralelo:** o Codex havia preparado, sem commit, outra proposta do Salgueiro neste checkout (branch `codex/salgueiro-cancoes`). Por decisão do usuário, publicou-se a versão aprovada do Claude. A proposta do Codex foi guardada intacta com `git stash` ("Codex: proposta 01 do Salgueiro das Canções…"); recupere com `git stash list` e `git stash show -p`. Para evitar repetição: antes de iniciar uma espécie, confira `PLANO-10-ESPECIES-PEDIATRIA.md` (andamento) e `propostas-arvores/` na pasta do projeto.

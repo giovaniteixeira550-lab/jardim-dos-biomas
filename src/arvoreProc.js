@@ -17,6 +17,7 @@ import { distribuirEnfeites, validarEspecie } from "./ornamentos.js";
 import { criarCatavento } from "./arvoreCatavento.js";
 import { construirPitanga } from "./pitangaSol.js";
 import { criarPaineiraAbracos } from "./paineiraAbracos.js";
+import { criarSalgueiroCancoes } from "./salgueiroCancoes.js";
 import { RAMPAS } from "./paleta.js";
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -1093,10 +1094,12 @@ function noTronco(partes, cor, n, raio, rng, registros, tipo) {
 export function construirVariacao(def, semente) {
   // Preserva o gerador próprio aprovado pelo Claude.
   if (def.gerador === "pitanga") return construirPitanga(semente, def);
-  validarEspecie(def, [...Object.keys(FORMAS), "catavento", "paineiraAbracos"]);
+  // Geradores próprios do bosque de Pediatria aprovados pelo usuário.
+  const PROPRIOS = { catavento: criarCatavento, paineiraAbracos: criarPaineiraAbracos, salgueiroCancoes: criarSalgueiroCancoes };
+  validarEspecie(def, [...Object.keys(FORMAS), ...Object.keys(PROPRIOS)]);
   // Arquiteturas próprias aprovadas: nenhum enfeite ou broto genérico é aplicado.
-  if (def.forma === "catavento" || def.forma === "paineiraAbracos") {
-    const { estagios } = (def.forma === "catavento" ? criarCatavento : criarPaineiraAbracos)(semente, juntar);
+  if (PROPRIOS[def.forma]) {
+    const { estagios } = PROPRIOS[def.forma](semente, juntar);
     const alturas = estagios.map((geo, e) => {
       geo.userData.arvore = { ...geo.userData.proposta, especie: def.nome, fase: FASES[e], ornamentos: [], copas: [] };
       return geo.boundingBox.max.y;

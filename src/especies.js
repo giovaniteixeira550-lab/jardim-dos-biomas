@@ -359,6 +359,12 @@ export const TODAS = {
     altura: [9, 10], cores: { folha: R.mata[4], casca: R.salvia[2] }, variacoes: 1,
     nicho: { umidade: [0.5, 0.3], sombra: 0.1, altitude: null }, raridade: 0,
   },
+  // Pneumologia e alergia. Gerador próprio (src/salgueiroCancoes.js); posição planejada perto da água.
+  salgueiroCancoes: {
+    nome: "Salgueiro das Canções", forma: "salgueiroCancoes", fantasia: true, mapa: "pediatria",
+    altura: [6, 7], cores: { folha: R.mata[4], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.8, 0.2], sombra: 0.2, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.
