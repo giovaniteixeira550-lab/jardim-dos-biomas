@@ -3,7 +3,7 @@
   "versaoAtual": "v0.31",
   "proximoPasso": {
     "titulo": "Criar a Araucária dos Cometas",
-    "descricao": "Próxima espécie do bosque de Pediatria (Endocrinologia, genética e metabolismo), em prévia isolada para aprovação."
+    "descricao": "Próxima espécie do bosque de Pediatria (Endocrinologia, genética e metabolismo), em prévia isolada para aprovação. Em paralelo, avaliar a proposta isolada do chão do bosque (Codex)."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Lago com profundidade em faixas, reflexos espaçados, costa limpa e plantas aquáticas visíveis; entradas da ponte totalmente em madeira."
+      "nota": "Lago com profundidade em faixas, reflexos espaçados, costa limpa e plantas aquáticas visíveis; entradas da ponte totalmente em madeira. Folhas e trevos com prévia em revisão; percentual da versão aprovada preservado."
     },
     {
       "nome": "Vida e clima",
@@ -88,7 +88,8 @@
       "Crescimento sem redução na troca de broto para muda; evolução verificada nas 48 espécies",
       "Viveiro com espaçamento pelo tamanho real, placas de nomes e acesso direto por espécie",
       "Paineira dos Abraços no catálogo, evolução e viveiro, com copa em arco e frutos com paina",
-      "Salgueiro das Canções no catálogo, evolução e viveiro, com ramos pendentes e sinos dourados"
+      "Salgueiro das Canções no catálogo, evolução e viveiro, com ramos pendentes e sinos dourados",
+      "Prévia do chão com antes/depois, folhas secas e trevos apoiados no terreno"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -96,6 +97,7 @@
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
+      "Revisar a densidade e as cores das folhas e trevos antes de publicar",
       "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
       "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
@@ -111,6 +113,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "proposta-chao-01",
+      "data": "2026-10-16",
+      "titulo": "Folhas e trevos no chão do bosque",
+      "porque": "Dar textura e escala ao chão quando a câmera se aproxima.",
+      "mudancas": [
+        "Folhas secas em pequenos grupos irregulares sob as árvores",
+        "Trevos nas transições para as clareiras",
+        "Detalhes em volume acompanham o solo e deixam água e caminhos livres",
+        "Prévia com antes/depois na mesma vista"
+      ],
+      "resultado": "Proposta em revisão, com testes e comparação no navegador; sem publicação em main.",
+      "imagens": [
+        {
+          "src": "historico/proposta-chao-depois.png",
+          "legenda": "Folhas e trevos com os detalhes ligados"
+        },
+        {
+          "src": "historico/proposta-chao-antes.png",
+          "legenda": "Mesma câmera, sem os novos detalhes"
+        }
+      ]
+    },
     {
       "versao": "v0.31",
       "data": "2026-10-16",

@@ -58,6 +58,8 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 
 ## 3. Estado atual (v0.31)
 
+- **Proposta do Codex — chão do bosque:** folhas secas em grupos sob as árvores e trevos nas transições para clareiras, com vértices apoiados no terreno. [Comparar antes/depois](projetos/chao-bosque/). Duas malhas estáticas; água, caminhos, encostas, passarela e reservas excluídos. Proposta em branch própria, aguardando revisão artística. A Araucária dos Cometas continua na frente do Claude. Detalhes em [docs/chao-bosque.md](docs/chao-bosque.md).
+
 - **v0.31 — Salgueiro das Canções aprovado (Pneumologia e alergia):** gerador próprio em `src/salgueiroCancoes.js`. Folhas estreitas aos pares no broto e na muda, pernadas em arco, cerca de 70 ramos pendentes com folhas caindo sobre uma cúpula baixa, passagem aberta pela frente e três vagens-sino douradas. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição perto da água. Substitui a proposta paralela do Codex, guardada intacta no stash do repositório.
 
 - **v0.30 — Paineira dos Abraços aprovada (Neonatologia):** gerador próprio em `src/paineiraAbracos.js`. Folha digitada no broto e na muda, tronco que engorda até a garrafa, braços visíveis sob uma copa em arco, sapopemas, flores sobre as folhas e frutos presos à copa (fechados e abertos com paina). Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no bosque de Pediatria. A Paineira (barriguda) do catálogo geral continua igual.
