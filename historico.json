@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-15",
-  "versaoAtual": "v0.25",
+  "atualizado": "2026-10-16",
+  "versaoAtual": "v0.26",
   "proximoPasso": {
-    "titulo": "Revisar as espécies corrigidas",
-    "descricao": "Conferir paineira, frutíferas e cachos no catálogo e no jardim antes de acrescentar espécies."
+    "titulo": "Planejar a posição da Árvore-Catavento",
+    "descricao": "Escolher sua encosta no bosque de Pediatria e continuar a revisão das próximas espécies."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 88,
-      "nota": "Identidade por estágio e frutos apoiados na geometria; catálogo protegido e auditoria de 40 espécies."
+      "nota": "41 espécies no catálogo; Árvore-Catavento aprovada com quatro estágios e folhas coloridas."
     },
     {
       "nome": "Ecossistema",
@@ -82,7 +82,8 @@
       "Lago com faixas de profundidade, reflexos largos e encontro limpo com o riacho",
       "Entradas da ponte de madeira sem muretas de pedra",
       "Paineira com florada coerente, frutos distribuídos pela copa e cachos com apoio próprio",
-      "Catálogo imutável e verificação automática das espécies e estágios"
+      "Catálogo imutável e verificação automática das espécies e estágios",
+      "Árvore-Catavento no catálogo, evolução e viveiro, com folhas coloridas e quatro modelos próprios"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -107,6 +108,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.26",
+      "data": "2026-10-16",
+      "titulo": "Árvore-Catavento chega ao projeto",
+      "porque": "A proposta colorida foi aprovada para compor o bosque de Pediatria.",
+      "mudancas": [
+        "Folhas vermelhas, amarelas, azuis e verdes com dobras e avessos próprios",
+        "Broto, muda, jovem e adulta com arquiteturas diferentes",
+        "Disponível no catálogo, evolução e viveiro",
+        "Modelo isolado sem misturar características de outras espécies"
+      ],
+      "resultado": "Arte aprovada integrada; plantio no mapa aguarda composição planejada.",
+      "imagens": [
+        {
+          "src": "historico/v0.26-catavento.png",
+          "legenda": "Quatro estágios da Árvore-Catavento integrada ao gerador do projeto"
+        }
+      ]
+    },
     {
       "versao": "v0.25",
       "data": "2026-10-15",

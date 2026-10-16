@@ -295,6 +295,12 @@ export const ESPECIES = {
     fruto: { disposicao: "copa", cor: R.lilas[1], raio: 0.06, quantidade: 16, nome: "bagas" },
     nicho: { umidade: [0.6, 0.35], sombra: 0.85, altitude: null }, raridade: 0.4,
   },
+  // Bosque de Pediatria: modelo aprovado; posição no mapa ainda será planejada.
+  arvoreCatavento: {
+    nome: "Árvore-Catavento", forma: "catavento", fantasia: true, mapa: "pediatria",
+    altura: [7, 8], cores: { folha: R.mata[4], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.45, 0.25], sombra: 0.15, altitude: [0.5, 0.35] }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.

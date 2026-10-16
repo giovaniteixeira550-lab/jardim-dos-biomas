@@ -14,6 +14,7 @@ import * as THREE from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { criarRng, criarRuido } from "./mundo.js";
 import { distribuirEnfeites, validarEspecie } from "./ornamentos.js";
+import { criarCatavento } from "./arvoreCatavento.js";
 import { RAMPAS } from "./paleta.js";
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -1088,7 +1089,16 @@ function noTronco(partes, cor, n, raio, rng, registros, tipo) {
  * Mesma semente ⇒ mesma variação (o mundo é reprodutível).
  */
 export function construirVariacao(def, semente) {
-  validarEspecie(def, Object.keys(FORMAS));
+  validarEspecie(def, [...Object.keys(FORMAS), "catavento"]);
+  // Arquitetura própria aprovada: nenhum enfeite ou broto genérico é aplicado.
+  if (def.forma === "catavento") {
+    const { estagios } = criarCatavento(semente, juntar);
+    const alturas = estagios.map((geo, e) => {
+      geo.userData.arvore = { especie: def.nome, fase: FASES[e], ornamentos: [], copas: [], ...geo.userData.proposta };
+      return geo.boundingBox.max.y;
+    });
+    return { estagios, alturas, alturaAdulta: alturas[3] };
+  }
   const rngAltura = criarRng(semente);
   const H = lerp(def.altura[0], def.altura[1], rngAltura());
   const estagios = [];

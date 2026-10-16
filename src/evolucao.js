@@ -8,6 +8,7 @@ import { aplicarEstiloCopa } from "./estiloCopa.js";
 
 const $ = (id) => document.getElementById(id);
 const descricoes = {
+  catavento: ["Uma folha amarela enrolada emerge da semente.","Dois leques de três folhas coloridas, em alturas diferentes.","Três leques de quatro cores e primeiras ramificações.","Sete cataventos vegetais, 28 folhas coloridas e ramos em espiral."],
   folhosa: ["Folhas-semente sobre um pequeno montinho de terra.","Caule fino, folhas alternadas, estaca e laço de apoio.","Tronco esguio e copa em formação; primeira florada nas espécies que a possuem.","Copa consolidada, raízes e cores da maturidade; flores ou frutos conforme a espécie."],
   conifera: ["Pequeno eixo com agulhas; araucária também mostra o pinhão.","Miniatura com três andares de agulhas desde o chão.","Porte jovem; araucária ainda cônica, antes do candelabro adulto.","Camadas, coluna ou candelabro característicos da espécie e raízes aparentes."],
   palmeira: ["Coco parcialmente enterrado com primeiras folhas em lança.","Roseta de folhas junto ao chão, ainda sem tronco.","Folhas abertas em roseta; a palmeira jovem ainda não tem o tronco longo da adulta.","Tronco longo e curvo, frondes pendentes e cachos de cocos."],

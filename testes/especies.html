@@ -29,6 +29,15 @@ $('executar').onclick=async()=>{try{
      if(p.tipo==='fruto'){frutos++;ok(e===3,'fruto antes da adulta');ok(p.disposicao===def.fruto.disposicao,'fruto na arquitetura errada');ok((def.fruto.cores??[def.fruto.cor]).includes(p.cor),'cor de outra espécie');}
     }
     if(id==='paineira')for(const c of meta.copas)ok((e===3?[R.flor[2],R.flor[1]]:[R.mata[3],R.mata[4],R.mata[5]]).includes(c.cor),'paineira com copa de outra fase');
+    if(id==='arvoreCatavento'){
+     ok(meta.leques===[0,2,3,7][e]&&meta.folhas===[1,6,12,28][e],'catavento perdeu arquitetura aprovada');
+     ok(meta.ornamentos.length===0&&meta.copas.length===0,'catavento recebeu características genéricas');
+     if(e>0)for(const cor of [R.vermelho[1],R.amarelo[1],R.agua[2],R.mata[4]]){
+      const c=new THREE.Color(cor),a=g.attributes.color;let achou=false;
+      for(let i=0;i<a.count;i++)if(Math.abs(a.getX(i)-c.r)+Math.abs(a.getY(i)-c.g)+Math.abs(a.getZ(i)-c.b)<1e-6){achou=true;break;}
+      ok(achou,'catavento perdeu uma das quatro cores');
+     }
+    }
    });liberar(v);
   }
  }

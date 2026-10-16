@@ -8,6 +8,7 @@ export function validarEspecie(def, formas) {
   if (!def.cores || !PALETA.includes(def.cores.folha) || !PALETA.includes(def.cores.casca)) falha('folha e casca precisam de cores próprias');
   for (const [nome, cor] of Object.entries(def.cores ?? {})) if (!PALETA.includes(cor)) falha(`cor inválida em ${nome}`);
   if (!def.altura || def.altura.length !== 2 || !def.altura.every(x => Number.isFinite(x) && x > 0) || def.altura[1] < def.altura[0]) falha('intervalo de altura inválido');
+  if (def.forma === 'catavento' && (def.flor || def.fruto || def.tapete || def.noTronco || def.espinhos || def.formaJovem)) falha('catavento não aceita enfeites ou arquiteturas de outra espécie');
   if (def.noTronco && def.fruto?.disposicao !== 'tronco') falha('frutos no tronco sem contrato correspondente');
   if (!formas.includes(def.forma) || (def.formaJovem && !formas.includes(def.formaJovem))) falha('forma não cadastrada');
   for (const tipo of ['flor', 'fruto']) {
