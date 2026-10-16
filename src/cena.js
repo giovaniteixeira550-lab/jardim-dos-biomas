@@ -15,6 +15,7 @@ import { criarMaterialPixel } from "./pixel.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
+import { organizarViveiro } from "./viveiro.js";
 import { estiloCopa } from "./estiloCopa.js";
 import { criarLago } from "./aguaLago.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
@@ -896,7 +897,7 @@ export class Jardim {
   limitar() {
     // O viveiro fica além da borda sul do mapa: a câmera pode ir até lá.
     this.alvo.x = THREE.MathUtils.clamp(this.alvo.x, 0, this.mundo.largura);
-    this.alvo.z = THREE.MathUtils.clamp(this.alvo.z, 0, this.mundo.altura + 50);
+    this.alvo.z = THREE.MathUtils.clamp(this.alvo.z, 0, this.fimViveiro ?? this.mundo.altura + 50);
   }
 
   /**
@@ -905,28 +906,38 @@ export class Jardim {
    */
   montarViveiro() {
     const ids = Object.keys(ESPECIES);
-    const porLinha = Math.ceil(ids.length / 3); // 3 fileiras: cabe na borda do terreno
     const z0 = this.mundo.altura + 12;
     this.viveiro = [];
-    ids.forEach((id, n) => {
-      const v = this.variacoes.find((x) => x.especie === id);
-      const col = n % porLinha, bloco = Math.floor(n / porLinha);
-      v.estagios.forEach((geo, e) => {
+    this.rotulosViveiro = [];
+    const grupos=organizarViveiro(ids.map(id=>this.variacoes.find(v=>v.especie===id)),this.mundo.largura,z0);
+    this.posicoesViveiro=new Map(grupos.map(g=>[g.especie,g]));
+    this.fimViveiro=Math.max(...grupos.map(g=>g.limites.maxZ))+6;
+    for(const grupo of grupos) {
+      const id=grupo.especie;
+      for(const {geo,estagio:e,x,z} of grupo.modelos) {
         const malha = new THREE.Mesh(geo, this.matArvore);
-        // Estágios da esquerda (broto) para a direita (adulta), com espaço para a copa.
-        const x = 10 + col * 15 + [-6, -4, -1.2, 4][e];
-        const z = z0 + bloco * 17;
         malha.position.set(x, this.alturaEm(x, z), z);
         malha.castShadow = malha.receiveShadow = true;
         malha.userData.viveiro = { nome: ESPECIES[id].nome, estagio: e, especie: id };
         this.scene.add(malha);
         this.viveiro.push(malha);
-      });
-    });
+      }
+      const placa=document.createElement('canvas');placa.width=512;placa.height=64;
+      const ctx=placa.getContext('2d');ctx.fillStyle=RAMPAS.tinta[0];ctx.fillRect(0,0,512,64);
+      ctx.fillStyle=RAMPAS.betula[0];ctx.textAlign='center';ctx.textBaseline='middle';
+      let tamanho=30;ctx.font=`bold ${tamanho}px monospace`;
+      while(ctx.measureText(ESPECIES[id].nome).width>490){tamanho--;ctx.font=`bold ${tamanho}px monospace`;}
+      ctx.fillText(ESPECIES[id].nome,256,32);
+      const mapa=new THREE.CanvasTexture(placa);mapa.minFilter=mapa.magFilter=THREE.NearestFilter;mapa.generateMipmaps=false;mapa.colorSpace=THREE.SRGBColorSpace;
+      const rotulo=new THREE.Sprite(new THREE.SpriteMaterial({map:mapa,depthWrite:false}));
+      rotulo.scale.set(11,1.375,1);rotulo.position.set(grupo.rotulo.x,.12,grupo.rotulo.z);rotulo.visible=false;
+      this.scene.add(rotulo);this.rotulosViveiro.push(rotulo);
+    }
   }
 
   /** Leva a câmera ao viveiro (ou de volta ao bosque). */
   irAoViveiro(ir = true) {
+    for(const rotulo of this.rotulosViveiro ?? [])rotulo.visible=ir;
     if (ir) {
       this.alvo.set(14, 0, this.mundo.altura + 28);
       this.altura = 46;
@@ -934,6 +945,14 @@ export class Jardim {
       this.alvo.set(this.mundo.largura * 0.5, 4, this.mundo.altura * 0.5);
       this.altura = 180;
     }
+  }
+
+  /** Visita um conjunto inteiro, sem procurar a espécie entre todas as fileiras. */
+  focarEspecieViveiro(id) {
+    const g=this.posicoesViveiro?.get(id);if(!g)return;
+    this.irAoViveiro(true);
+    this.alvo.set((g.limites.minX+g.limites.maxX)/2,0,(g.limites.minZ+g.limites.maxZ)/2);
+    this.altura=Math.max(24,Math.min(85,g.limites.maxX-g.limites.minX+12));
   }
 
   recentrar() {
@@ -1041,6 +1060,9 @@ export class Jardim {
     materiais.add(this.matArvore);
     for (const g of geometrias) g.dispose();
     for (const m of materiais) m.dispose();
+    for(const rotulo of this.rotulosViveiro ?? [])rotulo.material.map.dispose();
+    this.rotulosViveiro=[];
+    this.posicoesViveiro?.clear();
     // A rampa toon é um cache do módulo, reutilizado entre Jardins; não pertence
     // à instância, portanto continua disponível para o próximo Jardim.
     this.rt?.dispose();

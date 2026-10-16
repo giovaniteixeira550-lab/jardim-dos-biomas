@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><title>Crescimento e espaço do viveiro</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<style>body{background:#141c18;color:#e9e3d1;font:16px system-ui;padding:24px}pre{white-space:pre-wrap}</style>
+<h1>Crescimento e espaço do viveiro</h1><button id="executar">Executar verificações</button><pre id="resultado">Aguardando</pre>
+<script type="module">
+document.getElementById('executar').onclick=async()=>{
+ const r=document.getElementById('resultado');r.textContent='Conferindo modelos e espaço do viveiro…';
+ try{const {resultados}=await import('./crescimento-viveiro.js');r.textContent=resultados.join('\n');}
+ catch(e){r.textContent='FALHOU — '+e.message;console.error(e);}
+};
+</script>

@@ -88,3 +88,7 @@ Primeira árvore do mapa de Pediatria, aprovada pelo usuário na prévia isolada
 ## Publicação v0.28 — Catavento e Pitanga preservados
 
 Em 16/10/2026, o usuário autorizou explicitamente a publicação e determinou que toda alteração aprovada entre no projeto e na versão pública. Conciliada a Pitanga-de-Sol publicada pelo Claude na v0.27, sem alterar seu gerador ou suas capturas. A auditoria combinada passou com 48 espécies, 576 modelos e 1.398 frutos. A Árvore-Catavento mantém a arte aprovada e entra no catálogo, evolução e viveiro; a posição no bosque ainda será planejada.
+
+## Correções prioritárias — v0.29
+
+Pedido direto do usuário: corrigir erros das espécies e prioridades do quadro. Ajustado o tamanho exagerado dos brotos genéricos que ultrapassavam a muda; a auditoria Evolução não teve critérios relaxados. Pitanga e Catavento mantêm seus geradores aprovados. Novo módulo viveiro.js organiza os quatro estágios por seus limites geométricos; nomes e seletor ajudam a localizar exemplares e os limites da câmera acompanham as fileiras. As texturas das placas são liberadas no descarte. Alterações concentradas em arvoreProc, cena, main e HUD, sem mudar solo, água, regras de estudo ou plantio. Relatório em docs/correcoes-prioritarias.md; pendências não resolvidas permanecem no quadro.

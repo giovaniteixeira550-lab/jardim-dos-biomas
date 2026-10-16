@@ -1,7 +1,11 @@
 /** Liga a página (HUD, carregamento) à cena. */
 import { Jardim } from "./cena.js";
+import { ESPECIES } from "./especies.js";
 
 const $ = (id) => document.getElementById(id);
+for(const [id,def] of Object.entries(ESPECIES).sort((a,b)=>a[1].nome.localeCompare(b[1].nome,'pt-BR'))){
+  const opcao=document.createElement('option');opcao.value=id;opcao.textContent=def.nome;$('especie-viveiro').append(opcao);
+}
 let jardim = null;
 let cargaAtual = 0;
 let crescendo = null;
@@ -52,6 +56,7 @@ async function iniciar(semente) {
     if (carga !== cargaAtual) return;
     jardim.setHora(document.querySelector("[data-hora][aria-pressed='true']").dataset.hora);
     jardim.irAoViveiro($("viveiro").getAttribute("aria-pressed") === "true");
+    if($("viveiro").getAttribute("aria-pressed")==="true")jardim.focarEspecieViveiro($("especie-viveiro").value);
     const local=new URLSearchParams(window.location.search).get("local");
     if(local)jardim.irParaLocal(local);
     $("info").textContent = `Semente ${semente} · ${jardim.info().instancias} árvores e arbustos`;
@@ -87,6 +92,7 @@ $("recentrar").addEventListener("click", () => {
   jardim?.recentrar();
   $("viveiro").setAttribute("aria-pressed", "false");
   $("viveiro").textContent = "Viveiro";
+  $("especie-viveiro").hidden=true;
 });
 $("novo").addEventListener("click", () => iniciar(Math.floor(Math.random() * 1e6)));
 // Viveiro: todas as espécies, do broto à adulta, lado a lado.
@@ -95,7 +101,10 @@ $("viveiro").addEventListener("click", () => {
   $("viveiro").setAttribute("aria-pressed", String(ir));
   $("viveiro").textContent = ir ? "Bosque" : "Viveiro";
   jardim?.irAoViveiro(ir);
+  $("especie-viveiro").hidden=!ir;
+  if(ir)jardim?.focarEspecieViveiro($("especie-viveiro").value);
 });
+$("especie-viveiro").addEventListener("change",()=>jardim?.focarEspecieViveiro($("especie-viveiro").value));
 
 // "Ver crescer": 0 → 100% em ~12 s.
 $("ver-crescer").addEventListener("click", () => {

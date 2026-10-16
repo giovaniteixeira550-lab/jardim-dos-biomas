@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.28)
+## 3. Estado atual (v0.29)
+
+- **v0.29 — crescimento e viveiro:** nove espécies deixam de diminuir do broto para a muda. Viveiro usa as dimensões reais de cada modelo, placas de nomes e seletor de espécies; câmera alcança todas as fileiras. As placas são liberadas no descarte. Modelos próprios de Pitanga e Catavento preservados. Verificações em `testes/crescimento-viveiro.html` e relatório em [docs/correcoes-prioritarias.md](docs/correcoes-prioritarias.md).
 
 - **v0.28 — Árvore-Catavento aprovada:** quatro modelos próprios, folhas vermelhas, amarelas, azuis e verdes com dobras em volume. Disponível no catálogo, evolução e viveiro. Modelo isolado, sem enfeites de outras espécies; plantio aleatório desativado até planejar sua posição no bosque de Pediatria.
 

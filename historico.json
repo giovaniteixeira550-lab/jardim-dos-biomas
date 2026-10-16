@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-16",
-  "versaoAtual": "v0.28",
+  "versaoAtual": "v0.29",
   "proximoPasso": {
-    "titulo": "Mapa de Pediatria: próximas árvores",
-    "descricao": "Primeiro mapa dedicado à Pediatria: Paineira dos Abraços (Codex) e novas espécies, cada uma aprovada numa prévia isolada antes de entrar no bosque. Árvore-Catavento já aprovada e integrada; definir sua posição no bosque."
+    "titulo": "Revisar seleção e distribuição no bosque",
+    "descricao": "Crescimento e viveiro corrigidos. Próximas pendências: cliques entre copas e distribuição planejada das espécies raras."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "43 espécies + 4 arbustos (21 brasileiras); Pitanga-de-Sol com gerador próprio abre o mapa de Pediatria; auditoria de 47 espécies. Catavento integrado: 48 espécies aprovadas no catálogo."
+      "nota": "48 espécies: crescimento conferido e viveiro com modelos separados, nomes e seletor. Pitanga e Catavento preservados."
     },
     {
       "nome": "Ecossistema",
@@ -84,15 +84,14 @@
       "Paineira com florada coerente, frutos distribuídos pela copa e cachos com apoio próprio",
       "Catálogo imutável e verificação automática das espécies e estágios",
       "Pitanga-de-Sol: ramos arqueados, flores na jovem e pitangas com gomos presas por cabinhos",
-      "Árvore-Catavento no catálogo, evolução e viveiro, com folhas coloridas e quatro modelos próprios"
+      "Árvore-Catavento no catálogo, evolução e viveiro, com folhas coloridas e quatro modelos próprios",
+      "Crescimento sem redução na troca de broto para muda; evolução verificada nas 48 espécies",
+      "Viveiro com espaçamento pelo tamanho real, placas de nomes e acesso direto por espécie"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
-      "Viveiro sem nomes escritos: é preciso clicar em cada peça",
-      "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
-      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)",
-      "Verificação da página Evolução para no coqueiro (\"altura não progride\"); já acontecia antes da v0.27"
+      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
       "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
@@ -110,6 +109,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.29",
+      "data": "2026-10-16",
+      "titulo": "Crescimento coerente e viveiro organizado",
+      "porque": "Alguns brotos eram maiores que as mudas e o viveiro sobrepunha árvores largas sem identificá-las.",
+      "mudancas": [
+        "Nove espécies deixam de diminuir ao passar de broto para muda",
+        "Espaço entre modelos calculado pela geometria real",
+        "Nomes visíveis e seletor para visitar cada espécie",
+        "Câmera alcança as novas fileiras; texturas das placas são liberadas ao sair"
+      ],
+      "resultado": "Evolução passa nas 48 espécies; Pitanga e Catavento mantêm seus modelos aprovados.",
+      "imagens": [
+        {
+          "src": "historico/v0.29-viveiro.png",
+          "legenda": "Catavento no viveiro, com modelos separados, placa de nome e seletor de espécies"
+        }
+      ]
+    },
     {
       "versao": "v0.28",
       "data": "2026-10-16",

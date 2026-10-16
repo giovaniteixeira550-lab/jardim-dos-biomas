@@ -1146,5 +1146,12 @@ export function construirVariacao(def, semente) {
     estagios.push(geo);
     alturas.push(geo.boundingBox.max.y);
   }
+  // O exagero de 1,8× do broto não pode fazê-lo superar a própria muda.
+  // Ajuste uniforme preserva a anatomia e não altera os modelos aprovados próprios.
+  if (alturas[0] >= alturas[1]) {
+    estagios[0].scale(alturas[1] * .82 / alturas[0], alturas[1] * .82 / alturas[0], alturas[1] * .82 / alturas[0]);
+    estagios[0].computeBoundingBox(); estagios[0].computeBoundingSphere();
+    alturas[0] = estagios[0].boundingBox.max.y;
+  }
   return { estagios, alturas, alturaAdulta: alturas[3] };
 }

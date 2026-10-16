@@ -97,8 +97,11 @@ $("executar").addEventListener("click", async () => {
     const geometriaQuad = vivo.cena2d.children[0].geometry;
     let quadDispose = 0;
     geometriaQuad.addEventListener("dispose", () => quadDispose++);
+    const texturasNomes=vivo.rotulosViveiro.map(r=>r.material.map),contagensNomes=texturasNomes.map(()=>0);
+    texturasNomes.forEach((t,i)=>t.addEventListener('dispose',()=>contagensNomes[i]++));
     vivo.dispose();
     vivo.dispose();
+    conferir(contagensNomes.length>0&&contagensNomes.every(n=>n===1)&&vivo.posicoesViveiro.size===0,'Texturas ou posições do viveiro não foram liberadas uma vez.');
     const giroEncerrado = vivo.yawAlvo;
     teclado("q");
     conferir(vivo.yawAlvo === giroEncerrado && quadDispose === 1 && vivo.cena2d.children.length === 0,
@@ -141,6 +144,8 @@ $("executar").addEventListener("click", async () => {
     registrar("PASSOU — duas trocas rápidas publicam só o último mundo e param a animação antiga.");
     $("estado").textContent = "Testando restauração da página e do viveiro…";
     documento.getElementById("viveiro").click();
+    const seletorViveiro=documento.getElementById('especie-viveiro');seletorViveiro.value='arvoreCatavento';seletorViveiro.dispatchEvent(new janela.Event('change'));
+    const focoViveiro={x:ultimaCena.alvo.x,z:ultimaCena.alvo.z,altura:ultimaCena.altura};
     const sementeFinal = ultimaCena.mundo.semente;
     janela.dispatchEvent(new janela.PageTransitionEvent("pagehide", { persisted: true }));
     conferir(ultimaCena.descartado && janela.jardim === null, "Saída da página manteve a cena ativa.");
@@ -148,7 +153,7 @@ $("executar").addEventListener("click", async () => {
     await esperar(() => janela.jardim);
     conferir(janela.jardim !== ultimaCena && janela.jardim.mundo.semente === sementeFinal,
       "Restauração perdeu a última semente ou reutilizou uma cena encerrada.");
-    conferir(documento.getElementById("viveiro").getAttribute("aria-pressed") === "true" && janela.jardim.altura === 46,
+    conferir(documento.getElementById("viveiro").getAttribute("aria-pressed") === "true" && !seletorViveiro.hidden && seletorViveiro.value==='arvoreCatavento' && janela.jardim.altura === focoViveiro.altura && janela.jardim.alvo.x===focoViveiro.x && janela.jardim.alvo.z===focoViveiro.z,
       "Restauração perdeu a escolha do viveiro.");
     registrar("PASSOU — eventos de saída/restauração mantêm a semente e a escolha do viveiro.");
     $("estado").textContent = "Todas as 7 verificações passaram.";

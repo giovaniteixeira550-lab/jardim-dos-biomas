@@ -22,6 +22,15 @@ $("executar").onclick=async()=>{
     afirmar(j.rt.width===rt[0]&&j.rt.height===rt[1]&&j.tamPixel===2,"Resolução mudou no giro/zoom");
     afirmar(j.individuos[0].variacao.estagios[3]===geo&&j.pixel.uniforms.uContorno.value===1,"Geometria/contorno alterados");
     registrar("Zoom 8–240 e giro em ângulos livres preservam resolução, geometria e contorno.");
+    j.irAoViveiro(true);
+    afirmar(j.rotulosViveiro.length===j.posicoesViveiro.size&&j.rotulosViveiro.every(r=>r.visible),"Faltam nomes no viveiro");
+    for(const id of ['pitanga','arvoreCatavento']){
+      j.focarEspecieViveiro(id);const g=j.posicoesViveiro.get(id);
+      afirmar(j.alvo.x===(g.limites.minX+g.limites.maxX)/2,"Seletor não enquadrou a espécie");
+      const z=j.alvo.z;j.limitar();afirmar(j.alvo.z===z,"Últimas fileiras inacessíveis");
+    }
+    j.irAoViveiro(false);afirmar(j.rotulosViveiro.every(r=>!r.visible),"Nomes continuam no bosque");
+    registrar("Viveiro tem nomes, acesso direto à Pitanga e ao Catavento e câmera alcançando todas as fileiras.");
     j.recentrar(); j.altura=42; renderizar();
     const r=j.canvas.getBoundingClientRect();
     // Busca interseção real no centro do bosque, sem depender de uma espécie.
@@ -83,7 +92,7 @@ $("executar").onclick=async()=>{
     registrar("Direito inclina; meio gira; dois dedos giram e aproximam, preservando os modelos 3D.");
     j.recentrar();j.altura=42;mostrar(true);
     $("opaca").disabled=$("transparente").disabled=false;
-    $("estado").textContent="6 verificações passaram. Compare opaca/transparente nos botões.";
+    $("estado").textContent="7 verificações passaram. Compare opaca/transparente nos botões.";
   } catch(e) {$("estado").textContent=`FALHOU — ${e.message}`;console.error(e);}
 };
 window.addEventListener("pagehide",()=>j?.dispose());
