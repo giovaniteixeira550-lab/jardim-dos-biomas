@@ -22,6 +22,7 @@ import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarPonteMadeira } from "./ponteMadeira.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
 import { criarBordasBarranco } from "./bordasBarranco.js";
+import { criarDetalhesSolo } from "./detalhesSolo.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -639,6 +640,8 @@ export class Jardim {
 
   criarDetalhes() {
     const m = this.mundo;
+    this.coberturaSolo=criarDetalhesSolo(m,toon);
+    this.scene.add(this.coberturaSolo);
     const rng = criarRng(m.semente ^ 0x99);
     const d = new THREE.Object3D();
 
