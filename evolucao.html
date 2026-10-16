@@ -16,6 +16,10 @@
   article { padding:16px; border-right:1px solid #3f6e3c; } article:last-child { border:0; }
   h2 { margin:0 0 8px; font-size:20px; color:#c6dd84; } article p { margin:0; font-size:14px; }
   #estado { min-height:24px; } details { margin-top:20px; } pre { white-space:pre-wrap; line-height:1.5; }
+  #prancheta { border:1px dashed #ecab4c; padding:12px 16px; margin:16px 0; } #prancheta h2 { color:#ecab4c; }
+  #lista-rascunhos { display:flex; flex-wrap:wrap; gap:8px; } #titulo-ficha { display:none; }
+  body.ficha > :not(.vitrine):not(#titulo-ficha) { display:none; } body.ficha { padding:8px; }
+  body.ficha #titulo-ficha { display:block; margin:0 0 6px; color:#ecab4c; }
   @media(max-width:600px) { body { padding:16px; } h1 { font-size:24px; } }
 </style>
 <script type="importmap">
@@ -23,16 +27,22 @@
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
-    "./src/arvoreProc.js": "./src/arvoreProc.js?v=0.26",
-    "./src/especies.js": "./src/especies.js?v=0.26",
-    "./src/ornamentos.js": "./src/ornamentos.js?v=0.26"
+    "./src/arvoreProc.js": "./src/arvoreProc.js?v=0.27",
+    "./src/especies.js": "./src/especies.js?v=0.27",
+    "./src/ornamentos.js": "./src/ornamentos.js?v=0.27"
   }
 }
 </script>
-<a href="./index.html">← Voltar ao jardim</a>
- · <a href="./historico.html#catalogo">Catálogo do diário</a>
+<nav><a href="./index.html">← Voltar ao jardim</a>
+ · <a href="./historico.html#catalogo">Catálogo do diário</a></nav>
 <h1>Uma árvore, quatro transformações</h1>
 <p>De folhas isoladas a uma arquitetura completa. Compare a forma de cada conquista, além do tamanho.</p>
+<section id="prancheta" hidden>
+  <h2>Prancheta de aprovação</h2>
+  <p>Espécies em <strong>rascunho</strong>: só aparecem aqui, fora do mapa e do catálogo. Depois de aprovadas, entram no jardim.</p>
+  <div id="lista-rascunhos"></div>
+</section>
+<h1 id="titulo-ficha"></h1>
 <div class="controles">
   <label>Espécie <select id="especie"></select></label>
   <label><input type="checkbox" id="normalizar" checked> Comparar formas sem usar o tamanho do jogo</label>
@@ -52,5 +62,5 @@
 </div>
 <p>Uma interpretação artística do crescimento: as transformações podem ser exageradas para tornar o progresso legível. No jardim, os estágios continuam com seus tamanhos próprios.</p>
 <details><summary>Verificação das espécies</summary><p>Confere as geometrias de todas as espécies, a repetição da mesma semente e as mudanças de forma com o tamanho removido da comparação.</p><button id="verificar" type="button">Verificar todas as espécies</button><pre id="resultado" role="status"></pre></details>
-<script type="module" src="./src/evolucao.js?v=0.26"></script>
+<script type="module" src="./src/evolucao.js?v=0.27"></script>
 </html>

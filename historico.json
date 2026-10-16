@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-16",
-  "versaoAtual": "v0.26",
+  "versaoAtual": "v0.27",
   "proximoPasso": {
-    "titulo": "Planejar a posição da Árvore-Catavento",
-    "descricao": "Escolher sua encosta no bosque de Pediatria e continuar a revisão das próximas espécies."
+    "titulo": "Bioma configurável + segundo bioma (Caatinga)",
+    "descricao": "Deixar paleta, espécies e terreno escolhíveis por bioma e criar o primeiro mundo extra. Distribuição das grandes áreas ainda a confirmar. No bosque de Pediatria, planejar a posição da Árvore-Catavento aprovada."
   },
   "frentes": [
     {
@@ -15,8 +15,8 @@
     {
       "nome": "Árvores",
       "status": "andamento",
-      "progresso": 88,
-      "nota": "41 espécies no catálogo; Árvore-Catavento aprovada com quatro estágios e folhas coloridas."
+      "progresso": 90,
+      "nota": "42 espécies + 4 arbustos (20 brasileiras); espécies novas passam pela prancheta de rascunho; auditoria de 46 espécies. Árvore-Catavento aprovada: 47 espécies no catálogo."
     },
     {
       "nome": "Ecossistema",
@@ -109,7 +109,7 @@
   },
   "versoes": [
     {
-      "versao": "v0.26",
+      "versao": "v0.27",
       "data": "2026-10-16",
       "titulo": "Árvore-Catavento chega ao projeto",
       "porque": "A proposta colorida foi aprovada para compor o bosque de Pediatria.",
@@ -122,8 +122,27 @@
       "resultado": "Arte aprovada integrada; plantio no mapa aguarda composição planejada.",
       "imagens": [
         {
-          "src": "historico/v0.26-catavento.png",
+          "src": "historico/v0.27-catavento.png",
           "legenda": "Quatro estágios da Árvore-Catavento integrada ao gerador do projeto"
+        }
+      ]
+    },
+    {
+      "versao": "v0.26",
+      "data": "2026-10-16",
+      "titulo": "Prancheta de rascunhos e 6 brasileiras novas",
+      "porque": "Aprovar espécies novas em lote, por imagem, antes de irem para o mapa (gasta menos).",
+      "mudancas": [
+        "Marcação de rascunho: espécie nova fica só na prancheta (página Evolução), fora do mapa e do catálogo",
+        "Prancheta de aprovação e ficha de imagem com as 4 fases de cada rascunho",
+        "Lote 1 aprovado: pequizeiro, aroeira-pimenteira, sibipiruna, ipê-branco, carnaúba e guapuruvu",
+        "Cada uma com nicho próprio (chapada seca, várzea, clareira, mata); guapuruvu jovem parece samambaia"
+      ],
+      "resultado": "46 espécies no total, 20 brasileiras; auditoria de espécies passou (552 modelos) e as novas já nascem no mapa.",
+      "imagens": [
+        {
+          "src": "historico/v0.26-guapuruvu-fases.png",
+          "legenda": "Guapuruvu: broto, muda, jovem (samambaia) e adulto florido"
         }
       ]
     },

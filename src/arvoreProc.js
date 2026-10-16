@@ -1094,7 +1094,7 @@ export function construirVariacao(def, semente) {
   if (def.forma === "catavento") {
     const { estagios } = criarCatavento(semente, juntar);
     const alturas = estagios.map((geo, e) => {
-      geo.userData.arvore = { especie: def.nome, fase: FASES[e], ornamentos: [], copas: [], ...geo.userData.proposta };
+      geo.userData.arvore = { ...geo.userData.proposta, especie: def.nome, fase: FASES[e], ornamentos: [], copas: [] };
       return geo.boundingBox.max.y;
     });
     return { estagios, alturas, alturaAdulta: alturas[3] };

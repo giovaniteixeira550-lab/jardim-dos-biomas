@@ -75,3 +75,9 @@ Escopo em aguaLago.js, acabamento de aguaPercurso.js e entradas da ponte em rele
 ## Identidade e frutos — v0.25
 
 Correção em arvoreProc.js, especies.js e novo ornamentos.js, no checkout isolado codex/integridade-especies. Paineira deixa de alternar volumes verdes e rosas na adulta; cores juvenis respeitam folhaJovem2. Flores/frutos usam triângulos reais das copas; palmeiras, jabuticabas e bananas mantêm disposição própria. Catálogo congelado, validação de contratos e teste automaticamente extensível às novas espécies. Sem alterar checkout ou branch do Claude. Critérios e limites em docs/integridade-especies.md.
+
+## Integração aprovada — 16/10/2026
+
+Árvore-Catavento adicionada ao catálogo, à evolução e ao viveiro da demo, em `src/arvoreCatavento.js`. A prévia isolada agora reutiliza esse modelo, evitando duas versões da arte. As seis espécies e a prancheta adicionadas pelo Claude na v0.26 foram preservadas. A espécie está aprovada; sua posição no bosque de Pediatria permanece para composição planejada (raridade zero no plantio aleatório).
+
+Verificação após conciliação: 47 espécies, 564 modelos e 1.296 frutos; identidade, atributos finitos, repetição por semente e ordem invertida passaram. O Catavento também verifica as contagens de leques e folhas por fase e a presença das quatro cores. Captura em `historico/v0.27-catavento.png`.

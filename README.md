@@ -54,11 +54,12 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.26)
+## 3. Estado atual (v0.27)
 
-- **v0.26 — Árvore-Catavento aprovada:** quatro modelos próprios, folhas vermelhas, amarelas, azuis e verdes com dobras em volume. Disponível no catálogo, evolução e viveiro. Um módulo separado preserva a identidade da espécie e as árvores existentes. Plantio aleatório desativado até definir sua posição no bosque de Pediatria.
+- **v0.27 — Árvore-Catavento aprovada:** quatro modelos próprios, folhas vermelhas, amarelas, azuis e verdes com dobras em volume. Disponível no catálogo, evolução e viveiro. Modelo isolado, sem enfeites de outras espécies; plantio aleatório desativado até planejar sua posição no bosque de Pediatria.
 
 - O histórico acompanha v0.1–v0.25 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
+- **v0.26 — rascunhos (Claude):** campo `rascunho: true` em especies.js (export `TODAS`, congelado; `ESPECIES` = só aprovadas, usadas no mapa, viveiro e catálogo; `RASCUNHOS`). Prancheta em evolucao.html e `?especie=X&ficha=1` para a imagem de aprovação. Fluxo: espécie nova entra como rascunho → imagem das 4 fases → aprovação em lote → apagar o campo. Lote 1: pequizeiro, aroeira, sibipiruna, ipê-branco, carnaúba, guapuruvu.
 - **v0.25 — identidade das árvores:** paineira adulta com florada rosa coerente, cores juvenis próprias e frutos apoiados na superfície real das copas. Cachos de palmeiras e jabuticabas têm suportes próprios. Catálogo imutável, validação de espécies novas e auditoria em `testes/especies.html`; critérios em [docs/integridade-especies.md](docs/integridade-especies.md).
 - **v0.24 — água e lago:** superfície refinada com profundidade calculada pelo fundo, faixas rasas, reflexos largos e ondulações lentas. O riacho termina na costa exata, sem superfícies competindo ou barrancos dentro do lago; o canal já não eleva o fundo da foz. As plantas aquáticas permanecem visíveis. Entradas da ponte em madeira, sem as muretas de pedra.
 - **v0.23 — pontes de madeira:** proposta aprovada, percurso ocidental removido e travessia curta entre as encostas. A ponte do riacho tem arco de 0,8 m, com subida e descida suaves, tábuas inclinadas e guarda-corpos acompanhando o tabuleiro. As duas pontes aparecem na planta; o acesso do jardim de chegada continua marcado para revisão.

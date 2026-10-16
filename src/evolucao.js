@@ -1,7 +1,7 @@
 /** Vitrine das mesmas geometrias usadas no bosque e no viveiro. */
 import * as THREE from "three";
 import { construirVariacao } from "./arvoreProc.js";
-import { ESPECIES } from "./especies.js";
+import { TODAS, RASCUNHOS } from "./especies.js";
 import { RAMPAS } from "./paleta.js";
 import { criarMaterialPixel } from "./pixel.js";
 import { aplicarEstiloCopa } from "./estiloCopa.js";
@@ -60,7 +60,7 @@ function desenhar() {
 function apresentar() {
   try {
     liberarModelos();
-    const def = ESPECIES[$("especie").value];
+    const def = TODAS[$("especie").value];
     const v = construirVariacao(def, 1234);
     geometrias = v.estagios;
     const normalizar = $("normalizar").checked;
@@ -79,7 +79,8 @@ function apresentar() {
       modelos.push(m);
       $("etapa-" + e).textContent = textos[e];
     });
-    $("estado").textContent = `${def.nome} · ${normalizar ? "escala de comparação: observe folhas, ramos, copa e base" : "tamanhos do jogo: do broto à adulta"}`;
+    $("titulo-ficha").textContent = def.nome + (def.rascunho ? " · rascunho" : "");
+    $("estado").textContent = `${def.rascunho ? "RASCUNHO (fora do mapa, aguardando aprovação) · " : ""}${def.nome} · ${normalizar ? "escala de comparação: observe folhas, ramos, copa e base" : "tamanhos do jogo: do broto à adulta"}`;
     desenhar();
   } catch (e) {
     $("estado").textContent = `Não foi possível mostrar a evolução: ${e.message}`;
@@ -121,13 +122,31 @@ try {
   aplicarEstiloCopa(material, direitaCopa, pixel.uniforms.uTexel);
   tela = new THREE.Scene();
   tela.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),pixel));
-  for (const [id,def] of Object.entries(ESPECIES)) {
-    const o = document.createElement("option");
-    o.value=id; o.textContent=def.nome; $("especie").append(o);
+  // Rascunhos primeiro, num grupo próprio; depois as aprovadas (as do mapa).
+  const grupos = [["Rascunhos — aguardando aprovação", true], ["Aprovadas (no mapa)", false]];
+  for (const [rotulo, rascunho] of grupos) {
+    const g = document.createElement("optgroup");
+    g.label = rotulo;
+    for (const [id,def] of Object.entries(TODAS)) {
+      if (Boolean(def.rascunho) !== rascunho) continue;
+      const o = document.createElement("option");
+      o.value=id; o.textContent=def.nome; g.append(o);
+    }
+    if (g.children.length) $("especie").append(g);
   }
-  // Links do catálogo abrem diretamente a espécie solicitada.
-  const solicitada=new URLSearchParams(window.location.search).get("especie");
-  if(solicitada&&Object.hasOwn(ESPECIES,solicitada))$("especie").value=solicitada;
+  // Prancheta: atalhos para cada rascunho.
+  const ids = Object.keys(RASCUNHOS);
+  $("prancheta").hidden = !ids.length;
+  for (const id of ids) {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = TODAS[id].nome;
+    b.addEventListener("click", () => { $("especie").value = id; apresentar(); });
+    $("lista-rascunhos").append(b);
+  }
+  // Links do catálogo abrem diretamente a espécie solicitada; ?ficha=1 deixa só a comparação (imagem de aprovação).
+  const params=new URLSearchParams(window.location.search), solicitada=params.get("especie");
+  if(solicitada&&Object.hasOwn(TODAS,solicitada))$("especie").value=solicitada;
+  if(params.has("ficha"))document.body.classList.add("ficha");
   $("especie").addEventListener("change",apresentar);
   $("normalizar").addEventListener("change",apresentar);
   $("girar").addEventListener("click",()=>{giro+=Math.PI/4; for(const m of modelos)m.rotation.y=giro; desenhar();});
@@ -146,7 +165,7 @@ $("verificar").addEventListener("click", async () => {
   $("verificar").disabled=true;
   const resultados=[];
   try {
-    for (const [id,def] of Object.entries(ESPECIES)) {
+    for (const [id,def] of Object.entries(TODAS)) {
       const a=construirVariacao(def,1234), b=construirVariacao(def,1234);
       try {
         const assinaturas=[];
