@@ -46,6 +46,8 @@ src/bordasBarranco.js lábios de terra e capim presos às quinas reais
 src/aguaPercurso.js superfícies, cortinas, espuma e margens do riacho
 planejamento.html planta interativa do mesmo terreno, com propostas de arquitetura
 src/arvoreProc.js gerador próprio dos quatro estágios por espécie
+src/pitangaSol.js gerador próprio da Pitanga-de-Sol (folhas opostas, ramos arqueados, pitangas com gomos)
+projetos/         prévias isoladas de espécies para aprovação (ex.: projetos/pitanga-de-sol)
 src/especies.js   catálogo, nichos e estágios dos indivíduos
 src/ecossistema.js umidade, luz, escolha de espécie e competição
 testes/          verificações no navegador, sem build ou dependências novas
@@ -54,8 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.26)
+## 3. Estado atual (v0.27)
 
+- **v0.27 — Pitanga-de-Sol (Claude), primeira árvore do mapa de Pediatria:** aprovada na prévia isolada `projetos/pitanga-de-sol/` e integrada. Gerador próprio em `src/pitangaSol.js`, chamado por `construirVariacao` quando a ficha traz `gerador: "pitanga"`. Broto com pares de folhas opostas e o par novo cor de cobre; muda com ramos laterais aos pares; jovem com pernadas começando a arquear e flores brancas; adulta baixa e larga (≈ 2× mais larga que alta) com 34 pitangas de 8 gomos e sépalas, presas por pedúnculo à folhagem ou aos ramos expostos. Entra no mapa, viveiro, catálogo e Evolução. Verificações da espécie no botão da prévia isolada.
 - O histórico acompanha v0.1–v0.25 e o jardim planejado. O tempo de carregamento varia por aparelho/cache; o quadro registra primeiro carregamento lento, ainda pendente de medição comparável.
 - **v0.26 — rascunhos (Claude):** campo `rascunho: true` em especies.js (export `TODAS`, congelado; `ESPECIES` = só aprovadas, usadas no mapa, viveiro e catálogo; `RASCUNHOS`). Prancheta em evolucao.html e `?especie=X&ficha=1` para a imagem de aprovação. Fluxo: espécie nova entra como rascunho → imagem das 4 fases → aprovação em lote → apagar o campo. Lote 1: pequizeiro, aroeira, sibipiruna, ipê-branco, carnaúba, guapuruvu.
 - **v0.25 — identidade das árvores:** paineira adulta com florada rosa coerente, cores juvenis próprias e frutos apoiados na superfície real das copas. Cachos de palmeiras e jabuticabas têm suportes próprios. Catálogo imutável, validação de espécies novas e auditoria em `testes/especies.html`; critérios em [docs/integridade-especies.md](docs/integridade-especies.md).

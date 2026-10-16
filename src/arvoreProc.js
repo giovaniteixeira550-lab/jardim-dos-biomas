@@ -14,6 +14,7 @@ import * as THREE from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { criarRng, criarRuido } from "./mundo.js";
 import { distribuirEnfeites, validarEspecie } from "./ornamentos.js";
+import { construirPitanga } from "./pitangaSol.js";
 import { RAMPAS } from "./paleta.js";
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -1088,6 +1089,8 @@ function noTronco(partes, cor, n, raio, rng, registros, tipo) {
  * Mesma semente ⇒ mesma variação (o mundo é reprodutível).
  */
 export function construirVariacao(def, semente) {
+  // Espécies com gerador próprio (anatomia que as formas genéricas não cobrem).
+  if (def.gerador === "pitanga") return construirPitanga(semente, def);
   validarEspecie(def, Object.keys(FORMAS));
   const rngAltura = criarRng(semente);
   const H = lerp(def.altura[0], def.altura[1], rngAltura());

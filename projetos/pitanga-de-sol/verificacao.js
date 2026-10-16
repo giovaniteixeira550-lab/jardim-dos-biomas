@@ -4,7 +4,13 @@
  * silhueta em vários ângulos. Usa só o gerador; não depende da renderização.
  */
 import * as THREE from "three";
-import { construirPitanga, geometriaFruto, ESPECIE, CORES } from "./pitanga.js";
+import { construirVariacao } from "../../src/arvoreProc.js";
+import { ESPECIES } from "../../src/especies.js";
+import { geometriaFruto, CORES } from "../../src/pitangaSol.js";
+
+const DEF = ESPECIES.pitanga;
+const construirPitanga = (s) => construirVariacao(DEF, s);
+const ESPECIE = { fruto: { ...DEF.fruto, sulcos: 8 }, flor: { raio: 0.13 } };
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 

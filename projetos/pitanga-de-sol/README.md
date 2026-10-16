@@ -1,21 +1,21 @@
-# Pitanga-de-Sol — proposta isolada (Claude)
+# Pitanga-de-Sol — prévia isolada (Claude)
 
-Primeira proposta da espécie do mapa de **Pediatria**, para aprovação. **Fora do mapa, do viveiro e do catálogo:** nenhum arquivo compartilhado foi alterado. Os módulos do jogo são só importados (`juntar` do gerador, `criarRng`/`criarRuido`, paleta, pós-processamento de pixel e estilo de copa).
+Primeira espécie do mapa de **Pediatria**. Aprovada pelo usuário em 16/10/2026 e integrada na v0.27.
 
-- **Prévia:** `projetos/pitanga-de-sol/index.html`. Use os botões 1–4, "Comparar os quatro" e "Adulta · 4 ângulos". Arraste para girar ou inclinar a câmera e use a roda ou a pinça para aproximar. Parâmetros: `?modo=0..3|comparar|angulos` e `?semente=N`.
-- **Gerador:** `pitanga.js` → `construirPitanga(semente)` devolve os quatro estágios. Cada geometria traz `userData.pitanga`, com o registro anatômico: pares de folhas, ramos, copas, flores e frutos, com seus apoios.
-- **Verificações:** `verificacao.js`. Use o botão "Executar verificações" na prévia.
-- **Capturas:** `capturas/`. São renders reais da prévia: adulta, adulta de perto, adulta por baixo, comparação, 4 ângulos e cada estágio.
-
-## Estágios
+- **Gerador:** `src/pitangaSol.js`. `construirVariacao` (arvoreProc.js) o chama quando a ficha de `src/especies.js` traz `gerador: "pitanga"`. Altura e frutos (tamanho, quantidade e cores) vêm da ficha; `validarPitanga` confere se a ficha casa com o desenho. Cada estágio traz `userData.arvore` (o mesmo registro dos outros modelos) e `userData.pitanga` (pares de folhas, ramos, copas, flores e frutos com os apoios).
+- **Prévia:** `projetos/pitanga-de-sol/index.html`. Tem os estágios 1–4, "Comparar os quatro" e "Adulta · 4 ângulos". Arraste para girar ou inclinar a câmera e use a roda ou a pinça para aproximar. Aceita `?modo=0..3|comparar|angulos` e `?semente=N`. Usa a mesma geometria do bosque.
+- **Verificações da espécie:** `verificacao.js`, pelo botão da prévia. Confere geometria, repetibilidade, características por estágio, apoio de flores e frutos, silhueta em 8 ângulos e os 8 sulcos do fruto.
+- **Capturas da aprovação:** `capturas/`.
 
 | Estágio | O que é próprio dele |
 |---|---|
 | Broto | Caule avermelhado e três pares de folhas opostas e cruzadas. O par mais novo é cor de cobre. Não há folhas-semente, porque a semente fica no solo. |
-| Muda | Caule único. Tem dois pares de ramos laterais opostos e cruzados, folhas aos pares, brotação de cobre no ápice, estaca e laço. |
-| Jovem | Tronco fino que se divide baixo em três pernadas. Os ramos começam a arquear (pontas cerca de 10% abaixo do topo do arco). A copa é aberta e tem as primeiras flores: quatro pétalas brancas e um pompom de estames. |
-| Adulta | Copa baixa e larga (largura cerca de 2× a altura) sobre quatro pernadas arqueadas e ramos secundários. Tem 34 frutos com 8 gomos e coroa de 4 sépalas, do amarelo ao vermelho, presos por pedúnculos. Uns saem da folhagem e outros dos trechos expostos dos ramos. |
+| Muda | Caule único. Tem dois pares de ramos laterais opostos, folhas aos pares, brotação de cobre no ápice, estaca e laço. |
+| Jovem | Tronco fino dividido baixo em três pernadas que começam a arquear. A copa é aberta e tem 16 flores brancas de quatro pétalas. |
+| Adulta | Copa baixa e larga sobre quatro pernadas arqueadas. Tem 34 pitangas de 8 gomos com sépalas, do amarelo ao vermelho, presas por pedúnculos. |
 
-## Para integrar depois da aprovação
-
-Quando aprovada, a forma passa para `src/arvoreProc.js`/`src/especies.js` pelo fluxo de rascunho. A integração também precisa atualizar `README.md` e `historico.json`. Isso não foi feito agora porque esta etapa entrega só a árvore e a prévia.
+Refinamentos registrados na aprovação:
+- A copa pode ficar mais contínua.
+- As brotações de cobre na adulta estão discretas.
+- As sépalas quase não aparecem nos ângulos comuns.
+- Na distância normal do jogo, os gomos viram só cor.

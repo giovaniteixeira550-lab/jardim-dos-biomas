@@ -1,5 +1,5 @@
 /**
- * Pitanga-de-Sol — gerador ISOLADO (proposta para aprovação, fora do mapa).
+ * Pitanga-de-Sol — gerador próprio da espécie (aprovada em 16/10/2026).
  *
  * Inspirada na pitangueira (Eugenia uniflora): árvore baixa, ramificada desde
  * perto do chão, folhas opostas, brotações novas cor de cobre, flores brancas
@@ -7,16 +7,16 @@
  * coroados pelas sépalas que ficam no fruto. Nesta espécie do jardim, os
  * frutos vão do amarelo quente ao vermelho e lembram pequenos sóis.
  *
- * Usa as peças do jogo — `juntar` (atributos de folhagem do estilo de copa),
- * `criarRng`/`criarRuido` (determinismo) e a paleta — sem alterar arquivos
- * compartilhados. Mesma semente ⇒ mesmos quatro modelos.
+ * Chamado por construirVariacao (arvoreProc.js) quando a ficha da espécie traz
+ * `gerador: "pitanga"`. Usa `juntar` (atributos do estilo de copa), criarRng/
+ * criarRuido e a paleta. Mesma semente ⇒ mesmos quatro modelos.
  * Unidades em metros; base do tronco em y = 0.
  */
 import * as THREE from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
-import { juntar } from "../../src/arvoreProc.js";
-import { criarRng, criarRuido } from "../../src/mundo.js";
-import { RAMPAS } from "../../src/paleta.js";
+import { juntar } from "./arvoreProc.js";
+import { criarRng, criarRuido } from "./mundo.js";
+import { PALETA, RAMPAS } from "./paleta.js";
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -35,12 +35,20 @@ export const CORES = Object.freeze({
 const PESO_FRUTOS = [1, 2, 2.4, 2, 1.2];
 
 export const FASES = ["broto", "muda", "jovem", "adulta"];
-export const ESPECIE = Object.freeze({
-  nome: "Pitanga-de-Sol",
-  altura: [4.0, 4.6], // adulta: baixa
-  fruto: { raio: 0.17, sulcos: 8, quantidade: 34 },
-  flor: { raio: 0.13, quantidade: 16 },
-});
+const SULCOS = 8;
+/** Primeira florada da jovem (flores brancas presas por pedúnculo). */
+const FLORADA = Object.freeze({ raio: 0.13, quantidade: 16 });
+
+/** A ficha precisa casar com o que este gerador desenha. */
+export function validarPitanga(def) {
+  const falha = (m) => { throw Error(`${def.nome ?? "Pitanga"}: ${m}`); };
+  if (!def.altura || def.altura.length !== 2 || !(def.altura[0] > 0) || def.altura[1] < def.altura[0]) falha("intervalo de altura inválido");
+  for (const [nome, cor] of Object.entries(def.cores ?? {})) if (!PALETA.includes(cor)) falha(`cor inválida em ${nome}`);
+  const f = def.fruto;
+  if (!f || f.disposicao !== "proprio" || !(f.raio > 0) || !Number.isInteger(f.quantidade) || f.quantidade < 1) falha("frutos sem tamanho ou quantidade");
+  if (!f.cores || f.cores.length !== CORES.frutos.length || !f.cores.every((c, i) => c === CORES.frutos[i])) falha("cores dos frutos diferentes das desenhadas pelo gerador");
+  if (def.flor) falha("a florada é própria da jovem; não declare flor na adulta");
+}
 
 // ---------------------------------------------------------------------------
 // Peças de geometria
@@ -509,7 +517,7 @@ function prenderEnfeites(registros, partes, raio, cor) {
     partes.push(pd);
     if (e.tipo === "fruto") {
       e.cor = cor(e);
-      partes.push(...orientar(geometriaFruto(raio, e.cor, ESPECIE.fruto.sulcos), e.centro, e.eixo, e.giro));
+      partes.push(...orientar(geometriaFruto(raio, e.cor, SULCOS), e.centro, e.eixo, e.giro));
     } else partes.push(...orientar(geometriaFlor(raio), e.centro, e.eixo, e.giro));
   }
 }
@@ -518,21 +526,21 @@ function prenderEnfeites(registros, partes, raio, cor) {
 function jovem(H, rng, placas) {
   const est = estrutura({ H, grossura: 0.65, largura: H * 1.45, pernadas: 3, arqueio: 0.3, secundarios: 1, rng, placas, folhas: [CORES.folhaJovem, CORES.folha], cobres: 3, raioCopa: H * 0.16, tCopas: [0.36, 0.7] });
   const amostras = amostrasDeRamos(est.ramos);
-  const flores = distribuir({ tipo: "flor", n: ESPECIE.flor.quantidade, raio: ESPECIE.flor.raio, copas: est.copas, ramos: est.ramos.slice(1), amostras, rng, fracaoRamo: 0.3, faixaY: [-0.55, 0.45, H * 0.35] });
-  prenderEnfeites(flores, est.partes, ESPECIE.flor.raio);
+  const flores = distribuir({ tipo: "flor", n: FLORADA.quantidade, raio: FLORADA.raio, copas: est.copas, ramos: est.ramos.slice(1), amostras, rng, fracaoRamo: 0.3, faixaY: [-0.55, 0.45, H * 0.35] });
+  prenderEnfeites(flores, est.partes, FLORADA.raio);
   return { partes: est.partes, info: { ...est, flores, frutos: [] } };
 }
 
 /** 4 · Adulta: copa baixa e larga sobre pernadas arqueadas; frutos em várias alturas e direções. */
-function adulta(H, rng, placas) {
+function adulta(H, rng, placas, def) {
   const est = estrutura({ H, largura: H * 1.9, pernadas: 4, arqueio: 1, secundarios: 2, rng, placas, folhas: [CORES.folha, CORES.folha2, CORES.folha], cobres: 5, raioCopa: H * 0.22, tCopas: [0.26, 0.48] });
   // Volume central baixo: fecha o miolo da copa sem esconder as pernadas laterais.
   const centro = volume(H * 0.27, V(est.forquilha.x, H * 0.8, est.forquilha.z), CORES.folha2, Math.floor(rng() * 1e6), 0.5);
   est.partes.push(centro);
   est.copas.push(centro.userData.copa);
   const amostras = amostrasDeRamos(est.ramos);
-  const frutos = distribuir({ tipo: "fruto", n: ESPECIE.fruto.quantidade, raio: ESPECIE.fruto.raio, copas: est.copas.filter((c) => c.cor !== CORES.cobre), ramos: est.ramos.slice(1), amostras, rng, fracaoRamo: 0.3, faixaY: [-0.8, 0.25, H * 0.28] });
-  prenderEnfeites(frutos, est.partes, ESPECIE.fruto.raio, () => sortearCor(rng));
+  const frutos = distribuir({ tipo: "fruto", n: def.fruto.quantidade, raio: def.fruto.raio, copas: est.copas.filter((c) => c.cor !== CORES.cobre), ramos: est.ramos.slice(1), amostras, rng, fracaoRamo: 0.3, faixaY: [-0.8, 0.25, H * 0.28] });
+  prenderEnfeites(frutos, est.partes, def.fruto.raio, () => sortearCor(rng));
   est.partes.push(...raizes(H * 0.045, rng, placas));
   return { partes: est.partes, info: { ...est, flores: [], frutos } };
 }
@@ -542,17 +550,27 @@ function adulta(H, rng, placas) {
  * Cada geometria traz `userData.pitanga` com o registro anatômico do estágio
  * (pares de folhas, ramos, copas, flores e frutos com seus pontos de apoio).
  */
-export function construirPitanga(semente = 1234) {
+export function construirPitanga(semente, def) {
+  validarPitanga(def);
   const rngA = criarRng(semente);
-  const H = lerp(ESPECIE.altura[0], ESPECIE.altura[1], rngA());
+  const H = lerp(def.altura[0], def.altura[1], rngA());
   const placas = criarRuido(semente * 3 + 11);
   const estagios = [], alturas = [], info = [];
   for (let e = 0; e < 4; e++) {
     const rng = criarRng(semente * 7 + e * 101);
-    const r = e === 0 ? broto(rng) : e === 1 ? muda(rng) : e === 2 ? jovem(H * 0.6, rng, placas) : adulta(H, rng, placas);
+    const r = e === 0 ? broto(rng) : e === 1 ? muda(rng) : e === 2 ? jovem(H * 0.6, rng, placas) : adulta(H, rng, placas, def);
     const geo = juntar(r.partes);
     if (e === 0) geo.scale(1.8, 1.8, 1.8), geo.computeBoundingBox(), geo.computeBoundingSphere(); // exagero de jogo, como nos outros brotos
     geo.userData.pitanga = { fase: FASES[e], escala: e === 0 ? 1.8 : 1, ...r.info };
+    // Mesmo registro dos demais modelos (bosque, auditoria de espécies).
+    const k = e === 0 ? 1.8 : 1, ponto = (v) => v.clone().multiplyScalar(k);
+    geo.userData.arvore = {
+      especie: def.nome, fase: FASES[e], copas: r.info.copas,
+      ornamentos: [...r.info.flores, ...r.info.frutos].map((o) => ({
+        centro: ponto(o.centro), apoio: ponto(o.apoio), tamanho: o.tipo === "fruto" ? def.fruto.raio : FLORADA.raio,
+        tipo: o.tipo, cor: o.cor ?? CORES.petala, disposicao: o.tipo === "fruto" ? "proprio" : "copa", suporte: o.suporte,
+      })),
+    };
     estagios.push(geo);
     alturas.push(geo.boundingBox.max.y);
     info.push(geo.userData.pitanga);

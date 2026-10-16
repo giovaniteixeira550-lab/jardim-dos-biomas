@@ -5,7 +5,8 @@
  * estágio, giro livre, inclinação e aproximação.
  */
 import * as THREE from "three";
-import { construirPitanga } from "./pitanga.js";
+import { construirVariacao } from "../../src/arvoreProc.js";
+import { ESPECIES } from "../../src/especies.js";
 import { verificarPitanga } from "./verificacao.js";
 import { RAMPAS } from "../../src/paleta.js";
 import { criarMaterialPixel } from "../../src/pixel.js";
@@ -134,7 +135,7 @@ try {
   tela = new THREE.Scene();
   tela.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), pixel));
   telaCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  variacao = construirPitanga(semente);
+  variacao = construirVariacao(ESPECIES.pitanga, semente);
 
   const pedido = params.get("modo");
   if (pedido === "comparar" || pedido === "angulos") modo = pedido;

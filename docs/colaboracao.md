@@ -75,3 +75,7 @@ Escopo em aguaLago.js, acabamento de aguaPercurso.js e entradas da ponte em rele
 ## Identidade e frutos — v0.25
 
 Correção em arvoreProc.js, especies.js e novo ornamentos.js, no checkout isolado codex/integridade-especies. Paineira deixa de alternar volumes verdes e rosas na adulta; cores juvenis respeitam folhaJovem2. Flores/frutos usam triângulos reais das copas; palmeiras, jabuticabas e bananas mantêm disposição própria. Catálogo congelado, validação de contratos e teste automaticamente extensível às novas espécies. Sem alterar checkout ou branch do Claude. Critérios e limites em docs/integridade-especies.md.
+
+## Pitanga-de-Sol — v0.27 (Claude)
+
+Primeira árvore do mapa de Pediatria, aprovada pelo usuário na prévia isolada `projetos/pitanga-de-sol/`. O gerador próprio fica em `src/pitangaSol.js`. Em `arvoreProc.js`, a única mudança é o desvio `gerador: "pitanga"` no início de `construirVariacao`; as formas genéricas e `ornamentos.js` ficaram intactos. A ficha em `especies.js` usa `disposicao: "proprio"` e é validada por `validarPitanga`. Os modelos registram `userData.arvore` no formato da auditoria (`testes/especies.html` passou com 47 espécies). Os arquivos da Paineira dos Abraços e a integração com o site, do Codex, não foram tocados. Importações versionadas em 0.27 (arvoreProc, especies, pitangaSol, catalogo, evolucao).

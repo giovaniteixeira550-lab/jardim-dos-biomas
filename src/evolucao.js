@@ -17,6 +17,7 @@ const descricoes = {
   bananeira: ["Folha enrolada em charuto saindo da terra.","Roseta com três folhas e pseudocaule curto.","Folhas abertas sobre o pseudocaule em desenvolvimento.","Folhas arqueadas, base robusta, bananas e coração roxo."],
   bambu: ["Rebentos pontudos ainda com bainha marrom.","Três colmos finos, com nós e pequenas folhas.","Touceira jovem ganhando altura e folhagem.","Touceira consolidada, colmos arqueados e folhagem no alto."],
   cristal: ["Uma ponta de cristal emerge da pedra.","Cinco pontas formam um núcleo junto ao chão.","Estrutura jovem começa a elevar os cristais.","Coroa de cristais sustentada por estrutura de pedra."],
+  pitanga: ["Pares de folhas opostas e cruzadas num caule avermelhado; o par mais novo é cor de cobre.","Caule único com os primeiros pares de ramos laterais, folhas aos pares, estaca e laço.","Tronco que se divide baixo em pernadas que começam a arquear; copa aberta e primeiras flores brancas.","Copa baixa e larga sobre ramos arqueados; pitangas de oito gomos, do amarelo ao vermelho, presas por pedúnculos."],
   cacto: ["Pequena esfera de cacto rente ao chão.","Coluna curta e gorducha, ainda sem braços.","A coluna cresce e começa a ramificar.","Mandacaru ramificado, com costelas e assinatura adulta."],
 };
 let renderer, cena, camera, rt, material, pixel, tela, ro;
