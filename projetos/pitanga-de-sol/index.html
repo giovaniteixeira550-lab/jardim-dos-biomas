@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pitanga-de-Sol — prévia isolada</title>
+<style>
+  :root { color-scheme:dark; font-family:system-ui,sans-serif; background:#141c18; color:#e9e3d1; }
+  body { margin:0; padding:20px; max-width:1280px; margin-inline:auto; }
+  a { color:#c6dd84; } h1 { font-size:26px; margin:8px 0 4px; color:#ecab4c; }
+  p { color:#c0cb97; line-height:1.5; margin:6px 0; }
+  .barra { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:14px 0 10px; }
+  button { font:inherit; color:#e9e3d1; background:#22382b; border:1px solid #568a45; padding:8px 12px; border-radius:4px; cursor:pointer; }
+  button[aria-pressed="true"] { background:#a24f2a; border-color:#ecab4c; }
+  button:focus-visible { outline:2px solid #ecab4c; outline-offset:3px; }
+  .sep { width:1px; align-self:stretch; background:#3f6e3c; margin:0 4px; }
+  .palco { position:relative; border:1px solid #568a45; background:#74895c; }
+  canvas { display:block; width:100%; height:min(68vh,620px); image-rendering:pixelated; touch-action:none; cursor:grab; }
+  canvas.arrastando { cursor:grabbing; }
+  #rotulos { position:absolute; inset:auto 0 0 0; display:grid; pointer-events:none; }
+  #rotulos span { text-align:center; padding:4px; font-size:13px; color:#1e2a22; font-weight:600; }
+  #estado { min-height:22px; font-size:14px; }
+  #descricao { background:#1e2a22; padding:12px 14px; border-left:3px solid #ecab4c; }
+  details { margin-top:16px; } pre { white-space:pre-wrap; line-height:1.5; font-size:13px; }
+  .dica { font-size:13px; color:#8c9f6b; }
+  @media(max-width:600px) { body { padding:12px; } canvas { height:56vh; } }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+  }
+}
+</script>
+<nav><a href="../../evolucao.html">← Transformações das árvores</a> · <a href="../../index.html">Jardim</a></nav>
+<h1>Pitanga-de-Sol</h1>
+<p>Prévia isolada da espécie — <strong>aprovada e integrada ao jardim na v0.27</strong> (gerador em <code>src/pitangaSol.js</code>). Mesmo pixel 2, contorno, paleta, luz toon e acabamento de folhagem do jardim; sem vento.</p>
+<div class="barra" role="group" aria-label="Estágio">
+  <button type="button" data-modo="0">1 · Broto</button>
+  <button type="button" data-modo="1">2 · Muda</button>
+  <button type="button" data-modo="2">3 · Jovem</button>
+  <button type="button" data-modo="3">4 · Adulta</button>
+  <button type="button" data-modo="comparar">Comparar os quatro</button>
+  <button type="button" data-modo="angulos">Adulta · 4 ângulos</button>
+  <span class="sep"></span>
+  <button type="button" id="esq" aria-label="Girar 45° para a esquerda">⟲</button>
+  <button type="button" id="dir" aria-label="Girar 45° para a direita">⟳</button>
+  <button type="button" id="mais" aria-label="Aproximar">+</button>
+  <button type="button" id="menos" aria-label="Afastar">−</button>
+  <button type="button" id="centro">Recentrar</button>
+</div>
+<p class="dica">Arraste para girar (vertical inclina a câmera de 20° a 75°) · roda do mouse ou pinça para aproximar · teclas 1–4, C, Q/E, +/−.</p>
+<div class="palco">
+  <canvas id="tela" aria-label="Prévia 3D da Pitanga-de-Sol"></canvas>
+  <div id="rotulos"></div>
+</div>
+<p id="estado" role="status">Preparando a prévia…</p>
+<p id="descricao"></p>
+<details><summary>Verificações do gerador</summary>
+  <p>Geometria válida, repetibilidade, características de cada estágio, apoio de flores e frutos e silhueta em 8 ângulos.</p>
+  <button id="verificar" type="button">Executar verificações</button>
+  <pre id="resultado" role="status"></pre>
+</details>
+<script type="module" src="./previa.js"></script>
+</html>

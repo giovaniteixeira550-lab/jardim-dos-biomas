@@ -15,6 +15,7 @@ import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { criarRng, criarRuido } from "./mundo.js";
 import { distribuirEnfeites, validarEspecie } from "./ornamentos.js";
 import { criarCatavento } from "./arvoreCatavento.js";
+import { construirPitanga } from "./pitangaSol.js";
 import { RAMPAS } from "./paleta.js";
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -1089,6 +1090,8 @@ function noTronco(partes, cor, n, raio, rng, registros, tipo) {
  * Mesma semente ⇒ mesma variação (o mundo é reprodutível).
  */
 export function construirVariacao(def, semente) {
+  // Preserva o gerador próprio aprovado pelo Claude.
+  if (def.gerador === "pitanga") return construirPitanga(semente, def);
   validarEspecie(def, [...Object.keys(FORMAS), "catavento"]);
   // Arquitetura própria aprovada: nenhum enfeite ou broto genérico é aplicado.
   if (def.forma === "catavento") {

@@ -14,6 +14,7 @@
  *    fora do mapa, do viveiro e do catálogo. Aprovada = apagar o campo.
  *  - espinhos: acúleos no tronco (paineira); fruto.cores: frutos de mais de uma cor
  *  - forma / formaJovem: arquitetura (a jovem pode ser outra, como na natureza)
+ *  - gerador: espécie com gerador próprio, fora das formas genéricas ("pitanga")
  *  - altura [min, max] em metros da adulta; largura e grossura: proporções
  *  - cores: folha (e folha2 para manchas), casca, broto; folhaJovem (cor antes
  *    de florescer, nas floríferas); cogumelo: pinta, lamela
@@ -310,6 +311,16 @@ export const TODAS = {
     cores: { folha: R.mata[4], folha2: R.mata[5], casca: R.salvia[2] }, variacoes: 1, // tronco liso esverdeado; jovem parece samambaia
     flor: { cor: R.amarelo[2], raio: 0.22, quantidade: 60, achatar: 0.6, nome: "flores amarelas" },
     nicho: { umidade: [0.6, 0.25], sombra: 0.1, altitude: null }, raridade: 0.12, // cresce rápido em clareiras
+  },
+
+  // --- Mapa de Pediatria (aprovadas uma a uma) -----------------------------
+  pitanga: {
+    // Gerador próprio (src/pitangaSol.js): folhas opostas, brotações cor de cobre,
+    // pernadas arqueadas, florada branca na jovem e frutos de 8 gomos com sépalas.
+    nome: "Pitanga-de-Sol", forma: "pitanga", gerador: "pitanga", altura: [4, 4.6], brasil: true,
+    cores: { folha: R.mata[3], folha2: R.mata[2], casca: R.terra[2], broto: R.outono[1] }, variacoes: 2,
+    fruto: { disposicao: "proprio", cor: R.outono[2], cores: [R.amarelo[1], R.outono[3], R.outono[2], R.vermelho[2], R.vermelho[1]], raio: 0.17, quantidade: 34, nome: "pitangas" },
+    nicho: { umidade: [0.5, 0.3], sombra: 0.4, altitude: null }, raridade: 0.6, // árvore baixa de borda de mata e quintal
   },
 
   // --- Arbustos (sub-bosque) -----------------------------------------------

@@ -80,4 +80,11 @@ Correção em arvoreProc.js, especies.js e novo ornamentos.js, no checkout isola
 
 Árvore-Catavento adicionada ao catálogo, à evolução e ao viveiro da demo, em `src/arvoreCatavento.js`. A prévia isolada agora reutiliza esse modelo, evitando duas versões da arte. As seis espécies e a prancheta adicionadas pelo Claude na v0.26 foram preservadas. A espécie está aprovada; sua posição no bosque de Pediatria permanece para composição planejada (raridade zero no plantio aleatório).
 
-Verificação após conciliação: 47 espécies, 564 modelos e 1.296 frutos; identidade, atributos finitos, repetição por semente e ordem invertida passaram. O Catavento também verifica as contagens de leques e folhas por fase e a presença das quatro cores. Captura em `historico/v0.27-catavento.png`.
+Verificação após conciliação: 47 espécies, 564 modelos e 1.296 frutos; identidade, atributos finitos, repetição por semente e ordem invertida passaram. O Catavento também verifica as contagens de leques e folhas por fase e a presença das quatro cores. Captura em `historico/v0.28-catavento.png`.
+## Pitanga-de-Sol — v0.27 (Claude)
+
+Primeira árvore do mapa de Pediatria, aprovada pelo usuário na prévia isolada `projetos/pitanga-de-sol/`. O gerador próprio fica em `src/pitangaSol.js`. Em `arvoreProc.js`, a única mudança é o desvio `gerador: "pitanga"` no início de `construirVariacao`; as formas genéricas e `ornamentos.js` ficaram intactos. A ficha em `especies.js` usa `disposicao: "proprio"` e é validada por `validarPitanga`. Os modelos registram `userData.arvore` no formato da auditoria (`testes/especies.html` passou com 47 espécies). Os arquivos da Paineira dos Abraços e a integração com o site, do Codex, não foram tocados. Importações versionadas em 0.27 (arvoreProc, especies, pitangaSol, catalogo, evolucao).
+
+## Publicação v0.28 — Catavento e Pitanga preservados
+
+Em 16/10/2026, o usuário autorizou explicitamente a publicação e determinou que toda alteração aprovada entre no projeto e na versão pública. Conciliada a Pitanga-de-Sol publicada pelo Claude na v0.27, sem alterar seu gerador ou suas capturas. A auditoria combinada passou com 48 espécies, 576 modelos e 1.398 frutos. A Árvore-Catavento mantém a arte aprovada e entra no catálogo, evolução e viveiro; a posição no bosque ainda será planejada.

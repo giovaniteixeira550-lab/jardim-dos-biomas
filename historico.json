@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-16",
-  "versaoAtual": "v0.27",
+  "versaoAtual": "v0.28",
   "proximoPasso": {
-    "titulo": "Bioma configurável + segundo bioma (Caatinga)",
-    "descricao": "Deixar paleta, espécies e terreno escolhíveis por bioma e criar o primeiro mundo extra. Distribuição das grandes áreas ainda a confirmar. No bosque de Pediatria, planejar a posição da Árvore-Catavento aprovada."
+    "titulo": "Mapa de Pediatria: próximas árvores",
+    "descricao": "Primeiro mapa dedicado à Pediatria: Paineira dos Abraços (Codex) e novas espécies, cada uma aprovada numa prévia isolada antes de entrar no bosque. Árvore-Catavento já aprovada e integrada; definir sua posição no bosque."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "42 espécies + 4 arbustos (20 brasileiras); espécies novas passam pela prancheta de rascunho; auditoria de 46 espécies. Árvore-Catavento aprovada: 47 espécies no catálogo."
+      "nota": "43 espécies + 4 arbustos (21 brasileiras); Pitanga-de-Sol com gerador próprio abre o mapa de Pediatria; auditoria de 47 espécies. Catavento integrado: 48 espécies aprovadas no catálogo."
     },
     {
       "nome": "Ecossistema",
@@ -83,6 +83,7 @@
       "Entradas da ponte de madeira sem muretas de pedra",
       "Paineira com florada coerente, frutos distribuídos pela copa e cachos com apoio próprio",
       "Catálogo imutável e verificação automática das espécies e estágios",
+      "Pitanga-de-Sol: ramos arqueados, flores na jovem e pitangas com gomos presas por cabinhos",
       "Árvore-Catavento no catálogo, evolução e viveiro, com folhas coloridas e quatro modelos próprios"
     ],
     "corrigir": [
@@ -90,7 +91,8 @@
       "Clique entre lóbulos da copa às vezes falha",
       "Viveiro sem nomes escritos: é preciso clicar em cada peça",
       "Fileiras do Viveiro se sobrepõem um pouco quando as adultas são altas",
-      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
+      "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)",
+      "Verificação da página Evolução para no coqueiro (\"altura não progride\"); já acontecia antes da v0.27"
     ],
     "ideias": [
       "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
@@ -109,7 +111,7 @@
   },
   "versoes": [
     {
-      "versao": "v0.27",
+      "versao": "v0.28",
       "data": "2026-10-16",
       "titulo": "Árvore-Catavento chega ao projeto",
       "porque": "A proposta colorida foi aprovada para compor o bosque de Pediatria.",
@@ -122,8 +124,31 @@
       "resultado": "Arte aprovada integrada; plantio no mapa aguarda composição planejada.",
       "imagens": [
         {
-          "src": "historico/v0.27-catavento.png",
+          "src": "historico/v0.28-catavento.png",
           "legenda": "Quatro estágios da Árvore-Catavento integrada ao gerador do projeto"
+        }
+      ]
+    },
+    {
+      "versao": "v0.27",
+      "data": "2026-10-16",
+      "titulo": "Pitanga-de-Sol, primeira árvore do mapa de Pediatria",
+      "porque": "A espécie foi aprovada na prévia isolada e agora nasce no jardim.",
+      "mudancas": [
+        "Gerador próprio da pitangueira: folhas aos pares, brotos cor de cobre e ramos arqueados",
+        "Jovem com as primeiras flores brancas; adulta baixa e larga, com 34 pitangas presas por cabinhos",
+        "Pitangas com 8 gomos e coroa de sépalas, do amarelo ao vermelho",
+        "Entra no mapa, no viveiro, no catálogo e na página Evolução; prévia isolada continua em projetos/pitanga-de-sol"
+      ],
+      "resultado": "20 pitangueiras nasceram no bosque da semente padrão; auditoria de espécies passou (47 espécies, 564 modelos).",
+      "imagens": [
+        {
+          "src": "historico/v0.27-pitanga-bosque.jpg",
+          "legenda": "Pitanga-de-Sol adulta no bosque"
+        },
+        {
+          "src": "historico/v0.27-pitanga-fases.jpg",
+          "legenda": "Broto, muda, jovem florida e adulta com pitangas"
         }
       ]
     },

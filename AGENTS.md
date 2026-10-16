@@ -17,6 +17,7 @@ Este repositório é a **demo de arte do Jardim dos Biomas**, editada por mais d
    - textos curtos e em linguagem simples (o painel é lido por uma pessoa, não por IA).
    Ao fechar uma versão: `git tag -a vX.Y -m "..." && git push --tags`.
 9. **Créditos:** ez-tree e three.js são MIT; mantenha a seção de créditos.
+10. **Aprovado = publicado:** toda alteração aprovada pelo dono vai para a branch `main` (com a tag da versão) na mesma hora, para o conteúdo não se perder em branches. Propostas ainda não aprovadas ficam em branches próprias.
 
 ## Mapa rápido
 
