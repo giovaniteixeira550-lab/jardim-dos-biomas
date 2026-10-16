@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.29)
+## 3. Estado atual (v0.30)
+
+- **v0.30 — Paineira dos Abraços aprovada (Neonatologia):** gerador próprio em `src/paineiraAbracos.js`. Folha digitada no broto e na muda, tronco que engorda até a garrafa, braços visíveis sob uma copa em arco, sapopemas, flores sobre as folhas e frutos presos à copa (fechados e abertos com paina). Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no bosque de Pediatria. A Paineira (barriguda) do catálogo geral continua igual.
 
 - **v0.29 — crescimento e viveiro:** nove espécies deixam de diminuir do broto para a muda. Viveiro usa as dimensões reais de cada modelo, placas de nomes e seletor de espécies; câmera alcança todas as fileiras. As placas são liberadas no descarte. Modelos próprios de Pitanga e Catavento preservados. Verificações em `testes/crescimento-viveiro.html` e relatório em [docs/correcoes-prioritarias.md](docs/correcoes-prioritarias.md).
 

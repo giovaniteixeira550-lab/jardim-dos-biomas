@@ -353,6 +353,12 @@ export const TODAS = {
     altura: [7, 8], cores: { folha: R.mata[4], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.45, 0.25], sombra: 0.15, altitude: [0.5, 0.35] }, raridade: 0,
   },
+  // Neonatologia. Gerador próprio (src/paineiraAbracos.js), aprovado na proposta 02; posição no mapa ainda será planejada.
+  paineiraAbracos: {
+    nome: "Paineira dos Abraços", forma: "paineiraAbracos", fantasia: true, mapa: "pediatria",
+    altura: [9, 10], cores: { folha: R.mata[4], casca: R.salvia[2] }, variacoes: 1,
+    nicho: { umidade: [0.5, 0.3], sombra: 0.1, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.

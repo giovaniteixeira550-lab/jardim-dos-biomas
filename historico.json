@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-16",
-  "versaoAtual": "v0.29",
+  "versaoAtual": "v0.30",
   "proximoPasso": {
-    "titulo": "Revisar seleção e distribuição no bosque",
-    "descricao": "Crescimento e viveiro corrigidos. Próximas pendências: cliques entre copas e distribuição planejada das espécies raras."
+    "titulo": "Criar o Salgueiro das Canções",
+    "descricao": "Próxima espécie do bosque de Pediatria (Pneumologia e alergia), em prévia isolada para aprovação."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "48 espécies: crescimento conferido e viveiro com modelos separados, nomes e seletor. Pitanga e Catavento preservados."
+      "nota": "49 espécies; Pitanga, Catavento e Paineira dos Abraços aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -86,7 +86,8 @@
       "Pitanga-de-Sol: ramos arqueados, flores na jovem e pitangas com gomos presas por cabinhos",
       "Árvore-Catavento no catálogo, evolução e viveiro, com folhas coloridas e quatro modelos próprios",
       "Crescimento sem redução na troca de broto para muda; evolução verificada nas 48 espécies",
-      "Viveiro com espaçamento pelo tamanho real, placas de nomes e acesso direto por espécie"
+      "Viveiro com espaçamento pelo tamanho real, placas de nomes e acesso direto por espécie",
+      "Paineira dos Abraços no catálogo, evolução e viveiro, com copa em arco e frutos com paina"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -109,6 +110,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.30",
+      "data": "2026-10-16",
+      "titulo": "Paineira dos Abraços chega ao projeto",
+      "porque": "A revisão da Paineira foi aprovada para representar a Neonatologia no bosque de Pediatria.",
+      "mudancas": [
+        "Tronco que engorda até ficar em forma de garrafa, com sapopemas",
+        "Braços visíveis sob uma copa em arco, o abraço da espécie",
+        "Folhas de cinco folíolos desde o broto",
+        "Frutos presos à copa: fechados e abertos com paina branca"
+      ],
+      "resultado": "Arte aprovada integrada; posição no mapa aguarda a composição do bosque.",
+      "imagens": [
+        {
+          "src": "historico/v0.30-paineira.jpg",
+          "legenda": "Os quatro estágios da Paineira dos Abraços na página de evolução"
+        }
+      ]
+    },
     {
       "versao": "v0.29",
       "data": "2026-10-16",

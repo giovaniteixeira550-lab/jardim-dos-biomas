@@ -92,3 +92,7 @@ Em 16/10/2026, o usuário autorizou explicitamente a publicação e determinou q
 ## Correções prioritárias — v0.29
 
 Pedido direto do usuário: corrigir erros das espécies e prioridades do quadro. Ajustado o tamanho exagerado dos brotos genéricos que ultrapassavam a muda; a auditoria Evolução não teve critérios relaxados. Pitanga e Catavento mantêm seus geradores aprovados. Novo módulo viveiro.js organiza os quatro estágios por seus limites geométricos; nomes e seletor ajudam a localizar exemplares e os limites da câmera acompanham as fileiras. As texturas das placas são liberadas no descarte. Alterações concentradas em arvoreProc, cena, main e HUD, sem mudar solo, água, regras de estudo ou plantio. Relatório em docs/correcoes-prioritarias.md; pendências não resolvidas permanecem no quadro.
+
+## Paineira dos Abraços — v0.30 (Claude)
+
+Segunda espécie do bosque de Pediatria aprovada pelo usuário em 16/10/2026, a partir da revisão `propostas-arvores/paineira-abracos-02` (a proposta 01 do Codex foi mantida para comparação). O gerador fica em `src/paineiraAbracos.js`, adaptado da prévia sem alterar a arte. Em `arvoreProc.js`, a forma `paineiraAbracos` usa o mesmo desvio da `catavento` (arquitetura própria, sem enfeites genéricos); `ornamentos.js` recusa enfeites de outra espécie nessa forma. Verificações: `testes/especies.html` (49 espécies, 588 modelos, 1.398 frutos), `testes/crescimento-viveiro.html` e `testes/ciclo-de-vida.html` passaram. A divisão em 11 espécies e os subtemas de cada uma estão em `BASE-ESPECIES-PEDIATRIA.md`, na pasta do projeto.
