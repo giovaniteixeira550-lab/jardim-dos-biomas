@@ -10,6 +10,8 @@
  *
  * Campos:
  *  - brasil: espécie nativa do Brasil (filtro "Brasileiras" no catálogo do diário)
+ *  - rascunho: espécie em aprovação — aparece SÓ na prancheta (evolucao.html),
+ *    fora do mapa, do viveiro e do catálogo. Aprovada = apagar o campo.
  *  - espinhos: acúleos no tronco (paineira); fruto.cores: frutos de mais de uma cor
  *  - forma / formaJovem: arquitetura (a jovem pode ser outra, como na natureza)
  *  - altura [min, max] em metros da adulta; largura e grossura: proporções
@@ -52,7 +54,7 @@ export function estagioDe(g) {
 
 const CASCA = R.terra[1];
 
-export const ESPECIES = {
+export const TODAS = {
   // --- Folhosas clássicas (melhoradas) ------------------------------------
   carvalho: {
     nome: "Carvalho", forma: "redonda", altura: [10, 13], largura: 1.3, grossura: 1.5,
@@ -271,6 +273,45 @@ export const ESPECIES = {
     nicho: { umidade: [0.6, 0.25], sombra: 0.55, altitude: null }, raridade: 0.1, // gigante emergente da mata, raro
   },
 
+  // --- Leva 5: brasileiras do lote 1 (aprovadas na prancheta, v0.18) -------
+  pequizeiro: {
+    nome: "Pequizeiro", forma: "redonda", altura: [6, 9], largura: 1.3, grossura: 1.6, brasil: true,
+    cores: { folha: R.mata[2], folha2: R.salvia[3], casca: R.terra[3] }, variacoes: 2, // casca grossa e clara, tronco tortuoso
+    flor: { cor: R.amarelo[2], raio: 0.16, quantidade: 14, achatar: 0.7, nome: "flores de estames" },
+    fruto: { disposicao: "copa", cor: R.mata[4], raio: 0.22, quantidade: 10, nome: "pequis" },
+    nicho: { umidade: [0.25, 0.2], sombra: 0.1, altitude: [0.6, 0.35] }, raridade: 0.25, // Cerrado: chapada seca e sol
+  },
+  aroeira: {
+    nome: "Aroeira-pimenteira", forma: "redonda", altura: [5, 8], largura: 1.2, grossura: 0.9, brasil: true,
+    cores: { folha: R.mata[3], folha2: R.mata[4], casca: R.terra[2] }, variacoes: 2,
+    fruto: { disposicao: "copa", cor: R.vermelho[2], cores: [R.vermelho[2], R.flor[1]], raio: 0.11, quantidade: 45, nome: "cachos de pimenta-rosa" },
+    nicho: { umidade: [0.5, 0.35], sombra: 0.2, altitude: null }, raridade: 0.35, // pioneira, aguenta quase tudo
+  },
+  sibipiruna: {
+    nome: "Sibipiruna", forma: "guarda-chuva", formaJovem: "redonda", altura: [10, 14], largura: 1.35, brasil: true, tapete: true,
+    cores: { folha: R.mata[4], folha2: R.mata[3], casca: R.pedra[2] }, variacoes: 2, // copa larga de folhinhas miúdas
+    flor: { cor: R.amarelo[2], raio: 0.19, quantidade: 55, achatar: 0.6, nome: "cachos amarelos" },
+    nicho: { umidade: [0.5, 0.25], sombra: 0.3, altitude: null }, raridade: 0.25, // Mata Atlântica
+  },
+  ipeBranco: {
+    nome: "Ipê-branco", forma: "guarda-chuva", formaJovem: "oval", altura: [8, 11], largura: 0.95, brasil: true, tapete: true,
+    cores: { folhaJovem: R.mata[4], folhaJovem2: R.mata[3], folha: R.betula[0], folha2: R.flor[3], casca: R.pedra[2] }, variacoes: 2,
+    flor: { cor: R.betula[0], raio: 0.2, quantidade: 22, achatar: 0.6, nome: "flores brancas" }, // florada branca, sem folhas
+    nicho: { umidade: [0.4, 0.25], sombra: 0.15, altitude: null }, raridade: 0.15,
+  },
+  carnauba: {
+    nome: "Carnaúba", forma: "leque", altura: [10, 14], brasil: true,
+    cores: { folha: R.salvia[3], folha2: R.salvia[4], casca: R.terra[2] }, variacoes: 2, // leques acinzentados de cera
+    fruto: { disposicao: "cacho", cor: R.tinta[1], raio: 0.08, quantidade: 40, nome: "cachos de coquinhos" }, floracao: null,
+    nicho: { umidade: [0.65, 0.25], sombra: 0.05, altitude: [0.15, 0.25] }, raridade: 0.3, // várzea que alaga e seca (Caatinga)
+  },
+  guapuruvu: {
+    nome: "Guapuruvu", forma: "guarda-chuva", formaJovem: "palmeira", altura: [18, 24], largura: 1.2, grossura: 1.1, brasil: true, tapete: true,
+    cores: { folha: R.mata[4], folha2: R.mata[5], casca: R.salvia[2] }, variacoes: 1, // tronco liso esverdeado; jovem parece samambaia
+    flor: { cor: R.amarelo[2], raio: 0.22, quantidade: 60, achatar: 0.6, nome: "flores amarelas" },
+    nicho: { umidade: [0.6, 0.25], sombra: 0.1, altitude: null }, raridade: 0.12, // cresce rápido em clareiras
+  },
+
   // --- Arbustos (sub-bosque) -----------------------------------------------
   arbusto: {
     nome: "Arbusto", forma: "moita", altura: [1.2, 2], arbusto: true,
@@ -302,4 +343,9 @@ function congelar(obj) {
   for (const valor of Object.values(obj)) if (valor && typeof valor === "object") congelar(valor);
   return Object.freeze(obj);
 }
-congelar(ESPECIES);
+congelar(TODAS);
+
+/** Espécies aprovadas: as únicas que vão ao mapa, ao viveiro e ao catálogo. */
+export const ESPECIES = Object.freeze(Object.fromEntries(Object.entries(TODAS).filter(([, e]) => !e.rascunho)));
+/** Rascunhos: só na prancheta de aprovação. */
+export const RASCUNHOS = Object.freeze(Object.fromEntries(Object.entries(TODAS).filter(([, e]) => e.rascunho)));
