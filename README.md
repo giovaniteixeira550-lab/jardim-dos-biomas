@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.32)
+## 3. Estado atual (v0.33)
+
+- **v0.33 — Mangue das Pontes aprovado (Cardiologia e nefrologia):** gerador próprio em `src/manguePontes.js`. O broto é um propágulo cravado na lama. A muda tem a base alargada e a primeira raiz. A adulta tem o tronco suspenso sobre raízes-escora em arcos desiguais (os vãos são as "pontes"), dois troncos reunidos, copa baixa e larga, duas raízes aéreas e grupos de propágulos pendentes. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição em solo úmido perto do riacho. A ordem das espécies mudou por decisão do usuário: Mangue e Jabuticabeira primeiro, por concentrarem tópicos já estudados.
 
 - **v0.32 — Araucária dos Cometas aprovada (Endocrinologia, genética e metabolismo):** gerador próprio em `src/araucariaCometas.js`. O broto sai de um pinhão e a muda tem agulhas azul-esverdeadas; a jovem é um cone de andares azul-escuros. A adulta é um candelabro irregular de almofadas azul-escuras, como um céu noturno com estrelas, com uma lua cheia no centro da copa e luas penduradas sob as grimpas. As luas têm **luz própria**: o atributo `brilho` por vértice, lido pelo estilo compartilhado `src/estiloCopa.js`, mantém a peça acesa na sombra e à noite e clareia a folhagem próxima. Não há luz real por fruto, e as geometrias sem o atributo continuam iguais. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no alto do mapa e nos mirantes.
 

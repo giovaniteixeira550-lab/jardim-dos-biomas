@@ -8,6 +8,7 @@ import { aplicarEstiloCopa } from "./estiloCopa.js";
 
 const $ = (id) => document.getElementById(id);
 const descricoes = {
+  manguePontes: ["Propágulo cravado na lama, abrindo o primeiro par de folhas.","Caule fino com a base alargada, folhas lustrosas e a primeira raiz em arco.","Tronco suspenso sobre cinco raízes em arco e uma copa pequena.","Raízes-escora em arcos desiguais formam vãos sobre a lama; dois troncos, copa larga, raízes aéreas e propágulos pendentes."],
   araucariaCometas: ["Pinhão meio enterrado e a plântula com duas rosetas de agulhas azul-esverdeadas.","Caule reto e três andares compactos de ramos com escovas de agulhas azul-esverdeadas.","Silhueta cônica de seis andares; ramos com a ponta erguida e tufos azul-escuros.","Candelabro de almofadas azul-escuras como um céu noturno, com estrelas, uma lua cheia no centro e luas penduradas, todas com luz própria."],
   salgueiroCancoes: ["Folhas estreitas aos pares sobre um caule curto.","Caule fino e o primeiro ramo arqueado, começando a pender.","Três pernadas e os primeiros ramos pendentes, curtos e separados.","Ramos pendentes longos caindo sobre a copa, passagem pela frente e três sinos dourados."],
   paineiraAbracos: ["Dois cotilédones arredondados e a primeira folha digitada.","Primeira bifurcação em Y com folhas de cinco folíolos.","Tronco começando a engordar, dois braços curvos e primeiras flores.","Tronco em garrafa, sapopemas, braços sob uma copa em arco, flores sobre as folhas e frutos com paina."],

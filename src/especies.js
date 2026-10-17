@@ -372,6 +372,13 @@ export const TODAS = {
     altura: [12, 13], cores: { folha: R.noite[2], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.5, 0.3], sombra: 0.2, altitude: [0.8, 0.25] }, raridade: 0,
   },
+  // Cardiologia e nefrologia. Gerador próprio (src/manguePontes.js): raízes-escora em arco e propágulos pendentes.
+  // Posição planejada em solo úmido perto do riacho, fora do canal e dos caminhos.
+  manguePontes: {
+    nome: "Mangue das Pontes", forma: "manguePontes", fantasia: true, mapa: "pediatria",
+    altura: [6, 7], cores: { folha: R.mata[3], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.9, 0.15], sombra: 0.2, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.
