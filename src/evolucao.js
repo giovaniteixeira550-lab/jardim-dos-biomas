@@ -8,6 +8,7 @@ import { aplicarEstiloCopa } from "./estiloCopa.js";
 
 const $ = (id) => document.getElementById(id);
 const descricoes = {
+  araucariaCometas: ["Pinhão meio enterrado e a plântula com duas rosetas de agulhas azul-esverdeadas.","Caule reto e três andares compactos de ramos com escovas de agulhas azul-esverdeadas.","Silhueta cônica de seis andares; ramos com a ponta erguida e tufos azul-escuros.","Candelabro de almofadas azul-escuras como um céu noturno, com estrelas, uma lua cheia no centro e luas penduradas, todas com luz própria."],
   salgueiroCancoes: ["Folhas estreitas aos pares sobre um caule curto.","Caule fino e o primeiro ramo arqueado, começando a pender.","Três pernadas e os primeiros ramos pendentes, curtos e separados.","Ramos pendentes longos caindo sobre a copa, passagem pela frente e três sinos dourados."],
   paineiraAbracos: ["Dois cotilédones arredondados e a primeira folha digitada.","Primeira bifurcação em Y com folhas de cinco folíolos.","Tronco começando a engordar, dois braços curvos e primeiras flores.","Tronco em garrafa, sapopemas, braços sob uma copa em arco, flores sobre as folhas e frutos com paina."],
   catavento: ["Uma folha amarela enrolada emerge da semente.","Dois leques de três folhas coloridas, em alturas diferentes.","Três leques de quatro cores e primeiras ramificações.","Sete cataventos vegetais, 28 folhas coloridas e ramos em espiral."],

@@ -365,6 +365,13 @@ export const TODAS = {
     altura: [6, 7], cores: { folha: R.mata[4], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.8, 0.2], sombra: 0.2, altitude: null }, raridade: 0,
   },
+  // Endocrinologia, genética e metabolismo. Gerador próprio (src/araucariaCometas.js): copa azul de céu noturno e luas
+  // de luz própria. Posição planejada no alto do mapa e nos mirantes, sem bloquear a vista principal.
+  araucariaCometas: {
+    nome: "Araucária dos Cometas", forma: "araucariaCometas", fantasia: true, mapa: "pediatria",
+    altura: [12, 13], cores: { folha: R.noite[2], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.5, 0.3], sombra: 0.2, altitude: [0.8, 0.25] }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.

@@ -5,13 +5,13 @@ export function estiloCopa(sh, direita, texel) {
     .replace(
       "#include <common>",
       `#include <common>
-      attribute float banda; attribute vec3 esfera; attribute float raioCopa; attribute float semCopa;
-      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;`,
+      attribute float banda; attribute vec3 esfera; attribute float raioCopa; attribute float semCopa; attribute float brilho;
+      varying float vBrilho; varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;`,
     )
     .replace(
       "#include <begin_vertex>",
       `#include <begin_vertex>
-      vBanda = banda; vEsf = esfera; vRaioC = raioCopa; vSemC = semCopa;
+      vBanda = banda; vEsf = esfera; vRaioC = raioCopa; vSemC = semCopa; vBrilho = brilho;
       // Eixos tangentes da esfera (leste/norte), levados para o espaço da câmera como a normal.
       vec3 dE = normalize(esfera + vec3(1e-5));
       vec3 le = normalize(cross(vec3(0.0, 1.0, 0.0), dE) + vec3(1e-4, 0.0, 0.0));
@@ -27,7 +27,7 @@ export function estiloCopa(sh, direita, texel) {
     .replace(
       "#include <common>",
       `#include <common>
-      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;
+      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte; varying float vBrilho;
       uniform float uTexelC;`,
     )
     .replace(
@@ -74,6 +74,13 @@ export function estiloCopa(sh, direita, texel) {
           normal = normalize(normal * 0.55 + (vLeste * dot(off, le) + vNorte * fy) * 2.0);
         }
       }`,
+    )
+    .replace(
+      "#include <opaque_fragment>",
+      `// Luz própria (atributo brilho, 0–1; vale 0 em geometrias sem ele): a peça soma a sua cor à luz recebida
+      // e continua acesa na sombra e à noite. Hoje só a Araucária dos Cometas (luas e copa) usa.
+      outgoingLight = mix(outgoingLight, diffuseColor.rgb, clamp(vBrilho, 0.0, 1.0));
+      #include <opaque_fragment>`,
     );
 }
 

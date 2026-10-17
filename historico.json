@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-16",
-  "versaoAtual": "v0.31",
+  "atualizado": "2026-10-17",
+  "versaoAtual": "v0.32",
   "proximoPasso": {
-    "titulo": "Criar a Araucária dos Cometas",
-    "descricao": "Próxima espécie do bosque de Pediatria (Endocrinologia, genética e metabolismo), em prévia isolada para aprovação."
+    "titulo": "Criar a Árvore dos Ninhos",
+    "descricao": "Próxima espécie do bosque de Pediatria (Puericultura, prevenção e vacinação), em prévia isolada para aprovação."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "50 espécies; Pitanga, Catavento, Paineira dos Abraços e Salgueiro das Canções aprovadas para o bosque de Pediatria."
+      "nota": "51 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções e Araucária dos Cometas aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -88,7 +88,8 @@
       "Crescimento sem redução na troca de broto para muda; evolução verificada nas 48 espécies",
       "Viveiro com espaçamento pelo tamanho real, placas de nomes e acesso direto por espécie",
       "Paineira dos Abraços no catálogo, evolução e viveiro, com copa em arco e frutos com paina",
-      "Salgueiro das Canções no catálogo, evolução e viveiro, com ramos pendentes e sinos dourados"
+      "Salgueiro das Canções no catálogo, evolução e viveiro, com ramos pendentes e sinos dourados",
+      "Araucária dos Cometas no catálogo, evolução e viveiro, com copa azul de céu noturno e luas acesas"
     ],
     "corrigir": [
       "Salgueiros raros: margem do lago estreita",
@@ -111,6 +112,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.32",
+      "data": "2026-10-17",
+      "titulo": "Araucária dos Cometas chega ao projeto",
+      "porque": "A araucária de copa azul com luas acesas foi aprovada para representar Endocrinologia, genética e metabolismo no bosque de Pediatria.",
+      "mudancas": [
+        "Copa em candelabro de almofadas azul-escuras, como um pedaço de céu noturno com estrelas",
+        "Uma lua cheia no centro da copa e luas penduradas sob as grimpas",
+        "Luas com luz própria: continuam acesas na sombra e à noite e clareiam as folhas em volta",
+        "Broto num pinhão, muda azul-esverdeada e jovem em cone de andares"
+      ],
+      "resultado": "Arte aprovada integrada; a posição no alto do mapa aguarda a composição do bosque.",
+      "imagens": [
+        {
+          "src": "historico/v0.32-araucaria.jpg",
+          "legenda": "Araucária dos Cometas no viveiro, de dia e à noite (jovem e adulta)"
+        }
+      ]
+    },
     {
       "versao": "v0.31",
       "data": "2026-10-16",

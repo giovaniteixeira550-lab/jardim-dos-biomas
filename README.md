@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.31)
+## 3. Estado atual (v0.32)
+
+- **v0.32 — Araucária dos Cometas aprovada (Endocrinologia, genética e metabolismo):** gerador próprio em `src/araucariaCometas.js`. O broto sai de um pinhão e a muda tem agulhas azul-esverdeadas; a jovem é um cone de andares azul-escuros. A adulta é um candelabro irregular de almofadas azul-escuras, como um céu noturno com estrelas, com uma lua cheia no centro da copa e luas penduradas sob as grimpas. As luas têm **luz própria**: o atributo `brilho` por vértice, lido pelo estilo compartilhado `src/estiloCopa.js`, mantém a peça acesa na sombra e à noite e clareia a folhagem próxima. Não há luz real por fruto, e as geometrias sem o atributo continuam iguais. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no alto do mapa e nos mirantes.
 
 - **v0.31 — Salgueiro das Canções aprovado (Pneumologia e alergia):** gerador próprio em `src/salgueiroCancoes.js`. Folhas estreitas aos pares no broto e na muda, pernadas em arco, cerca de 70 ramos pendentes com folhas caindo sobre uma cúpula baixa, passagem aberta pela frente e três vagens-sino douradas. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição perto da água. Substitui a proposta paralela do Codex, guardada intacta no stash do repositório.
 
