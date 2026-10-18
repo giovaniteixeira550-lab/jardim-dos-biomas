@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Composição das árvores — Pediatria</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#141c18;color:#e9e3d1;font:15px/1.5 system-ui,sans-serif}main{max-width:1280px;margin:auto;padding:18px}h1{font-size:22px;font-weight:600;margin:0 0 4px}p{margin:4px 0 14px;color:#c0cb97}.quadro{position:relative;aspect-ratio:3/2;border:1px solid #4f6447;background:#22382b}canvas{display:block;width:100%;height:100%;touch-action:none;image-rendering:pixelated}#estado{position:absolute;inset:0;display:grid;place-items:center;background:#22382bee;padding:20px;text-align:center}#estado[hidden]{display:none}nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}button,a{font:inherit;color:#e9e3d1;background:#22382b;border:1px solid #74895c;border-radius:5px;padding:7px 12px;text-decoration:none;cursor:pointer}button:hover,a:hover{background:#3f6e3c}button:focus-visible,a:focus-visible{outline:2px solid #f6d27a}small{color:#c0cb97}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+    "./src/cena.js": "./src/cena.js?v=0.36",
+    "./src/casaMadeira.js": "./src/casaMadeira.js?v=0.36",
+    "./src/solo.js": "./src/solo.js?v=0.36",
+    "./src/mundo.js": "./src/mundo.js?v=0.36",
+    "./src/planoMestre.js": "./src/planoMestre.js?v=0.36",
+    "./src/largosTrilha.js": "./src/largosTrilha.js?v=0.36",
+    "./src/trilhaTerra.js": "./src/trilhaTerra.js?v=0.36",
+    "./src/aguaLago.js": "./src/aguaLago.js?v=0.36",
+    "./src/aguaPercurso.js": "./src/aguaPercurso.js?v=0.36",
+    "./src/araucariaCometas.js": "./src/araucariaCometas.js?v=0.36",
+    "./src/arvoreCatavento.js": "./src/arvoreCatavento.js?v=0.36",
+    "./src/arvoreNinhos.js": "./src/arvoreNinhos.js?v=0.36",
+    "./src/arvoreProc.js": "./src/arvoreProc.js?v=0.36",
+    "./src/bordasBarranco.js": "./src/bordasBarranco.js?v=0.36",
+    "./src/catalogo.js": "./src/catalogo.js?v=0.36",
+    "./src/catalogoRender.js": "./src/catalogoRender.js?v=0.36",
+    "./src/ecossistema.js": "./src/ecossistema.js?v=0.36",
+    "./src/especies.js": "./src/especies.js?v=0.36",
+    "./src/estiloCopa.js": "./src/estiloCopa.js?v=0.36",
+    "./src/evolucao.js": "./src/evolucao.js?v=0.36",
+    "./src/formacaoTerreno.js": "./src/formacaoTerreno.js?v=0.36",
+    "./src/jabuticabeiraConstelacoes.js": "./src/jabuticabeiraConstelacoes.js?v=0.36",
+    "./src/main.js": "./src/main.js?v=0.36",
+    "./src/manguePontes.js": "./src/manguePontes.js?v=0.36",
+    "./src/ornamentos.js": "./src/ornamentos.js?v=0.36",
+    "./src/paineiraAbracos.js": "./src/paineiraAbracos.js?v=0.36",
+    "./src/paleta.js": "./src/paleta.js?v=0.36",
+    "./src/percursos.js": "./src/percursos.js?v=0.36",
+    "./src/perfilPonte.js": "./src/perfilPonte.js?v=0.36",
+    "./src/pitangaSol.js": "./src/pitangaSol.js?v=0.36",
+    "./src/pixel.js": "./src/pixel.js?v=0.36",
+    "./src/planejamento.js": "./src/planejamento.js?v=0.36",
+    "./src/ponteMadeira.js": "./src/ponteMadeira.js?v=0.36",
+    "./src/postesDoces.js": "./src/postesDoces.js?v=0.36",
+    "./src/previaPlantio.js": "./src/previaPlantio.js?v=0.36",
+    "./src/previaPostes.js": "./src/previaPostes.js?v=0.36",
+    "./src/qualidade.js": "./src/qualidade.js?v=0.36",
+    "./src/relevo.js": "./src/relevo.js?v=0.36",
+    "./src/salgueiroCancoes.js": "./src/salgueiroCancoes.js?v=0.36",
+    "./src/viveiro.js": "./src/viveiro.js?v=0.36"
+  }
+}
+</script>
+<main><h1>Composição das árvores</h1><p>Prévia visual com as árvores adultas. Grupos com concentrações diferentes, transições abertas e espaço para distinguir as copas.</p>
+<div class="quadro"><canvas id="mapa" aria-label="Vista geral da nova distribuição das árvores"></canvas><div id="estado" role="status">Preparando a paisagem…</div></div>
+<nav aria-label="Revisar a paisagem"><button id="geral">Visão geral</button><button id="casa">Casa de madeira</button><button id="aproximar">Aproximar</button><button id="afastar">Afastar</button><button id="girar">Girar</button><a href="index.html">Explorar no mapa</a></nav>
+<nav aria-label="Conferir as regiões indicadas"><button data-borda="0">Borda esquerda</button><button data-borda="1">Platô superior</button><button data-borda="2">Borda direita</button><button data-borda="3">Platô inferior</button></nav>
+<small>Estudo visual da paisagem. O mapa prevê 112 árvores de estudo; o vínculo com os subtópicos será aplicado em uma etapa própria.</small></main>
+<script type="module" src="./src/previaPlantio.js?v=0.36"></script></html>

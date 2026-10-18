@@ -12,6 +12,7 @@ import * as THREE from "three";
 import { BASE, RAMPAS } from "./paleta.js";
 import { criarRng, criarRuido, gerarMundo, suave } from "./mundo.js";
 import { criarMaterialPixel } from "./pixel.js";
+import { dimensoesRender } from "./qualidade.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
@@ -22,6 +23,9 @@ import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarPonteMadeira } from "./ponteMadeira.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
 import { criarBordasBarranco } from "./bordasBarranco.js";
+import { criarPostesDoces } from "./postesDoces.js";
+import { criarLargosTrilha } from "./largosTrilha.js";
+import { criarCasaMadeira } from "./casaMadeira.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -129,6 +133,7 @@ export class Jardim {
     this.pitch = THREE.MathUtils.degToRad(38);
     this.altura = 180; // vista inicial das seis regiões de relevo
     this.tamPixel = 2; // estilo definido: pixel mínimo, sempre com contorno
+    this.qualidade = "alta";
     this.crescimento = 0.9;
     this.cresceVisto = -1;
     this.forcaVento = 0.55;
@@ -167,6 +172,8 @@ export class Jardim {
     progresso(0.1, "Moldando o terreno…");
     await this.ceder();
     this.criarTerreno();
+    this.scene.add(criarLargosTrilha(m, toon));
+    this.casaMadeira=criarCasaMadeira(m,toon);this.scene.add(this.casaMadeira);
     medir("terreno");
     this.criarAgua();
     this.criarRiacho();
@@ -197,6 +204,8 @@ export class Jardim {
     progresso(0.9, "Acendendo a luz…");
     await this.ceder();
     this.criarLuz();
+    this.postesDoces = criarPostesDoces(this.mundo, toon);
+    this.scene.add(this.postesDoces);
     this.aplicarHora();
     this.redimensionar();
     this.atualizarCrescimento(true);
@@ -253,6 +262,7 @@ export class Jardim {
     const cores = new Float32Array(pos.count * 3);
     const rocha = new Float32Array(pos.count); // máscara dos barrancos naturais, sem alvenaria
     const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
+    const terraTrilha = new Float32Array(pos.count); // distância normalizada ao caminho e aos seus largos
     const limitesSolo = new Float32Array(pos.count * 2); // topo e pé REAIS do corte local
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
@@ -272,6 +282,7 @@ export class Jardim {
       const gr = m.grade, mesmo = pos.count === gr.nx * gr.ny;
       const d = mesmo ? gr.DN[i] : m.densidade(x, z), f = mesmo ? gr.FL[i] : m.fatorLago(x, z);
       const trilha = (mesmo ? gr.DT[i] : m.distTrilha(x, z)) / m.trilha.largura;
+      terraTrilha[i] = Math.min(1, trilha);
       rocha[i] = suave(0.5, 0.62, trilha);
       // Gramado: tom de base por platô; as manchas e os tufinhos vêm do shader (desenho limpo).
       let idx = n1 < 0.5 ? 3 : 4;
@@ -286,9 +297,8 @@ export class Jardim {
       const viz = Math.max(hv[0], hv[1], hv[2], hv[3]), vizMin = Math.min(hv[0], hv[1], hv[2], hv[3]);
       if (viz - h > 2) c.multiplyScalar(0.72); // pé do paredão
       else if (h - vizMin > 2) c.set(S[Math.min(S.length - 1, idx + 2)]); // beirada iluminada
-      // Trilha: terra batida limpa, com borda escura de 1 traço e pedrinhas claras raras.
-      if (trilha < 0.56) c.set(T[n2 > 0.8 ? 5 : 4]);
-      else if (trilha < 0.7) c.set(T[2]);
+      // O desenho fino da terra acompanha o mundo no material, sem faixa escura contínua.
+      if (trilha < 0.56) c.set(T[4]);
       // Margem e fundo do lago.
       if (f < 1.0) c.set(f < .85 ? RAMPAS.agua[0] : f < .975 ? RAMPAS.terra[2] : RAMPAS.salvia[2]); // faixa clara rente à margem: a borda ciano das referências
       else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
@@ -310,12 +320,13 @@ export class Jardim {
       if (inc > 0.7 && f > 1.0 && trilha > 0.62) c.set(T[3]);
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
       // Os degraus são as malhas sólidas das obras; o chão sob eles continua terra.
-      grama[i] = trilha > 0.75 && f > 1.04 && inc < 0.35 ? 1 : 0;
+      grama[i] = trilha > 0.59 && f > 1.04 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
     g.setAttribute("aRocha", new THREE.BufferAttribute(rocha, 1));
     g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
+    g.setAttribute("aTrilha", new THREE.BufferAttribute(terraTrilha, 1));
     g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
     g.computeVertexNormals();
     // As faces dos barrancos têm normais próprias. O topo continua suave;
@@ -330,7 +341,7 @@ export class Jardim {
     const material=this.materialTerreno();
     if(indicesParede.length) {
       const recorte=new THREE.BufferGeometry();
-      for(const nome of ["position","color","aRocha","aGrama","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
+      for(const nome of ["position","color","aRocha","aGrama","aTrilha","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
       recorte.setIndex(indicesParede);
       const faces=recorte.toNonIndexed();faces.computeVertexNormals();recorte.dispose();
       const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
@@ -430,10 +441,14 @@ export class Jardim {
     const porVariacao = new Map();
     this.ambiente = criarAmbiente(this.mundo);
     this.individuos = [];
-    for (const o of this.mundo.objetos) {
+    const objetosAtivos=new Set(this.mundo.objetos);
+    for (const o of this.mundo.sequenciaPlantio??this.mundo.objetos) {
       if (o.tipo !== "arvore" && o.tipo !== "arbusto") continue;
       // Quem nasce aqui depende do nicho: umidade do solo, luz e altitude do lugar.
-      const especie = escolherEspecie(o.tipo, condicoes(this.ambiente, o.x, o.y), rng);
+      const sorteada = escolherEspecie(o.tipo, condicoes(this.ambiente, o.x, o.y), rng);
+      // Na correção artística das bordas, usar árvores com copa legível.
+      // O sorteio anterior é consumido para preservar os outros indivíduos.
+      const especie = ESPECIES[o.especiePaisagem]?o.especiePaisagem:sorteada;
       const opcoes = porEspecie.get(especie);
       const variacao = opcoes[Math.floor(rng() * opcoes.length)];
       const ind = {
@@ -453,6 +468,8 @@ export class Jardim {
         indice: -1,
         variacao,
       };
+      // Consome o sorteio do indivíduo retirado, preservando os seguintes.
+      if(!objetosAtivos.has(o))continue;
       this.individuos.push(ind);
       porVariacao.set(variacao, [...(porVariacao.get(variacao) ?? []), ind]);
     }
@@ -639,6 +656,7 @@ export class Jardim {
 
   criarDetalhes() {
     const m = this.mundo;
+    const casa=m.plano.locais.find(l=>l.id==='casa-madeira');
     const rng = criarRng(m.semente ^ 0x99);
     const d = new THREE.Object3D();
 
@@ -663,6 +681,8 @@ export class Jardim {
         const s = 0.8 + rng() * 0.8 + margem * 0.5;
         d.scale.set(s, s * (0.8 + rng() * 0.6), s);
         d.updateMatrix();
+        const yCasa=casa?casa.y-(casa.recuo??0):0;
+        if(casa&&Math.abs(x-casa.x)<6.6&&z>yCasa-4.8&&z<yCasa+7.3)continue;
         im.setMatrixAt(n++, d.matrix);
       }
       im.count = n;
@@ -739,7 +759,8 @@ export class Jardim {
     this.ceu = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
     this.sol = new THREE.DirectionalLight(0xffffff, 2);
     this.sol.castShadow = true;
-    this.sol.shadow.mapSize.set(2048, 2048);
+    const sombra = Math.min(this.qualidade === "alta" ? 4096 : 2048, this.renderer.capabilities.maxTextureSize);
+    this.sol.shadow.mapSize.set(sombra, sombra);
     const ext = 115;
     Object.assign(this.sol.shadow.camera, { left: -ext, right: ext, top: ext, bottom: -ext, near: 1, far: 400 });
     this.sol.shadow.bias = -0.0006;
@@ -768,6 +789,8 @@ export class Jardim {
     this.vagalumes.visible = this.hora === "noite";
     // Luz noturna das copas que acendem (Jabuticabeira das Constelações).
     LUZ_NOTURNA.value = { dia: 0, entardecer: 0.35, noite: 1 }[this.hora];
+    this.postesDoces?.userData.aplicarHora(this.hora);
+    this.casaMadeira?.userData.aplicarHora?.(this.hora);
   }
 
   // --- Câmera e controles -------------------------------------------------
@@ -777,16 +800,17 @@ export class Jardim {
     // Sem tamanho ainda (aba/painel oculto): usa a janela; o ResizeObserver corrige depois.
     const caixa = this.canvas.getBoundingClientRect();
     const r = caixa.width && caixa.height ? caixa : { width: window.innerWidth || 800, height: window.innerHeight || 600 };
-    this.renderer.setSize(r.width, r.height, false);
-    const w = Math.max(64, Math.floor(r.width / this.tamPixel));
-    const h = Math.max(64, Math.floor(r.height / this.tamPixel));
+    const tamanho = dimensoesRender(r.width, r.height, this.qualidade, this.renderer.capabilities.maxTextureSize);
+    this.renderer.setSize(tamanho.largura, tamanho.altura, false);
+    const w = Math.max(1, Math.floor(tamanho.largura / this.tamPixel));
+    const h = Math.max(1, Math.floor(tamanho.altura / this.tamPixel));
     if (!this.rt) {
       const dt = new THREE.DepthTexture(w, h);
       dt.minFilter = dt.magFilter = THREE.NearestFilter;
       this.rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthTexture: dt });
     } else this.rt.setSize(w, h);
     this.pixel.uniforms.uTam.value.set(w, h);
-    this.aspecto = w / h;
+    this.aspecto = r.width / r.height;
   }
 
   posicionarCamera() {
@@ -813,6 +837,7 @@ export class Jardim {
     const c = this.canvas;
     const signal = this.cancelamento.signal;
     const ponteiros = new Map();
+    let ancoraArraste = null;
     let pinca = 0, angulo = null;
     const mover = (dx, dy) => {
       // Arrastar move o chão sob o cursor (direita/frente da câmera projetadas no plano).
@@ -829,12 +854,15 @@ export class Jardim {
     c.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && ![0, 1, 2].includes(e.button)) return;
       if (e.button === 1) e.preventDefault(); // impede a rolagem automática da rodinha
+      this.animacaoFoco = null;
       c.setPointerCapture(e.pointerId);
       this.focarEm(null);
-      const giro = e.button === 2 ? "inclinar" : e.button === 1 || e.shiftKey ? "girar" : null;
+      const giro = e.button === 2 ? "inclinar" : e.button === 1 || e.shiftKey || this.modoCamera === "girar" ? "girar" : null;
+      ancoraArraste = giro ? null : this.pontoNoMapa(e.clientX, e.clientY);
       ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY, giro });
       inicio = ponteiros.size === 1 && !giro ? { x: e.clientX, y: e.clientY } : null;
       if (ponteiros.size === 2) {
+        inicio = null;
         const [p, q] = [...ponteiros.values()];
         pinca = Math.hypot(p.x - q.x, p.y - q.y);
         angulo = Math.atan2(q.y - p.y, q.x - p.x);
@@ -847,10 +875,17 @@ export class Jardim {
         return;
       }
       const b = { x: e.clientX, y: e.clientY, giro: a.giro };
+      if (inicio && Math.hypot(b.x-inicio.x, b.y-inicio.y) >= 5) inicio.moveu = true;
       if (ponteiros.size === 1) {
         if (a.giro === "inclinar") this.pitch = THREE.MathUtils.clamp(this.pitch + (b.y - a.y) * 0.006, THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(75));
-        else if (a.giro === "girar") this.yaw = this.yawAlvo += (b.x - a.x) * 0.008;
-        else mover(b.x - a.x, b.y - a.y);
+        else if (a.giro === "girar") {
+          this.yaw = this.yawAlvo += (b.x - a.x) * 0.006;
+          this.pitch = THREE.MathUtils.clamp(this.pitch + (b.y - a.y) * 0.004, THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(75));
+        } else if (ancoraArraste) {
+          const ponto = this.pontoNoPlano(b.x, b.y, ancoraArraste.y);
+          if (ponto) this.alvo.add(ancoraArraste.clone().sub(ponto));
+          this.limitar();
+        }
       }
       ponteiros.set(e.pointerId, b);
       if (ponteiros.size === 2) {
@@ -868,8 +903,13 @@ export class Jardim {
     const soltar = (e) => {
       if (!ponteiros.has(e.pointerId)) return;
       ponteiros.delete(e.pointerId);
+      ancoraArraste = null;
+      if (ponteiros.size === 1) {
+        const p = [...ponteiros.values()][0];
+        if (!p.giro) ancoraArraste = this.pontoNoMapa(p.x, p.y);
+      }
       pinca = 0; angulo = null;
-      if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
+      if (inicio && !inicio.moveu && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
       inicio = null;
       const r = c.getBoundingClientRect();
       if (!ponteiros.size && e.pointerType === "mouse" && e.type === "pointerup" && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) this.focarEm(e.clientX, e.clientY);
@@ -880,8 +920,13 @@ export class Jardim {
     c.addEventListener("pointerleave", () => this.focarEm(null), { signal });
     c.addEventListener("wheel", (e) => {
       e.preventDefault();
-      this.zoom(Math.exp(e.deltaY * 0.0012));
+      const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? c.clientHeight : 1);
+      this.zoom(Math.exp(THREE.MathUtils.clamp(delta * 0.0012, -0.7, 0.7)), e.clientX, e.clientY);
     }, { passive: false, signal });
+    c.addEventListener("dblclick", e => {
+      if (e.button !== 0 || this.modoCamera === "girar") return;
+      this.aproximarEm(e.clientX, e.clientY);
+    }, { signal });
     this.teclas = new Set();
     window.addEventListener("keydown", (e) => {
       if (e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
@@ -891,7 +936,7 @@ export class Jardim {
     }, { signal });
     window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()), { signal });
     window.addEventListener("blur", () => {
-      this.teclas.clear(); ponteiros.clear(); inicio = null; pinca = 0; angulo = null; this.focarEm(null);
+      this.teclas.clear(); ponteiros.clear(); inicio = null; ancoraArraste = null; pinca = 0; angulo = null; this.focarEm(null);
     }, { signal });
     this._mover = mover;
   }
@@ -958,22 +1003,74 @@ export class Jardim {
   }
 
   recentrar() {
+    this.animacaoFoco = null;
     this.irAoViveiro(false);
     this.yaw = this.yawAlvo = Math.PI / 4;
     this.pitch = THREE.MathUtils.degToRad(38);
   }
 
   irParaLocal(id) {
+    if(id==="pavilhao"&&this.mundo.plano.pesca)id="pesca"; // preserva os endereços da prévia
     const local=this.mundo.plano?.locais.find(l=>l.id===id);
     if(!local)return false;
     this.focarEm(null);
     this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
-    this.altura=local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32;
+    if(local.tipo==='casa'){this.alvo.y+=3;this.alvo.z-=local.recuo??0;}
+    this.altura=local.tipo==="casa"?40:local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32;
     return true;
   }
 
-  zoom(f) {
+  /** Raio alinhado ao enquadramento atual, antes mesmo do próximo quadro. */
+  raioDoCursor(x, y) {
+    this.posicionarCamera();
+    this.camera.updateMatrixWorld();
+    const r = this.canvas.getBoundingClientRect();
+    const raio = new THREE.Raycaster();
+    raio.setFromCamera(new THREE.Vector2((x-r.left)/r.width*2-1, -(y-r.top)/r.height*2+1), this.camera);
+    return raio;
+  }
+
+  pontoNoPlano(x, y, altura) {
+    return this.raioDoCursor(x, y).ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -altura), new THREE.Vector3());
+  }
+
+  pontoNoMapa(x, y) {
+    const raio = this.raioDoCursor(x, y);
+    this.terreno.updateMatrixWorld();
+    return raio.intersectObject(this.terreno, false)[0]?.point.clone()
+      ?? raio.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0), -this.alvo.y), new THREE.Vector3());
+  }
+
+  aproximarEm(x, y) {
+    this.restaurarSobrevoo();
+    const r = this.canvas.getBoundingClientRect();
+    const arvore = this.encontrarArvore(new THREE.Vector2((x-r.left)/r.width*2-1, -(y-r.top)/r.height*2+1));
+    const ind = arvore?.ind;
+    const ponto = ind ? new THREE.Vector3(ind.x, ind.y + ind.altura * .35, ind.z)
+      : arvore?.malha ? arvore.malha.position.clone() : this.pontoNoMapa(x, y);
+    if (!ponto) return;
+    ponto.x = THREE.MathUtils.clamp(ponto.x, 0, this.mundo.largura);
+    ponto.z = THREE.MathUtils.clamp(ponto.z, 0, this.fimViveiro ?? this.mundo.altura + 50);
+    const destino = THREE.MathUtils.clamp(Math.min(this.altura * .55, 42), 12, 70);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.alvo.copy(ponto); this.altura = destino; this.limitar();
+    } else this.animacaoFoco = { ponto, altura: destino, origem: this.alvo.clone(), alturaInicial: this.altura, inicio: performance.now() };
+  }
+
+  setModoCamera(modo) {
+    this.modoCamera = modo === "girar" ? "girar" : "mover";
+    this.canvas.style.cursor = this.modoCamera === "girar" ? "all-scroll" : "grab";
+  }
+
+  zoom(f, x, y) {
+    this.animacaoFoco = null;
+    const ancora = x === undefined ? null : this.pontoNoMapa(x, y);
     this.altura = THREE.MathUtils.clamp(this.altura * f, 8, 240);
+    if (ancora) {
+      const depois = this.pontoNoPlano(x, y, ancora.y);
+      if (depois) this.alvo.add(ancora.sub(depois));
+      this.limitar();
+    }
   }
   girar(sentido) {
     this.yawAlvo += (sentido * Math.PI) / 4;
@@ -984,6 +1081,18 @@ export class Jardim {
   setCrescimento(v) { this.crescimento = v; }
   setHora(h) { this.hora = h; this.aplicarHora(); }
   setTamPixel(p) { this.tamPixel = p; this.redimensionar(); }
+  setQualidade(qualidade) {
+    if (!["alta", "original"].includes(qualidade) || qualidade === this.qualidade) return;
+    this.qualidade = qualidade;
+    if (this.sol) {
+      const tamanho = Math.min(qualidade === "alta" ? 4096 : 2048, this.renderer.capabilities.maxTextureSize);
+      this.sol.shadow.mapSize.set(tamanho, tamanho);
+      this.sol.shadow.map?.dispose();
+      this.sol.shadow.map = null;
+      this.sol.shadow.needsUpdate = true;
+    }
+    this.redimensionar();
+  }
   setContorno(on) { this.pixel.uniforms.uContorno.value = on ? 1 : 0; }
   setPaleta(on) { this.pixel.uniforms.uQuant.value = on ? 1 : 0; }
 
@@ -991,6 +1100,20 @@ export class Jardim {
     this.relogio.update();
     const t = this.relogio.getElapsed();
     const dt = Math.min(0.05, this.relogio.getDelta());
+    if (this.animacaoFoco) {
+      if (this.teclas.size) this.animacaoFoco = null;
+      else {
+        const foco = this.animacaoFoco;
+        // Duração real: uma queda de quadros não prolonga a viagem da câmera.
+        const tempo = Math.min(1, (performance.now() - foco.inicio) / 900);
+        const passo = 1 - Math.pow(1 - tempo, 3);
+        this.alvo.lerpVectors(foco.origem, foco.ponto, passo);
+        this.altura = foco.alturaInicial + (foco.altura - foco.alturaInicial) * passo;
+        this.limitar();
+        if (tempo === 1) this.animacaoFoco = null;
+      }
+    }
+    this.casaMadeira?.userData.animar?.(t);
     this.restaurarSobrevoo();
     this.atualizarCrescimento();
     // Teclado: WASD / setas movem; giro animado até o próximo passo de 45°.
@@ -1060,6 +1183,7 @@ export class Jardim {
       for (const g of v.estagios) geometrias.add(g);
     }
     materiais.add(this.matArvore);
+    this.postesDoces?.userData.descartar();
     for (const g of geometrias) g.dispose();
     for (const m of materiais) m.dispose();
     for(const rotulo of this.rotulosViveiro ?? [])rotulo.material.map.dispose();

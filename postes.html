@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postes de doce · Pediatria</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#11162a;color:#e9e3d1;font:15px system-ui}canvas{display:block;width:100vw;height:100vh}header{position:absolute;top:28px;left:32px;max-width:330px}small{letter-spacing:.18em;color:#c0cb97;font-size:11px}h1{font:normal 32px Georgia;margin:12px 0}p{color:#a5ac9f;line-height:1.6}nav{display:flex;gap:8px;flex-wrap:wrap}button,a{font:inherit;border:1px solid #585f5c;background:#1e2a22;color:#e9e3d1;padding:10px 14px;border-radius:6px;text-decoration:none;cursor:pointer}button[aria-pressed=true]{background:#e9e3d1;color:#22382b}footer{position:absolute;bottom:24px;left:32px;color:#a5ac9f;font-size:12px}#erro{color:#f6cddc}
+</style>
+<canvas id="vista" aria-label="Prévia tridimensional do poste de bengala de doce"></canvas>
+<header><small>JARDIM · PEDIATRIA</small><h1>Luz para o caminho</h1><p>Bengala branca e vermelha, luz na ponta curva e iluminação quente ao anoitecer.</p><nav><button data-hora="dia" aria-pressed="false">Dia</button><button data-hora="entardecer" aria-pressed="false">Entardecer</button><button data-hora="noite" aria-pressed="true">Noite</button><button id="girar">Girar poste</button><a href="./index.html?local=pavilhao">Ver no mapa</a></nav><p id="erro" hidden></p></header>
+<footer>Estudo 01 · Modelo real do mapa · Caminhos e árvores preservados</footer>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+    "./src/aguaLago.js": "./src/aguaLago.js?v=0.36",
+    "./src/aguaPercurso.js": "./src/aguaPercurso.js?v=0.36",
+    "./src/araucariaCometas.js": "./src/araucariaCometas.js?v=0.36",
+    "./src/arvoreCatavento.js": "./src/arvoreCatavento.js?v=0.36",
+    "./src/arvoreNinhos.js": "./src/arvoreNinhos.js?v=0.36",
+    "./src/arvoreProc.js": "./src/arvoreProc.js?v=0.36",
+    "./src/bordasBarranco.js": "./src/bordasBarranco.js?v=0.36",
+    "./src/casaMadeira.js": "./src/casaMadeira.js?v=0.36",
+    "./src/catalogo.js": "./src/catalogo.js?v=0.36",
+    "./src/catalogoRender.js": "./src/catalogoRender.js?v=0.36",
+    "./src/cena.js": "./src/cena.js?v=0.36",
+    "./src/ecossistema.js": "./src/ecossistema.js?v=0.36",
+    "./src/especies.js": "./src/especies.js?v=0.36",
+    "./src/estiloCopa.js": "./src/estiloCopa.js?v=0.36",
+    "./src/evolucao.js": "./src/evolucao.js?v=0.36",
+    "./src/formacaoTerreno.js": "./src/formacaoTerreno.js?v=0.36",
+    "./src/jabuticabeiraConstelacoes.js": "./src/jabuticabeiraConstelacoes.js?v=0.36",
+    "./src/largosTrilha.js": "./src/largosTrilha.js?v=0.36",
+    "./src/main.js": "./src/main.js?v=0.36",
+    "./src/manguePontes.js": "./src/manguePontes.js?v=0.36",
+    "./src/mundo.js": "./src/mundo.js?v=0.36",
+    "./src/ornamentos.js": "./src/ornamentos.js?v=0.36",
+    "./src/paineiraAbracos.js": "./src/paineiraAbracos.js?v=0.36",
+    "./src/paleta.js": "./src/paleta.js?v=0.36",
+    "./src/percursos.js": "./src/percursos.js?v=0.36",
+    "./src/perfilPonte.js": "./src/perfilPonte.js?v=0.36",
+    "./src/pitangaSol.js": "./src/pitangaSol.js?v=0.36",
+    "./src/pixel.js": "./src/pixel.js?v=0.36",
+    "./src/planejamento.js": "./src/planejamento.js?v=0.36",
+    "./src/planoMestre.js": "./src/planoMestre.js?v=0.36",
+    "./src/ponteMadeira.js": "./src/ponteMadeira.js?v=0.36",
+    "./src/postesDoces.js": "./src/postesDoces.js?v=0.36",
+    "./src/previaPlantio.js": "./src/previaPlantio.js?v=0.36",
+    "./src/previaPostes.js": "./src/previaPostes.js?v=0.36",
+    "./src/qualidade.js": "./src/qualidade.js?v=0.36",
+    "./src/relevo.js": "./src/relevo.js?v=0.36",
+    "./src/salgueiroCancoes.js": "./src/salgueiroCancoes.js?v=0.36",
+    "./src/solo.js": "./src/solo.js?v=0.36",
+    "./src/trilhaTerra.js": "./src/trilhaTerra.js?v=0.36",
+    "./src/viveiro.js": "./src/viveiro.js?v=0.36"
+  }
+}
+</script>
+<script type="module" src="./src/previaPostes.js?v=0.36"></script>
+</html>
+

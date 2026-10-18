@@ -1,6 +1,7 @@
 import { organizarPercursos } from "./percursos.js";
 import { criarPlano } from "./planoMestre.js";
 import { elevacaoPlanejada } from "./formacaoTerreno.js";
+import { distanciaTerra, definirPontoPesca } from "./trilhaTerra.js";
 
 /**
  * Geração do mundo (demo pequena: uma clareira com bosque, lago e trilha).
@@ -151,18 +152,40 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
     return Math.hypot(dx, dy) / lago.raio(Math.atan2(dy, dx));
   };
 
+  // O antigo largo do pavilhão volta ao gramado. A caminhada termina num
+  // banco simples junto à margem, sem praça, canteiros ou plataforma nova.
+  const pesca=definirPontoPesca(lago);
+  plano.pesca=pesca;
+  Object.assign(plano.locais.find(l=>l.id==="pavilhao"),{acesso:"replanejar",descricao:"Reserva futura do pavilhão. Largo, flores e banco retirados por enquanto; o banco atual fica junto à margem norte do lago."});
+  plano.locais.push({id:"pesca",nome:"Ponto de pesca",tipo:"pesca",status:"implantado",x:pesca.x,y:pesca.y,largura:4,profundidade:3,descricao:"Banco horizontal junto à margem norte, voltado para o lago. A trilha chega por trás do assento."});
+  plano.trilha=[...plano.trilha.slice(0,-1),pesca.acesso];
+
   // Trilha sinuosa atravessando a clareira.
-  const trilha = { largura: 3.2, pontos: plano.trilha };
+  const trilha = { largura: 3.2, pontos: plano.trilha, largos: plano.largos };
   const distTrilha = (x, y) => {
     let m = Infinity;
     for (let i = 0; i < trilha.pontos.length - 1; i++) m = Math.min(m, distSegmento(x, y, trilha.pontos[i], trilha.pontos[i + 1]));
-    return m;
+    return distanciaTerra(x, y, m, trilha);
+  };
+  const distPlantio = (x, y) => {
+    const pontos=plano.corredorPlantio??trilha.pontos;
+    let d=Infinity;
+    for(let i=1;i<pontos.length;i++)d=Math.min(d,distSegmento(x,y,pontos[i-1],pontos[i]));
+    return d;
   };
 
-  /** Densidade da mata: bosque denso num lado, clareira no meio, rarefeita junto à água e à trilha. */
-  const densidade = (x, y, dt=distTrilha(x,y), f=fatorLago(x,y)) => {
-    let d = Math.max(...plano.bosques.map(b=>Math.exp(-((x-b.x)**2+(y-b.y)**2)/(2*b.raio*b.raio))));
-    d = clamp01((d - 0.4) * 1.6 + (ruido(x / 22, y / 22, 3) - 0.5) * 0.2);
+  /** Bosquetes abertos e ligados por árvores esparsas; preserva os eixos de vista. */
+  const densidade = (x, y, dt=distPlantio(x,y), f=fatorLago(x,y)) => {
+    // Pequeno deslocamento do campo evita ilhas elípticas com contorno regular.
+    const px=x+(ruido(x/28+7,y/28,2)-.5)*8,py=y+(ruido(x/28,y/28+11,2)-.5)*8;
+    let maior=0,soma=0;
+    for(const b of plano.bosques){
+      const valor=b.forca*Math.exp(-((px-b.x)**2/(2*(b.rx*.75)**2)+(py-b.y)**2/(2*(b.ry*.75)**2)));
+      maior=Math.max(maior,valor);soma+=valor;
+    }
+    // Núcleos mais próximos e bordas abertas: evita tanto o tapete uniforme
+    // de árvores afastadas quanto a volta aos quatro aglomerados iniciais.
+    let d=Math.min(.90,Math.max(.10,.12+maior*1.20+soma*.10+(ruido(x/16,y/16,3)-.5)*.18));
     d *= clamp01((dt - trilha.largura * 0.7) / 10);
     d *= clamp01((f - 1.15) / 0.8);
     return d;
@@ -202,7 +225,7 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   const FL=new Float32Array(H.length),DT=new Float32Array(H.length),DN=new Float32Array(H.length);
   for(let j=0;j<G.ny;j++)for(let i=0;i<G.nx;i++) {
     const k=j*G.nx+i,x=G.x0+i*G.passo,y=G.y0+j*G.passo;
-    FL[k]=fatorLago(x,y);DT[k]=distTrilha(x,y);DN[k]=densidade(x,y,DT[k],FL[k]);C[k]=elevacao(x,y,FL[k]);
+    FL[k]=fatorLago(x,y);DT[k]=distTrilha(x,y);DN[k]=densidade(x,y,distPlantio(x,y),FL[k]);C[k]=elevacao(x,y,FL[k]);
   }
   for (let j = 0; j < G.ny; j++)
     for (let i = 0; i < G.nx; i++) {
@@ -260,21 +283,23 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
 
   const reservado = (x,y) => plano.locais.some(l=>l.status==="proposto" && Math.abs(x-l.x)<l.largura/2+1 && Math.abs(y-l.y)<l.profundidade/2+1);
   const sobPassarela=(x,y)=>plano.passarela&&distSegmento(x,y,plano.passarela.inicio,plano.passarela.fim)<plano.passarela.largura/2+1.2;
-  const fora = (x, y) => !sobPassarela(x,y) && !reservado(x,y) && fatorLago(x, y) > 1.12 && distTrilha(x, y) > trilha.largura * 0.9 && !ingreme(x, y) && distRiacho(x, y) > larguraRiacho(x,y) * 0.5 + 1.6;
+  const fora = (x, y) => !sobPassarela(x,y) && !reservado(x,y) && fatorLago(x, y) > 1.12 && distPlantio(x, y) > trilha.largura * 0.9 && !ingreme(x, y) && distRiacho(x, y) > larguraRiacho(x,y) * 0.5 + 1.6;
   const nascer = (d) => clamp01(0.85 - d * 0.75 + (rng() - 0.5) * 0.35);
   const objetos = [];
 
+  // Sorteio próprio: o novo desenho do plantio não interfere no terreno.
+  const rngPlantio=criarRng(semente^0x731a2);
+  const livreParaArvore=(x,y)=>fora(x,y)&&distTrilha(x,y)>4.6&&Math.hypot(x-pesca.x,y-pesca.y)>8&&
+    pontes.every(p=>Math.hypot(x-p.x,y-p.y)>9.5)&&riacho.quedas.every(q=>Math.hypot(x-q.x,y-q.y)>6.5)&&
+    ![[-3,0],[3,0],[0,-3],[0,3]].some(([dx,dy])=>ingreme(x+dx,y+dy));
   for (const p of poisson({
-    largura, altura, raioMin: 3.2, rng,
-    raio: (x, y) => {
-      const r = lerp(16, 3.2, Math.pow(densidade(x, y), 0.6));
-      return fatorLago(x, y) < 1.5 ? Math.min(r, 5.5) : r; // mata ciliar mais fechada
-    },
-    // Mata ciliar: uma faixa de árvores esparsas na beira d'água, mesmo fora do bosque.
-    aceitar: (x, y) => fora(x, y) && (densidade(x, y) > 0.12 || (fatorLago(x, y) < 1.5 && fino(x / 8, y / 8, 2) > 0.35)),
+    largura, altura, raioMin: 7.8, rng:rngPlantio,
+    raio: (x, y) => lerp(13.7,7.8,suave(.18,.65,densidade(x,y))),
+    // Sem limiar que condene todos os platôs fora dos quatro bosques antigos.
+    aceitar: (x, y) => livreParaArvore(x,y),
   })) {
     const d = densidade(p.x, p.y);
-    objetos.push({ tipo: "arvore", x: p.x, y: p.y, d, zona: fino(p.x / 40, p.y / 40, 2), lago: fatorLago(p.x, p.y), escala: lerp(0.8, 1.15, rng()), nasce: nascer(d), giro: rng() * 6.28 });
+    objetos.push({ tipo: "arvore", x: p.x, y: p.y, d, zona: fino(p.x / 40, p.y / 40, 2), lago: fatorLago(p.x, p.y), escala: lerp(0.8, 1.15, rngPlantio()), nasce: nascer(d), giro: rngPlantio() * 6.28 });
   }
   // Grade das árvores já plantadas, para consultas de vizinhança rápidas.
   const CEL = 4;
@@ -292,10 +317,11 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   };
 
   for (const p of poisson({
-    largura, altura, raioMin: 2.2, rng,
-    raio: (x, y) => lerp(12, 2.2, densidade(x, y) * 0.8 + fino(x / 25, y / 25, 2) * 0.35),
+    largura, altura, raioMin: 6.5, rng:rngPlantio,
+    raio: (x, y) => lerp(12, 6.5, densidade(x, y)),
     // Arbusto não nasce colado ao tronco de uma árvore (espaço do indivíduo).
-    aceitar: (x, y) => fora(x, y) && densidade(x, y) + fino(x / 30, y / 30) * 0.4 > 0.38 && !pertoDeArvore(x, y, 2.4),
+    aceitar: (x, y) => fora(x, y) && distTrilha(x,y)>3.2 && Math.hypot(x-pesca.x,y-pesca.y)>6 &&
+      densidade(x, y)>.18 && fino(x/14,y/14,2)>.38 && !pertoDeArvore(x, y, 4),
   })) {
     const d = densidade(p.x, p.y);
     objetos.push({ tipo: "arbusto", x: p.x, y: p.y, d, escala: lerp(0.7, 1.2, rng()), nasce: clamp01(nascer(d) - 0.1), giro: rng() * 6.28 });
@@ -317,5 +343,51 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
     objetos.push({ tipo: "flor", x, y, cor: Math.floor(rng() * 4), nasce: 0 });
   }
 
-  return { semente, plano, largura, altura, areaRel, grade:{...G,FL,DT,DN}, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, distRiacho, larguraRiacho, perfilTrilha, pontes, ponte, objetos, ruido, fino };
+  // Alteração localizada: não sorteia novamente as árvores do interior.
+  const casa=plano.locais.find(l=>l.id==="casa-madeira");
+  const naReservaCasa=(x,y)=>casa&&Math.abs(x-casa.x)<casa.largura/2+casa.margemVegetacao&&Math.abs(y-casa.y)<casa.profundidade/2+casa.margemVegetacao;
+  const arvoresExistentes=objetos.filter(o=>o.tipo==="arvore");
+  for(const [indice,zona] of (plano.reforcosPlantio??[]).entries()) {
+    const rngBorda=criarRng(semente^Math.imul(indice+1,0x4b01a3));
+    const candidatos=poisson({largura:zona.x1-zona.x0,altura:zona.y1-zona.y0,raioMin:8.3,raio:()=>8.6,rng:rngBorda,
+      aceitar:(px,py)=>{
+        const x=zona.x0+px,y=zona.y0+py;
+        return !naReservaCasa(x,y)&&altitude(x,y)>3.8&&livreParaArvore(x,y)&&
+          arvoresExistentes.every(o=>Math.hypot(o.x-x,o.y-y)>=8.3);
+      }});
+    for(const p of candidatos) {
+      const x=zona.x0+p.x,y=zona.y0+p.y,d=densidade(x,y);
+      const arvore={tipo:"arvore",x,y,d,zona:fino(x/40,y/40,2),lago:fatorLago(x,y),escala:lerp(.80,1.05,rngBorda()),nasce:Math.max(0,.7-d*.5),giro:rngBorda()*6.28,reforcoVisual:zona.id};
+      objetos.push(arvore);arvoresExistentes.push(arvore);
+    }
+  }
+  // Preenche os vazios dentro das faixas corrigidas. O candidato mais
+  // distante dos troncos existentes entra primeiro, sem alinhar fileiras.
+  for(const [indice,zona] of plano.complementosPlantio.entries()) {
+    const rngFaixa=criarRng(semente^Math.imul(indice+1,0x82aa31));
+    const candidatos=[];
+    for(let i=0;i<1800;i++){
+      const x=lerp(zona.x0,zona.x1,rngFaixa()),y=lerp(zona.y0,zona.y1,rngFaixa()),h=altitude(x,y);
+      if(naReservaCasa(x,y)||h<3.8||h>5||!livreParaArvore(x,y))continue;
+      const distancia=Math.min(...arvoresExistentes.map(o=>Math.hypot(o.x-x,o.y-y)));
+      if(distancia>=8.3)candidatos.push({x,y,distancia});
+    }
+    while(candidatos.length){
+      candidatos.sort((a,b)=>b.distancia-a.distancia);
+      const p=candidatos.shift();
+      if(p.distancia<8.3)break;
+      const {x,y}=p,d=densidade(x,y);
+      const especiePaisagem=["carvalho","carvalho","carvalho","pinheiro","ipeRoxo"][Math.floor(rngFaixa()*5)];
+      const arvore={tipo:"arvore",x,y,d,zona:fino(x/40,y/40,2),lago:fatorLago(x,y),escala:lerp(.88,1.08,rngFaixa()),nasce:.25,giro:rngFaixa()*6.28,reforcoVisual:zona.id,complementoVisual:true,especiePaisagem};
+      objetos.push(arvore);arvoresExistentes.push(arvore);
+      for(const q of candidatos)q.distancia=Math.min(q.distancia,Math.hypot(q.x-x,q.y-y));
+    }
+  }
+  // Conserva a sequência do sorteio das espécies, inclusive dos indivíduos
+  // retirados: abrir a clareira não transforma as outras árvores do mapa.
+  const sequenciaPlantio=objetos.filter(o=>o.tipo==="arvore"||o.tipo==="arbusto");
+  // Retira árvores, arbustos e objetos da reserva, mantendo o gramado natural.
+  for(let i=objetos.length-1;i>=0;i--)if(naReservaCasa(objetos[i].x,objetos[i].y))objetos.splice(i,1);
+
+  return { semente, plano, largura, altura, areaRel, grade:{...G,FL,DT,DN}, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, distRiacho, larguraRiacho, perfilTrilha, pontes, ponte, objetos, sequenciaPlantio, ruido, fino };
 }

@@ -95,6 +95,10 @@ function setores(m, pai) {
 }
 
 function percursos(m, pai) {
+  for (const l of m.trilha.largos ?? []) {
+    const e=elemento("ellipse",{cx:l.x,cy:l.y,rx:l.rx,ry:l.ry,fill:RAMPAS.terra[4],"data-tipo":"largo-real"});
+    adicionarTitulo(e,`Término do percurso — ${l.id}`); pai.append(e);
+  }
   const trilha = m.trilha.amostras?.length ? m.trilha.amostras : m.trilha.pontos;
   const linha = pontos(trilha);
   pai.append(elemento("polyline", { points: linha, fill: "none", stroke: RAMPAS.terra[2], "stroke-width": m.trilha.largura + 0.7, "stroke-linejoin": "round", "stroke-linecap": "round" }));

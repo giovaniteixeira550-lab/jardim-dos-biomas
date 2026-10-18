@@ -1,0 +1,23 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Verificação dos postes</title><pre id="resultado">Verificando…</pre>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {gerarMundo} from '../src/mundo.js';
+import {planejarPostes,criarPostesDoces} from '../src/postesDoces.js';
+const linhas=[],assert=(v,m)=>{if(!v)throw Error(m);};
+try {
+for(const semente of [1234,2468,9001]) {
+ const m=gerarMundo(semente), antes=JSON.stringify({objetos:m.objetos,trilha:m.trilha,pontes:m.pontes,alturas:Array.from(m.grade.H??[])});
+ const p=planejarPostes(m),grupo=criarPostesDoces(m,p=>new THREE.MeshToonMaterial(p));
+ assert(p.length>8,'Quantidade insuficiente de postes');
+ assert(JSON.stringify(p)===JSON.stringify(planejarPostes(m)),'Distribuição não determinística');
+ assert(antes===JSON.stringify({objetos:m.objetos,trilha:m.trilha,pontes:m.pontes,alturas:Array.from(m.grade.H??[])}),'Mundo alterado');
+ for(const poste of grupo.children){assert(!poste.userData.luz.castShadow,'Sombra extra');assert(poste.position.y===m.altitude(poste.position.x,poste.position.z),'Base fora do chão');}
+ for(const [hora,aceso] of [['dia',false],['entardecer',true],['noite',true],['dia',false]]){grupo.userData.aplicarHora(hora);assert(grupo.children.every(p=>(p.userData.luz.intensity>0)===aceso),'Falha de horário');}
+ linhas.push(`OK · Semente ${semente}: ${p.length} postes; terreno, árvores e caminhos preservados; luz dia/entardecer/noite correta.`);
+ grupo.userData.descartar();
+ const geos=new Set(),mats=new Set();grupo.traverse(o=>{if(o.geometry)geos.add(o.geometry);if(o.material)mats.add(o.material);});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());
+}
+document.querySelector('#resultado').textContent=linhas.join('\n')+'\nTODAS AS VERIFICAÇÕES PASSARAM';
+}catch(e){document.querySelector('#resultado').textContent=linhas.join('\n')+'\nFALHA: '+e.message;console.error(e);}
+</script></html>

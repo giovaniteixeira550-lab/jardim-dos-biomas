@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.35",
+  "versaoAtual": "v0.36",
   "proximoPasso": {
-    "titulo": "Criar a Árvore dos Segredos",
-    "descricao": "Próxima espécie do bosque de Pediatria (Infectologia), em prévia isolada para aprovação."
+    "titulo": "Revisar a demo reunida",
+    "descricao": "Observar casa, percurso e navegação no mesmo endereço público; continuar as espécies na frente própria."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Lago com profundidade em faixas, reflexos espaçados, costa limpa e plantas aquáticas visíveis; entradas da ponte totalmente em madeira."
+      "nota": "Percurso de terra com destinos definidos, banco na margem e casa apoiada na clareira; luzes dos postes ao anoitecer."
     },
     {
       "nome": "Vida e clima",
@@ -45,6 +45,8 @@
   ],
   "quadro": {
     "funciona": [
+      "Casa com telhas curvas e fumaça noturna, postes, banco de pesca e plantio distribuído",
+      "Câmera com arraste ancorado, zoom ao cursor e giro/inclinação juntos",
       "Pixel art com pixel mínimo e contorno",
       "36 espécies e 4 arbustos, com quatro estágios",
       "Flores e frutos nas adultas (maçãs, laranjas, cocos, frutinhas)",
@@ -113,6 +115,287 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.36",
+      "data": "2026-10-18",
+      "titulo": "Casa, paisagem e câmera reunidas na demo",
+      "porque": "As revisões estavam preservadas em prévias locais e ainda não apareciam no endereço público.",
+      "mudancas": [
+        "Casa recuada com telhas curvas e fumaça somente à noite",
+        "Postes de doce, trilha de terra e banco de pesca junto ao lago",
+        "Plantio distribuído e clareira da casa preservada",
+        "Arraste ancorado, giro e inclinação juntos, foco por clique duplo e painel recolhível"
+      ],
+      "resultado": "64 testes de terreno, percursos e plantio passaram; câmera, casa, fumaça e postes conferidos; 54 espécies, 648 modelos e 1398 frutos preservados.",
+      "imagens": [
+        {
+          "src": "historico/v0.36-casa.png",
+          "legenda": "Casa com telhas curvas na demo reunida"
+        },
+        {
+          "src": "historico/v0.36-mapa.png",
+          "legenda": "Mapa e câmera na versão reunida"
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 10",
+      "data": "2026-10-17",
+      "titulo": "Casa mais recuada, telhas curvas e fumaça à noite",
+      "porque": "Abrir espaço diante da ponte e tornar o telhado e a chaminé mais convincentes.",
+      "mudancas": [
+        "Casa recuada 4,5 m na mesma clareira",
+        "Telhas curvas com fiadas e cumeeira sobrepostas",
+        "Fumaça que sobe e se dissipa somente à noite",
+        "Ponte, relevo e árvores preservados"
+      ],
+      "resultado": "40 testes passaram. Recuo e telhas conferidos de dia; fumaça observada em movimento à noite e ausente ao entardecer. Sem erros observados no console. Apoio plano e 250 árvores preservados. Prévia local, sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-casa-telhas-recuo.png",
+          "legenda": "Espaço maior diante da ponte e telhado com telhas curvas."
+        },
+        {
+          "src": "historico/ped-casa-fumaca-noite.png",
+          "legenda": "Fumaça suave saindo da chaminé durante a noite."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 09",
+      "data": "2026-10-17",
+      "titulo": "Primeira casa de madeira na clareira",
+      "porque": "Começar a construção da pequena casa no espaço reservado junto à ponte.",
+      "mudancas": [
+        "Cabana com tábuas, telhas verdes e chaminé",
+        "Varanda coberta voltada para a ponte",
+        "Janelas com venezianas e luz quente à noite",
+        "Atalho Casa de madeira no mapa e na prancha"
+      ],
+      "resultado": "Primeira versão externa conferida em dois ângulos e à noite, sem erros observados. 40 testes de percursos, destinos e plantio passaram. Ainda sem interior navegável e sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-casa-madeira-dia.png",
+          "legenda": "Primeira versão da casa na clareira reservada, junto à ponte."
+        },
+        {
+          "src": "historico/ped-casa-madeira-noite.png",
+          "legenda": "Janelas e lanterna com luz quente à noite."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 08",
+      "data": "2026-10-17",
+      "titulo": "Correção das faixas que continuavam vazias",
+      "porque": "O plantio anterior não preenchia toda a área indicada em vermelho.",
+      "mudancas": [
+        "Faixas ampliadas para alcançar os trechos vazios",
+        "Mais 19 árvores de copa legível, com 8,3 m entre troncos",
+        "Reserva da casa preservada",
+        "Atalhos para conferir as quatro regiões"
+      ],
+      "resultado": "40 testes de percursos, destinos e plantio passaram; conferência visual da correção nas quatro regiões. Prévia local sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-faixas-corrigidas.png",
+          "legenda": "Plantio complementar nos trechos que continuavam vazios."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 07",
+      "data": "2026-10-17",
+      "titulo": "Mais árvores nas bordas e espaço para a casa",
+      "porque": "Ocupar as quatro faixas marcadas em vermelho e liberar a área azul para uma futura casa de madeira.",
+      "mudancas": [
+        "24 árvores adicionais nas quatro bordas",
+        "Espaçamento preservado entre os indivíduos",
+        "Clareira de 18 × 14 m com folga para a vegetação",
+        "Botão Espaço da casa na prancha de revisão"
+      ],
+      "resultado": "40 testes passaram; copas adultas e clareira conferidas no navegador, sem erros observados. Terreno e objetos fora da reserva preservados. Casa ainda não construída; sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-bordas-reserva-casa.png",
+          "legenda": "Vista geral das quatro bordas reforçadas com árvores."
+        },
+        {
+          "src": "historico/ped-espaco-casa-madeira.png",
+          "legenda": "Espaço livre na cabeceira da ponte para a futura casa de madeira."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 06",
+      "data": "2026-10-17",
+      "titulo": "Grupos com concentrações diferentes",
+      "porque": "Aproximar alguns grupos mantendo legibilidade e considerar a capacidade real dos subtópicos.",
+      "mudancas": [
+        "Núcleos mais concentrados e transições abertas",
+        "Capacidade prevista registrada: 113 árvores de estudo em 11 famílias",
+        "Quantidades por família de 6 a 14, sem temas fixados no terreno",
+        "Prancha com copas adultas para avaliar os espaços"
+      ],
+      "resultado": "40 testes passaram e a simulação adulta foi conferida no navegador, sem erros observados. Prévia artística com modelos genéricos; as 113 árvores de estudo serão vinculadas aos subtópicos em etapa posterior. Sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-densidade-variavel.png",
+          "legenda": "Concentração variável: alguns grupos mais próximos e outros mais abertos, com respiros na paisagem."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 05",
+      "data": "2026-10-17",
+      "titulo": "Árvores mais espalhadas pela paisagem",
+      "porque": "Equilibrar os aglomerados e ocupar os grandes platôs vazios antes de definir temas.",
+      "mudancas": [
+        "Bosquetes abertos distribuídos pelos patamares",
+        "Mais espaço entre árvores e respiros junto à água",
+        "Banco, ponte, cascatas e caminhos preservados",
+        "Prancha para avaliar o conjunto com todas as copas adultas"
+      ],
+      "resultado": "Semente 1234: 274 para 200 árvores; distância mínima entre troncos de 3,3 para 9,9 m. 40 testes passaram. Conferido no navegador em duas vistas, sem erros observados. Apenas composição visual; sem divisão temática ou publicação.",
+      "imagens": [
+        {
+          "legenda": "Vista geral da nova composição: árvores espalhadas pelos patamares, com grupos abertos e clareiras.",
+          "src": "historico/ped-plantio-geral.png"
+        },
+        {
+          "legenda": "Outro ângulo da mesma composição, mostrando as copas adultas.",
+          "src": "historico/ped-plantio-giro.png"
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 04",
+      "data": "2026-10-17",
+      "titulo": "Banco de pesca na margem",
+      "porque": "Trocar o largo por um banco simples junto à água.",
+      "mudancas": [
+        "Largo, flores recentes e remates de pedra retirados por enquanto",
+        "Banco horizontal na margem norte, voltado para o lago",
+        "Acesso de terra chega por trás do banco"
+      ],
+      "resultado": "Conferido no navegador, sem erros no console observado. 37 testes passaram; os mesmos 502 indivíduos de árvores/arbustos, água, ponte e escadas foram preservados. Sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-banco-pesca.png",
+          "legenda": "Banco nivelado na margem, voltado para a água como ponto de pesca."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 03",
+      "data": "2026-10-17",
+      "titulo": "Banco voltado para o lago e flores",
+      "porque": "Valorizar a vista da água e tornar o largo mais acolhedor.",
+      "mudancas": [
+        "Banco do lago girado para olhar a água",
+        "Flores brancas, rosas e amarelas em grupos nas bordas",
+        "Piso e acesso livres para caminhar"
+      ],
+      "resultado": "Prévia conferida no navegador, sem erros no console observado. Banco do mirante e árvores preservados. Ainda sem publicação.",
+      "imagens": [
+        {
+          "legenda": "Banco com a frente voltada para o lago e flores baixas ao redor do largo.",
+          "src": "historico/ped-banco-lago-flores.png"
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 02",
+      "data": "2026-10-17",
+      "titulo": "Trilha de terra com começo e destino",
+      "porque": "Dar acabamento natural ao percurso e encerrar a estrada em lugares reconhecíveis.",
+      "mudancas": [
+        "Terra com desgaste discreto, pedrinhas e bordas de capim",
+        "Largos com bancos no mirante e junto ao lago",
+        "Retirada da estrada que saía para fora do mapa",
+        "Bosque, escadas, ponte e água preservados"
+      ],
+      "resultado": "Prévia local conferida de dia e à noite; 37 testes geométricos passaram. Os mesmos 502 indivíduos da semente 1234 e os postes aprovados foram preservados; são 14 postes no percurso encurtado. Ainda sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/ped-terra-lago.png",
+          "legenda": "O caminho termina no largo junto ao lago, com banco e bordas naturais."
+        },
+        {
+          "src": "historico/ped-terra-mirante.png",
+          "legenda": "Outra extremidade: largo do mirante, sem estrada solta."
+        },
+        {
+          "src": "historico/ped-terra-noite.png",
+          "legenda": "Leitura da terra e do banco sob a luz dos postes aprovados."
+        },
+        {
+          "src": "historico/ped-terra-geral.png",
+          "legenda": "Vista geral: percurso encerrado nas duas reservas."
+        }
+      ]
+    },
+    {
+      "versao": "Estudo PED 01",
+      "data": "2026-10-16",
+      "titulo": "Postes de bengala de doce",
+      "porque": "Iluminar o caminho ao anoitecer com uma identidade de pediatria.",
+      "mudancas": [
+        "Bengala branca e vermelha com globo de luz quente no alto",
+        "Postes nas bordas estáveis da trilha, preservando terreno e árvores",
+        "Acendem no entardecer e à noite; desligam de dia",
+        "Prancheta para comparar o poste nos três horários"
+      ],
+      "resultado": "Prévia local: 17 postes em cada uma das três sementes verificadas; 34 testes de percursos passaram. Ainda sem publicação.",
+      "imagens": [
+        {
+          "legenda": "Prévia local: postes iluminando a trilha perto do pavilhão à noite",
+          "src": "historico/postes-pediatria-mapa-noite.png"
+        }
+      ]
+    },
+    {
+      "versao": "proposta-camera",
+      "data": "2026-10-18",
+      "titulo": "Explorar o jardim com mais liberdade",
+      "porque": "Observar e percorrer o mapa precisava de gestos mais práticos.",
+      "mudancas": [
+        "Arraste prende o chão sob o cursor",
+        "Botão do meio gira e inclina; modo Girar faz o mesmo com o esquerdo",
+        "Zoom até o cursor e foco por clique duplo",
+        "Painel recolhido para liberar a paisagem"
+      ],
+      "resultado": "Proposta local testada no navegador, sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/camera-foco.png",
+          "legenda": "Foco por clique duplo e painel recolhido"
+        }
+      ]
+    },
+    {
+      "versao": "proposta-nitidez",
+      "data": "2026-10-18",
+      "titulo": "Mapa mais definido à distância",
+      "porque": "Detalhes do terreno e das copas se perdiam na resolução intermediária.",
+      "mudancas": [
+        "Alta dobra a resolução nos dois eixos",
+        "Sombras duras de 4096 em vez de 2048",
+        "Original permite comparar sem recarregar o bosque",
+        "Paleta, contorno e geradores preservados"
+      ],
+      "resultado": "Proposta local em revisão visual; ainda não publicada.",
+      "imagens": [
+        {
+          "src": "historico/nitidez-original.png",
+          "legenda": "Original: mesmo enquadramento e semente"
+        },
+        {
+          "src": "historico/nitidez-alta.png",
+          "legenda": "Alta: mais definição na visão geral"
+        }
+      ]
+    },
     {
       "versao": "v0.35",
       "data": "2026-10-18",

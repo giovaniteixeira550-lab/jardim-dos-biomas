@@ -56,11 +56,23 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.35)
+## 3. Estado atual (v0.36)
+
+**v0.36 — publicação das revisões reunidas de Pediatria:** casa com telhas curvas e fumaça noturna, postes de doce, percurso de terra, banco de pesca, plantio distribuído e nova câmera. Preserva todas as espécies até v0.35. As prévias descritas abaixo agora fazem parte desta versão. Trabalho restrito à demo; Lovable permanece fora do escopo. Detalhes em `docs/publicacao-v036.md`.
 
 - **v0.35 — Árvore dos Ninhos aprovada (Puericultura, prevenção e vacinação):** gerador próprio em `src/arvoreNinhos.js`. O broto tem duas folhas largas em concha; a muda, uma bifurcação baixa em Y com rosetas de folhas; a jovem, tronco com sapatas, o primeiro oco e quatro plataformas pequenas. A adulta tem um tronco curto e robusto que se abre em três braços desiguais, folhagem em sete plataformas de bordas irregulares em alturas diferentes, dois ocos e dois ninhos de gravetos com ovos claros. Um ninho pousa na ponta do tronco e o outro na ponta do braço esquerdo. Os braços saem baixos para fora antes de subir, e o gerador confere que nenhum galho atravessa as tigelas. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição perto da chegada.
 
 - **v0.34 — Jabuticabeira das Constelações aprovada (Neurologia):** gerador próprio em `src/jabuticabeiraConstelacoes.js`. Broto e muda com folhas pequenas aos pares e o par mais novo cor de bronze; a jovem tem três troncos e as primeiras flores brancas presas à casca. A adulta tem seis troncos lisos, manchados e retorcidos, abertos em vaso sob uma copa branca em cúpula, e jabuticabas presas à casca em grupinhos ("constelações"). **Luz noturna (novo recurso compartilhado):** `src/estiloCopa.js` lê o atributo opcional `brilhoNoite` (0–1) multiplicado pelo uniforme compartilhado `LUZ_NOTURNA`, que `cena.js` ajusta em `aplicarHora` (dia 0, entardecer 0,35, noite 1). A copa acende e a luz desce pelos troncos e frutos até o chão da própria árvore; não há luz real por árvore. Geometrias sem o atributo não mudam. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no caminho de observação junto ao lago.
+
+### Navegação da câmera — integrada na v0.36
+
+Arraste esquerdo prende o chão sob o cursor, com deslocamento consistente após girar ou inclinar. O botão do meio combina giro horizontal e inclinação vertical. O botão **↻ Girar** permite o mesmo gesto usando somente o botão esquerdo; desligado, volta a mover. Rodinha aproxima o ponto indicado e clique duplo aproxima suavemente uma árvore ou região, tornando esse lugar o centro da órbita. O botão da casa restaura a visão geral. O painel começa recolhido em **Opções do jardim**. Nenhum novo atalho de local ou minimapa foi acrescentado. Testes e limites em [docs/camera-mapa.md](docs/camera-mapa.md); integrada nesta versão.
+
+### Definição do mapa — integrada na v0.36
+
+Na branch `codex/nitidez-mapa`, a opção **Definição: Alta** dobra a resolução nos dois eixos, sem mudar câmera, terreno, modelos ou paleta. O bloco continua com dois pixels do framebuffer, mas passa de 2 para aproximadamente 1 pixel CSS. A cena passa de 640 × 360 para 1280 × 720 numa janela de 1280 × 720; a saída passa para 2560 × 1440. As sombras duras usam 4096 em vez de 2048. **Original · comparar** restaura a definição anterior no mesmo enquadramento, sem recarregar árvores.
+
+Há limite de 16 milhões de pixels na saída e respeito ao tamanho máximo de textura da GPU. A proposta prioriza qualidade e não adapta a resolução automaticamente. Não altera geradores de espécies nem aumenta arquivos de textura: o detalhe existente estava sendo perdido na resolução intermediária. A definição fina do modo Alta é uma evolução explícita da apresentação anterior, mantendo pixelização, contorno e quantização. Reunida na v0.36 com a Jabuticabeira e as demais espécies aprovadas. Comparação e verificação em [docs/nitidez-mapa.md](docs/nitidez-mapa.md).
 
 - **v0.33 — Mangue das Pontes aprovado (Cardiologia e nefrologia):** gerador próprio em `src/manguePontes.js`. O broto é um propágulo cravado na lama. A muda tem a base alargada e a primeira raiz. A adulta tem o tronco suspenso sobre raízes-escora em arcos desiguais (os vãos são as "pontes"), dois troncos reunidos, copa baixa e larga, duas raízes aéreas e grupos de propágulos pendentes. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição em solo úmido perto do riacho. A ordem das espécies mudou por decisão do usuário: Mangue e Jabuticabeira primeiro, por concentrarem tópicos já estudados.
 

@@ -1,5 +1,15 @@
 # Trabalho conjunto — Claude e Codex
 
+## Publicação solicitada — v0.36, 18/10/2026
+
+O usuário autorizou publicar a reunião da casa, paisagem e câmera na demo, que é a única base visual em trabalho. Base v0.35 com os geradores do Claude intactos. Não alterar nem publicar o Lovable por esta frente. `docs/publicacao-v036.md` registra a origem dos arquivos e a conciliação. A partir desta versão, casa e paisagem fazem parte de main; não continuar a partir da prévia v0.26 nem do mapa antigo do site.
+
+## Frente atual do Codex — definição do mapa (18/10/2026)
+
+Continuação autorizada: navegação em `src/cena.js`, modo Girar em `index.html`/`src/main.js` e painel recolhível. Sem novos atalhos de local. Documentação em `docs/camera-mapa.md`; histórico registra uma proposta separada. Geradores continuam intactos.
+
+Proposta isolada na branch `codex/nitidez-mapa`, worktree `jardim-nitidez-proposta`, base v0.33. O usuário confirmou a demo artística como destino; a prévia F1 do site está fora desta tarefa. Mudanças: resolução e sombras em `src/cena.js`, cálculo novo em `src/qualidade.js`, seletor em `index.html` e evento em `src/main.js`. Geradores e catálogo não foram alterados. Comparação visual, medições e limites em `docs/nitidez-mapa.md`. Não publicada: aguarda revisão visual. Ao integrar novas espécies, preservar seus arquivos e conciliar somente estes blocos, README e histórico.
+
 Este registro comunica o escopo desta proposta. Não prova que outro agente leu ou aceitou uma divisão de trabalho.
 
 ## Lote do Codex: encerramento e carregamento da cena

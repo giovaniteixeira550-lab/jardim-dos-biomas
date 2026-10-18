@@ -4,6 +4,7 @@ import { RAMPAS } from "./paleta.js";
 
 export function criarMaterialRelevo(toon, opcoes = {}) {
   const mat = toon({ vertexColors: true });
+  mat.defaultAttributeValues = { ...(mat.defaultAttributeValues ?? {}), aTrilha: [1] };
   const direita = opcoes.direita ?? { value: new THREE.Vector2(1, 0) };
   const texel = opcoes.texel ?? { value: 0.1 };
   mat.name = "paredao-facetas-pixel";
@@ -16,20 +17,23 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       uRocha: RAMPAS.pedra[2], uRochaLuz: RAMPAS.pedra[3],
       uMusgo: RAMPAS.mata[2], uGramaBorda: RAMPAS.salvia[3],
       uTufo: RAMPAS.mata[2], uTufoLuz: RAMPAS.mata[5],
+      uTerraGasta: RAMPAS.terra[5], uCapimTrilha: RAMPAS.salvia[3],
     };
     for (const [nome, cor] of Object.entries(cores)) sh.uniforms[nome] = { value: new THREE.Color(cor) };
     sh.uniforms.uDireita = direita;
     sh.uniforms.uTexel = texel;
     sh.vertexShader = `attribute float aRocha;
       attribute float aGrama;
+      attribute float aTrilha;
       attribute vec2 aLimitesSolo;
       varying float vRocha;
       varying float vGrama;
+      varying float vTrilha;
       varying vec2 vLimitesSolo;
       varying vec3 vSoloMundo;
       varying vec3 vSoloNormal;
     ` + sh.vertexShader.replace("#include <worldpos_vertex>", `#include <worldpos_vertex>
-      vRocha = aRocha; vGrama = aGrama; vLimitesSolo = aLimitesSolo;
+      vRocha = aRocha; vGrama = aGrama; vTrilha = aTrilha; vLimitesSolo = aLimitesSolo;
       vSoloMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;
       vSoloNormal = normalize(mat3(modelMatrix) * objectNormal);
     `);
@@ -39,7 +43,9 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       uniform vec3 uMusgo; uniform vec3 uGramaBorda;
       uniform vec2 uDireita; uniform float uTexel;
       uniform vec3 uTufo; uniform vec3 uTufoLuz;
+      uniform vec3 uTerraGasta; uniform vec3 uCapimTrilha;
       varying float vRocha; varying float vGrama;
+      varying float vTrilha;
       varying vec2 vLimitesSolo;
       varying vec3 vSoloMundo; varying vec3 vSoloNormal;
       float soloHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -92,6 +98,34 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
         if (profundidade < 0.6 && tinta > 0.91 && face.y > 0.0) terra = uMusgo;
         if (acimaPe < 0.18 && profundidade > 1.5) terra = uTerraFunda;
         diffuseColor.rgb = terra;
+      } else if (vTrilha < 0.74 && normalSolo.y > 0.72) {
+        // Grão preso ao chão: as manchas, pedras e recortes não giram com a câmera.
+        vec2 p = floor(vSoloMundo.xz / 0.09) * 0.09;
+        float macro = ruidoSolo(p / 3.6);
+        float recorte = (ruidoSolo(p / 1.1) - 0.5) * 0.085 + (macro - 0.5) * 0.08;
+        float borda = vTrilha - 0.54 - recorte;
+        vec3 terra = uTerraClara;
+        if (macro < 0.27 && ruidoSolo(p / 1.2) > 0.48) terra = mix(uTerra, uTerraClara, 0.55);
+        // Áreas de solo compactado e abrasão larga, em vez de ruído por toda a faixa.
+        float gasto = ruidoSolo(p / vec2(1.7, 2.5));
+        if (gasto > 0.78 && vTrilha < 0.42) terra = mix(uTerraClara, uTerraGasta, 0.7);
+        float grao = soloHash(floor(p / 0.28));
+        if (grao > 0.95) terra = uTerra;
+        // Pedrinhas angulosas raras, pequenas e espaçadas, com uma face iluminada.
+        vec2 cel = floor(p / 1.25), f = fract(p / 1.25);
+        float h = soloHash(cel);
+        vec2 centro = vec2(0.25 + fract(h * 7.7) * 0.5, 0.25 + fract(h * 17.1) * 0.5);
+        vec2 pedra = f - centro;
+        if (h > 0.88 && abs(pedra.x) + abs(pedra.y) * 1.4 < 0.09 && borda < -0.02)
+          terra = pedra.y > 0.0 ? uTerraGasta : uTerra;
+        // Ombro terroso entrecortado por capim, sem contorno paralelo de asfalto.
+        if (borda > 0.0) {
+          terra = uTerra;
+          float invasao = ruidoSolo(p / 0.48);
+          if (borda > 0.075 || invasao > 0.46 - borda * 2.5)
+            terra = macro > 0.5 ? uCapimTrilha : uGramaBorda;
+        }
+        diffuseColor.rgb = terra;
       } else if (vGrama > 0.5) {
         // Preserva o gramado desenhado do Claude: manchas e tufinhos em V.
         vec2 p = vSoloMundo.xz;
@@ -116,6 +150,6 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       if (normalize(vSoloNormal).y < 0.72 && vRocha > 0.15) gl_FragColor.a = 0.18;
     `);
   };
-  mat.customProgramCacheKey = () => "solo-facetas-graficas-3-limpo";
+  mat.customProgramCacheKey = () => "solo-facetas-trilha-terra-4";
   return mat;
 }
