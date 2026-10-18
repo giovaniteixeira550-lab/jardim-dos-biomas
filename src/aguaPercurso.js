@@ -4,6 +4,7 @@
  * tira diagonal. Todos os materiais passam pela luz toon e pela paleta do jogo.
  */
 import * as THREE from "three";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { RAMPAS } from "./paleta.js";
 import { criarRng } from "./mundo.js";
 
@@ -162,12 +163,15 @@ export function criarAguaPercurso(mundo, materialToon) {
         // A costura interna continua exata; o recorte varia só para fora do
         // canal. A função espacial é igual dos dois lados de uma emenda.
         const faixa = 0.59 + (0.5 + 0.5 * Math.sin(p.x * 0.83 - p.z * 0.47 + lado)) * 0.06;
-        const recorte = 0.12 + Math.round(1 + Math.sin(p.x * 0.62 + p.z * 0.29 + lado * 1.7)) * 0.02;
+        const recorte = 0.15 + Math.sin(p.x * 0.22 + p.z * 0.17 + lado * 1.7) * 0.025;
         const ox = x + p.nx / nl * faixa * lado, oz = z + p.nz / nl * faixa * lado;
         const externo = mundo.altitude?.(ox, oz);
         const topoExterno = Number.isFinite(externo) ? Math.max(p.h + recorte, Math.min(p.h + 0.65, externo + 0.015)) : p.h + recorte;
         return {
-          base: [x, p.h - 0.55, z], meio: [x, p.h - 0.04, z], topo: [x, p.h + recorte, z],
+          base: [x, p.h - 0.55, z],
+          meio: [x+p.nx/nl*.06*lado, p.h - 0.04, z+p.nz/nl*.06*lado],
+          topo: [x+p.nx/nl*.18*lado, p.h + recorte, z+p.nz/nl*.18*lado],
+          ombro: [x+p.nx/nl*faixa*.62*lado, p.h+recorte+(topoExterno-p.h-recorte)*.65, z+p.nz/nl*faixa*.62*lado],
           foraBase: [ox, p.h - 0.55, oz], foraTopo: [ox, topoExterno, oz],
         };
       };
@@ -177,7 +181,9 @@ export function criarAguaPercurso(mundo, materialToon) {
         quadColorido(margens, ma.meio, ma.topo, mb.meio, mb.topo, RAMPAS.terra[2]);
         quadColorido(margens, ma.foraTopo, ma.foraBase, mb.foraTopo, mb.foraBase, RAMPAS.terra[2]);
         const mancha = Math.sin((a.x + b.x) * 0.17 + (a.z + b.z) * 0.105 + lado * 2.1);
-        quadColorido(gramaMargens, ma.topo, ma.foraTopo, mb.topo, mb.foraTopo, mancha > 0.62 ? RAMPAS.salvia[3] : RAMPAS.salvia[2]);
+        const corGrama = mancha > 0.62 ? RAMPAS.salvia[3] : RAMPAS.salvia[2];
+        quadColorido(gramaMargens, ma.topo, ma.ombro, mb.topo, mb.ombro, corGrama);
+        quadColorido(gramaMargens, ma.ombro, ma.foraTopo, mb.ombro, mb.foraTopo, corGrama);
       } else if (desnivel > 0.025) {
         // Na cortina, esta faixa vira uma face rochosa apenas por FORA das
         // duas bordas; o vão entre elas permanece inteiramente de água.
@@ -242,7 +248,13 @@ export function criarAguaPercurso(mundo, materialToon) {
   }
   for (const [faces, nome] of [[margens, "margens-riacho"], [gramaMargens, "bordas-grama-riacho"]]) {
     if (!faces.pos.length) continue;
-    const geometria = geometriaDe(faces);
+    const original = geometriaDe(faces);
+    // Normais compartilhadas ao longo da margem, sem iluminar cada
+    // triângulo como uma pedrinha independente.
+    original.deleteAttribute('normal');
+    const geometria = mergeVertices(original, 0.0001);
+    original.dispose();
+    geometria.computeVertexNormals();
     geometria.userData = { origem: "aguaPercurso", tipo: nome, larguraFaixa: 0.65, secoes: secoes.length };
     const matMargem = materialToon({ vertexColors: true, side: THREE.DoubleSide });
     matMargem.name = `${nome}-toon`;

@@ -329,8 +329,9 @@ export class Jardim {
     g.setAttribute("aTrilha", new THREE.BufferAttribute(terraTrilha, 1));
     g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
     g.computeVertexNormals();
-    // As faces dos barrancos têm normais próprias. O topo continua suave;
-    // a quina não se dissolve numa transição arredondada de luz.
+    g.setAttribute('aNormalSombra', g.getAttribute('normal'));
+    // Encostas recebem iluminação contínua; a normal geométrica separada
+    // é usada apenas no deslocamento de sombra, evitando listras na parede.
     const indicesChao=[],indicesParede=[],a3=new THREE.Vector3(),b3=new THREE.Vector3(),c3=new THREE.Vector3();
     for(let i=0;i<g.index.count;i+=3) {
       const ids=[g.index.getX(i),g.index.getX(i+1),g.index.getX(i+2)];
@@ -341,9 +342,16 @@ export class Jardim {
     const material=this.materialTerreno();
     if(indicesParede.length) {
       const recorte=new THREE.BufferGeometry();
-      for(const nome of ["position","color","aRocha","aGrama","aTrilha","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
+      for(const nome of ["position","normal","color","aRocha","aGrama","aTrilha","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
       recorte.setIndex(indicesParede);
-      const faces=recorte.toNonIndexed();faces.computeVertexNormals();recorte.dispose();
+      // Preserva as normais compartilhadas do terreno: iluminar cada
+      // triângulo isoladamente desenhava dentes na encosta contínua.
+      const faces=recorte.toNonIndexed();recorte.dispose();
+      const normaisSuaves=faces.getAttribute('normal').clone();
+      faces.computeVertexNormals();
+      faces.setAttribute('aNormalSombra',faces.getAttribute('normal'));
+      faces.setAttribute('normal',normaisSuaves);
+      faces.setAttribute('aSoloParede',new THREE.Float32BufferAttribute(new Float32Array(faces.getAttribute('position').count).fill(1),1));
       const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
     }
     this.scene.add(criarBordasBarranco(m, g, indicesParede, toon));

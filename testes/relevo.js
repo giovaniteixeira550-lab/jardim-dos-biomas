@@ -10,6 +10,17 @@ $("executar").onclick=async()=>{
     await jardim.carregar(1234,(_,m)=>$("estado").textContent=m);
     cancelAnimationFrame(jardim.raf);jardim.raf=null;jardim.scene.updateMatrixWorld();
     const m=jardim.mundo;
+    const parede=jardim.scene.getObjectByName('paredoes-facetados').geometry;
+    const luz=parede.getAttribute('normal'),sombra=parede.getAttribute('aNormalSombra');
+    afirmar(luz&&sombra&&luz.count===sombra.count,'Encosta sem normais de iluminação/sombra');
+    let suaves=0;
+    for(let i=0;i<luz.count;i++) {
+      const a=new THREE.Vector3().fromBufferAttribute(luz,i),b=new THREE.Vector3().fromBufferAttribute(sombra,i);
+      afirmar(Number.isFinite(a.length())&&Math.abs(a.length()-1)<.01,'Normal de encosta inválida');
+      if(a.distanceTo(b)>.01)suaves++;
+    }
+    afirmar(suaves>0,'Encosta voltou à iluminação isolada por triângulo');
+    registrar('Encostas com iluminação contínua e normais geométricas próprias para as sombras.');
     afirmar(jardim.aguaPercurso.userData.quedas.length===3,"Quantidade de cortinas incorreta");
     const cortinas=jardim.aguaPercurso.getObjectByName("cortinas-cascatas").geometry;
     for(const y of Array.from(cortinas.attributes.normal.array).filter((_,i)=>i%3===1))afirmar(Math.abs(y)<0.00001,"Cortina virou rampa diagonal");
@@ -76,7 +87,7 @@ $("executar").onclick=async()=>{
     for(const geo of geometrias)geo.addEventListener("dispose",()=>liberadas++);
     jardim.dispose();jardim.dispose();afirmar(liberadas===geometrias.size,"Geometria abandonada ou liberada em duplicidade");
     registrar("Encerramento libera os recursos novos uma única vez.");
-    $("estado").textContent="Todas as 6 verificações de relevo passaram.";
+    $("estado").textContent=`Todas as ${$("resultados").children.length} verificações de relevo passaram.`;
   } catch(e){$("estado").textContent=`FALHOU — ${e.message}`;console.error(e);}
 };
 window.addEventListener("pagehide",()=>jardim?.dispose());

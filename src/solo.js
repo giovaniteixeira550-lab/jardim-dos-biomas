@@ -1,14 +1,14 @@
-/** Paredões desenhados: massas angulares grandes, fendas seletivas e poucos tons. */
+/** Solo estilizado: massas amplas e transições contínuas entre terra e grama. */
 import * as THREE from "three";
 import { RAMPAS } from "./paleta.js";
 
 export function criarMaterialRelevo(toon, opcoes = {}) {
   const mat = toon({ vertexColors: true });
-  mat.defaultAttributeValues = { ...(mat.defaultAttributeValues ?? {}), aTrilha: [1] };
+  mat.defaultAttributeValues = { ...(mat.defaultAttributeValues ?? {}), aTrilha: [1], aNormalSombra: [0,1,0], aSoloParede: [0] };
   const direita = opcoes.direita ?? { value: new THREE.Vector2(1, 0) };
   const texel = opcoes.texel ?? { value: 0.1 };
-  mat.name = "paredao-facetas-pixel";
-  mat.userData.relevo = { versao: 3, referencia: "mundo", desenho: "facetas-pixel", altura: "local" };
+  mat.name = "paredao-natural-pixel";
+  mat.userData.relevo = { versao: 4, referencia: "mundo", desenho: "solo-continuo", altura: "local" };
   mat.userData.gramado = { direita, texel };
   mat.onBeforeCompile = (sh) => {
     const cores = {
@@ -22,7 +22,20 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
     for (const [nome, cor] of Object.entries(cores)) sh.uniforms[nome] = { value: new THREE.Color(cor) };
     sh.uniforms.uDireita = direita;
     sh.uniforms.uTexel = texel;
-    sh.vertexShader = `attribute float aRocha;
+    const sombrasSolo = THREE.ShaderChunk.shadowmap_vertex.replace(/vec3 shadowWorldNormal = [^;]+;/, 'vec3 shadowWorldNormal = normalize(mat3(modelMatrix) * aNormalSombra);') + `
+      #if defined(USE_SHADOWMAP) && NUM_DIR_LIGHT_SHADOWS > 0
+      #pragma unroll_loop_start
+      for ( int i = 0; i < NUM_DIR_LIGHT_SHADOWS; i ++ ) {
+        // Compensa a auto-oclusão em faces quase verticais, sem deslocar
+        // as sombras de árvores, construções ou do chão plano.
+        vDirectionalShadowCoord[ i ].z -= 0.004 * aSoloParede * vDirectionalShadowCoord[ i ].w;
+      }
+      #pragma unroll_loop_end
+      #endif
+    `;
+    sh.vertexShader = `attribute vec3 aNormalSombra;
+      attribute float aSoloParede;
+      attribute float aRocha;
       attribute float aGrama;
       attribute float aTrilha;
       attribute vec2 aLimitesSolo;
@@ -32,7 +45,7 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       varying vec2 vLimitesSolo;
       varying vec3 vSoloMundo;
       varying vec3 vSoloNormal;
-    ` + sh.vertexShader.replace("#include <worldpos_vertex>", `#include <worldpos_vertex>
+    ` + sh.vertexShader.replace('#include <shadowmap_vertex>', sombrasSolo).replace("#include <worldpos_vertex>", `#include <worldpos_vertex>
       vRocha = aRocha; vGrama = aGrama; vTrilha = aTrilha; vLimitesSolo = aLimitesSolo;
       vSoloMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;
       vSoloNormal = normalize(mat3(modelMatrix) * objectNormal);
@@ -53,50 +66,26 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
         vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
         return mix(mix(soloHash(i), soloHash(i + vec2(1.0, 0.0)), f.x), mix(soloHash(i + vec2(0.0, 1.0)), soloHash(i + vec2(1.0, 1.0)), f.x), f.y);
       }
-      // Células volumétricas grandes e deslocadas: as quebras passam pelas
-      // quinas sem depender do eixo da parede ou da orientação da câmera.
-      void facetaSolo(vec3 p, out vec3 deslocamento, out float borda, out float tinta) {
-        vec3 q = p / vec3(2.8, 2.65, 2.8);
-        vec3 ip = floor(q), fp = fract(q), melhor = vec3(0.0), chave = vec3(0.0);
-        float d1 = 20.0, d2 = 20.0;
-        for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) {
-          vec3 g = vec3(float(x), float(y), float(z)), h = ip + g;
-          vec3 sorte = fract(sin(vec3(dot(h, vec3(127.1, 311.7, 74.7)), dot(h, vec3(269.5, 183.3, 246.1)), dot(h, vec3(113.5, 271.9, 124.6)))) * 43758.5453);
-          vec3 r = g + 0.15 + sorte * 0.7 - fp;
-          float d = dot(r, r);
-          if (d < d1) { d2 = d1; d1 = d; melhor = r; chave = h; }
-          else if (d < d2) d2 = d;
-        }
-        deslocamento = -melhor;
-        borda = sqrt(d2) - sqrt(d1);
-        tinta = soloHash(chave.xy + chave.z * vec2(13.1, 37.7));
-      }
     ` + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
       vec3 normalSolo = normalize(vSoloNormal);
       if (normalSolo.y < 0.72 && vRocha > 0.15) {
-        vec3 p = floor(vSoloMundo / 0.15) * 0.15;
+        vec3 p = vSoloMundo;
         float profundidade = max(0.0, vLimitesSolo.x - vSoloMundo.y);
         float acimaPe = max(0.0, vSoloMundo.y - vLimitesSolo.y);
-        vec3 face; float encaixe, tinta;
-        facetaSolo(p, face, encaixe, tinta);
-        // Cada massa tem face principal, quebra iluminada e recuo escuro.
-        // Os limites diagonais desenham volume; nada forma uma fiada horizontal.
-        float quina = face.y * 0.9 + face.x * 0.58 - face.z * 0.44;
-        vec3 terra = tinta > 0.9 ? uTerraClara : uTerra;
-        if (quina > 0.3) terra = uTerraClara;
-        else if (quina < -0.22) terra = uTerraSombra;
-        if (tinta < 0.075 && profundidade > 0.8) terra = quina > 0.2 ? uRochaLuz : uRocha;
-        // Fendas curtas e desencontradas, sem contornar todas as células.
-        if (encaixe < 0.05 && (face.y < -0.05 || tinta > 0.7)) terra = uTerraSombra;
-        if (encaixe < 0.022 && face.y < -0.17 && tinta > 0.55) terra = uTerraFunda;
-        else if (encaixe < 0.08 && face.y > 0.15 && tinta > 0.5) terra = uTerraClara;
+        // Massas de solo largas e contínuas. O volume vem da geometria
+        // iluminada; não desenhamos um mosaico de falsas quinas por cima.
+        float tinta = ruidoSolo(p.xz / 5.0 + vec2(p.y * 0.13, -p.y * 0.09));
+        vec3 terra = mix(uTerraSombra, uTerraClara, 0.25 + smoothstep(0.2, 0.85, tinta) * 0.55);
+        float mineral = ruidoSolo(p.xz / 2.9 + vec2(p.y * 0.24));
+        terra = mix(terra, uRocha, smoothstep(0.78, 0.9, mineral) * 0.35);
         // Topo local: faixa verde recortada e sombra estreita sob a grama.
-        float recorte = soloHash(floor(p.xz / 1.3));
-        float capa = 0.16 + floor(recorte * 3.0) * 0.065;
-        if (profundidade < capa + 0.14) terra = uTerraFunda;
-        if (profundidade < capa) terra = recorte > 0.62 ? uMusgo : uGramaBorda;
-        if (profundidade < 0.6 && tinta > 0.91 && face.y > 0.0) terra = uMusgo;
-        if (acimaPe < 0.18 && profundidade > 1.5) terra = uTerraFunda;
+        float recorte = ruidoSolo(p.xz / 4.6);
+        float capa = 0.18 + recorte * 0.13;
+        // Musgo e gramado se encontram em uma transição contínua,
+        // sem alternar dentes claros e escuros a cada célula da grade.
+        float verde = 1.0 - smoothstep(capa - 0.08, capa + 0.15, profundidade);
+        terra = mix(terra, mix(uGramaBorda, uMusgo, recorte * 0.4), verde);
+        if (acimaPe < 0.18 && profundidade > 1.5) terra = mix(terra, uTerraSombra, 0.4);
         diffuseColor.rgb = terra;
       } else if (vTrilha < 0.74 && normalSolo.y > 0.72) {
         // Grão preso ao chão: as manchas, pedras e recortes não giram com a câmera.
@@ -150,6 +139,6 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       if (normalize(vSoloNormal).y < 0.72 && vRocha > 0.15) gl_FragColor.a = 0.18;
     `);
   };
-  mat.customProgramCacheKey = () => "solo-facetas-trilha-terra-4";
+  mat.customProgramCacheKey = () => "solo-margens-naturais-5";
   return mat;
 }

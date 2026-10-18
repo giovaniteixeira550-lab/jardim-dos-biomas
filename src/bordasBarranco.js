@@ -99,11 +99,11 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
         const id = inicio ? ia : ib, ponta = inicio ? a : b, outra = inicio ? b : a;
         const direcao = ponta.clone().sub(outra); direcao.y = 0; direcao.normalize();
         for (const vizinha of porVertice.get(id) ?? []) {
-          if (usadas.has(vizinha) || fora.dot(vizinha.fora) < 0.98) continue;
+          if (usadas.has(vizinha) || fora.dot(vizinha.fora) < 0.94) continue;
           const novoId = vizinha.ia === id ? vizinha.ib : vizinha.ia;
           const novaPonta = (vizinha.ia === id ? vizinha.b : vizinha.a).clone();
           const extensao = novaPonta.clone().sub(ponta); extensao.y = 0; extensao.normalize();
-          if (extensao.dot(direcao) < 0.995 || Math.abs(novaPonta.y - outra.y) > 0.18
+          if (extensao.dot(direcao) < 0.97 || Math.abs(novaPonta.y - outra.y) > 0.18
             || Math.hypot(novaPonta.x - outra.x, novaPonta.z - outra.z) > 2.2) continue;
           if (inicio) { a = novaPonta; ia = novoId; } else { b = novaPonta; ib = novoId; }
           usadas.add(vizinha); unidos++; cresceu = true;
@@ -118,17 +118,17 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
     const tangente = b.clone().sub(a); tangente.y = 0;
     const comprimento = tangente.length(); tangente.divideScalar(comprimento);
     inverterFaces = tangente.z * fora.x - tangente.x * fora.z > 0;
-    const e0 = a.clone().lerp(b, 0.006 / comprimento), e1 = a.clone().lerp(b, 1 - 0.006 / comprimento);
+    const e0 = a.clone(), e1 = b.clone();
     const a0 = e0.clone().addScaledVector(fora, -0.14), a1 = e1.clone().addScaledVector(fora, -0.14);
     // Dois avanços francos dão pequenas línguas angulosas, sem micro-serrilhado.
-    const avanco = variacao > 0.63 ? 0.3 : 0.22;
+    const avanco = 0.075 + variacao * 0.025;
     const f0 = e0.clone().addScaledVector(fora, avanco), f1 = e1.clone().addScaledVector(fora, avanco);
     if (![a0, a1, f0, f1].every((p) => livre(p.x, p.z))) continue;
     a0.y += 0.012; a1.y += 0.012; f0.y -= 0.025; f1.y -= 0.025;
     const verde = variacao > 0.7 ? verdeTopo[1] : verdeTopo[0];
     const frente = variacao > 0.5 ? terraMedia : terraEscura;
-    const espessuraVerde = variacao > 0.63 ? 0.22 : 0.16;
-    const espessuraTotal = espessuraVerde + 0.24;
+    const espessuraVerde = 0.075;
+    const espessuraTotal = espessuraVerde + 0.08;
     const g0 = a0.clone(), g1 = a1.clone(), gf0 = f0.clone(), gf1 = f1.clone();
     for (const p of [g0, g1, gf0, gf1]) p.y -= espessuraVerde;
     const b0 = a0.clone(), b1 = a1.clone(), f2 = f0.clone(), f3 = f1.clone();
