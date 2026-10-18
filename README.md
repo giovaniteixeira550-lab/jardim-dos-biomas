@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.37.1)
+## 3. Estado atual (v0.38)
+
+- **v0.38 — Acácia dos Mosaicos aprovada (Hematologia e oncologia):** gerador próprio em `src/acaciaMosaicos.js`, inspirado na **acácia-guarda-chuva da savana** (*Vachellia tortilis*), com vagens segmentadas da *Vachellia nilotica*. O broto e a muda têm folhas compostas de folíolos miúdos. A adulta tem um tronco curto que se abre em quatro troncos finos em leque, sob uma copa única, larga e achatada como guarda-sol, feita de cerca de 110 placas encaixadas em laranja, âmbar e amarelo (o mosaico), e poucas vagens castanhas como contas de colar. Disponível no catálogo, evolução e viveiro; plantio temático pendente.
 
 **v0.37.1 — margens naturais:** iluminação contínua nas encostas, transição suave entre terra e grama, capas finas e ombros arredondados nas margens do riacho. Preservados o mapa, a casa e todas as espécies até v0.37. Referências artísticas, decisões e verificações em [docs/margens-naturais.md](docs/margens-naturais.md).
 

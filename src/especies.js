@@ -400,6 +400,13 @@ export const TODAS = {
     altura: [5, 6], cores: { folha: R.mata[2], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.45, 0.25], sombra: 0.45, altitude: null }, raridade: 0,
   },
+  // Hematologia e oncologia. Gerador próprio (src/acaciaMosaicos.js), inspirado na acácia-guarda-chuva da savana: troncos
+  // finos em leque sob copa achatada em mosaico laranja. Posição planejada na transição entre bosque e clareira.
+  acaciaMosaicos: {
+    nome: "Acácia dos Mosaicos", forma: "acaciaMosaicos", fantasia: true, mapa: "pediatria",
+    altura: [4.5, 5.5], cores: { folha: R.outono[3], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.35, 0.25], sombra: 0.15, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.

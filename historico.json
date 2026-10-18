@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.37.1",
+  "versaoAtual": "v0.38",
   "proximoPasso": {
     "titulo": "Revisar o acabamento natural",
     "descricao": "Observar as encostas e margens em vários ângulos; continuar as espécies na frente própria."
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos e Árvore dos Segredos aprovadas para o bosque de Pediatria."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos e Acácia dos Mosaicos aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -116,6 +116,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.38",
+      "data": "2026-10-18",
+      "titulo": "Acácia dos Mosaicos chega ao projeto",
+      "porque": "A acácia em guarda-sol, inspirada na savana, foi aprovada para representar Hematologia e oncologia no bosque de Pediatria.",
+      "mudancas": [
+        "Tronco curto que se abre em quatro troncos finos em leque",
+        "Copa única, larga e achatada como guarda-sol, feita de placas encaixadas",
+        "Mosaico de laranja, âmbar e amarelo na copa, por pedido do usuário",
+        "Vagens segmentadas como contas de colar, penduradas na borda"
+      ],
+      "resultado": "Arte aprovada integrada; a posição na transição entre bosque e clareira aguarda a composição temática.",
+      "imagens": [
+        {
+          "src": "historico/v0.38-acacia.jpg",
+          "legenda": "A Acácia dos Mosaicos adulta, em guarda-sol laranja"
+        }
+      ]
+    },
     {
       "versao": "v0.37.1",
       "data": "2026-10-18",

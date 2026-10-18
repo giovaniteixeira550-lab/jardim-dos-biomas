@@ -142,3 +142,7 @@ Oitava espécie do bosque de Pediatria, aprovada pelo usuário em 18/10/2026 a p
 ## Acabamento de margens — v0.37.1
 
 Reunião com a v0.37 antes da publicação, preservando Árvore dos Segredos, ornamentos e catálogo do Claude. Escopo do Codex: solo, iluminação das encostas, capas de borda e margens do riacho. Nenhuma alteração no Lovable, na posição das árvores ou no campo de alturas.
+
+## Acácia dos Mosaicos — v0.38 (Claude)
+
+Nona espécie do bosque de Pediatria, aprovada pelo usuário em 18/10/2026 a partir de `propostas-arvores/acacia-mosaicos` (quatro revisões internas e uma com o usuário: folhagem amarelo-alaranjada). O gerador fica em `src/acaciaMosaicos.js` e entra no mapa `PROPRIOS` de `arvoreProc.js`. Referência de arquitetura: *Vachellia tortilis*. Publicada sobre a v0.37.1 do Codex, sem tocar no terreno. Verificações: `testes/especies.html` (56 espécies, 672 modelos), `testes/crescimento-viveiro.html` (três sementes) e `evolucao.html` (56 espécies) passaram; jardim e viveiro carregados sem erros no console.
