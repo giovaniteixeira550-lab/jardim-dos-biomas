@@ -386,6 +386,13 @@ export const TODAS = {
     altura: [7, 8], cores: { folha: R.betula[0], casca: R.terra[3] }, variacoes: 1,
     nicho: { umidade: [0.6, 0.22], sombra: 0.3, altitude: null }, raridade: 0,
   },
+  // Puericultura, prevenção e vacinação. Gerador próprio (src/arvoreNinhos.js): plataformas de folhas em camadas e ninhos
+  // pousados nas forquilhas. Posição planejada perto da chegada, junto a uma ponte ou bifurcação de caminhos.
+  arvoreNinhos: {
+    nome: "Árvore dos Ninhos", forma: "arvoreNinhos", fantasia: true, mapa: "pediatria",
+    altura: [6, 7], cores: { folha: R.mata[3], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.55, 0.25], sombra: 0.25, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.

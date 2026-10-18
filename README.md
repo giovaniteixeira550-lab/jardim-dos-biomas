@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.34)
+## 3. Estado atual (v0.35)
+
+- **v0.35 — Árvore dos Ninhos aprovada (Puericultura, prevenção e vacinação):** gerador próprio em `src/arvoreNinhos.js`. O broto tem duas folhas largas em concha; a muda, uma bifurcação baixa em Y com rosetas de folhas; a jovem, tronco com sapatas, o primeiro oco e quatro plataformas pequenas. A adulta tem um tronco curto e robusto que se abre em três braços desiguais, folhagem em sete plataformas de bordas irregulares em alturas diferentes, dois ocos e dois ninhos de gravetos com ovos claros. Um ninho pousa na ponta do tronco e o outro na ponta do braço esquerdo. Os braços saem baixos para fora antes de subir, e o gerador confere que nenhum galho atravessa as tigelas. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição perto da chegada.
 
 - **v0.34 — Jabuticabeira das Constelações aprovada (Neurologia):** gerador próprio em `src/jabuticabeiraConstelacoes.js`. Broto e muda com folhas pequenas aos pares e o par mais novo cor de bronze; a jovem tem três troncos e as primeiras flores brancas presas à casca. A adulta tem seis troncos lisos, manchados e retorcidos, abertos em vaso sob uma copa branca em cúpula, e jabuticabas presas à casca em grupinhos ("constelações"). **Luz noturna (novo recurso compartilhado):** `src/estiloCopa.js` lê o atributo opcional `brilhoNoite` (0–1) multiplicado pelo uniforme compartilhado `LUZ_NOTURNA`, que `cena.js` ajusta em `aplicarHora` (dia 0, entardecer 0,35, noite 1). A copa acende e a luz desce pelos troncos e frutos até o chão da própria árvore; não há luz real por árvore. Geometrias sem o atributo não mudam. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no caminho de observação junto ao lago.
 

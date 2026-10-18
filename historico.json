@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.34",
+  "versaoAtual": "v0.35",
   "proximoPasso": {
-    "titulo": "Criar a Árvore dos Ninhos",
-    "descricao": "Próxima espécie do bosque de Pediatria (Puericultura, prevenção e vacinação), em prévia isolada para aprovação."
+    "titulo": "Criar a Árvore dos Segredos",
+    "descricao": "Próxima espécie do bosque de Pediatria (Infectologia), em prévia isolada para aprovação."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes e Jabuticabeira das Constelações aprovadas para o bosque de Pediatria."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações e Árvore dos Ninhos aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -113,6 +113,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.35",
+      "data": "2026-10-18",
+      "titulo": "Árvore dos Ninhos chega ao projeto",
+      "porque": "A árvore de plataformas e ninhos foi aprovada para representar Puericultura, prevenção e vacinação no bosque de Pediatria.",
+      "mudancas": [
+        "Tronco curto e robusto que se abre em três braços desiguais",
+        "Folhagem em plataformas de bordas irregulares, em alturas diferentes",
+        "Dois ninhos de gravetos com ovos claros pousados nas forquilhas, sem galho atravessando",
+        "Broto com duas folhas em concha; ocos no tronco e num braço"
+      ],
+      "resultado": "Arte aprovada integrada; a posição perto da chegada aguarda a composição do bosque.",
+      "imagens": [
+        {
+          "src": "historico/v0.35-ninhos.jpg",
+          "legenda": "A Árvore dos Ninhos adulta, com os ninhos nas forquilhas"
+        }
+      ]
+    },
     {
       "versao": "v0.34",
       "data": "2026-10-18",
