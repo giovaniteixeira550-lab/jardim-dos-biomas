@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.39",
+  "versaoAtual": "v0.39.1",
   "proximoPasso": {
     "titulo": "Criar a grande sequoia com balanço",
     "descricao": "Árvore-marco maior que todas, com um balanço num galho baixo, em prévia isolada; depois, posicionar a leste do lago."
@@ -27,8 +27,8 @@
     {
       "nome": "Terreno e água",
       "status": "andamento",
-      "progresso": 80,
-      "nota": "Bordas menos pontudas, transição contínua de grama e solo e perfil arredondado nas margens, preservando os percursos."
+      "progresso": 85,
+      "nota": "Acabamento aprovado: capa contínua, textura pixelada e acessos/água preservados."
     },
     {
       "nome": "Vida e clima",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Bordas contínuas e textura autoral de terra em pixel art, aprovadas em amostra e aplicadas ao mapa",
       "Encostas com iluminação contínua e margens do riacho com ombro arredondado",
       "Casa com telhas curvas e fumaça noturna, postes, banco de pesca e plantio distribuído",
       "Câmera com arraste ancorado, zoom ao cursor e giro/inclinação juntos",
@@ -116,6 +117,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.39.1",
+      "data": "2026-10-18",
+      "titulo": "Relevo com bordas contínuas e terra em pixel art",
+      "porque": "O acabamento da amostra isolada foi aprovado para aplicação ao jardim.",
+      "mudancas": [
+        "Remate contínuo da grama, sem caixas isoladas na borda",
+        "Torrões autorais em quatro tons, com pixels nítidos e escala constante na curva",
+        "Costuras do terreno refinadas, preservando alturas e acessos",
+        "Acácia dos Mosaicos, Oliveira dos Nós e demais espécies preservadas"
+      ],
+      "resultado": "64 testes existentes e 3 testes específicos passaram. Na geometria real: 69 pisos, 138 laterais, 72 margens e três cascatas conferidos; acabamento inspecionado no navegador.",
+      "imagens": [
+        {
+          "src": "historico/v0.39.1-casa.png",
+          "legenda": "Bordas contínuas e textura de terra junto à casa"
+        },
+        {
+          "src": "historico/v0.39.1-riacho.png",
+          "legenda": "Encontro com os caminhos e margens do riacho"
+        }
+      ]
+    },
     {
       "versao": "v0.39",
       "data": "2026-10-18",

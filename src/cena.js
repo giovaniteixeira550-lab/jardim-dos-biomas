@@ -22,7 +22,7 @@ import { criarLago } from "./aguaLago.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarPonteMadeira } from "./ponteMadeira.js";
 import { criarMaterialRelevo, criarTravessias } from "./relevo.js";
-import { criarBordasBarranco } from "./bordasBarranco.js";
+import { refinarBordasTerreno, aplicarCoordenadasParede, criarCapaContinua } from "./acabamentoTerreno.js";
 import { criarPostesDoces } from "./postesDoces.js";
 import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
@@ -255,10 +255,10 @@ export class Jardim {
     const borda = 50, passo = 0.5;
     const L = m.largura + borda * 2, P = m.altura + borda * 2;
     const nx = Math.round(L / passo), nz = Math.round(P / passo);
-    const g = new THREE.PlaneGeometry(L, P, nx, nz);
+    let g = new THREE.PlaneGeometry(L, P, nx, nz);
     g.rotateX(-Math.PI / 2);
     g.translate(m.largura / 2, 0, m.altura / 2);
-    const pos = g.attributes.position;
+    let pos = g.attributes.position;
     const cores = new Float32Array(pos.count * 3);
     const rocha = new Float32Array(pos.count); // máscara dos barrancos naturais, sem alvenaria
     const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
@@ -328,6 +328,10 @@ export class Jardim {
     g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
     g.setAttribute("aTrilha", new THREE.BufferAttribute(terraTrilha, 1));
     g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
+    const gradeOriginal=g;
+    g=refinarBordasTerreno(gradeOriginal,m);
+    gradeOriginal.dispose();
+    pos=g.attributes.position;
     g.computeVertexNormals();
     g.setAttribute('aNormalSombra', g.getAttribute('normal'));
     // Encostas recebem iluminação contínua; a normal geométrica separada
@@ -348,13 +352,24 @@ export class Jardim {
       // triângulo isoladamente desenhava dentes na encosta contínua.
       const faces=recorte.toNonIndexed();recorte.dispose();
       const normaisSuaves=faces.getAttribute('normal').clone();
+      // A parede tem iluminação lateral, inclusive junto ao chanfro. Uma normal
+      // misturada com a do tampo não deve produzir manchas triangulares verdes.
+      for(let i=0;i<normaisSuaves.count;i++){
+        const normal=new THREE.Vector3().fromBufferAttribute(normaisSuaves,i);
+        normal.y=Math.min(normal.y,.25);normal.normalize();
+        normaisSuaves.setXYZ(i,normal.x,normal.y,normal.z);
+      }
       faces.computeVertexNormals();
       faces.setAttribute('aNormalSombra',faces.getAttribute('normal'));
       faces.setAttribute('normal',normaisSuaves);
       faces.setAttribute('aSoloParede',new THREE.Float32BufferAttribute(new Float32Array(faces.getAttribute('position').count).fill(1),1));
+      aplicarCoordenadasParede(faces,g.userData.contornos);
       const paredes=new THREE.Mesh(faces,material);paredes.name="paredoes-facetados";paredes.receiveShadow=paredes.castShadow=true;this.scene.add(paredes);
     }
-    this.scene.add(criarBordasBarranco(m, g, indicesParede, toon));
+    // Um remate contínuo segue as mesmas costuras do terreno, sem placas
+    // independentes em cada célula da grade.
+    this.scene.add(criarCapaContinua(m,g.userData.contornos,toon,material));
+    delete g.userData.contornos;
     g.setIndex(indicesChao);
     const t = new THREE.Mesh(g, material);
     t.receiveShadow = true;

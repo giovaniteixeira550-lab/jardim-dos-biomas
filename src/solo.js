@@ -1,14 +1,19 @@
 /** Solo estilizado: massas amplas e transições contínuas entre terra e grama. */
 import * as THREE from "three";
 import { RAMPAS } from "./paleta.js";
+import { criarTexturaTerra } from './texturaTerra.js';
+import { PIXEL_TERRA } from './acabamentoTerreno.js';
 
 export function criarMaterialRelevo(toon, opcoes = {}) {
   const mat = toon({ vertexColors: true });
-  mat.defaultAttributeValues = { ...(mat.defaultAttributeValues ?? {}), aTrilha: [1], aNormalSombra: [0,1,0], aSoloParede: [0] };
+  mat.defaultAttributeValues = { ...(mat.defaultAttributeValues ?? {}), aTrilha: [1], aNormalSombra: [0,1,0], aSoloParede: [0], aSoloUV: [0,0] };
   const direita = opcoes.direita ?? { value: new THREE.Vector2(1, 0) };
   const texel = opcoes.texel ?? { value: 0.1 };
   mat.name = "paredao-natural-pixel";
-  mat.userData.relevo = { versao: 4, referencia: "mundo", desenho: "solo-continuo", altura: "local" };
+  mat.userData.relevo = { versao: 6, referencia: "mundo", desenho: "terra-pixel-aprovada", altura: "local" };
+  const texturaTerra=criarTexturaTerra();
+  mat.userData.texturaTerra=texturaTerra;
+  mat.addEventListener('dispose',()=>texturaTerra.dispose());
   mat.userData.gramado = { direita, texel };
   mat.onBeforeCompile = (sh) => {
     const cores = {
@@ -22,6 +27,7 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
     for (const [nome, cor] of Object.entries(cores)) sh.uniforms[nome] = { value: new THREE.Color(cor) };
     sh.uniforms.uDireita = direita;
     sh.uniforms.uTexel = texel;
+    sh.uniforms.uTerraPixel={value:texturaTerra};
     const sombrasSolo = THREE.ShaderChunk.shadowmap_vertex.replace(/vec3 shadowWorldNormal = [^;]+;/, 'vec3 shadowWorldNormal = normalize(mat3(modelMatrix) * aNormalSombra);') + `
       #if defined(USE_SHADOWMAP) && NUM_DIR_LIGHT_SHADOWS > 0
       #pragma unroll_loop_start
@@ -35,6 +41,7 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
     `;
     sh.vertexShader = `attribute vec3 aNormalSombra;
       attribute float aSoloParede;
+      attribute vec2 aSoloUV;
       attribute float aRocha;
       attribute float aGrama;
       attribute float aTrilha;
@@ -45,10 +52,13 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       varying vec2 vLimitesSolo;
       varying vec3 vSoloMundo;
       varying vec3 vSoloNormal;
+      varying vec2 vSoloUV;
+      varying float vSoloParede;
     ` + sh.vertexShader.replace('#include <shadowmap_vertex>', sombrasSolo).replace("#include <worldpos_vertex>", `#include <worldpos_vertex>
       vRocha = aRocha; vGrama = aGrama; vTrilha = aTrilha; vLimitesSolo = aLimitesSolo;
       vSoloMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;
       vSoloNormal = normalize(mat3(modelMatrix) * objectNormal);
+      vSoloUV=aSoloUV; vSoloParede=aSoloParede;
     `);
     sh.fragmentShader = `uniform vec3 uTerraFunda; uniform vec3 uTerraSombra;
       uniform vec3 uTerra; uniform vec3 uTerraClara;
@@ -61,6 +71,8 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       varying float vTrilha;
       varying vec2 vLimitesSolo;
       varying vec3 vSoloMundo; varying vec3 vSoloNormal;
+      varying vec2 vSoloUV; varying float vSoloParede;
+      uniform sampler2D uTerraPixel;
       float soloHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
       float ruidoSolo(vec2 p) {
         vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
@@ -68,24 +80,22 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       }
     ` + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
       vec3 normalSolo = normalize(vSoloNormal);
-      if (normalSolo.y < 0.72 && vRocha > 0.15) {
+      if ((vSoloParede>.5 || normalSolo.y < 0.72) && vRocha > 0.15) {
         vec3 p = vSoloMundo;
         float profundidade = max(0.0, vLimitesSolo.x - vSoloMundo.y);
         float acimaPe = max(0.0, vSoloMundo.y - vLimitesSolo.y);
-        // Massas de solo largas e contínuas. O volume vem da geometria
-        // iluminada; não desenhamos um mosaico de falsas quinas por cima.
-        float tinta = ruidoSolo(p.xz / 5.0 + vec2(p.y * 0.13, -p.y * 0.09));
-        vec3 terra = mix(uTerraSombra, uTerraClara, 0.25 + smoothstep(0.2, 0.85, tinta) * 0.55);
-        float mineral = ruidoSolo(p.xz / 2.9 + vec2(p.y * 0.24));
-        terra = mix(terra, uRocha, smoothstep(0.78, 0.9, mineral) * 0.35);
-        // Topo local: faixa verde recortada e sombra estreita sob a grama.
-        float recorte = ruidoSolo(p.xz / 4.6);
-        float capa = 0.18 + recorte * 0.13;
-        // Musgo e gramado se encontram em uma transição contínua,
-        // sem alternar dentes claros e escuros a cada célula da grade.
-        float verde = 1.0 - smoothstep(capa - 0.08, capa + 0.15, profundidade);
-        terra = mix(terra, mix(uGramaBorda, uMusgo, recorte * 0.4), verde);
-        if (acimaPe < 0.18 && profundidade > 1.5) terra = mix(terra, uTerraSombra, 0.4);
+        // O mesmo azulejo autoral da amostra aprovada, seguindo o contorno.
+        // Cada texel mantém a escala relativa ao barranco real de 4,5 m.
+        float topo=vSoloParede>.5?vSoloUV.y:vLimitesSolo.x;
+        float d=max(0.,topo-p.y);
+        vec2 coord=vSoloParede>.5?vec2(vSoloUV.x,d):vec2(p.x+p.z,profundidade);
+        vec2 pixel=floor(coord/${PIXEL_TERRA.toFixed(3)});
+        vec3 terra=texture2D(uTerraPixel,(pixel+.5)/vec2(96.,64.)).rgb;
+        if(d>3.51 && mod(pixel.x+floor(pixel.y/3.),5.)<2.)terra=min(terra,uTerra);
+        float recorte=.145+floor(ruidoSolo(vec2(floor(pixel.x/3.)*.7,2.))*3.)*.0725;
+        if(d<recorte+.11)terra=uTerraFunda;
+        if(d<recorte)terra=uGramaBorda;
+        if(d<.055)terra=uGramaBorda;
         diffuseColor.rgb = terra;
       } else if (vTrilha < 0.74 && normalSolo.y > 0.72) {
         // Grão preso ao chão: as manchas, pedras e recortes não giram com a câmera.
@@ -136,9 +146,9 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
     `).replace("#include <opaque_fragment>", `#include <opaque_fragment>
       // O alvo intermediário usa alfa como força de pontilhado. Continua
       // sendo uma parede opaca: só o pós-processamento lê esta marca.
-      if (normalize(vSoloNormal).y < 0.72 && vRocha > 0.15) gl_FragColor.a = 0.18;
+      if ((vSoloParede>.5 || normalize(vSoloNormal).y < 0.72) && vRocha > 0.15) gl_FragColor.a = 0.18;
     `);
   };
-  mat.customProgramCacheKey = () => "solo-margens-naturais-5";
+  mat.customProgramCacheKey = () => "solo-terra-pixel-aprovada-6";
   return mat;
 }

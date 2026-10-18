@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.39)
+## 3. Estado atual (v0.39.1)
+
+**v0.39.1 — acabamento aprovado do relevo:** paredes com a textura autoral de terra em pixel art aprovada na amostra, contornos com remate contínuo e transições protegidas junto a trilhas e água. Mantidas todas as espécies da v0.39, a casa, pontes, plantio e os campos do mundo. Detalhes e validação em [docs/relevo-pixel-aprovado.md](docs/relevo-pixel-aprovado.md).
 
 - **v0.39 — Oliveira dos Nós aprovada (Reumatologia); bosque de Pediatria completo:** gerador próprio em `src/oliveiraNos.js`, inspirado na **oliveira centenária do Mediterrâneo** (*Olea europaea*). O broto e a muda têm folhas estreitas aos pares, e a muda já mostra o primeiro nó. A adulta tem tronco curto e largo de quatro feixes torcidos em espiral, com vãos e nove nós, braços grossos e retorcidos, copa arredondada verde-acinzentada e poucas azeitonas. Com ela, as **11 espécies** do bosque de Pediatria têm arte. Disponível no catálogo, evolução e viveiro; plantio temático pendente.
 

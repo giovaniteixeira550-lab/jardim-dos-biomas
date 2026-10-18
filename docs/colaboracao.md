@@ -150,3 +150,7 @@ Nona espécie do bosque de Pediatria, aprovada pelo usuário em 18/10/2026 a par
 ## Oliveira dos Nós — v0.39 (Claude)
 
 Décima primeira e última espécie do bosque de Pediatria, aprovada pelo usuário em 18/10/2026 a partir de `propostas-arvores/oliveira-nos`. O gerador fica em `src/oliveiraNos.js` e entra no mapa `PROPRIOS` de `arvoreProc.js`. Referência: *Olea europaea* centenária. As 11 espécies agora têm arte; falta a composição temática no terreno. Próximo pedido do usuário: uma grande sequoia com balanço, maior que todas, a leste do lago (proposta isolada em `propostas-arvores/sequoia-balanco`).
+
+## Relevo aprovado — v0.39.1
+
+Base v0.39, preservando a Acácia dos Mosaicos e a Oliveira dos Nós. Aprovação do usuário para aplicar a amostra 02 em 18/10/2026. Escopo restrito a geometria visual das bordas, material de parede e registros de versão. Campos do mundo, plantio e geradores de espécies não foram alterados.
