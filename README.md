@@ -58,6 +58,10 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 
 ## 3. Estado atual (v0.33)
 
+### Proposta local — navegação da câmera (18/10/2026)
+
+Arraste esquerdo prende o chão sob o cursor, com deslocamento consistente após girar ou inclinar. O botão do meio combina giro horizontal e inclinação vertical. O botão **↻ Girar** permite o mesmo gesto usando somente o botão esquerdo; desligado, volta a mover. Rodinha aproxima o ponto indicado e clique duplo aproxima suavemente uma árvore ou região, tornando esse lugar o centro da órbita. O botão da casa restaura a visão geral. O painel começa recolhido em **Opções do jardim**. Nenhum novo atalho de local ou minimapa foi acrescentado. Testes e limites em [docs/camera-mapa.md](docs/camera-mapa.md); proposta ainda local.
+
 ### Proposta local — nitidez à distância (Codex, 18/10/2026)
 
 Na branch `codex/nitidez-mapa`, a opção **Definição: Alta** dobra a resolução nos dois eixos, sem mudar câmera, terreno, modelos ou paleta. O bloco continua com dois pixels do framebuffer, mas passa de 2 para aproximadamente 1 pixel CSS. A cena passa de 640 × 360 para 1280 × 720 numa janela de 1280 × 720; a saída passa para 2560 × 1440. As sombras duras usam 4096 em vez de 2048. **Original · comparar** restaura a definição anterior no mesmo enquadramento, sem recarregar árvores.

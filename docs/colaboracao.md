@@ -2,6 +2,8 @@
 
 ## Frente atual do Codex — definição do mapa (18/10/2026)
 
+Continuação autorizada: navegação em `src/cena.js`, modo Girar em `index.html`/`src/main.js` e painel recolhível. Sem novos atalhos de local. Documentação em `docs/camera-mapa.md`; histórico registra uma proposta separada. Geradores continuam intactos.
+
 Proposta isolada na branch `codex/nitidez-mapa`, worktree `jardim-nitidez-proposta`, base v0.33. O usuário confirmou a demo artística como destino; a prévia F1 do site está fora desta tarefa. Mudanças: resolução e sombras em `src/cena.js`, cálculo novo em `src/qualidade.js`, seletor em `index.html` e evento em `src/main.js`. Geradores e catálogo não foram alterados. Comparação visual, medições e limites em `docs/nitidez-mapa.md`. Não publicada: aguarda revisão visual. Ao integrar novas espécies, preservar seus arquivos e conciliar somente estes blocos, README e histórico.
 
 Este registro comunica o escopo desta proposta. Não prova que outro agente leu ou aceitou uma divisão de trabalho.

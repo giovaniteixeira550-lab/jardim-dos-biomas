@@ -41,6 +41,7 @@ async function iniciar(semente) {
     antigo.replaceWith(canvas);
     instancia = new Jardim(canvas);
     instancia.setQualidade($("qualidade").value);
+    instancia.setModoCamera($("modo-camera").getAttribute("aria-pressed") === "true" ? "girar" : "mover");
     jardim = instancia;
     jardim.setCrescimento(Number($("crescimento").value));
     // Ficha da árvore clicada (cada árvore é um indivíduo).
@@ -87,6 +88,11 @@ for (const b of document.querySelectorAll("[data-hora]"))
     jardim?.setHora(b.dataset.hora);
   });
 $("girar-esq").addEventListener("click", () => jardim?.girar(-1));
+$("modo-camera").addEventListener("click", () => {
+  const girar = $("modo-camera").getAttribute("aria-pressed") !== "true";
+  $("modo-camera").setAttribute("aria-pressed", String(girar));
+  jardim?.setModoCamera(girar ? "girar" : "mover");
+});
 $("girar-dir").addEventListener("click", () => jardim?.girar(1));
 $("zoom-mais").addEventListener("click", () => jardim?.zoom(0.8));
 $("zoom-menos").addEventListener("click", () => jardim?.zoom(1.25));

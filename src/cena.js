@@ -815,6 +815,7 @@ export class Jardim {
     const c = this.canvas;
     const signal = this.cancelamento.signal;
     const ponteiros = new Map();
+    let ancoraArraste = null;
     let pinca = 0, angulo = null;
     const mover = (dx, dy) => {
       // Arrastar move o chão sob o cursor (direita/frente da câmera projetadas no plano).
@@ -831,12 +832,15 @@ export class Jardim {
     c.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && ![0, 1, 2].includes(e.button)) return;
       if (e.button === 1) e.preventDefault(); // impede a rolagem automática da rodinha
+      this.animacaoFoco = null;
       c.setPointerCapture(e.pointerId);
       this.focarEm(null);
-      const giro = e.button === 2 ? "inclinar" : e.button === 1 || e.shiftKey ? "girar" : null;
+      const giro = e.button === 2 ? "inclinar" : e.button === 1 || e.shiftKey || this.modoCamera === "girar" ? "girar" : null;
+      ancoraArraste = giro ? null : this.pontoNoMapa(e.clientX, e.clientY);
       ponteiros.set(e.pointerId, { x: e.clientX, y: e.clientY, giro });
       inicio = ponteiros.size === 1 && !giro ? { x: e.clientX, y: e.clientY } : null;
       if (ponteiros.size === 2) {
+        inicio = null;
         const [p, q] = [...ponteiros.values()];
         pinca = Math.hypot(p.x - q.x, p.y - q.y);
         angulo = Math.atan2(q.y - p.y, q.x - p.x);
@@ -849,10 +853,17 @@ export class Jardim {
         return;
       }
       const b = { x: e.clientX, y: e.clientY, giro: a.giro };
+      if (inicio && Math.hypot(b.x-inicio.x, b.y-inicio.y) >= 5) inicio.moveu = true;
       if (ponteiros.size === 1) {
         if (a.giro === "inclinar") this.pitch = THREE.MathUtils.clamp(this.pitch + (b.y - a.y) * 0.006, THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(75));
-        else if (a.giro === "girar") this.yaw = this.yawAlvo += (b.x - a.x) * 0.008;
-        else mover(b.x - a.x, b.y - a.y);
+        else if (a.giro === "girar") {
+          this.yaw = this.yawAlvo += (b.x - a.x) * 0.006;
+          this.pitch = THREE.MathUtils.clamp(this.pitch + (b.y - a.y) * 0.004, THREE.MathUtils.degToRad(20), THREE.MathUtils.degToRad(75));
+        } else if (ancoraArraste) {
+          const ponto = this.pontoNoPlano(b.x, b.y, ancoraArraste.y);
+          if (ponto) this.alvo.add(ancoraArraste.clone().sub(ponto));
+          this.limitar();
+        }
       }
       ponteiros.set(e.pointerId, b);
       if (ponteiros.size === 2) {
@@ -870,8 +881,13 @@ export class Jardim {
     const soltar = (e) => {
       if (!ponteiros.has(e.pointerId)) return;
       ponteiros.delete(e.pointerId);
+      ancoraArraste = null;
+      if (ponteiros.size === 1) {
+        const p = [...ponteiros.values()][0];
+        if (!p.giro) ancoraArraste = this.pontoNoMapa(p.x, p.y);
+      }
       pinca = 0; angulo = null;
-      if (inicio && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
+      if (inicio && !inicio.moveu && e.type === "pointerup" && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 5) this.selecionarEm(e.clientX, e.clientY);
       inicio = null;
       const r = c.getBoundingClientRect();
       if (!ponteiros.size && e.pointerType === "mouse" && e.type === "pointerup" && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) this.focarEm(e.clientX, e.clientY);
@@ -882,8 +898,13 @@ export class Jardim {
     c.addEventListener("pointerleave", () => this.focarEm(null), { signal });
     c.addEventListener("wheel", (e) => {
       e.preventDefault();
-      this.zoom(Math.exp(e.deltaY * 0.0012));
+      const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? c.clientHeight : 1);
+      this.zoom(Math.exp(THREE.MathUtils.clamp(delta * 0.0012, -0.7, 0.7)), e.clientX, e.clientY);
     }, { passive: false, signal });
+    c.addEventListener("dblclick", e => {
+      if (e.button !== 0 || this.modoCamera === "girar") return;
+      this.aproximarEm(e.clientX, e.clientY);
+    }, { signal });
     this.teclas = new Set();
     window.addEventListener("keydown", (e) => {
       if (e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
@@ -893,7 +914,7 @@ export class Jardim {
     }, { signal });
     window.addEventListener("keyup", (e) => this.teclas.delete(e.key.toLowerCase()), { signal });
     window.addEventListener("blur", () => {
-      this.teclas.clear(); ponteiros.clear(); inicio = null; pinca = 0; angulo = null; this.focarEm(null);
+      this.teclas.clear(); ponteiros.clear(); inicio = null; ancoraArraste = null; pinca = 0; angulo = null; this.focarEm(null);
     }, { signal });
     this._mover = mover;
   }
@@ -960,6 +981,7 @@ export class Jardim {
   }
 
   recentrar() {
+    this.animacaoFoco = null;
     this.irAoViveiro(false);
     this.yaw = this.yawAlvo = Math.PI / 4;
     this.pitch = THREE.MathUtils.degToRad(38);
@@ -974,8 +996,57 @@ export class Jardim {
     return true;
   }
 
-  zoom(f) {
+  /** Raio alinhado ao enquadramento atual, antes mesmo do próximo quadro. */
+  raioDoCursor(x, y) {
+    this.posicionarCamera();
+    this.camera.updateMatrixWorld();
+    const r = this.canvas.getBoundingClientRect();
+    const raio = new THREE.Raycaster();
+    raio.setFromCamera(new THREE.Vector2((x-r.left)/r.width*2-1, -(y-r.top)/r.height*2+1), this.camera);
+    return raio;
+  }
+
+  pontoNoPlano(x, y, altura) {
+    return this.raioDoCursor(x, y).ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -altura), new THREE.Vector3());
+  }
+
+  pontoNoMapa(x, y) {
+    const raio = this.raioDoCursor(x, y);
+    this.terreno.updateMatrixWorld();
+    return raio.intersectObject(this.terreno, false)[0]?.point.clone()
+      ?? raio.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0), -this.alvo.y), new THREE.Vector3());
+  }
+
+  aproximarEm(x, y) {
+    this.restaurarSobrevoo();
+    const r = this.canvas.getBoundingClientRect();
+    const arvore = this.encontrarArvore(new THREE.Vector2((x-r.left)/r.width*2-1, -(y-r.top)/r.height*2+1));
+    const ind = arvore?.ind;
+    const ponto = ind ? new THREE.Vector3(ind.x, ind.y + ind.altura * .35, ind.z)
+      : arvore?.malha ? arvore.malha.position.clone() : this.pontoNoMapa(x, y);
+    if (!ponto) return;
+    ponto.x = THREE.MathUtils.clamp(ponto.x, 0, this.mundo.largura);
+    ponto.z = THREE.MathUtils.clamp(ponto.z, 0, this.fimViveiro ?? this.mundo.altura + 50);
+    const destino = THREE.MathUtils.clamp(Math.min(this.altura * .55, 42), 12, 70);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.alvo.copy(ponto); this.altura = destino; this.limitar();
+    } else this.animacaoFoco = { ponto, altura: destino };
+  }
+
+  setModoCamera(modo) {
+    this.modoCamera = modo === "girar" ? "girar" : "mover";
+    this.canvas.style.cursor = this.modoCamera === "girar" ? "all-scroll" : "grab";
+  }
+
+  zoom(f, x, y) {
+    this.animacaoFoco = null;
+    const ancora = x === undefined ? null : this.pontoNoMapa(x, y);
     this.altura = THREE.MathUtils.clamp(this.altura * f, 8, 240);
+    if (ancora) {
+      const depois = this.pontoNoPlano(x, y, ancora.y);
+      if (depois) this.alvo.add(ancora.sub(depois));
+      this.limitar();
+    }
   }
   girar(sentido) {
     this.yawAlvo += (sentido * Math.PI) / 4;
@@ -1005,6 +1076,16 @@ export class Jardim {
     this.relogio.update();
     const t = this.relogio.getElapsed();
     const dt = Math.min(0.05, this.relogio.getDelta());
+    if (this.animacaoFoco) {
+      if (this.teclas.size) this.animacaoFoco = null;
+      else {
+        const foco = this.animacaoFoco, passo = 1 - Math.exp(-10 * dt);
+        this.alvo.lerp(foco.ponto, passo);
+        this.altura += (foco.altura - this.altura) * passo;
+        this.limitar();
+        if (this.alvo.distanceTo(foco.ponto) < .02 && Math.abs(this.altura-foco.altura) < .02) this.animacaoFoco = null;
+      }
+    }
     this.restaurarSobrevoo();
     this.atualizarCrescimento();
     // Teclado: WASD / setas movem; giro animado até o próximo passo de 45°.

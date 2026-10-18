@@ -35,6 +35,10 @@
   .ficha-nome { font-family: var(--display); font-size: 13px; color: var(--alerta); letter-spacing: 0.04em; }
   .ficha-dados { margin-top: 4px !important; font-size: 12px; color: var(--texto); line-height: 1.5; white-space: pre-line; }
   .painel { left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(760px, calc(100% - 24px)); padding: 10px 12px; display: grid; gap: 10px; }
+  .painel:not([open]) { width: auto; min-width: 190px; }
+  .painel:not([open]) > :not(summary) { display: none; }
+  .painel summary { cursor: pointer; color: var(--texto); padding: 4px; }
+  .painel[open] summary { margin-bottom: 10px; }
   .linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
   .campo { display: grid; gap: 4px; flex: 1 1 180px; min-width: 0; }
   .campo label { display: flex; justify-content: space-between; font-size: 12px; color: var(--suave); }
@@ -107,10 +111,11 @@
 
 <header class="hud titulo">
   <h1>JARDIM DOS BIOMAS <a class="link-historico" href="historico.html">Histórico</a> <a class="link-historico" href="evolucao.html">Evolução</a> <a class="link-historico" href="planejamento.html">Plano</a></h1>
-  <p>Jardim · pontes de madeira · arraste para mover · meio/Shift + arraste = giro · direito + arraste vertical = inclinação · roda/pinça = zoom · passe o mouse na árvore para ver atrás</p>
+  <p>Arraste para mover · rodinha para aproximar onde aponta · clique duplo para focar · segure a rodinha e arraste para girar e inclinar</p>
 </header>
 
 <div class="hud giro" role="group" aria-label="Câmera">
+  <button id="modo-camera" type="button" aria-pressed="false" aria-label="Girar e inclinar com arraste" title="Ative para girar e inclinar com o botão esquerdo; desative para mover">↻ Girar</button>
   <button id="girar-esq" type="button" title="Girar 45° (Q)" aria-label="Girar câmera para a esquerda">⟲</button>
   <button id="zoom-mais" type="button" title="Aproximar" aria-label="Aproximar">+</button>
   <button id="zoom-menos" type="button" title="Afastar" aria-label="Afastar">−</button>
@@ -125,7 +130,8 @@
   <p class="ficha-dados" id="ficha-dados"></p>
 </aside>
 
-<section class="hud painel" aria-label="Controles do jardim">
+<details class="hud painel" aria-label="Controles do jardim">
+  <summary>Opções do jardim</summary>
   <div class="linha">
     <label for="qualidade">Definição</label>
     <select id="qualidade" aria-label="Definição do mapa">
@@ -149,7 +155,7 @@
     <button id="novo" type="button">Variar plantio</button>
   </div>
   <p class="dica" id="info">Semente 1234</p>
-</section>
+</details>
 
 <div id="carregando" role="status" aria-live="polite">
   <div class="caixa">

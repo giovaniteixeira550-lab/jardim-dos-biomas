@@ -2,15 +2,15 @@
   "atualizado": "2026-10-18",
   "versaoAtual": "v0.33",
   "proximoPasso": {
-    "titulo": "Revisar a nitidez e continuar as espécies",
-    "descricao": "Comparar Alta e Original na demo local; Jabuticabeira continua na frente independente do Claude."
+    "titulo": "Revisar a navegação da câmera",
+    "descricao": "Experimentar arraste, giro e inclinação combinados e clique duplo na demo local."
   },
   "frentes": [
     {
       "nome": "Estilo de arte",
       "status": "pronto",
       "progresso": 95,
-      "nota": "Proposta local: resolução dobrada nos dois eixos e sombras mais definidas; comparação no mesmo enquadramento."
+      "nota": "Propostas locais: câmera com arraste ancorado, zoom até o cursor e giro/inclinação juntos; definição Alta disponível para comparação."
     },
     {
       "nome": "Árvores",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Proposta local: arraste ancorado, giro e inclinação no mesmo gesto, foco por clique duplo e painel recolhível",
       "Proposta local de definição Alta com comparação Original e câmera preservada",
       "Pixel art com pixel mínimo e contorno",
       "36 espécies e 4 arbustos, com quatro estágios",
@@ -114,6 +115,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "proposta-camera",
+      "data": "2026-10-18",
+      "titulo": "Explorar o jardim com mais liberdade",
+      "porque": "Observar e percorrer o mapa precisava de gestos mais práticos.",
+      "mudancas": [
+        "Arraste prende o chão sob o cursor",
+        "Botão do meio gira e inclina; modo Girar faz o mesmo com o esquerdo",
+        "Zoom até o cursor e foco por clique duplo",
+        "Painel recolhido para liberar a paisagem"
+      ],
+      "resultado": "Proposta local testada no navegador, sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/camera-foco.png",
+          "legenda": "Foco por clique duplo e painel recolhido"
+        }
+      ]
+    },
     {
       "versao": "proposta-nitidez",
       "data": "2026-10-18",

@@ -1,0 +1,6 @@
+PASSOU
+Arraste ancorado: quatro orientações e duas inclinações.
+Zoom preserva o ponto indicado pelo cursor.
+Giro e inclinação juntos: botão do meio e modo Girar com botão esquerdo.
+Clique duplo aproxima e conclui a animação.
+Interrupção do foco, visão geral e ausência de erros gráficos.
