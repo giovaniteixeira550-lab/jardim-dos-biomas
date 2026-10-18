@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.36)
+## 3. Estado atual (v0.37)
+
+- **v0.37 — Árvore dos Segredos aprovada (Infectologia):** gerador próprio em `src/arvoreSegredos.js`, inspirado no **barbatimão** (*Stryphnodendron adstringens*), do cerrado. O broto é uma folha dobrada ao meio; a muda, um caule torto com folhas compostas. A adulta tem tronco baixo, grosso e torto, com casca de sulcos longitudinais contínuos (cor única por face, calculada por uma função contínua), galhos em zigue-zague que se dividem duas vezes, copa larga e rala de tufos com folhas compostas e vagens grossas. Cerca de um terço das vagens está aberta, mostrando sementes que acendem de leve à noite (`brilhoNoite`). Disponível no catálogo, evolução e viveiro; plantio temático pendente.
 
 **v0.36 — publicação das revisões reunidas de Pediatria:** casa com telhas curvas e fumaça noturna, postes de doce, percurso de terra, banco de pesca, plantio distribuído e nova câmera. Preserva todas as espécies até v0.35. As prévias descritas abaixo agora fazem parte desta versão. Trabalho restrito à demo; Lovable permanece fora do escopo. Detalhes em `docs/publicacao-v036.md`.
 

@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.36",
+  "versaoAtual": "v0.37",
   "proximoPasso": {
     "titulo": "Revisar a demo reunida",
     "descricao": "Observar casa, percurso e navegação no mesmo endereço público; continuar as espécies na frente própria."
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações e Árvore dos Ninhos aprovadas para o bosque de Pediatria."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos e Árvore dos Segredos aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -115,6 +115,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.37",
+      "data": "2026-10-18",
+      "titulo": "Árvore dos Segredos chega ao projeto",
+      "porque": "A árvore do cerrado, inspirada no barbatimão, foi aprovada para representar Infectologia no bosque de Pediatria.",
+      "mudancas": [
+        "Tronco baixo, grosso e torto, com casca de sulcos contínuos",
+        "Galhos em zigue-zague e copa larga e rala, feita de tufos com folhas compostas",
+        "Vagens grossas em escala próxima da real; as abertas mostram sementes que acendem de leve à noite",
+        "Primeira espécie feita a partir de uma árvore real de referência, para não repetir a forma das outras"
+      ],
+      "resultado": "Arte aprovada integrada; a posição num recanto sombreado aguarda a composição temática do bosque.",
+      "imagens": [
+        {
+          "src": "historico/v0.37-segredos.jpg",
+          "legenda": "A Árvore dos Segredos adulta, com tronco torto do cerrado e copa rala"
+        }
+      ]
+    },
     {
       "versao": "v0.36",
       "data": "2026-10-18",
