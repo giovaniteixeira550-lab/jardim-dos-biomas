@@ -1,0 +1,76 @@
+PASSOU — troca de definição, enquadramento, paleta, contorno, dia/noite, zoom e giro.
+[
+  {
+    "modo": "original",
+    "medianaMs": 12.5,
+    "p95Ms": 18.7,
+    "tela": [
+      1280,
+      720
+    ],
+    "cena": [
+      640,
+      360
+    ],
+    "sombra": [
+      2048,
+      2048
+    ],
+    "instancias": 502
+  },
+  {
+    "modo": "alta",
+    "medianaMs": 12.5,
+    "p95Ms": 18.7,
+    "tela": [
+      2560,
+      1440
+    ],
+    "cena": [
+      1280,
+      720
+    ],
+    "sombra": [
+      4096,
+      4096
+    ],
+    "instancias": 502
+  },
+  {
+    "modo": "original",
+    "medianaMs": 12.5,
+    "p95Ms": 18.7,
+    "tela": [
+      1280,
+      720
+    ],
+    "cena": [
+      640,
+      360
+    ],
+    "sombra": [
+      2048,
+      2048
+    ],
+    "instancias": 502
+  },
+  {
+    "modo": "alta",
+    "medianaMs": 12.5,
+    "p95Ms": 18.8,
+    "tela": [
+      2560,
+      1440
+    ],
+    "cena": [
+      1280,
+      720
+    ],
+    "sombra": [
+      4096,
+      4096
+    ],
+    "instancias": 502
+  }
+]
+Console: sem avisos ou erros.

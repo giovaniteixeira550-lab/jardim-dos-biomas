@@ -1,16 +1,16 @@
 {
-  "atualizado": "2026-10-17",
+  "atualizado": "2026-10-18",
   "versaoAtual": "v0.33",
   "proximoPasso": {
-    "titulo": "Criar a Jabuticabeira das Constelações",
-    "descricao": "Próxima espécie do bosque de Pediatria (Neurologia), em prévia isolada para aprovação."
+    "titulo": "Revisar a nitidez e continuar as espécies",
+    "descricao": "Comparar Alta e Original na demo local; Jabuticabeira continua na frente independente do Claude."
   },
   "frentes": [
     {
       "nome": "Estilo de arte",
       "status": "pronto",
       "progresso": 95,
-      "nota": "Pixel mínimo, contorno, paleta fixa, sem vento; chão desenhado e pontilhado suave (v0.13)."
+      "nota": "Proposta local: resolução dobrada nos dois eixos e sombras mais definidas; comparação no mesmo enquadramento."
     },
     {
       "nome": "Árvores",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Proposta local de definição Alta com comparação Original e câmera preservada",
       "Pixel art com pixel mínimo e contorno",
       "36 espécies e 4 arbustos, com quatro estágios",
       "Flores e frutos nas adultas (maçãs, laranjas, cocos, frutinhas)",
@@ -113,6 +114,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "proposta-nitidez",
+      "data": "2026-10-18",
+      "titulo": "Mapa mais definido à distância",
+      "porque": "Detalhes do terreno e das copas se perdiam na resolução intermediária.",
+      "mudancas": [
+        "Alta dobra a resolução nos dois eixos",
+        "Sombras duras de 4096 em vez de 2048",
+        "Original permite comparar sem recarregar o bosque",
+        "Paleta, contorno e geradores preservados"
+      ],
+      "resultado": "Proposta local em revisão visual; ainda não publicada.",
+      "imagens": [
+        {
+          "src": "historico/nitidez-original.png",
+          "legenda": "Original: mesmo enquadramento e semente"
+        },
+        {
+          "src": "historico/nitidez-alta.png",
+          "legenda": "Alta: mais definição na visão geral"
+        }
+      ]
+    },
     {
       "versao": "v0.33",
       "data": "2026-10-17",

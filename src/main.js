@@ -40,6 +40,7 @@ async function iniciar(semente) {
     const canvas = antigo.cloneNode(false);
     antigo.replaceWith(canvas);
     instancia = new Jardim(canvas);
+    instancia.setQualidade($("qualidade").value);
     jardim = instancia;
     jardim.setCrescimento(Number($("crescimento").value));
     // Ficha da árvore clicada (cada árvore é um indivíduo).
@@ -79,6 +80,7 @@ $("crescimento").addEventListener("input", (e) => {
   $("v-crescimento").textContent = `${Math.round(v * 100)}%`;
   jardim?.setCrescimento(v);
 });
+$("qualidade").addEventListener("change", () => jardim?.setQualidade($("qualidade").value));
 for (const b of document.querySelectorAll("[data-hora]"))
   b.addEventListener("click", () => {
     for (const o of document.querySelectorAll("[data-hora]")) o.setAttribute("aria-pressed", String(o === b));

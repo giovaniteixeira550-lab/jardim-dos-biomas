@@ -127,6 +127,13 @@
 
 <section class="hud painel" aria-label="Controles do jardim">
   <div class="linha">
+    <label for="qualidade">Definição</label>
+    <select id="qualidade" aria-label="Definição do mapa">
+      <option value="alta" selected>Alta</option>
+      <option value="original">Original · comparar</option>
+    </select>
+  </div>
+  <div class="linha">
     <div class="campo">
       <label for="crescimento">Crescimento <output id="v-crescimento">90%</output></label>
       <input id="crescimento" type="range" min="0" max="1" step="0.01" value="0.9" />

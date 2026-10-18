@@ -12,6 +12,7 @@ import * as THREE from "three";
 import { BASE, RAMPAS } from "./paleta.js";
 import { criarRng, criarRuido, gerarMundo, suave } from "./mundo.js";
 import { criarMaterialPixel } from "./pixel.js";
+import { dimensoesRender } from "./qualidade.js";
 import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
@@ -129,6 +130,7 @@ export class Jardim {
     this.pitch = THREE.MathUtils.degToRad(38);
     this.altura = 180; // vista inicial das seis regiões de relevo
     this.tamPixel = 2; // estilo definido: pixel mínimo, sempre com contorno
+    this.qualidade = "alta";
     this.crescimento = 0.9;
     this.cresceVisto = -1;
     this.forcaVento = 0.55;
@@ -739,7 +741,8 @@ export class Jardim {
     this.ceu = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
     this.sol = new THREE.DirectionalLight(0xffffff, 2);
     this.sol.castShadow = true;
-    this.sol.shadow.mapSize.set(2048, 2048);
+    const sombra = Math.min(this.qualidade === "alta" ? 4096 : 2048, this.renderer.capabilities.maxTextureSize);
+    this.sol.shadow.mapSize.set(sombra, sombra);
     const ext = 115;
     Object.assign(this.sol.shadow.camera, { left: -ext, right: ext, top: ext, bottom: -ext, near: 1, far: 400 });
     this.sol.shadow.bias = -0.0006;
@@ -775,16 +778,17 @@ export class Jardim {
     // Sem tamanho ainda (aba/painel oculto): usa a janela; o ResizeObserver corrige depois.
     const caixa = this.canvas.getBoundingClientRect();
     const r = caixa.width && caixa.height ? caixa : { width: window.innerWidth || 800, height: window.innerHeight || 600 };
-    this.renderer.setSize(r.width, r.height, false);
-    const w = Math.max(64, Math.floor(r.width / this.tamPixel));
-    const h = Math.max(64, Math.floor(r.height / this.tamPixel));
+    const tamanho = dimensoesRender(r.width, r.height, this.qualidade, this.renderer.capabilities.maxTextureSize);
+    this.renderer.setSize(tamanho.largura, tamanho.altura, false);
+    const w = Math.max(1, Math.floor(tamanho.largura / this.tamPixel));
+    const h = Math.max(1, Math.floor(tamanho.altura / this.tamPixel));
     if (!this.rt) {
       const dt = new THREE.DepthTexture(w, h);
       dt.minFilter = dt.magFilter = THREE.NearestFilter;
       this.rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthTexture: dt });
     } else this.rt.setSize(w, h);
     this.pixel.uniforms.uTam.value.set(w, h);
-    this.aspecto = w / h;
+    this.aspecto = r.width / r.height;
   }
 
   posicionarCamera() {
@@ -982,6 +986,18 @@ export class Jardim {
   setCrescimento(v) { this.crescimento = v; }
   setHora(h) { this.hora = h; this.aplicarHora(); }
   setTamPixel(p) { this.tamPixel = p; this.redimensionar(); }
+  setQualidade(qualidade) {
+    if (!["alta", "original"].includes(qualidade) || qualidade === this.qualidade) return;
+    this.qualidade = qualidade;
+    if (this.sol) {
+      const tamanho = Math.min(qualidade === "alta" ? 4096 : 2048, this.renderer.capabilities.maxTextureSize);
+      this.sol.shadow.mapSize.set(tamanho, tamanho);
+      this.sol.shadow.map?.dispose();
+      this.sol.shadow.map = null;
+      this.sol.shadow.needsUpdate = true;
+    }
+    this.redimensionar();
+  }
   setContorno(on) { this.pixel.uniforms.uContorno.value = on ? 1 : 0; }
   setPaleta(on) { this.pixel.uniforms.uQuant.value = on ? 1 : 0; }
 

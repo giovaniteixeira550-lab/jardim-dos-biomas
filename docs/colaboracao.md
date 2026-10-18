@@ -1,5 +1,9 @@
 # Trabalho conjunto — Claude e Codex
 
+## Frente atual do Codex — definição do mapa (18/10/2026)
+
+Proposta isolada na branch `codex/nitidez-mapa`, worktree `jardim-nitidez-proposta`, base v0.33. O usuário confirmou a demo artística como destino; a prévia F1 do site está fora desta tarefa. Mudanças: resolução e sombras em `src/cena.js`, cálculo novo em `src/qualidade.js`, seletor em `index.html` e evento em `src/main.js`. Geradores e catálogo não foram alterados. Comparação visual, medições e limites em `docs/nitidez-mapa.md`. Não publicada: aguarda revisão visual. Ao integrar novas espécies, preservar seus arquivos e conciliar somente estes blocos, README e histórico.
+
 Este registro comunica o escopo desta proposta. Não prova que outro agente leu ou aceitou uma divisão de trabalho.
 
 ## Lote do Codex: encerramento e carregamento da cena
