@@ -1,17 +1,22 @@
 /** Estilo de folhagem compartilhado: anatomia 3D da v0.16 do Claude. */
+// Luz noturna compartilhada por todos os materiais de árvore: 0 de dia, 0,35 ao entardecer e 1 à noite.
+// A cena ajusta o valor em aplicarHora; catálogo, evolução e viveiro ficam em 0 (dia).
+export const LUZ_NOTURNA = { value: 0 };
+
 export function estiloCopa(sh, direita, texel) {
   sh.uniforms.uTexelC = texel;
+  sh.uniforms.uNoite = LUZ_NOTURNA;
   sh.vertexShader = sh.vertexShader
     .replace(
       "#include <common>",
       `#include <common>
-      attribute float banda; attribute vec3 esfera; attribute float raioCopa; attribute float semCopa; attribute float brilho;
-      varying float vBrilho; varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;`,
+      attribute float banda; attribute vec3 esfera; attribute float raioCopa; attribute float semCopa; attribute float brilho; attribute float brilhoNoite;
+      varying float vBrilho; varying float vBrilhoN; varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte;`,
     )
     .replace(
       "#include <begin_vertex>",
       `#include <begin_vertex>
-      vBanda = banda; vEsf = esfera; vRaioC = raioCopa; vSemC = semCopa; vBrilho = brilho;
+      vBanda = banda; vEsf = esfera; vRaioC = raioCopa; vSemC = semCopa; vBrilho = brilho; vBrilhoN = brilhoNoite;
       // Eixos tangentes da esfera (leste/norte), levados para o espaço da câmera como a normal.
       vec3 dE = normalize(esfera + vec3(1e-5));
       vec3 le = normalize(cross(vec3(0.0, 1.0, 0.0), dE) + vec3(1e-4, 0.0, 0.0));
@@ -27,8 +32,8 @@ export function estiloCopa(sh, direita, texel) {
     .replace(
       "#include <common>",
       `#include <common>
-      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte; varying float vBrilho;
-      uniform float uTexelC;`,
+      varying float vBanda; varying vec3 vEsf; varying float vRaioC; varying float vSemC; varying vec3 vLeste; varying vec3 vNorte; varying float vBrilho; varying float vBrilhoN;
+      uniform float uTexelC; uniform float uNoite;`,
     )
     .replace(
       "#include <color_fragment>",
@@ -80,12 +85,15 @@ export function estiloCopa(sh, direita, texel) {
       `// Luz própria (atributo brilho, 0–1; vale 0 em geometrias sem ele): a peça soma a sua cor à luz recebida
       // e continua acesa na sombra e à noite. Hoje só a Araucária dos Cometas (luas e copa) usa.
       outgoingLight = mix(outgoingLight, diffuseColor.rgb, clamp(vBrilho, 0.0, 1.0));
+      // Luz noturna (atributo brilhoNoite × uNoite): só acende ao entardecer e à noite. Hoje só a Jabuticabeira
+      // das Constelações usa: a copa branca vira lanterna e ilumina troncos, frutos e o chão da própria árvore.
+      outgoingLight = mix(outgoingLight, diffuseColor.rgb, clamp(vBrilhoN * uNoite, 0.0, 1.0));
       #include <opaque_fragment>`,
     );
 }
 
 export function aplicarEstiloCopa(material, direita, texel) {
   material.onBeforeCompile = (shader) => estiloCopa(shader, direita, texel);
-  material.customProgramCacheKey = () => "copa-celulas-compartilhada-v16";
+  material.customProgramCacheKey = () => "copa-celulas-compartilhada-v16-noite";
   return material;
 }

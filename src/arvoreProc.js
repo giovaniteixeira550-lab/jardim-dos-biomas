@@ -20,6 +20,7 @@ import { criarPaineiraAbracos } from "./paineiraAbracos.js";
 import { criarSalgueiroCancoes } from "./salgueiroCancoes.js";
 import { criarAraucariaCometas } from "./araucariaCometas.js";
 import { criarManguePontes } from "./manguePontes.js";
+import { criarJabuticabeiraConstelacoes } from "./jabuticabeiraConstelacoes.js";
 import { RAMPAS } from "./paleta.js";
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -1097,7 +1098,7 @@ export function construirVariacao(def, semente) {
   // Preserva o gerador próprio aprovado pelo Claude.
   if (def.gerador === "pitanga") return construirPitanga(semente, def);
   // Geradores próprios do bosque de Pediatria aprovados pelo usuário.
-  const PROPRIOS = { catavento: criarCatavento, paineiraAbracos: criarPaineiraAbracos, salgueiroCancoes: criarSalgueiroCancoes, araucariaCometas: criarAraucariaCometas, manguePontes: criarManguePontes };
+  const PROPRIOS = { catavento: criarCatavento, paineiraAbracos: criarPaineiraAbracos, salgueiroCancoes: criarSalgueiroCancoes, araucariaCometas: criarAraucariaCometas, manguePontes: criarManguePontes, jabuticabeiraConstelacoes: criarJabuticabeiraConstelacoes };
   validarEspecie(def, [...Object.keys(FORMAS), ...Object.keys(PROPRIOS)]);
   // Arquiteturas próprias aprovadas: nenhum enfeite ou broto genérico é aplicado.
   if (PROPRIOS[def.forma]) {

@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-17",
-  "versaoAtual": "v0.33",
+  "atualizado": "2026-10-18",
+  "versaoAtual": "v0.34",
   "proximoPasso": {
-    "titulo": "Criar a Jabuticabeira das Constelações",
-    "descricao": "Próxima espécie do bosque de Pediatria (Neurologia), em prévia isolada para aprovação."
+    "titulo": "Criar a Árvore dos Ninhos",
+    "descricao": "Próxima espécie do bosque de Pediatria (Puericultura, prevenção e vacinação), em prévia isolada para aprovação."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas e Mangue das Pontes aprovadas para o bosque de Pediatria."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes e Jabuticabeira das Constelações aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -113,6 +113,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.34",
+      "data": "2026-10-18",
+      "titulo": "Jabuticabeira das Constelações chega ao projeto",
+      "porque": "A jabuticabeira de copa branca foi aprovada para representar Neurologia no bosque de Pediatria.",
+      "mudancas": [
+        "Seis troncos lisos, manchados e retorcidos, abertos em vaso sob uma copa branca em cúpula",
+        "Jabuticabas pequenas presas à casca em grupinhos espalhados pelos troncos, as constelações",
+        "À noite a copa acende como lanterna e ilumina troncos, frutos e o chão em volta",
+        "Broto e muda com folhas aos pares e pontas cor de bronze; jovem com as primeiras flores na casca"
+      ],
+      "resultado": "Arte aprovada integrada; a luz noturna virou um recurso que outras espécies podem usar.",
+      "imagens": [
+        {
+          "src": "historico/v0.34-jabuticabeira.jpg",
+          "legenda": "A Jabuticabeira das Constelações adulta à noite, com a copa acesa"
+        }
+      ]
+    },
     {
       "versao": "v0.33",
       "data": "2026-10-17",

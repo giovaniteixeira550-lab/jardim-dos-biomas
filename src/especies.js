@@ -379,6 +379,13 @@ export const TODAS = {
     altura: [6, 7], cores: { folha: R.mata[3], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.9, 0.15], sombra: 0.2, altitude: null }, raridade: 0,
   },
+  // Neurologia. Gerador próprio (src/jabuticabeiraConstelacoes.js): troncos retorcidos, copa branca que acende à noite
+  // e jabuticabas presas à casca. Posição planejada no caminho de observação junto ao lago.
+  jabuticabeiraConstelacoes: {
+    nome: "Jabuticabeira das Constelações", forma: "jabuticabeiraConstelacoes", fantasia: true, mapa: "pediatria",
+    altura: [7, 8], cores: { folha: R.betula[0], casca: R.terra[3] }, variacoes: 1,
+    nicho: { umidade: [0.6, 0.22], sombra: 0.3, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.

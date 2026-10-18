@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.33)
+## 3. Estado atual (v0.34)
+
+- **v0.34 — Jabuticabeira das Constelações aprovada (Neurologia):** gerador próprio em `src/jabuticabeiraConstelacoes.js`. Broto e muda com folhas pequenas aos pares e o par mais novo cor de bronze; a jovem tem três troncos e as primeiras flores brancas presas à casca. A adulta tem seis troncos lisos, manchados e retorcidos, abertos em vaso sob uma copa branca em cúpula, e jabuticabas presas à casca em grupinhos ("constelações"). **Luz noturna (novo recurso compartilhado):** `src/estiloCopa.js` lê o atributo opcional `brilhoNoite` (0–1) multiplicado pelo uniforme compartilhado `LUZ_NOTURNA`, que `cena.js` ajusta em `aplicarHora` (dia 0, entardecer 0,35, noite 1). A copa acende e a luz desce pelos troncos e frutos até o chão da própria árvore; não há luz real por árvore. Geometrias sem o atributo não mudam. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição no caminho de observação junto ao lago.
 
 - **v0.33 — Mangue das Pontes aprovado (Cardiologia e nefrologia):** gerador próprio em `src/manguePontes.js`. O broto é um propágulo cravado na lama. A muda tem a base alargada e a primeira raiz. A adulta tem o tronco suspenso sobre raízes-escora em arcos desiguais (os vãos são as "pontes"), dois troncos reunidos, copa baixa e larga, duas raízes aéreas e grupos de propágulos pendentes. Disponível no catálogo, evolução e viveiro; plantio aleatório desativado até planejar sua posição em solo úmido perto do riacho. A ordem das espécies mudou por decisão do usuário: Mangue e Jabuticabeira primeiro, por concentrarem tópicos já estudados.
 

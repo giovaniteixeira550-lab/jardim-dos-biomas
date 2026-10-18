@@ -16,7 +16,7 @@ import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
 import { organizarViveiro } from "./viveiro.js";
-import { estiloCopa } from "./estiloCopa.js";
+import { estiloCopa, LUZ_NOTURNA } from "./estiloCopa.js";
 import { criarLago } from "./aguaLago.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
 import { criarPonteMadeira } from "./ponteMadeira.js";
@@ -138,7 +138,7 @@ export class Jardim {
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
     this.uDireita={value:new THREE.Vector2(1,0)};
     this.matArvore.onBeforeCompile=sh=>estiloCopa(sh,this.uDireita,this.pixel.uniforms.uTexel);
-    this.matArvore.customProgramCacheKey=()=>"arvore-copa-celulas-v16";
+    this.matArvore.customProgramCacheKey=()=>"arvore-copa-celulas-v16-noite";
     this.cursorArvore = null;
     this.sobrevoo = null;
     this.ultimoRastreio = -Infinity;
@@ -766,6 +766,8 @@ export class Jardim {
     this.scene.background = cor(H.fundo);
     this.renderer.toneMappingExposure = H.exp;
     this.vagalumes.visible = this.hora === "noite";
+    // Luz noturna das copas que acendem (Jabuticabeira das Constelações).
+    LUZ_NOTURNA.value = { dia: 0, entardecer: 0.35, noite: 1 }[this.hora];
   }
 
   // --- Câmera e controles -------------------------------------------------
