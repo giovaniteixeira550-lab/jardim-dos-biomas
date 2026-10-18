@@ -1,4 +1,4 @@
-/** Capas verdes gráficas, com recortes angulosos presos às quinas dos barrancos. */
+/** Capas finas de solo e grama, sem avanços largos nas quinas dos barrancos. */
 import * as THREE from "three";
 import { RAMPAS } from "./paleta.js";
 
@@ -120,7 +120,7 @@ export function criarBordasBarranco(mundo, geometriaTerreno, indicesParede, toon
     inverterFaces = tangente.z * fora.x - tangente.x * fora.z > 0;
     const e0 = a.clone(), e1 = b.clone();
     const a0 = e0.clone().addScaledVector(fora, -0.14), a1 = e1.clone().addScaledVector(fora, -0.14);
-    // Dois avanços francos dão pequenas línguas angulosas, sem micro-serrilhado.
+    // Avanço curto e espessura fina evitam uma fileira de dentes na silhueta.
     const avanco = 0.075 + variacao * 0.025;
     const f0 = e0.clone().addScaledVector(fora, avanco), f1 = e1.clone().addScaledVector(fora, avanco);
     if (![a0, a1, f0, f1].every((p) => livre(p.x, p.z))) continue;

@@ -26,8 +26,8 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       #if defined(USE_SHADOWMAP) && NUM_DIR_LIGHT_SHADOWS > 0
       #pragma unroll_loop_start
       for ( int i = 0; i < NUM_DIR_LIGHT_SHADOWS; i ++ ) {
-        // Compensa a auto-oclusão em faces quase verticais, sem deslocar
-        // as sombras de árvores, construções ou do chão plano.
+        // Compensa a auto-oclusão em faces quase verticais. O ajuste
+        // pertence só às paredes; a projeção no chão plano não muda.
         vDirectionalShadowCoord[ i ].z -= 0.004 * aSoloParede * vDirectionalShadowCoord[ i ].w;
       }
       #pragma unroll_loop_end

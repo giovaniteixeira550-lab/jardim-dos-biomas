@@ -9,7 +9,7 @@ export function validarEspecie(def, formas) {
   for (const [nome, cor] of Object.entries(def.cores ?? {})) if (!PALETA.includes(cor)) falha(`cor inválida em ${nome}`);
   if (!def.altura || def.altura.length !== 2 || !def.altura.every(x => Number.isFinite(x) && x > 0) || def.altura[1] < def.altura[0]) falha('intervalo de altura inválido');
   if (def.forma === 'catavento' && (def.flor || def.fruto || def.tapete || def.noTronco || def.espinhos || def.formaJovem)) falha('catavento não aceita enfeites ou arquiteturas de outra espécie');
-  if ((def.forma === 'paineiraAbracos' || def.forma === 'salgueiroCancoes' || def.forma === 'araucariaCometas' || def.forma === 'manguePontes' || def.forma === 'jabuticabeiraConstelacoes' || def.forma === 'arvoreNinhos') && (def.flor || def.fruto || def.tapete || def.noTronco || def.espinhos || def.formaJovem)) falha(`${def.forma} traz enfeites próprios; não aceita enfeites de outra espécie`);
+  if ((def.forma === 'paineiraAbracos' || def.forma === 'salgueiroCancoes' || def.forma === 'araucariaCometas' || def.forma === 'manguePontes' || def.forma === 'jabuticabeiraConstelacoes' || def.forma === 'arvoreNinhos' || def.forma === 'arvoreSegredos') && (def.flor || def.fruto || def.tapete || def.noTronco || def.espinhos || def.formaJovem)) falha(`${def.forma} traz enfeites próprios; não aceita enfeites de outra espécie`);
   if (def.noTronco && def.fruto?.disposicao !== 'tronco') falha('frutos no tronco sem contrato correspondente');
   if (!formas.includes(def.forma) || (def.formaJovem && !formas.includes(def.formaJovem))) falha('forma não cadastrada');
   for (const tipo of ['flor', 'fruto']) {

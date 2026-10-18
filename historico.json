@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.36",
+  "versaoAtual": "v0.37.1",
   "proximoPasso": {
-    "titulo": "Revisar a demo reunida",
-    "descricao": "Observar casa, percurso e navegação no mesmo endereço público; continuar as espécies na frente própria."
+    "titulo": "Revisar o acabamento natural",
+    "descricao": "Observar as encostas e margens em vários ângulos; continuar as espécies na frente própria."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações e Árvore dos Ninhos aprovadas para o bosque de Pediatria."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos e Árvore dos Segredos aprovadas para o bosque de Pediatria."
     },
     {
       "nome": "Ecossistema",
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 80,
-      "nota": "Percurso de terra com destinos definidos, banco na margem e casa apoiada na clareira; luzes dos postes ao anoitecer."
+      "nota": "Bordas menos pontudas, transição contínua de grama e solo e perfil arredondado nas margens, preservando os percursos."
     },
     {
       "nome": "Vida e clima",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Encostas com iluminação contínua e margens do riacho com ombro arredondado",
       "Casa com telhas curvas e fumaça noturna, postes, banco de pesca e plantio distribuído",
       "Câmera com arraste ancorado, zoom ao cursor e giro/inclinação juntos",
       "Pixel art com pixel mínimo e contorno",
@@ -115,6 +116,48 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.37.1",
+      "data": "2026-10-18",
+      "titulo": "Encostas e margens mais naturais",
+      "porque": "As bordas da paisagem formavam pequenas pontas e triângulos artificiais.",
+      "mudancas": [
+        "Iluminação contínua nas encostas, com correção de sombras só nas paredes",
+        "Capas de grama mais finas, sem pequenos avanços largos",
+        "Terra e musgo em massas suaves, em vez de falsas quinas desenhadas",
+        "Margem do riacho arredondada com um ombro intermediário"
+      ],
+      "resultado": "37 testes de percursos passaram e 7 verificações 3D conferiram margens, cascatas, pisos e recursos; preservada a Árvore dos Segredos da v0.37.",
+      "imagens": [
+        {
+          "src": "historico/v0.37.1-encosta.png",
+          "legenda": "Encosta ao lado da casa com transição contínua"
+        },
+        {
+          "src": "historico/v0.37.1-riacho.png",
+          "legenda": "Margem do riacho com perfil arredondado"
+        }
+      ]
+    },
+    {
+      "versao": "v0.37",
+      "data": "2026-10-18",
+      "titulo": "Árvore dos Segredos chega ao projeto",
+      "porque": "A árvore do cerrado, inspirada no barbatimão, foi aprovada para representar Infectologia no bosque de Pediatria.",
+      "mudancas": [
+        "Tronco baixo, grosso e torto, com casca de sulcos contínuos",
+        "Galhos em zigue-zague e copa larga e rala, feita de tufos com folhas compostas",
+        "Vagens grossas em escala próxima da real; as abertas mostram sementes que acendem de leve à noite",
+        "Primeira espécie feita a partir de uma árvore real de referência, para não repetir a forma das outras"
+      ],
+      "resultado": "Arte aprovada integrada; a posição num recanto sombreado aguarda a composição temática do bosque.",
+      "imagens": [
+        {
+          "src": "historico/v0.37-segredos.jpg",
+          "legenda": "A Árvore dos Segredos adulta, com tronco torto do cerrado e copa rala"
+        }
+      ]
+    },
     {
       "versao": "v0.36",
       "data": "2026-10-18",

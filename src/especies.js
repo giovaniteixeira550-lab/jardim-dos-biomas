@@ -393,6 +393,13 @@ export const TODAS = {
     altura: [6, 7], cores: { folha: R.mata[3], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.55, 0.25], sombra: 0.25, altitude: null }, raridade: 0,
   },
+  // Infectologia. Gerador próprio (src/arvoreSegredos.js), inspirado no barbatimão do cerrado: tronco torto de casca sulcada,
+  // copa rala de tufos e vagens que se abrem. Posição planejada num recanto sombreado, com intervalos entre copas.
+  arvoreSegredos: {
+    nome: "Árvore dos Segredos", forma: "arvoreSegredos", fantasia: true, mapa: "pediatria",
+    altura: [5, 6], cores: { folha: R.mata[2], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.45, 0.25], sombra: 0.45, altitude: null }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.
