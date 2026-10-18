@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.38",
+  "versaoAtual": "v0.39",
   "proximoPasso": {
-    "titulo": "Revisar o acabamento natural",
-    "descricao": "Observar as encostas e margens em vários ângulos; continuar as espécies na frente própria."
+    "titulo": "Criar a grande sequoia com balanço",
+    "descricao": "Árvore-marco maior que todas, com um balanço num galho baixo, em prévia isolada; depois, posicionar a leste do lago."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos e Acácia dos Mosaicos aprovadas para o bosque de Pediatria."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós aprovadas: as 11 espécies do bosque de Pediatria estão prontas."
     },
     {
       "nome": "Ecossistema",
@@ -116,6 +116,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.39",
+      "data": "2026-10-18",
+      "titulo": "Oliveira dos Nós completa o bosque de Pediatria",
+      "porque": "A oliveira de tronco trançado foi aprovada para Reumatologia; com ela, as 11 espécies do bosque têm arte.",
+      "mudancas": [
+        "Tronco curto e largo de quatro feixes torcidos em espiral, com vãos",
+        "Nós grandes na base e nos braços, como articulações",
+        "Copa arredondada verde-acinzentada, mais clara embaixo",
+        "Poucas azeitonas verdes e roxas sob a borda"
+      ],
+      "resultado": "Arte aprovada integrada; as 11 espécies de Pediatria estão prontas para a composição temática.",
+      "imagens": [
+        {
+          "src": "historico/v0.39-oliveira.jpg",
+          "legenda": "A Oliveira dos Nós adulta, com o tronco trançado"
+        }
+      ]
+    },
     {
       "versao": "v0.38",
       "data": "2026-10-18",

@@ -146,3 +146,7 @@ Reunião com a v0.37 antes da publicação, preservando Árvore dos Segredos, or
 ## Acácia dos Mosaicos — v0.38 (Claude)
 
 Nona espécie do bosque de Pediatria, aprovada pelo usuário em 18/10/2026 a partir de `propostas-arvores/acacia-mosaicos` (quatro revisões internas e uma com o usuário: folhagem amarelo-alaranjada). O gerador fica em `src/acaciaMosaicos.js` e entra no mapa `PROPRIOS` de `arvoreProc.js`. Referência de arquitetura: *Vachellia tortilis*. Publicada sobre a v0.37.1 do Codex, sem tocar no terreno. Verificações: `testes/especies.html` (56 espécies, 672 modelos), `testes/crescimento-viveiro.html` (três sementes) e `evolucao.html` (56 espécies) passaram; jardim e viveiro carregados sem erros no console.
+
+## Oliveira dos Nós — v0.39 (Claude)
+
+Décima primeira e última espécie do bosque de Pediatria, aprovada pelo usuário em 18/10/2026 a partir de `propostas-arvores/oliveira-nos`. O gerador fica em `src/oliveiraNos.js` e entra no mapa `PROPRIOS` de `arvoreProc.js`. Referência: *Olea europaea* centenária. As 11 espécies agora têm arte; falta a composição temática no terreno. Próximo pedido do usuário: uma grande sequoia com balanço, maior que todas, a leste do lago (proposta isolada em `propostas-arvores/sequoia-balanco`).

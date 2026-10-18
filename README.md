@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.38)
+## 3. Estado atual (v0.39)
+
+- **v0.39 — Oliveira dos Nós aprovada (Reumatologia); bosque de Pediatria completo:** gerador próprio em `src/oliveiraNos.js`, inspirado na **oliveira centenária do Mediterrâneo** (*Olea europaea*). O broto e a muda têm folhas estreitas aos pares, e a muda já mostra o primeiro nó. A adulta tem tronco curto e largo de quatro feixes torcidos em espiral, com vãos e nove nós, braços grossos e retorcidos, copa arredondada verde-acinzentada e poucas azeitonas. Com ela, as **11 espécies** do bosque de Pediatria têm arte. Disponível no catálogo, evolução e viveiro; plantio temático pendente.
 
 - **v0.38 — Acácia dos Mosaicos aprovada (Hematologia e oncologia):** gerador próprio em `src/acaciaMosaicos.js`, inspirado na **acácia-guarda-chuva da savana** (*Vachellia tortilis*), com vagens segmentadas da *Vachellia nilotica*. O broto e a muda têm folhas compostas de folíolos miúdos. A adulta tem um tronco curto que se abre em quatro troncos finos em leque, sob uma copa única, larga e achatada como guarda-sol, feita de cerca de 110 placas encaixadas em laranja, âmbar e amarelo (o mosaico), e poucas vagens castanhas como contas de colar. Disponível no catálogo, evolução e viveiro; plantio temático pendente.
 

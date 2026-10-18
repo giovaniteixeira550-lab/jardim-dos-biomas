@@ -407,6 +407,13 @@ export const TODAS = {
     altura: [4.5, 5.5], cores: { folha: R.outono[3], casca: R.terra[2] }, variacoes: 1,
     nicho: { umidade: [0.35, 0.25], sombra: 0.15, altitude: null }, raridade: 0,
   },
+  // Reumatologia. Gerador próprio (src/oliveiraNos.js), inspirado na oliveira centenária: tronco de feixes torcidos com nós.
+  // Posição planejada em encosta pedregosa ou borda de muro de pedra, em terreno mais seco, longe do Mangue.
+  oliveiraNos: {
+    nome: "Oliveira dos Nós", forma: "oliveiraNos", fantasia: true, mapa: "pediatria",
+    altura: [5, 6], cores: { folha: R.salvia[2], casca: R.terra[2] }, variacoes: 1,
+    nicho: { umidade: [0.3, 0.25], sombra: 0.15, altitude: [0.6, 0.3] }, raridade: 0,
+  },
 };
 
 // Catálogo imutável: uma variação não pode alterar as características da próxima.
