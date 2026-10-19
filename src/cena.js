@@ -33,6 +33,7 @@ import { criarBorboletas } from "./borboletas.js";
 import { criarEsquilos } from "./esquilos.js";
 import { aplicarLotacao } from "./lotacao.js";
 import { criarSapos } from "./sapos.js";
+import { criarVitoriaRegia, disporVitoriasRegias } from "./vitoriasRegias.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -453,15 +454,11 @@ export class Jardim {
   /** Vitórias-régias e taboas na beira do lago. */
   criarPlantasAquaticas() {
     const m = this.mundo, L = m.lago, rng = criarRng(m.semente ^ 0x1e1a);
-    const folhas = [], taboas = [], pontas = [], posFolhas = [], posBeira = [];
-    for (let i = 0; i < 16; i++) {
-      const a = rng() * 6.28, r = L.raio(a) * lerp(0.62, 0.9, rng());
-      const x = L.cx + Math.cos(a) * L.rx * r, z = L.cy + Math.sin(a) * L.ry * r;
-      const f = new THREE.CylinderGeometry(lerp(0.6, 0.95, rng()), lerp(0.6, 0.95, rng()), 0.05, 10, 1, false, 0.5, 5.6); // fatia aberta: o "corte" da folha
-      f.rotateY(rng() * 6.28);
-      f.translate(x, -0.52, z);
-      folhas.push(f); posFolhas.push({ x, z, r: 0.75 });
-    }
+    const taboas = [], pontas = [], posBeira = [];
+    const posFolhas = disporVitoriasRegias(m,rng);
+    this.vitoriasRegias = new THREE.Group();this.vitoriasRegias.name='vitorias-regias';
+    for(const f of posFolhas)this.vitoriasRegias.add(criarVitoriaRegia(f,toon));
+    this.scene.add(this.vitoriasRegias);
     for (let c = 0; c < 7; c++) {
       const a = rng() * 6.28, r = L.raio(a) * lerp(0.95, 1.05, rng());
       const cx = L.cx + Math.cos(a) * L.rx * r, cz = L.cy + Math.sin(a) * L.ry * r;
@@ -478,7 +475,7 @@ export class Jardim {
         pontas.push(ponta);
       }
     }
-    for (const [lista, cor] of [[folhas, RAMPAS.mata[4]], [taboas, RAMPAS.mata[3]], [pontas, RAMPAS.terra[1]]]) {
+    for (const [lista, cor] of [[taboas, RAMPAS.mata[3]], [pontas, RAMPAS.terra[1]]]) {
       const geo = new THREE.BufferGeometry();
       const tot = lista.reduce((s, b) => s + b.toNonIndexed().attributes.position.count, 0);
       const arr = new Float32Array(tot * 3);

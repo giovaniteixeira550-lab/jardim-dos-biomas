@@ -42,13 +42,13 @@ function criarSapo(toon, rng) {
   return sapo;
 }
 
-/** Cria o grupo de sapos. 'folhas' = [{x, z, r}] das vitórias-régias; 'beira' = pontos secos junto à água. */
+/** Cria o grupo de sapos. 'folhas' = [{x, z, r, y?}] das vitórias-régias; 'beira' = pontos secos junto à água. */
 export function criarSapos(mundo, toon, folhas, beira) {
   const grupo = new THREE.Group(); grupo.name = "sapos";
   if (!folhas.length) return grupo;
   const rng = criarRng(mundo.semente ^ 0x5a905);
   const Y_FOLHA = -0.495;
-  const lugares = [...folhas.map(f => ({ ...f, y: Y_FOLHA, folha: true })), ...beira.map(b => ({ ...b, r: .5, y: b.y, folha: false }))];
+  const lugares = [...folhas.map(f => ({ ...f, y: f.y ?? Y_FOLHA, folha: true })), ...beira.map(b => ({ ...b, r: .5, y: b.y, folha: false }))];
   const ocupados = new Set(), sapos = [];
   // Anéis de água onde um sapo cai (reaproveitados).
   const aneis = Array.from({ length: 4 }, () => { const m = new THREE.Mesh(new THREE.RingGeometry(.3, .38, 20), new THREE.MeshBasicMaterial({ color: R.agua[5], transparent: true, opacity: 0, depthWrite: false })); m.rotation.x = -Math.PI / 2; grupo.add(m); return { m, t: -1 }; });

@@ -177,3 +177,7 @@ Pedido do usuário em 19/10/2026: dividir os subtemas grandes em cerca de 270 á
 ## Reunião aprovada — v0.42 (Codex)
 
 Escorregador, acesso corrigido pelo lado de fora, borboletas, esquilos e amostra de senescência reunidos sobre v0.41.1 por autorização do usuário. Preservados sapos, margens, jardim surpresa e 278 árvores de estudo. Reserva aplicada antes de distribuir vagas. Detalhes e conferência em docs/publicacao-v042.md. A senescência pública continua demonstrativa, sem dias ou conexão com estudos.
+
+## Vitórias-régias aprovadas — v0.42.1 (Codex)
+
+O usuário aprovou o acabamento em 19/10/2026. Somente o commit visual `900f902` foi conciliado sobre a v0.42 pública. Identidade dos assuntos e revisão da escada continuam em prévias separadas. Detalhes em `docs/vitorias-regias.md`.

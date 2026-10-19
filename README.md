@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.42)
+## 3. Estado atual (v0.42.1)
+
+**v0.42.1 — vitórias-régias maiores:** 16 folhas inteiras em forma de bandeja, com diâmetro aproximado de 3,1–4,4 m (antes 1,2–1,9 m), borda levantada, nervuras ramificadas e seis flores brancas/rosadas em camadas. Folhas próximas reposicionadas no entorno para não se sobreporem ou atingirem terra; saída do escorregador livre, taboas e sete sapos preservados. Avaliação em `index.html?jardim=1234&local=lago`; aprovadas pelo usuário em 19/10/2026. Ver [docs/vitorias-regias.md](docs/vitorias-regias.md).
 
 **Senescência — primeira amostra isolada:** Carvalho e Freixo adultos em cinco estados, da copa vigorosa até a secura, com transformação reversível e porte preservado. A perda de cor afeta toda a copa; depois há remoção real da folhagem e revelação dos ramos. Comparação, controle de avanço e simulação de retomada em [projetos/senescencia/](projetos/senescencia/). Não define prazos nem altera dados de estudo ou árvores do mapa.
 

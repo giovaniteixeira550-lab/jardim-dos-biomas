@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.42",
+  "versaoAtual": "v0.42.1",
   "proximoPasso": {
     "titulo": "Ligar as árvores de estudo aos subtemas",
     "descricao": "Cada uma das 278 árvores da lista refinada deve nascer quando o seu subtema for estudado, e não por sorteio."
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 85,
-      "nota": "Acabamento pixelado e desvio aprovado da escada da primeira cascata publicados."
+      "nota": "Margens, relevo e vitórias-régias maiores com flores, aprovados e preservados."
     },
     {
       "nome": "Vida e clima",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Vitórias-régias maiores com nervuras, bordas levantadas e seis flores brancas/rosadas",
       "Escorregador em S até o lago, com caminho e escadaria por fora da estrutura",
       "Borboletas de perto com voos variados e repousos; esquilos articulados no bosque",
       "Amostra pública dos cinco estágios de senescência, com recuperação visual",
@@ -122,6 +123,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.42.1",
+      "data": "2026-10-19",
+      "titulo": "Folhas maiores e flores no lago",
+      "porque": "O usuário pediu vitórias-régias maiores e mais bonitas.",
+      "mudancas": [
+        "Folhas inteiras de cerca de 3,1–4,4 m, com bordas curvas levantadas",
+        "Nervuras ramificadas e seis flores em camadas",
+        "Folhas afastadas entre si e da terra, com saída do escorregador livre",
+        "Sete sapos apoiados no nível das folhas; taboas preservadas"
+      ],
+      "resultado": "Acabamento aprovado pelo usuário em 19/10/2026. Folhas maiores, flores e apoio dos sete sapos; restante da demo v0.42 preservado.",
+      "imagens": [
+        {
+          "src": "historico/previa-vitorias-regias-detalhe.jpg",
+          "legenda": "Folhas em bandeja, nervuras em relevo e flores claras/rosadas no lago"
+        }
+      ]
+    },
     {
       "versao": "v0.42",
       "data": "2026-10-19",
