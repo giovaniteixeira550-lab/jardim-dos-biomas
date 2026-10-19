@@ -26,6 +26,7 @@ import { refinarBordasTerreno, aplicarCoordenadasParede, criarCapaContinua } fro
 import { criarPostesDoces } from "./postesDoces.js";
 import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
+import { plantarGrandeArvore } from "./grandeArvore.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -174,6 +175,7 @@ export class Jardim {
     this.criarTerreno();
     this.scene.add(criarLargosTrilha(m, toon));
     this.casaMadeira=criarCasaMadeira(m,toon);this.scene.add(this.casaMadeira);
+    this.grandeArvore=plantarGrandeArvore(m,this.matArvore);this.scene.add(this.grandeArvore);
     medir("terreno");
     this.criarAgua();
     this.criarRiacho();

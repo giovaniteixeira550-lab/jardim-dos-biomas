@@ -154,3 +154,7 @@ Décima primeira e última espécie do bosque de Pediatria, aprovada pelo usuár
 ## Relevo aprovado — v0.39.1
 
 Base v0.39, preservando a Acácia dos Mosaicos e a Oliveira dos Nós. Aprovação do usuário para aplicar a amostra 02 em 18/10/2026. Escopo restrito a geometria visual das bordas, material de parede e registros de versão. Campos do mundo, plantio e geradores de espécies não foram alterados.
+
+## Grande Árvore do balanço — v0.40 (Claude)
+
+Árvore-marco pedida pelo usuário (ele a chama de "sequoia"), aprovada em 18/10/2026 a partir de `propostas-arvores/sequoia-balanco` (proposta 02; a 01, uma sequoia em coluna, foi rejeitada). O gerador fica em `src/grandeArvore.js`: `criarGrandeArvore()` usa a semente aprovada 1859, e `plantarGrandeArvore(m, material)` planta a adulta no local `grande-arvore` do plano mestre (x 129,5, y 36,7 em coordenadas do plano, ou 187 × 52 m no mundo). **Para o Codex:** é um local de tipo `marco` com `raioReserva: 11`. `mundo.js` retira, depois do sorteio, as árvores, arbustos e objetos desse círculo, e a reserva vale para qualquer outro marco futuro. Ao mexer no terreno dessa clareira, mantenha o chão plano num raio de cerca de 12 m: as raízes descem até 0,45 m abaixo do nível. O foco da câmera usa `alturaCamera: 56`. Verificações: o jardim carregou sem erros no console; a árvore ficou a 24 m da trilha, a 45 m do ponto de pesca e fora do lago e do riacho, com o terreno plano no raio de 12 m. As espécies não mudaram, então os testes de espécies não precisaram ser rodados de novo.

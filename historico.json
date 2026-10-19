@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.39.2",
+  "versaoAtual": "v0.40",
   "proximoPasso": {
-    "titulo": "Criar a grande sequoia com balanço",
-    "descricao": "Árvore-marco maior que todas, com um balanço num galho baixo, em prévia isolada; depois, posicionar a leste do lago."
+    "titulo": "Compor o bosque de Pediatria no terreno",
+    "descricao": "Distribuir as 11 espécies prontas pelas áreas planejadas, respeitando a Grande Árvore, a casa, os caminhos e a água."
   },
   "frentes": [
     {
@@ -118,6 +118,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.40",
+      "data": "2026-10-18",
+      "titulo": "Grande Árvore do balanço chega ao mapa",
+      "porque": "O usuário pediu uma árvore-marco maior que todas, com um balanço, na clareira a leste do lago.",
+      "mudancas": [
+        "Árvore ancestral de 18 m, a maior do jardim, a partir da imagem de referência do usuário",
+        "Tronco maciço em placas, raízes em arco, sete braços, copa larga em domo e cipós",
+        "Balanço de tábua pendurado num dos braços, com terra batida embaixo",
+        "Plantada na clareira a leste do lago, com uma reserva de 11 m sem outras árvores"
+      ],
+      "resultado": "Marco fixo no mapa (não cresce com a barra); o resto do plantio não mudou.",
+      "imagens": [
+        {
+          "src": "historico/v0.40-grande-arvore.jpg",
+          "legenda": "A Grande Árvore do balanço na clareira a leste do lago"
+        }
+      ]
+    },
     {
       "versao": "v0.39.2",
       "data": "2026-10-18",

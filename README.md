@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.39.2)
+## 3. Estado atual (v0.40)
+
+- **v0.40 — Grande Árvore do balanço no mapa:** árvore-marco de **18,3 m**, a maior do jardim (a Araucária tem 12,2 m), feita a partir de uma imagem de referência do usuário. Tem tronco maciço com casca em placas, raízes em arco que mergulham na terra, sete braços, copa larga em domo, cipós e um **balanço** de tábua pendurado no braço mais baixo. O gerador fica em `src/grandeArvore.js` (semente 1859, a da forma aprovada). O local `grande-arvore` (tipo `marco`) está no plano mestre, na clareira a leste do lago e abaixo do platô. `mundo.js` reserva um círculo de 11 m sem outras árvores, arbustos e objetos, aplicado depois do sorteio, então o resto do plantio não muda. `cena.js` planta a adulta com o material das árvores. É um marco fixo: não cresce com a barra nem entra no catálogo de espécies. Os quatro estágios existem no gerador, caso um dia ela cresça com algum estudo.
 
 **v0.39.2 — escada afastada da primeira cascata:** escada e caminho deslocados 7 m para dentro do terreno, seguindo o corredor vermelho indicado pelo usuário. O trecho antigo volta a ser gramado. Rio, ponte e plantio fora da nova passagem preservados. Acesso em `index.html?local=escada-cascata`; detalhes em [docs/desvio-escada-cascata.md](docs/desvio-escada-cascata.md). Traçado aprovado pelo usuário para publicação em 18/10/2026.
 
