@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Senescência das árvores · Jardim dos Biomas</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px;background:#141c18;color:#e9e3d1;font:15px/1.5 system-ui,sans-serif}main{max-width:1480px;margin:auto}a{color:#c6dd84}nav{font-size:13px;color:#a6b67f}h1{font-size:28px;margin:14px 0 5px}p{margin:6px 0 16px;color:#c0cb97}.barra{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}button,select{font:inherit;color:#e9e3d1;background:#22382b;border:1px solid #568a45;border-radius:7px;padding:9px 13px;cursor:pointer}button:hover{background:#2f5236}button[aria-pressed=true]{background:#c6dd84;color:#141c18;border-color:#c6dd84}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #f6d27a;outline-offset:3px}.espaco{flex:1}.palco{border:1px solid #3f6e3c;border-radius:12px;overflow:hidden;background:#74895c}canvas{display:block;width:100%;height:min(66vh,680px);touch-action:none;image-rendering:pixelated}.rotulos{display:grid;grid-template-columns:repeat(5,1fr);padding:12px 0;background:#1e2a22;text-align:center;gap:8px;font-size:13px}.rotulos strong{display:block;color:#e9e3d1}.rotulos span{color:#a6b67f}label{color:#c0cb97}.controle{padding:15px 18px;background:#1e2a22;border:1px solid #2f5236;border-radius:10px;margin:14px 0}.controle input{width:min(560px,100%);accent-color:#c6dd84;vertical-align:middle;margin:0 14px}.controle output{color:#f6d27a;display:inline-block;min-width:40px}.nota{font-size:13px;color:#a6b67f}.destaque{color:#f6d27a}#descricao{min-height:24px}#estado{font-size:13px}@media(max-width:700px){body{padding:12px}h1{font-size:24px}.rotulos{font-size:11px}.barra button{padding:8px}canvas{height:58vh}.controle input{margin:8px 0;width:100%}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<main>
+<nav><a href="../../index.html">← Jardim</a> · Primeira amostra visual</nav>
+<h1>O tempo muda a copa</h1>
+<p>A mesma árvore adulta, do vigor à secura. <span class="destaque">O porte permanece; a copa pode voltar.</span></p>
+<div class="barra">
+<label for="especie">Árvore</label><select id="especie"><option value="carvalho">Carvalho</option><option value="freixo">Freixo</option></select>
+<button id="comparar" aria-pressed="true">Comparar os cinco estágios</button>
+<span class="espaco"></span><button id="esq" aria-label="Girar para a esquerda">↶</button><button id="dir" aria-label="Girar para a direita">↷</button><button id="mais" aria-label="Aproximar">+</button><button id="menos" aria-label="Afastar">−</button>
+</div>
+<div class="barra" id="estagios" aria-label="Estágios da senescência"></div>
+<div class="palco"><canvas id="tela" aria-label="Comparação 3D dos estágios de senescência"></canvas><div id="rotulos" class="rotulos"></div></div>
+<div class="controle">
+<label for="nivel">Avanço da senescência</label><input id="nivel" type="range" min="0" max="100" value="0"><output id="valor" for="nivel">0%</output>
+<div class="barra"><button id="secar">Ver transformação</button><button id="retomar">Simular retomada do estudo</button><button id="pausar">Pausar</button></div>
+<p id="descricao">Compare a cor, os vazios na copa e a estrutura dos ramos.</p>
+</div>
+<p class="nota">Arraste para girar e inclinar · use a roda para aproximar. A amostra ainda não define prazos sem estudo.</p>
+<p id="estado" role="status">Preparando as árvores…</p>
+</main>
+<script type="module" src="./previa.js"></script>
+</html>

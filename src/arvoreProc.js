@@ -175,7 +175,9 @@ function galho(a, b, r0, r1, hex) {
   g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), dir.normalize()));
   g.translate(a.x, a.y, a.z);
   pintar(g, hex, () => 0.9);
-  return finalizar(g);
+  const geo=finalizar(g);
+  geo.userData.galho={inicio:a.clone(),fim:b.clone(),r0,r1};
+  return geo;
 }
 
 /** Pequena esfera (fruto, flor, pinta). */
@@ -1152,7 +1154,10 @@ export function construirVariacao(def, semente) {
       }
     }
     const geo = juntar(partes);
-    geo.userData.arvore = { especie: def.nome, fase, ornamentos, copas: partes.filter(g => g.userData.copa).map(g => g.userData.copa) };
+    geo.userData.arvore = { especie: def.nome, fase, ornamentos, copas: partes.filter(g => g.userData.copa).map(g => g.userData.copa), estrutura: {
+      troncos:partes.filter(g=>g.userData.tronco).map(g=>g.userData.tronco),
+      galhos:partes.filter(g=>g.userData.galho).map(g=>g.userData.galho),
+    } };
     if (e === 0) geo.scale(1.8, 1.8, 1.8), geo.computeBoundingBox(); // exagero de jogo: o broto precisa ser visto
     estagios.push(geo);
     alturas.push(geo.boundingBox.max.y);

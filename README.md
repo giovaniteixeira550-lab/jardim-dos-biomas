@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.40 + prévias de objetos e vida)
+## 3. Estado atual (v0.40 + prévias de objetos, vida e senescência)
+
+**Senescência — primeira amostra isolada:** Carvalho e Freixo adultos em cinco estados, da copa vigorosa até a secura, com transformação reversível e porte preservado. A perda de cor afeta toda a copa; depois há remoção real da folhagem e revelação dos ramos. Comparação, controle de avanço e simulação de retomada em [projetos/senescencia/](projetos/senescencia/). Não define prazos nem altera dados de estudo ou árvores do mapa.
 
 **Esquilos em prévia:** poucos indivíduos pelo bosque, com cauda volumosa, patas articuladas, corridas, saltos curtos e pausas para roer uma noz ou observar o entorno. Avaliação em `index.html?local=esquilos`; detalhes em [docs/esquilos.md](docs/esquilos.md).
 

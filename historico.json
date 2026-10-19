@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.40 · prévias de objetos e vida",
+  "versaoAtual": "v0.40 · prévias de vida e senescência",
   "proximoPasso": {
     "titulo": "Compor o bosque de Pediatria no terreno",
     "descricao": "Distribuir as 11 espécies prontas pelas áreas planejadas, respeitando a Grande Árvore, a casa, os caminhos e a água."
@@ -98,6 +98,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
+      "Avaliar os estágios visuais de senescência antes de adaptar as demais espécies e definir prazos",
       "Avaliar borboletas com densidade moderada e os primeiros esquilos animados",
       "Avaliar a forma, escala e cores do escorregador na prévia isolada",
       "Salgueiros raros: margem do lago estreita",
@@ -120,6 +121,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — senescência das árvores",
+      "data": "2026-10-19",
+      "titulo": "Do vigor à secura, preservando a árvore adulta",
+      "porque": "O usuário pediu estágios visuais para representar assuntos há muito tempo sem estudo, com perda de cor e de folhas.",
+      "mudancas": [
+        "Cinco estados em Carvalho e Freixo adultos, preservando tronco e raízes",
+        "Tons apagados em toda a copa, corrigindo a mancha amarela isolada",
+        "Perda real de folhagem e ramificação própria exposta",
+        "Comparação, controle de avanço e simulação reversível de retomada"
+      ],
+      "resultado": "Sete testes passaram. Amostra visual isolada, sem prazos ou ligação aos registros de estudo; ainda não aplicada ao mapa.",
+      "imagens": [
+        {
+          "src": "projetos/senescencia/capturas/comparacao-carvalho.png",
+          "legenda": "Cinco estados visuais da mesma árvore adulta"
+        },
+        {
+          "src": "projetos/senescencia/capturas/perda-vigor-corrigida.png",
+          "legenda": "Cor alterada em toda a copa, sem mancha isolada"
+        }
+      ]
+    },
     {
       "versao": "Prévia — esquilos do bosque",
       "data": "2026-10-19",
