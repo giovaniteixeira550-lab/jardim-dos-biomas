@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.40 · prévia do escorregador",
+  "versaoAtual": "v0.40 · prévias de objetos e vida",
   "proximoPasso": {
     "titulo": "Compor o bosque de Pediatria no terreno",
     "descricao": "Distribuir as 11 espécies prontas pelas áreas planejadas, respeitando a Grande Árvore, a casa, os caminhos e a água."
@@ -34,7 +34,7 @@
       "nome": "Vida e clima",
       "status": "andamento",
       "progresso": 15,
-      "nota": "Dia e noite, vaga-lumes. Vento removido (não combinava com pixel)."
+      "nota": "Dia e noite, vaga-lumes. Borboletas com voo e repousos variados em prévia local."
     },
     {
       "nome": "Ligação com os estudos",
@@ -98,6 +98,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
+      "Avaliar as borboletas com densidade reduzida e os esquilos em criação",
       "Avaliar a forma, escala e cores do escorregador na prévia isolada",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
@@ -119,6 +120,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — borboletas vivas",
+      "data": "2026-10-19",
+      "titulo": "Borboletas passeiam entre flores e copas",
+      "porque": "O usuário pediu borboletas bonitas e animadas, visíveis de perto, com voos variados e pousos demorados.",
+      "mudancas": [
+        "Quatro padrões de asas com nervuras, manchas, corpo e antenas",
+        "Seis destinos por passeio, alternando alturas, velocidades e repousos",
+        "Pousos de 2 a 10 segundos em flores, folhas, pedras, madeira e estruturas",
+        "Quantidade reduzida após avaliação; desaparecem suavemente ao afastar"
+      ],
+      "resultado": "Quatro testes passaram. Voo inspecionado no mapa sem avisos ou erros na carga final. Prévia local, ainda sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-borboletas-rota.png",
+          "legenda": "Borboletas em diferentes lugares e alturas, com a quantidade revisada"
+        }
+      ]
+    },
     {
       "versao": "Prévia — escorregador do lago",
       "data": "2026-10-19",

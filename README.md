@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.40 + prévia do escorregador)
+## 3. Estado atual (v0.40 + prévias de objetos e vida)
+
+**Borboletas em prévia:** quatro padrões de asas, passeios com seis destinos, variação de altura e velocidade, repousos em flores, copas, pedras e madeira. Densidade reduzida após avaliação do usuário; ocultas à distância e à noite. Avaliação em `index.html?local=borboletas`; detalhes em [docs/borboletas.md](docs/borboletas.md).
 
 **Prévia isolada — escorregador do lago:** toboágua aberto de 82,7 m, torre de 11 m e duas curvas amplas, com pista amarela, bordas vermelhas e estrutura azul. A saída fica sobre o lago. Um ramal de terra contínuo liga a trilha ao pé da escada, com 18 degraus no barranco. Avaliação em `index.html?local=escorregador`; detalhes em [docs/escorregador-lago.md](docs/escorregador-lago.md). Ainda sem aprovação artística ou publicação.
 
