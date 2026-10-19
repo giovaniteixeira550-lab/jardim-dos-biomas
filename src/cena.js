@@ -30,6 +30,7 @@ import { plantarGrandeArvore } from "./grandeArvore.js";
 import { criarEscorregadorLago, percursoEscorregador } from "./escorregadorLago.js";
 import { aplicarAcessoEscorregador, criarEscadaAcesso } from "./acessoEscorregador.js";
 import { criarBorboletas } from "./borboletas.js";
+import { criarEsquilos } from "./esquilos.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -232,6 +233,9 @@ export class Jardim {
     this.borboletas=criarBorboletas(m,toon,this.individuos);this.scene.add(this.borboletas);
     const focoBorboletas=this.borboletas.userData.foco;
     if(focoBorboletas)m.plano.locais.push({id:'borboletas',nome:'Borboletas entre flores e copas',tipo:'vida',x:focoBorboletas.x,y:focoBorboletas.z,largura:2,profundidade:2,alturaCamera:25,status:'proposto'});
+    this.esquilos=criarEsquilos(m,toon);this.scene.add(this.esquilos);
+    const focoEsquilos=this.esquilos.userData.foco;
+    if(focoEsquilos)m.plano.locais.push({id:'esquilos',nome:'Esquilos do bosque',tipo:'vida',x:focoEsquilos.x,y:focoEsquilos.z,largura:2,profundidade:2,alturaCamera:18,status:'proposto'});
     // A compilação não é interrompível. Aguarda terminar antes de liberar a GPU,
     // mas nunca monta observadores, controles ou animação de uma carga cancelada.
     this.compilando = true;
@@ -1067,6 +1071,7 @@ export class Jardim {
     if(local.tipo==='casa'){this.alvo.y+=3;this.alvo.z-=local.recuo??0;}
     if(id.includes('escorregador'))this.alvo.y=3;
     if(id==='borboletas')this.alvo.y=4;
+    if(id==='esquilos')this.alvo.y+=.7;
     this.altura=local.alturaCamera??(local.tipo==="casa"?40:local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32);
     return true;
   }
@@ -1187,6 +1192,7 @@ export class Jardim {
 
     this.posicionarCamera();
     this.borboletas?.userData.atualizar(t,this.camera,this.altura,this.canvas.clientHeight,this.hora,this.alvo);
+    this.esquilos?.userData.atualizar(t,this.camera,this.altura,this.hora,this.alvo);
     this.uDireita.value.set(Math.cos(this.yaw),-Math.sin(this.yaw));
     this.atualizarSobrevoo(t);
     const u = this.pixel.uniforms;

@@ -34,7 +34,7 @@
       "nome": "Vida e clima",
       "status": "andamento",
       "progresso": 15,
-      "nota": "Dia e noite, vaga-lumes. Borboletas com voo e repousos variados em prévia local."
+      "nota": "Dia e noite, vaga-lumes. Borboletas com densidade moderada e primeiros esquilos animados em prévia local."
     },
     {
       "nome": "Ligação com os estudos",
@@ -98,7 +98,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
-      "Avaliar as borboletas com densidade reduzida e os esquilos em criação",
+      "Avaliar borboletas com densidade moderada e os primeiros esquilos animados",
       "Avaliar a forma, escala e cores do escorregador na prévia isolada",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
@@ -120,6 +120,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — esquilos do bosque",
+      "data": "2026-10-19",
+      "titulo": "Primeiros esquilos animados no jardim",
+      "porque": "Depois das borboletas, o usuário pediu o início da criação dos esquilos.",
+      "mudancas": [
+        "Cauda recurvada, barriga clara, olhos com brilho e orelhas com tufos",
+        "Patas, cabeça e cauda articuladas durante as corridas",
+        "Saltos curtos e pausas individuais para roer uma noz ou observar",
+        "Poucos indivíduos espalhados, visíveis apenas na aproximação"
+      ],
+      "resultado": "Quatro testes passaram. Primeiro modelo e animação inspecionados no mapa; proposta local, sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-esquilos.png",
+          "legenda": "Primeiro esquilo animado no bosque, com cauda recurvada"
+        }
+      ]
+    },
     {
       "versao": "Prévia — borboletas vivas",
       "data": "2026-10-19",
