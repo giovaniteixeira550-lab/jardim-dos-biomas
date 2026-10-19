@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.43)
+## 3. Estado atual (v0.44)
+
+**v0.44 — troncos mais altos em Pediatria:** Pitanga-de-Sol, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós ficavam com 3,7–4,9 m ao lado de árvores de 10–15 m, com o tronco escondido sob a copa. Agora têm 6,1–7,5 m: `alongarTronco` (em `src/arvoreProc.js`, tabela `TRONCO_ALONGADO`) estica só o fuste entre o pé e o início da copa e sobe o resto, sem reescalar a copa. Ninhos, ocos, vagens e frutos não deformam (na Árvore dos Ninhos o trecho esticado fica acima do oco); a Pitanga e a Ninhos ganham fuste mais grosso. Vale para os dois estágios maiores; broto e muda não mudam. `?troncos=0` mostra as proporções antigas para comparar. Aprovado pelo usuário em 19/10/2026.
 
 **v0.43 — água em pixel art:** o lago passou a ter quatro faixas chapadas de profundidade (beira clara, raso, médio e fundo escuro) com bordas orgânicas que respiram devagar, sem o pontilhado Bayer que cobria a superfície (a água grava alfa baixo e o pós-processamento quase não pontilha). Os riscos retos de reflexo deram lugar a ondinhas curtas de 1 px alinhadas à tela, agrupadas em zonas de brisa e calmaria, que nascem, esticam e somem. Na beira, uma linha clara avança e recua, com espuma quebrada; em volta das vitórias-régias saem anéis lentos em arcos; de dia, raros brilhos de sol piscam no fundo. O trecho calmo do riacho usa a mesma linguagem: canal fundo no meio, laterais rasas com borda clara e traços que descem com a correnteza. Código em `src/aguaLago.js` (recebe os uniforms da câmera e `definirFolhas`) e `src/aguaPercurso.js`. Aprovado pelo usuário em 19/10/2026.
 

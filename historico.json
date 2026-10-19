@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.43",
+  "versaoAtual": "v0.44",
   "proximoPasso": {
     "titulo": "Ligar as árvores de estudo aos subtemas",
     "descricao": "Cada uma das 278 árvores da lista refinada deve nascer quando o seu subtema for estudado, e não por sorteio."
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
       "Água do lago e do riacho em pixel art: faixas de profundidade, ondinhas, espuma e anéis nas folhas",
       "Vitórias-régias maiores com nervuras, bordas levantadas e seis flores brancas/rosadas",
       "Escorregador em S até o lago, com caminho e escadaria por fora da estrutura",
@@ -124,6 +125,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.44",
+      "data": "2026-10-19",
+      "titulo": "Troncos mais altos no bosque de Pediatria",
+      "porque": "O usuário achou algumas árvores baixas demais, com o tronco escondido.",
+      "mudancas": [
+        "Pitanga, Ninhos, Segredos, Acácia e Oliveira passam de 3,7–4,9 m para 6,1–7,5 m",
+        "Só o tronco cresce: copas, ninhos, ocos e frutos ficam iguais",
+        "Tronco mais grosso na Pitanga e na Árvore dos Ninhos",
+        "Comparar com o antigo: ?troncos=0"
+      ],
+      "resultado": "Aprovado pelo usuário em 19/10/2026. As cinco espécies agora mostram o tronco ao lado das árvores vizinhas.",
+      "imagens": [
+        {
+          "src": "historico/v044-troncos.png",
+          "legenda": "Mesmo trecho do bosque com os troncos mais altos"
+        }
+      ]
+    },
     {
       "versao": "v0.43",
       "data": "2026-10-19",

@@ -185,3 +185,7 @@ O usuário aprovou o acabamento em 19/10/2026. Somente o commit visual `900f902`
 ## Água em pixel art — v0.43 (Claude)
 
 Pedido do usuário em 19/10/2026: melhorar a qualidade e a arte da água. O shader do lago foi reescrito (faixas chapadas de profundidade, ondinhas de 1 px, espuma na beira, anéis nas folhas, brilhos de sol) e o trecho calmo do riacho seguiu o mesmo estilo; ambos gravam alfa 0,05 para o pós-processamento não pontilhar a água. Geometria, malha e nível da água não mudaram. Proposta na branch `claude/agua-lago`, aprovada e publicada sobre a v0.42.1. Em `testes/agua-lago.html`, a verificação do barranco do riacho procura `bordas-grama-riacho`, que deixou de existir com as margens naturais da v0.41; essa falha já existia antes desta versão.
+
+## Troncos mais altos — v0.44 (Claude)
+
+O usuário apontou que algumas árvores estavam muito baixas e com tronco pequeno. As cinco espécies de Pediatria de arquitetura baixa ganharam fuste mais alto por pós-processamento das geometrias aprovadas (`alongarTronco` em `src/arvoreProc.js`), sem mudar os geradores de cada espécie. `testes/especies.html` passou (57 espécies, 684 modelos, frutos presos). Plantio, posições e as demais espécies não mudaram.
