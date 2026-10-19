@@ -2,8 +2,8 @@
   "atualizado": "2026-10-19",
   "versaoAtual": "v0.44",
   "proximoPasso": {
-    "titulo": "Ligar as árvores de estudo aos subtemas",
-    "descricao": "Cada uma das 278 árvores da lista refinada deve nascer quando o seu subtema for estudado, e não por sorteio."
+    "titulo": "Avaliar a cachoeira e o lago corrigidos",
+    "descricao": "Conferir a prévia da água antes da publicação; integração com os estudos continua separada."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 90,
-      "nota": "Água redesenhada em pixel art (v0.43); acabamento do relevo e escada da cascata publicados."
+      "nota": "Prévia: quedas curvas com espuma e respingos; lago sem pontos piscantes. Aguarda avaliação visual."
     },
     {
       "nome": "Vida e clima",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Prévia local: três cachoeiras curvas com espuma e respingos, lago sem pontos piscantes",
       "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
       "Água do lago e do riacho em pixel art: faixas de profundidade, ondinhas, espuma e anéis nas folhas",
       "Vitórias-régias maiores com nervuras, bordas levantadas e seis flores brancas/rosadas",
@@ -104,6 +105,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
+      "Avaliar o acabamento da água nesta prévia antes de publicar",
       "Adaptar a senescência às demais espécies e definir prazos antes de ligá-la aos estudos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
@@ -125,6 +127,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — água fluida",
+      "data": "2026-10-19",
+      "titulo": "Cachoeira curva e lago sem luzes piscantes",
+      "porque": "A queda parecia duas paredes, tinha pouca espuma e não combinava com o riacho; o lago piscava.",
+      "mudancas": [
+        "Virada curva e lâmina abaulada nas três quedas",
+        "Veios em movimento com as cores do riacho",
+        "Espuma no topo e no impacto, com pequenos respingos em arco",
+        "Removidos os pontos de luz piscantes do lago"
+      ],
+      "resultado": "38 testes da água e dos percursos passaram. Prévia local para avaliação, ainda sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-agua-fluida.png",
+          "legenda": "Virada curva, veios e espuma da primeira cascata"
+        },
+        {
+          "src": "historico/previa-agua-fluida-lateral.png",
+          "legenda": "Conferência da lâmina por outro ângulo"
+        }
+      ]
+    },
     {
       "versao": "v0.44",
       "data": "2026-10-19",
