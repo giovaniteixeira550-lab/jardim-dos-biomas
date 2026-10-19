@@ -1,6 +1,6 @@
-# Escada afastada da primeira cascata — prévia
+# Escada afastada da primeira cascata — v0.39.2
 
-Pedido de 18/10/2026: afastar a escada e o caminho que estavam colados ao rio, usando como referência o corredor vermelho desenhado na captura do usuário. Base: v0.39.1. **Prévia local em revisão, sem publicação.**
+Pedido de 18/10/2026: afastar a escada e o caminho que estavam colados ao rio, usando como referência o corredor vermelho desenhado na captura do usuário. Base: v0.39.1. **Traçado aprovado pelo usuário em 18/10/2026, com autorização explícita para publicar a v0.39.2.**
 
 O lance indicado é o primeiro, entre os patamares de 13,5 m e 9 m, junto à primeira cascata. O lance inferior do vale não faz parte desta alteração.
 
@@ -21,6 +21,6 @@ O sorteio da vegetação usa o corredor histórico; depois dele, aplica-se o des
 - 44 testes de percursos, plantio, trilhas e do desvio passaram; mais 24 testes de formação e definição passaram, totalizando **68**.
 - A semente 1234 mantém o curso e as quedas do rio idênticos à referência anterior; as coordenadas, o vão, a altura e o arco da ponte também são preservados.
 - Na geometria final, foram conferidos **70 pisos, 140 laterais de degraus, 72 margens e três cascatas verticais**, sem invasão do piso pelo chão ou pela capa de grama.
-- A vista junto à primeira cascata foi inspecionada no navegador, sem avisos ou erros no console observado. Captura: `historico/previa-escada-afastada.png`.
+- A vista junto à primeira cascata foi inspecionada no navegador, sem avisos ou erros no console observado. Captura: `historico/v0.39.2-escada.png`.
 
-Prévia: `index.html?local=escada-cascata&previa=desvio`. A nova localização tem um enquadramento que mostra a escada e o espaço até o rio. Os enquadramentos dos locais existentes continuam os mesmos.
+Acesso: `index.html?local=escada-cascata`. A nova localização tem um enquadramento que mostra a escada e o espaço até o rio. Os enquadramentos dos locais existentes continuam os mesmos.

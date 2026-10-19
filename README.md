@@ -56,9 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.39.1)
+## 3. Estado atual (v0.39.2)
 
-**Prévia local — escada afastada da primeira cascata:** escada e caminho deslocados 7 m para dentro do terreno, seguindo o corredor vermelho indicado pelo usuário. O trecho antigo volta a ser gramado. Rio, ponte e plantio fora da nova passagem preservados. Revisão em `index.html?local=escada-cascata&previa=desvio`; detalhes em [docs/desvio-escada-cascata.md](docs/desvio-escada-cascata.md). Ainda sem publicação.
+**v0.39.2 — escada afastada da primeira cascata:** escada e caminho deslocados 7 m para dentro do terreno, seguindo o corredor vermelho indicado pelo usuário. O trecho antigo volta a ser gramado. Rio, ponte e plantio fora da nova passagem preservados. Acesso em `index.html?local=escada-cascata`; detalhes em [docs/desvio-escada-cascata.md](docs/desvio-escada-cascata.md). Traçado aprovado pelo usuário para publicação em 18/10/2026.
 
 **v0.39.1 — acabamento aprovado do relevo:** paredes com a textura autoral de terra em pixel art aprovada na amostra, contornos com remate contínuo e transições protegidas junto a trilhas e água. Mantidas todas as espécies da v0.39, a casa, pontes, plantio e os campos do mundo. Detalhes e validação em [docs/relevo-pixel-aprovado.md](docs/relevo-pixel-aprovado.md).
 

@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-18",
-  "versaoAtual": "v0.39.1 · prévia de percurso",
+  "versaoAtual": "v0.39.2",
   "proximoPasso": {
     "titulo": "Criar a grande sequoia com balanço",
     "descricao": "Árvore-marco maior que todas, com um balanço num galho baixo, em prévia isolada; depois, posicionar a leste do lago."
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 85,
-      "nota": "Acabamento pixelado publicado. Desvio da escada da primeira cascata em prévia para avaliação."
+      "nota": "Acabamento pixelado e desvio aprovado da escada da primeira cascata publicados."
     },
     {
       "nome": "Vida e clima",
@@ -45,7 +45,7 @@
   ],
   "quadro": {
     "funciona": [
-      "Prévia da escada e do caminho afastados da primeira cascata, com faixa de grama antes do rio",
+      "Escada e caminho afastados da primeira cascata, com faixa de grama antes do rio",
       "Bordas contínuas e textura autoral de terra em pixel art, aprovadas em amostra e aplicadas ao mapa",
       "Encostas com iluminação contínua e margens do riacho com ombro arredondado",
       "Casa com telhas curvas e fumaça noturna, postes, banco de pesca e plantio distribuído",
@@ -98,7 +98,6 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
-      "Avaliar o novo traçado da escada antes de publicar",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
@@ -120,7 +119,7 @@
   },
   "versoes": [
     {
-      "versao": "Prévia — escada afastada",
+      "versao": "v0.39.2",
       "data": "2026-10-18",
       "titulo": "Escada e caminho afastados da primeira cascata",
       "porque": "O percurso estava colado ao rio; o usuário indicou um corredor mais para dentro do terreno.",
@@ -130,10 +129,10 @@
         "Rio, ponte e plantio fora do corredor preservados",
         "Postes acompanham o novo percurso"
       ],
-      "resultado": "68 testes passaram. Geometria real: 70 pisos, 140 laterais e 72 margens conferidos. Vista local inspecionada; sem publicação.",
+      "resultado": "Traçado aprovado para publicação. 68 testes passaram. Geometria real: 70 pisos, 140 laterais e 72 margens conferidos; vista inspecionada no navegador.",
       "imagens": [
         {
-          "src": "historico/previa-escada-afastada.png",
+          "src": "historico/v0.39.2-escada.png",
           "legenda": "Escada e caminho separados do rio por uma faixa de grama"
         }
       ]
