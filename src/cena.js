@@ -27,6 +27,7 @@ import { criarPostesDoces } from "./postesDoces.js";
 import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
 import { plantarGrandeArvore } from "./grandeArvore.js";
+import { aplicarLotacao } from "./lotacao.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -167,6 +168,8 @@ export class Jardim {
     progresso(0.04, "Semeando o mundo…");
     await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
+    // Prévia de lotação (só nesta branch): ?lotacao=1 troca o plantio por 270 árvores de estudo e 150 de paisagem.
+    if(new URLSearchParams(globalThis.location?.search??'').get('lotacao'))aplicarLotacao(m);
     medir("mundo");
     this.irAoViveiro(false);
 
