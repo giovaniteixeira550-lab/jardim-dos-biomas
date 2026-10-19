@@ -1,7 +1,8 @@
-/** Prévia de lotação (branch claude/previa-lotacao): substitui o plantio por ~270 árvores de estudo das 11 espécies
- * de Pediatria, misturadas entre si e com árvores de paisagem, no terreno inteiro (inclusive as partes dos platôs fora
- * do retângulo de 260 × 170 m). Só entra com ?lotacao=1 na URL. Serve para julgar quantidade e distribuição; não é a
- * composição definitiva. */
+/** Plantio do bosque de Pediatria (v0.41): ~270 árvores de estudo das 11 espécies, misturadas entre si e com ~210
+ * árvores de paisagem, no terreno inteiro (inclusive as partes dos platôs fora do retângulo de 260 × 170 m).
+ * Jardim surpresa: a semente do jardim é sorteada uma vez e guardada neste navegador; as árvores de estudo nascem uma a
+ * uma ao longo da barra de crescimento e cada uma escolhe o lugar ao nascer. ?jardim=N abre um jardim específico,
+ * ?jardim=novo sorteia outro e ?lotacao=0 volta ao plantio antigo. As árvores ainda não estão ligadas a subtemas reais. */
 import { poisson, criarRng, criarRuido } from "./mundo.js";
 import { ESPECIES } from "./especies.js";
 import { aptidao, condicoes, criarAmbiente } from "./ecossistema.js";
@@ -15,8 +16,11 @@ const AREA = { x0: -32, x1: 286, y0: -26, y1: 179 };
 export function aplicarLotacao(m, { estudo = 270, paisagem = 210, espacoMin = 6.4, espacoMax = 12 } = {}) {
   // Semente do jardim: sorteada uma vez quando o jardim nasce (aqui, a cada recarga), ou fixada com ?jardim=N.
   // Tudo o que vem depois é determinístico a partir dela: o mesmo jardim sempre fica igual, mas ninguém sabe antes como será.
-  const pedida = Number(new URLSearchParams(globalThis.location?.search ?? '').get('jardim'));
-  const sementeJardim = pedida || globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+  const param = new URLSearchParams(globalThis.location?.search ?? '').get('jardim'), pedida = Number(param);
+  let guardada = 0;
+  try { guardada = Number(globalThis.localStorage?.getItem('jardim-semente')) || 0; } catch {}
+  const sementeJardim = pedida || (param !== 'novo' && guardada) || globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+  if (!pedida) try { globalThis.localStorage?.setItem('jardim-semente', String(sementeJardim)); } catch {}
   const rng = criarRng(sementeJardim ^ 0x10ca), ruido = criarRuido(m.semente ^ 0x5a1), amb = criarAmbiente(m), plano = m.plano;
   const pesca = plano.pesca, casa = plano.locais.find(l => l.id === "casa-madeira"), marcos = plano.locais.filter(l => l.tipo === "marco");
   const perto = (x, y, a, b, r) => { const dx = b.x - a.x, dy = b.y - a.y, t = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1))); return Math.hypot(x - a.x - dx * t, y - a.y - dy * t) < r; };
@@ -87,6 +91,6 @@ export function aplicarLotacao(m, { estudo = 270, paisagem = 210, espacoMin = 6.
   const porEspecie = {}; for (const p of plantadas) porEspecie[p.especie] = (porEspecie[p.especie] || 0) + 1;
   const resumo = { sementeJardim, vagas: vagas.length, estudo: plantadas.length, paisagem: daPaisagem.length, arbustos: resto.filter(o => o.tipo === "arbusto").length, porEspecie };
   globalThis.__lotacao = resumo;
-  console.info(`Jardim ${sementeJardim}: ${plantadas.length} árvores de estudo nascendo ao longo da barra de crescimento. Para rever este mesmo jardim: ?lotacao=1&jardim=${sementeJardim}`);
+  console.info(`Jardim ${sementeJardim}: ${plantadas.length} árvores de estudo nascendo ao longo da barra de crescimento. Para abrir este mesmo jardim em outro lugar: ?jardim=${sementeJardim}; para sortear outro: ?jardim=novo`);
   return resumo;
 }

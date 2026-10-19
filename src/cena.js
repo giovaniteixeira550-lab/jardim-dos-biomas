@@ -169,8 +169,8 @@ export class Jardim {
     progresso(0.04, "Semeando o mundo…");
     await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
-    // Prévia de lotação (só nesta branch): ?lotacao=1 troca o plantio por 270 árvores de estudo e 150 de paisagem.
-    if(new URLSearchParams(globalThis.location?.search??'').get('lotacao'))aplicarLotacao(m);
+    // Plantio do bosque de Pediatria (jardim surpresa); ?lotacao=0 volta ao plantio antigo.
+    if(new URLSearchParams(globalThis.location?.search??'').get('lotacao')!=='0')aplicarLotacao(m);
     medir("mundo");
     this.irAoViveiro(false);
 

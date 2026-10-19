@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-18",
-  "versaoAtual": "v0.40",
+  "atualizado": "2026-10-19",
+  "versaoAtual": "v0.41",
   "proximoPasso": {
-    "titulo": "Compor o bosque de Pediatria no terreno",
-    "descricao": "Distribuir as 11 espécies prontas pelas áreas planejadas, respeitando a Grande Árvore, a casa, os caminhos e a água."
+    "titulo": "Refinar a lista de Pediatria (~270 árvores)",
+    "descricao": "Dividir os subtemas grandes em árvores de uma sessão de estudo e ligar cada árvore de estudo a um subtema real."
   },
   "frentes": [
     {
@@ -118,6 +118,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.41",
+      "data": "2026-10-19",
+      "titulo": "Jardim surpresa, margens naturais e sapos",
+      "porque": "O usuário quis um bosque mais cheio e misturado que cresce sem ele saber como vai ficar, beiras de água mais bonitas e vida no lago.",
+      "mudancas": [
+        "Cerca de 270 árvores de estudo das 11 espécies, misturadas, mais 210 de paisagem no terreno inteiro, com clareiras",
+        "Jardim surpresa: semente sorteada uma vez por navegador; cada árvore escolhe o lugar ao nascer na barra de crescimento",
+        "Margens do lago e do riacho naturais: barranco contínuo, lama, areia com pedrinhas, grama úmida e espuma rasa",
+        "Sete sapos que respiram, piscam, coaxam e saltam de folha em folha"
+      ],
+      "resultado": "Bosque cheio sem excesso e água com beira natural; as árvores de estudo ainda não estão ligadas a subtemas reais.",
+      "imagens": [
+        {
+          "src": "historico/v0.41-jardim-surpresa.jpg",
+          "legenda": "Um jardim surpresa com as espécies de Pediatria misturadas"
+        }
+      ]
+    },
     {
       "versao": "v0.40",
       "data": "2026-10-18",
