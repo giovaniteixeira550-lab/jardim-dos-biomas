@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.41)
+## 3. Estado atual (v0.41.1)
+
+- **v0.41.1 — lista refinada de Pediatria:** os 112 subtemas viraram **grupos** (mesmos ids) divididos em **278 árvores de uma sessão de estudo**, com 6 grupos novos. A lista fica em `arvores-pediatria.json` (v2) e `MAPA-ARVORES-PEDIATRIA.md`, na pasta do projeto, geradas por `lista-refinada-pediatria.mjs`, que congela os ids. `src/lotacao.js` planta exatamente a quantidade de cada espécie (`SUBTEMAS`); a paisagem passou a 202, mantendo o total de 480.
 
 - **v0.41 — jardim surpresa, margens naturais e sapos:** `src/lotacao.js` substitui o plantio antigo por **~270 árvores de estudo** das 11 espécies de Pediatria (proporção dos subtemas), **misturadas entre si**, mais **~210 de paisagem**. As vagas cobrem o terreno inteiro, inclusive os platôs fora do retângulo, com densidade em manchas (6,4 a 12 m) e clareiras de propósito. **Jardim surpresa:** a semente é sorteada uma vez e guardada no navegador (`localStorage`, chave `jardim-semente`). As árvores de estudo nascem uma a uma ao longo da barra de crescimento, e cada uma escolhe o lugar ao nascer, pelo nicho da espécie, com acaso. `?jardim=N` abre um jardim específico, `?jardim=novo` sorteia outro e `?lotacao=0` volta ao plantio antigo. **Margens:** o terreno ganhou a distância real até a linha d'água (`aAgua`), e `src/solo.js` desenha por pixel uma beira irregular (lama, areia com pedrinhas, grama úmida, linha molhada). O riacho troca a tira estreita por um barranco contínuo de ~2 m, e o lago tem faixa rasa irregular e espuma. **Sapos:** `src/sapos.js`, com sete sapos animados nas vitórias-régias e na beira. As árvores de estudo ainda não estão ligadas a subtemas reais.
 

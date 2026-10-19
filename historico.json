@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.41",
+  "versaoAtual": "v0.41.1",
   "proximoPasso": {
-    "titulo": "Refinar a lista de Pediatria (~270 árvores)",
-    "descricao": "Dividir os subtemas grandes em árvores de uma sessão de estudo e ligar cada árvore de estudo a um subtema real."
+    "titulo": "Ligar as árvores de estudo aos subtemas",
+    "descricao": "Cada uma das 278 árvores da lista refinada deve nascer quando o seu subtema for estudado, e não por sorteio."
   },
   "frentes": [
     {
@@ -118,6 +118,24 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.41.1",
+      "data": "2026-10-19",
+      "titulo": "Lista refinada de Pediatria: 278 árvores",
+      "porque": "Cada árvore passa a valer o assunto de uma sessão de estudo, em vez de um subtema longo.",
+      "mudancas": [
+        "Os 112 subtemas viraram grupos, divididos em 278 árvores de uma sessão",
+        "Seis grupos novos para assuntos que faltavam (adolescência, apneia do sono, calazar, neurocutâneas e outros)",
+        "O plantio usa a quantidade exata de cada espécie da lista nova"
+      ],
+      "resultado": "Lista em arvores-pediatria.json (v2), na pasta do projeto; as ligações com o organizador foram mantidas nos grupos.",
+      "imagens": [
+        {
+          "src": "historico/v0.41-jardim-surpresa.jpg",
+          "legenda": "O jardim surpresa, agora com 278 árvores de estudo"
+        }
+      ]
+    },
     {
       "versao": "v0.41",
       "data": "2026-10-19",

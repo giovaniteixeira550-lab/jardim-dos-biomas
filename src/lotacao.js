@@ -1,4 +1,4 @@
-/** Plantio do bosque de Pediatria (v0.41): ~270 árvores de estudo das 11 espécies, misturadas entre si e com ~210
+/** Plantio do bosque de Pediatria (v0.41.1): 278 árvores de estudo das 11 espécies, misturadas entre si e com ~210
  * árvores de paisagem, no terreno inteiro (inclusive as partes dos platôs fora do retângulo de 260 × 170 m).
  * Jardim surpresa: a semente do jardim é sorteada uma vez e guardada neste navegador; as árvores de estudo nascem uma a
  * uma ao longo da barra de crescimento e cada uma escolhe o lugar ao nascer. ?jardim=N abre um jardim específico,
@@ -7,13 +7,15 @@ import { poisson, criarRng, criarRuido } from "./mundo.js";
 import { ESPECIES } from "./especies.js";
 import { aptidao, condicoes, criarAmbiente } from "./ecossistema.js";
 
-// Quantas árvores de estudo cada espécie recebe: proporcional aos subtemas atuais (112), escalado para ~270.
-const SUBTEMAS = { paineiraAbracos: 13, arvoreCatavento: 8, arvoreNinhos: 7, pitanga: 14, salgueiroCancoes: 9, arvoreSegredos: 13,
-  manguePontes: 13, jabuticabeiraConstelacoes: 9, araucariaCometas: 9, acaciaMosaicos: 11, oliveiraNos: 6 };
+// Árvores de estudo por espécie: a lista refinada de Pediatria (v2, 19/10/2026, 278 árvores de uma sessão cada;
+// fonte: arvores-pediatria.json na pasta do projeto). Com estudo = total, cada espécie recebe exatamente a sua lista.
+const SUBTEMAS = { paineiraAbracos: 32, arvoreCatavento: 21, arvoreNinhos: 25, pitanga: 34, salgueiroCancoes: 23, arvoreSegredos: 31,
+  manguePontes: 30, jabuticabeiraConstelacoes: 20, araucariaCometas: 22, acaciaMosaicos: 25, oliveiraNos: 15 };
+const TOTAL_ESTUDO = Object.values(SUBTEMAS).reduce((a, b) => a + b, 0);
 // Área do plantio: o retângulo do mundo mais as faixas dos platôs que o ultrapassam (as mesmas que o plano reforça).
 const AREA = { x0: -32, x1: 286, y0: -26, y1: 179 };
 
-export function aplicarLotacao(m, { estudo = 270, paisagem = 210, espacoMin = 6.4, espacoMax = 12 } = {}) {
+export function aplicarLotacao(m, { estudo = TOTAL_ESTUDO, paisagem = 202, espacoMin = 6.4, espacoMax = 12 } = {}) {
   // Semente do jardim: sorteada uma vez quando o jardim nasce (aqui, a cada recarga), ou fixada com ?jardim=N.
   // Tudo o que vem depois é determinístico a partir dela: o mesmo jardim sempre fica igual, mas ninguém sabe antes como será.
   const param = new URLSearchParams(globalThis.location?.search ?? '').get('jardim'), pedida = Number(param);

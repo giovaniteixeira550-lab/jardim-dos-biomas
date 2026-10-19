@@ -169,3 +169,7 @@ Pedidos do usuário em 19/10/2026, testados na branch `claude/previa-lotacao` e 
 - **Sapos:** `sapos.js` cria sete sapos sobre as posições das vitórias-régias e de pontos secos junto às taboas (registradas em `criarPlantasAquaticas`); `quadroAnim` chama `this.sapos.userData.animar(t)`.
 
 Verificações: `testes/especies.html` (57 espécies) passou; `testes/formacao`, `percursos`, `plantio`, `qualidade` e `trilha-terra` passaram no Node. `testes/desvio-escada.mjs` ("Remoção fora do corredor") e `testes/acabamento-terreno.mjs` (exige o pacote `three` no Node) falham **igualmente na v0.40 publicada**, sem estas mudanças. Jardim carregado com a semente guardada, 7 sapos e o barranco, sem erros do jardim no console.
+
+## Lista refinada de Pediatria — v0.41.1 (Claude)
+
+Pedido do usuário em 19/10/2026: dividir os subtemas grandes em cerca de 270 árvores de uma sessão cada. Resultado: 278 árvores em 118 grupos (os 112 subtemas da v1 com os mesmos ids, mais 6 grupos novos). Arquivos na pasta do projeto, fora do repositório: `arvores-pediatria.json` (v2: `especies[].grupos` e `especies[].arvores`, com `grupo` em cada árvore), `MAPA-ARVORES-PEDIATRIA.md` e o gerador `lista-refinada-pediatria.mjs`, que lê os ids já gravados e não os muda ao renomear. A v1 está guardada em `historico-listas/`. No jardim, só mudou `SUBTEMAS` em `src/lotacao.js`; as árvores de estudo ainda não sabem qual subtema representam.
