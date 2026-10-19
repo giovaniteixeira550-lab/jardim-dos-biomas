@@ -46,13 +46,23 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       float sx=dot(p,dirX),sy=dot(p,dirY);
       // 1. Faixas de profundidade com bordas orgânicas (ruído lento, que respira devagar).
       float org=ruidoAgua(p*.11+vec2(uTime*.012,0.))*.65+ruidoAgua(p*.37-vec2(0.,uTime*.02))*.35;
-      float fundo=vFundo+(org-.5)*.16;
+      // Massas pictoricas submersas: duas escalas que deslizam quase imperceptivelmente.
+      // A forma permanece quantizada pelas cinco cores da rampa, sem gradiente artificial.
+      float sombra=ruidoAgua(p*.075+vec2(uTime*.004,-uTime*.003));
+      float manchas=ruidoAgua(p*.21+vec2(-uTime*.009,uTime*.006));
+      float fundo=vFundo+(org-.5)*.105+(sombra-.5)*.115+(manchas-.5)*.075;
       int faixa=fundo<.07?3:(fundo<.3?2:(fundo<.7?1:0));
       vec3 cor=uTons[faixa];
+      // Reflexos fragmentados das copas: manchas maiores, silenciosas, sem linhas paralelas.
+      // Nao simulam o ceu como espelho; sugerem a vegetacao refletida em agua calma.
+      float copa=ruidoAgua(p*.105+vec2(.72,-.38));
+      float reflexo=ruidoAgua(p*.32+vec2(uTime*.006,-uTime*.004));
+      float espelho=step(.66,copa)*step(.48,reflexo)*smoothstep(.12,.42,vFundo);
+      if(espelho>.5 && faixa<3)cor=uTons[max(faixa-1,0)];
       // 2. Ondinhas: traços curtos de 1 px (com uma cristinha menor acima), espalhados em
       //    linhas desencontradas; nascem, esticam e somem, derivando devagar com o vento.
-      float linha=floor(sy/(ty*8.));
-      float deriva=uTime*.18*(hashAgua(vec2(linha,3.1))-.35);
+      float linha=floor((sy+sin(sx*.12+uTime*.045)*ty*1.3)/(ty*12.));
+      float deriva=uTime*.085*(hashAgua(vec2(linha,3.1))-.35);
       float ux=sx+deriva+hashAgua(vec2(linha,9.7))*4.;
       float cel=floor(ux/2.6);float sorte=hashAgua(vec2(cel,linha));
       float fase=fract(uTime*.07+sorte*5.3);
@@ -64,7 +74,7 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       float crista=step(abs(ux-meio-comp*.15),comp*.45)*step(abs(dy-ty),ty*.5);
       // Zonas de brisa e de calmaria: as ondinhas se agrupam, sem cobrir o lago por igual.
       float brisa=ruidoAgua(p*.06+vec2(uTime*.01,-uTime*.008));
-      float onda=max(tra,crista)*step(.95-brisa*.6,sorte)*step(.08,fundo);
+      float onda=max(tra,crista)*step(1.12-brisa*.36,sorte)*step(.08,fundo);
       if(onda>.5)cor=uTons[min(faixa+1,4)];
       // 3. Anéis lentos em volta das vitórias-régias (arcos de 1 px que se afastam e somem).
       for(int i=0;i<${MAX_FOLHAS};i++){
@@ -81,8 +91,8 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       // 4. Margem: linha clara que lambe a beira (avança e recua ao longo da costa) e espuma quebrada.
       float costa=ruidoAgua(p*.9)*.6+ruidoAgua(p*2.7)*.4;
       float lambida=.045+.022*sin(uTime*.9+dot(p,vec2(.21,.17))*2.+costa*3.);
-      if(vFundo<lambida&&vFundo>lambida-.012-tx*.05)cor=uTons[3];
-      float espuma=(1.-step(.02+costa*.012,vFundo))*step(.32,ruidoAgua(p*1.6+vec2(uTime*.05,0.)));
+      if(vMargem<.22&&vFundo<lambida&&vFundo>lambida-.012-tx*.05&&costa>.46)cor=uTons[3];
+      float espuma=(1.-step(.018+costa*.01,vFundo))*step(.72,ruidoAgua(p*1.6+vec2(uTime*.035,0.)));
       if(espuma>.5)cor=uTons[4];
       // 5. Brilhos de sol: um ou dois pixels que piscam no fundo, só de dia.
       vec2 bc=floor(p/1.7);float bs=hashAgua(bc+17.);
@@ -96,7 +106,7 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       // e as faixas ficam chapadas como num tile desenhado à mão.
       .replace('#include <opaque_fragment>','#include <opaque_fragment>\ngl_FragColor.a=.05;');
   };
-  mat.customProgramCacheKey=()=> 'lago-pixel-3';
+  mat.customProgramCacheKey=()=> 'lago-pictorico-4';
   const mesh=new THREE.Mesh(g,mat);mesh.name='lago-superficie';mesh.receiveShadow=true;
   mesh.userData={tipo:'lago',profundidade:true,aneis,contorno:n,
     /** Recebe [{x,z,r}] das folhas flutuantes para desenhar os anéis em volta delas. */
