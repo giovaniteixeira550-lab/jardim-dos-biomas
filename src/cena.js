@@ -27,6 +27,7 @@ import { criarPostesDoces } from "./postesDoces.js";
 import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
 import { plantarGrandeArvore } from "./grandeArvore.js";
+import { criarEscorregadorLago, percursoEscorregador } from "./escorregadorLago.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -167,6 +168,15 @@ export class Jardim {
     progresso(0.04, "Semeando o mundo…");
     await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
+    // Só nesta cópia de proposta: abre o espaço físico do brinquedo sem
+    // refazer o sorteio das árvores nem alterar água, caminhos ou relevo.
+    const pista=percursoEscorregador(),centros=Array.from({length:161},(_,i)=>pista.amostra(i/160).p);
+    this.corredorEscorregador=centros;
+    m.objetos=m.objetos.filter(o=>{
+      const folga=o.tipo==='arvore'?7:o.tipo==='arbusto'?3.5:1.8;
+      if(o.x>234&&o.x<242&&o.y>143&&o.y<160)return false;
+      return !centros.some(p=>Math.hypot(o.x-p.x,o.y-p.z)<folga);
+    });
     medir("mundo");
     this.irAoViveiro(false);
 
@@ -180,6 +190,8 @@ export class Jardim {
     this.criarAgua();
     this.criarRiacho();
     this.criarPlantasAquaticas();
+    this.escorregador=criarEscorregadorLago(m,toon);this.scene.add(this.escorregador);
+    m.plano.locais.push({id:'escorregador',nome:'Escorregador do lago — prévia',tipo:'brinquedo',x:225,y:132,largura:4,profundidade:4,alturaCamera:48,status:'proposto'});
     medir("agua");
 
     const lista = Object.entries(ESPECIES);
@@ -708,6 +720,9 @@ export class Jardim {
         d.updateMatrix();
         const yCasa=casa?casa.y-(casa.recuo??0):0;
         if(casa&&Math.abs(x-casa.x)<6.6&&z>yCasa-4.8&&z<yCasa+7.3)continue;
+        if(this.corredorEscorregador.some(p=>Math.hypot(x-p.x,z-p.z)<2)){
+          d.scale.setScalar(0);d.updateMatrix();
+        }
         im.setMatrixAt(n++, d.matrix);
       }
       im.count = n;
@@ -1041,6 +1056,7 @@ export class Jardim {
     this.focarEm(null);
     this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
     if(local.tipo==='casa'){this.alvo.y+=3;this.alvo.z-=local.recuo??0;}
+    if(id==='escorregador')this.alvo.y=3;
     this.altura=local.alturaCamera??(local.tipo==="casa"?40:local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32);
     return true;
   }

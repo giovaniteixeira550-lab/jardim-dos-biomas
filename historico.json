@@ -1,6 +1,6 @@
 {
-  "atualizado": "2026-10-18",
-  "versaoAtual": "v0.40",
+  "atualizado": "2026-10-19",
+  "versaoAtual": "v0.40 · prévia do escorregador",
   "proximoPasso": {
     "titulo": "Compor o bosque de Pediatria no terreno",
     "descricao": "Distribuir as 11 espécies prontas pelas áreas planejadas, respeitando a Grande Árvore, a casa, os caminhos e a água."
@@ -98,6 +98,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
+      "Avaliar a forma, escala e cores do escorregador na prévia isolada",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
@@ -118,6 +119,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — escorregador do lago",
+      "data": "2026-10-19",
+      "titulo": "Um grande escorregador com curvas até o lago",
+      "porque": "O usuário pediu um objeto de infância grande, colorido e com curvas, desembocando no lago.",
+      "mudancas": [
+        "Duas curvas largas em S, com calha aberta e bordas contínuas",
+        "Torre com escada, guarda-corpos, telhado listrado e bandeirinha",
+        "Pista amarela, bordas vermelhas e apoios azuis presos ao chão",
+        "Saída sobre a água, com ondas pequenas sob a boca"
+      ],
+      "resultado": "Prévia inspecionada no navegador, sem avisos ou erros nesta carga. Quatro testes passaram: descida, chegada ao lago, folga do terreno e geometria. Mantidos relevo, água, caminhos, casa e Grande Árvore.",
+      "imagens": [
+        {
+          "src": "historico/previa-escorregador-lago.png",
+          "legenda": "Escorregador em S partindo da encosta e chegando ao lago"
+        },
+        {
+          "src": "historico/previa-escorregador-lateral.png",
+          "legenda": "Vista lateral da calha, da escada de acesso e dos apoios"
+        }
+      ]
+    },
     {
       "versao": "v0.40",
       "data": "2026-10-18",
