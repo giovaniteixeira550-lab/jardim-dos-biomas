@@ -1097,12 +1097,57 @@ function noTronco(partes, cor, n, raio, rng, registros, tipo) {
 
 
 /**
+ * Troncos alongados (19/10/2026): no mapa, estas espécies ficavam com 3,7–4,9 m ao lado
+ * de árvores de 10–15 m e o tronco sumia sob a copa. Em vez de reescalar a árvore inteira
+ * (a copa larga ficaria gigante), estica só o trecho entre o pé (`pe`: raízes e sapatas)
+ * e o início da copa (`copa`) e sobe todo o resto em `extra` metros. `grossura` alarga o
+ * fuste (até `raio` m do eixo), voltando ao normal perto da copa. Valores da adulta, em
+ * metros; o estágio anterior recebe a mesma proporção. Broto e muda não mudam.
+ * Na Árvore dos Ninhos o pé fica acima do oco, para ele não virar uma fenda comprida.
+ */
+const TRONCO_ALONGADO = {
+  pitanga: { pe: 0.15, copa: 0.8, extra: 2.4, grossura: 1.7, raio: 0.6 },
+  arvoreNinhos: { pe: 0.95, copa: 1.2, extra: 2.4, grossura: 1.2, raio: 0.6 },
+  arvoreSegredos: { pe: 0.3, copa: 1.6, extra: 2.3 },
+  acaciaMosaicos: { pe: 0.3, copa: 1.5, extra: 2.6 },
+  oliveiraNos: { pe: 0.3, copa: 1.3, extra: 2.3 },
+};
+
+function alongarTronco(resultado, forma) {
+  const t = TRONCO_ALONGADO[forma];
+  // `?troncos=0` mostra as proporções antigas, para comparar.
+  if (!t || new URLSearchParams(globalThis.location?.search ?? "").get("troncos") === "0") return resultado;
+  const ref = resultado.alturas[3];
+  resultado.alturas = resultado.estagios.map((geo, e) => {
+    if (e < 2) return resultado.alturas[e];
+    const k = resultado.alturas[e] / ref, pe = t.pe * k, copa = t.copa * k, extra = t.extra * k;
+    const fator = (copa + extra - pe) / (copa - pe), pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const y = pos.getY(i);
+      if (t.grossura && y < copa && Math.hypot(pos.getX(i), pos.getZ(i)) < t.raio * k) {
+        const g = 1 + (t.grossura - 1) * Math.min(1, (copa - y) / (copa * 0.3));
+        pos.setX(i, pos.getX(i) * g);
+        pos.setZ(i, pos.getZ(i) * g);
+      }
+      if (y > copa) pos.setY(i, y + extra);
+      else if (y > pe) pos.setY(i, pe + (y - pe) * fator);
+    }
+    pos.needsUpdate = true;
+    geo.computeBoundingBox();
+    geo.computeBoundingSphere();
+    return geo.boundingBox.max.y;
+  });
+  resultado.alturaAdulta = resultado.alturas[3];
+  return resultado;
+}
+
+/**
  * Constrói os 4 estágios de uma variação. Devolve { estagios: [geo×4], alturas: [m×4] }.
  * Mesma semente ⇒ mesma variação (o mundo é reprodutível).
  */
 export function construirVariacao(def, semente) {
   // Preserva o gerador próprio aprovado pelo Claude.
-  if (def.gerador === "pitanga") return construirPitanga(semente, def);
+  if (def.gerador === "pitanga") return alongarTronco(construirPitanga(semente, def), "pitanga");
   // Geradores próprios do bosque de Pediatria aprovados pelo usuário.
   const PROPRIOS = { catavento: criarCatavento, paineiraAbracos: criarPaineiraAbracos, salgueiroCancoes: criarSalgueiroCancoes, araucariaCometas: criarAraucariaCometas, manguePontes: criarManguePontes, jabuticabeiraConstelacoes: criarJabuticabeiraConstelacoes, arvoreNinhos: criarArvoreNinhos, arvoreSegredos: criarArvoreSegredos, acaciaMosaicos: criarAcaciaMosaicos, oliveiraNos: criarOliveiraNos };
   validarEspecie(def, [...Object.keys(FORMAS), ...Object.keys(PROPRIOS)]);
@@ -1113,7 +1158,7 @@ export function construirVariacao(def, semente) {
       geo.userData.arvore = { ...geo.userData.proposta, especie: def.nome, fase: FASES[e], ornamentos: [], copas: [] };
       return geo.boundingBox.max.y;
     });
-    return { estagios, alturas, alturaAdulta: alturas[3] };
+    return alongarTronco({ estagios, alturas, alturaAdulta: alturas[3] }, def.forma);
   }
   const rngAltura = criarRng(semente);
   const H = lerp(def.altura[0], def.altura[1], rngAltura());
