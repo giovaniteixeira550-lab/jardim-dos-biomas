@@ -1039,7 +1039,7 @@ export class Jardim {
     this.focarEm(null);
     this.alvo.set(local.x,Math.max(0,this.alturaEm(local.x,local.y)),local.y);
     if(local.tipo==='casa'){this.alvo.y+=3;this.alvo.z-=local.recuo??0;}
-    this.altura=local.tipo==="casa"?40:local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32;
+    this.altura=local.alturaCamera??(local.tipo==="casa"?40:local.tipo==="ponte-madeira"?46:local.tipo==="escada"?18:local.tipo==="agua"&&id==="lago"?52:32);
     return true;
   }
 

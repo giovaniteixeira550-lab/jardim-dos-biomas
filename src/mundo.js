@@ -159,9 +159,12 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   Object.assign(plano.locais.find(l=>l.id==="pavilhao"),{acesso:"replanejar",descricao:"Reserva futura do pavilhão. Largo, flores e banco retirados por enquanto; o banco atual fica junto à margem norte do lago."});
   plano.locais.push({id:"pesca",nome:"Ponto de pesca",tipo:"pesca",status:"implantado",x:pesca.x,y:pesca.y,largura:4,profundidade:3,descricao:"Banco horizontal junto à margem norte, voltado para o lago. A trilha chega por trás do assento."});
   plano.trilha=[...plano.trilha.slice(0,-1),pesca.acesso];
+  if(plano.trilhaPlantio)plano.trilhaPlantio=[...plano.trilhaPlantio.slice(0,-1),pesca.acesso];
 
   // Trilha sinuosa atravessando a clareira.
-  const trilha = { largura: 3.2, pontos: plano.trilha, largos: plano.largos };
+  // O plantio continua usando o corredor histórico. O desvio local é aplicado
+  // depois dos sorteios, preservando os indivíduos fora da nova passagem.
+  const trilha = { largura: 3.2, pontos: plano.trilhaPlantio??plano.trilha, largos: plano.largos };
   const distTrilha = (x, y) => {
     let m = Infinity;
     for (let i = 0; i < trilha.pontos.length - 1; i++) m = Math.min(m, distSegmento(x, y, trilha.pontos[i], trilha.pontos[i + 1]));
@@ -273,6 +276,8 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
     // A foz faz parte do curso, com o mesmo nível da superfície do lago.
     riacho.pontos.push({x:E.x,y:E.y,h0:altitude(E.x,E.y),agua:-0.55});
   }
+  const alturasNaturais=plano.ajusteTrilha?H.slice():null;
+  const cursoNatural=plano.ajusteTrilha?riacho.pontos.map(p=>({...p})):null;
   const percursos=organizarPercursos({trilha,riacho,lago,fatorLago,altitude,grade:G,alturas:H,DEGRAU,plano});
   const {distRiacho,larguraRiacho,perfilTrilha,pontes,ponte}=percursos;
   if(ponte)Object.assign(plano.locais.find(l=>l.id==="ponte"),{x:ponte.x,y:ponte.y,largura:ponte.comprimento,profundidade:ponte.largura});
@@ -389,5 +394,20 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   // Retira árvores, arbustos e objetos da reserva, mantendo o gramado natural.
   for(let i=objetos.length-1;i>=0;i--)if(naReservaCasa(objetos[i].x,objetos[i].y))objetos.splice(i,1);
 
-  return { semente, plano, largura, altura, areaRel, grade:{...G,FL,DT,DN}, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, distRiacho, larguraRiacho, perfilTrilha, pontes, ponte, objetos, sequenciaPlantio, ruido, fino };
+  let percursosFinais=percursos;
+  const objetosRetirados=[];
+  if(plano.ajusteTrilha){
+    // Recomeça do chão natural: a vala e a marca do caminho antigo somem,
+    // em vez de ficarem sob uma segunda escada ou de serem apenas escondidas.
+    H.set(alturasNaturais);trilha.pontos=plano.trilha;
+    riacho.pontos=cursoNatural;
+    percursosFinais=organizarPercursos({trilha,riacho,lago,fatorLago,altitude,grade:G,alturas:H,DEGRAU,plano});
+    for(let j=0;j<G.ny;j++)for(let i=0;i<G.nx;i++)DT[j*G.nx+i]=distTrilha(G.x0+i*G.passo,G.y0+j*G.passo);
+    for(let i=objetos.length-1;i>=0;i--){
+      const o=objetos[i],folga=o.tipo==='arvore'?4.6:o.tipo==='arbusto'?3.2:trilha.largura*.9;
+      if(distTrilha(o.x,o.y)<=folga){objetosRetirados.push({...o});objetos.splice(i,1);}
+    }
+    if(percursosFinais.ponte)Object.assign(plano.locais.find(l=>l.id==='ponte'),{x:percursosFinais.ponte.x,y:percursosFinais.ponte.y});
+  }
+  return { semente, plano, largura, altura, areaRel, grade:{...G,FL,DT,DN}, lago, fatorLago, trilha, distTrilha, densidade, altitude, declive, ingreme, DEGRAU, riacho, ...percursosFinais, objetos, sequenciaPlantio, objetosRetirados, ruido, fino };
 }
