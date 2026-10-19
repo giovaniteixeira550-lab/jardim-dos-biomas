@@ -56,7 +56,13 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.44)
+## 3. Estado atual (água pictórica — revisão de 19/10/2026)
+
+**Estudo aplicado de água pictórica:** `src/aguaLago.js` agora combina duas escalas de manchas submersas em movimento muito lento, reflexos fragmentados de copas, ondulações menos densas e espuma mais rara e restrita à margem. `src/aguaPercurso.js` introduz desvios sinuosos nos veios da corrente, sombras e reflexos descontínuos, reduzindo a aparência de padrões repetidos. A água permanece opaca, em material toon e quantizada pela paleta do Jardim. Referências de direção de arte: NAIAD (fluxo), Dordogne (repouso e profundidade), Wind Waker (síntese gráfica), Eastward (acabamento em pixels). **Implementação inicial sujeita a verificação visual no navegador; não considerada versão artisticamente aprovada.**
+
+**Comparar:** [demo do lago](index.html?jardim=1234&local=lago) e [teste da água](testes/agua-lago.html).
+
+### Estado anterior (v0.44)
 
 **v0.44 — troncos mais altos em Pediatria:** Pitanga-de-Sol, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós ficavam com 3,7–4,9 m ao lado de árvores de 10–15 m, com o tronco escondido sob a copa. Agora têm 6,1–7,5 m: `alongarTronco` (em `src/arvoreProc.js`, tabela `TRONCO_ALONGADO`) estica só o fuste entre o pé e o início da copa e sobe o resto, sem reescalar a copa. Ninhos, ocos, vagens e frutos não deformam (na Árvore dos Ninhos o trecho esticado fica acima do oco); a Pitanga e a Ninhos ganham fuste mais grosso. Vale para os dois estágios maiores; broto e muda não mudam. `?troncos=0` mostra as proporções antigas para comparar. Aprovado pelo usuário em 19/10/2026.
 
