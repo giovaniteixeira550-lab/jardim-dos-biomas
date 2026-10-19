@@ -28,6 +28,7 @@ import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
 import { plantarGrandeArvore } from "./grandeArvore.js";
 import { aplicarLotacao } from "./lotacao.js";
+import { criarSapos } from "./sapos.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -430,18 +431,20 @@ export class Jardim {
   /** Vitórias-régias e taboas na beira do lago. */
   criarPlantasAquaticas() {
     const m = this.mundo, L = m.lago, rng = criarRng(m.semente ^ 0x1e1a);
-    const folhas = [], taboas = [], pontas = [];
+    const folhas = [], taboas = [], pontas = [], posFolhas = [], posBeira = [];
     for (let i = 0; i < 16; i++) {
       const a = rng() * 6.28, r = L.raio(a) * lerp(0.62, 0.9, rng());
       const x = L.cx + Math.cos(a) * L.rx * r, z = L.cy + Math.sin(a) * L.ry * r;
       const f = new THREE.CylinderGeometry(lerp(0.6, 0.95, rng()), lerp(0.6, 0.95, rng()), 0.05, 10, 1, false, 0.5, 5.6); // fatia aberta: o "corte" da folha
       f.rotateY(rng() * 6.28);
       f.translate(x, -0.52, z);
-      folhas.push(f);
+      folhas.push(f); posFolhas.push({ x, z, r: 0.75 });
     }
     for (let c = 0; c < 7; c++) {
       const a = rng() * 6.28, r = L.raio(a) * lerp(0.95, 1.05, rng());
       const cx = L.cx + Math.cos(a) * L.rx * r, cz = L.cy + Math.sin(a) * L.ry * r;
+      // Um ponto seco ao lado de cada touceira de taboa, para os sapos subirem na beira.
+      { const fx = L.cx + Math.cos(a) * L.rx * L.raio(a) * 1.08, fz = L.cy + Math.sin(a) * L.ry * L.raio(a) * 1.08; posBeira.push({ x: fx, z: fz, y: Math.max(-0.5, m.altitude(fx, fz)) }); }
       for (let k = 0; k < 6; k++) {
         const x = cx + (rng() - 0.5) * 1.4, z = cz + (rng() - 0.5) * 1.4, h = lerp(1.0, 1.7, rng());
         const y = Math.max(-0.55, m.altitude(x, z));
@@ -469,6 +472,8 @@ export class Jardim {
       malha.castShadow = malha.receiveShadow = true;
       this.scene.add(malha);
     }
+    // Sapos nas folhas e na beira, com animação própria.
+    this.sapos = criarSapos(m, toon, posFolhas, posBeira); this.scene.add(this.sapos);
   }
 
   // --- Árvores ------------------------------------------------------------
@@ -1164,6 +1169,7 @@ export class Jardim {
       }
     }
     this.casaMadeira?.userData.animar?.(t);
+    this.sapos?.userData.animar?.(t);
     this.restaurarSobrevoo();
     this.atualizarCrescimento();
     // Teclado: WASD / setas movem; giro animado até o próximo passo de 45°.
