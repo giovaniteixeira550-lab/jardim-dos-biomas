@@ -94,19 +94,15 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       if(vMargem<.22&&vFundo<lambida&&vFundo>lambida-.012-tx*.05&&costa>.46)cor=uTons[3];
       float espuma=(1.-step(.018+costa*.01,vFundo))*step(.72,ruidoAgua(p*1.6+vec2(uTime*.035,0.)));
       if(espuma>.5)cor=uTons[4];
-      // 5. Brilhos de sol: um ou dois pixels que piscam no fundo, só de dia.
-      vec2 bc=floor(p/1.7);float bs=hashAgua(bc+17.);
-      vec2 bp=(bc+.2+vec2(hashAgua(bc+3.),hashAgua(bc+5.))*.6)*1.7;
-      float pisca=step(.93,fract(uTime*.35+bs*11.));
-      vec2 bd=p-bp;
-      if(bs>.82&&faixa<2&&pisca>.5&&abs(dot(bd,dirX))<tx*(fract(bs*7.)>.5?1.:.5)&&abs(dot(bd,dirY))<ty*.5&&uBrilho>.5)cor=uTons[4];
+      // Lago em repouso: sem partículas luminosas ou piscadas aleatórias.
+      // O movimento vem apenas das ondulações e dos reflexos cromáticos lentos.
       diffuseColor.rgb=cor;
     `).replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=diffuseColor.rgb*.075*uBrilho;')
       // Alfa baixo: o pós-processamento quase não aplica o pontilhado Bayer na água,
       // e as faixas ficam chapadas como num tile desenhado à mão.
       .replace('#include <opaque_fragment>','#include <opaque_fragment>\ngl_FragColor.a=.05;');
   };
-  mat.customProgramCacheKey=()=> 'lago-pictorico-4';
+  mat.customProgramCacheKey=()=> 'lago-pictorico-5-sem-pisca';
   const mesh=new THREE.Mesh(g,mat);mesh.name='lago-superficie';mesh.receiveShadow=true;
   mesh.userData={tipo:'lago',profundidade:true,aneis,contorno:n,
     /** Recebe [{x,z,r}] das folhas flutuantes para desenhar os anéis em volta delas. */
