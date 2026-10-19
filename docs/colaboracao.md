@@ -181,3 +181,7 @@ Escorregador, acesso corrigido pelo lado de fora, borboletas, esquilos e amostra
 ## Vitórias-régias aprovadas — v0.42.1 (Codex)
 
 O usuário aprovou o acabamento em 19/10/2026. Somente o commit visual `900f902` foi conciliado sobre a v0.42 pública. Identidade dos assuntos e revisão da escada continuam em prévias separadas. Detalhes em `docs/vitorias-regias.md`.
+
+## Água em pixel art — v0.43 (Claude)
+
+Pedido do usuário em 19/10/2026: melhorar a qualidade e a arte da água. O shader do lago foi reescrito (faixas chapadas de profundidade, ondinhas de 1 px, espuma na beira, anéis nas folhas, brilhos de sol) e o trecho calmo do riacho seguiu o mesmo estilo; ambos gravam alfa 0,05 para o pós-processamento não pontilhar a água. Geometria, malha e nível da água não mudaram. Proposta na branch `claude/agua-lago`, aprovada e publicada sobre a v0.42.1. Em `testes/agua-lago.html`, a verificação do barranco do riacho procura `bordas-grama-riacho`, que deixou de existir com as margens naturais da v0.41; essa falha já existia antes desta versão.

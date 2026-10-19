@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.42.1",
+  "versaoAtual": "v0.43",
   "proximoPasso": {
     "titulo": "Ligar as árvores de estudo aos subtemas",
     "descricao": "Cada uma das 278 árvores da lista refinada deve nascer quando o seu subtema for estudado, e não por sorteio."
@@ -27,8 +27,8 @@
     {
       "nome": "Terreno e água",
       "status": "andamento",
-      "progresso": 85,
-      "nota": "Margens, relevo e vitórias-régias maiores com flores, aprovados e preservados."
+      "progresso": 90,
+      "nota": "Água redesenhada em pixel art (v0.43); acabamento do relevo e escada da cascata publicados."
     },
     {
       "nome": "Vida e clima",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Água do lago e do riacho em pixel art: faixas de profundidade, ondinhas, espuma e anéis nas folhas",
       "Vitórias-régias maiores com nervuras, bordas levantadas e seis flores brancas/rosadas",
       "Escorregador em S até o lago, com caminho e escadaria por fora da estrutura",
       "Borboletas de perto com voos variados e repousos; esquilos articulados no bosque",
@@ -123,6 +124,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.43",
+      "data": "2026-10-19",
+      "titulo": "Água desenhada em pixel art",
+      "porque": "O usuário achou a arte da água fraca e pediu mais qualidade.",
+      "mudancas": [
+        "Lago em quatro faixas de profundidade chapadas, sem o pontilhado que cobria a água",
+        "Ondinhas curtas de 1 px em zonas de brisa, no lugar dos riscos retos",
+        "Espuma e linha clara que lambem a beira; anéis em volta das vitórias-régias",
+        "Riacho no mesmo estilo, com traços descendo na correnteza"
+      ],
+      "resultado": "Aprovado pelo usuário em 19/10/2026. Água mais limpa e viva de dia e de noite; folhas, sapos e escorregador preservados.",
+      "imagens": [
+        {
+          "src": "historico/v043-agua-pixel.png",
+          "legenda": "Faixas de profundidade, ondinhas de 1 px e espuma na beira do lago"
+        }
+      ]
+    },
     {
       "versao": "v0.42.1",
       "data": "2026-10-19",

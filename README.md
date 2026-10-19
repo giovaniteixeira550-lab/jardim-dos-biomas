@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.42.1)
+## 3. Estado atual (v0.43)
+
+**v0.43 — água em pixel art:** o lago passou a ter quatro faixas chapadas de profundidade (beira clara, raso, médio e fundo escuro) com bordas orgânicas que respiram devagar, sem o pontilhado Bayer que cobria a superfície (a água grava alfa baixo e o pós-processamento quase não pontilha). Os riscos retos de reflexo deram lugar a ondinhas curtas de 1 px alinhadas à tela, agrupadas em zonas de brisa e calmaria, que nascem, esticam e somem. Na beira, uma linha clara avança e recua, com espuma quebrada; em volta das vitórias-régias saem anéis lentos em arcos; de dia, raros brilhos de sol piscam no fundo. O trecho calmo do riacho usa a mesma linguagem: canal fundo no meio, laterais rasas com borda clara e traços que descem com a correnteza. Código em `src/aguaLago.js` (recebe os uniforms da câmera e `definirFolhas`) e `src/aguaPercurso.js`. Aprovado pelo usuário em 19/10/2026.
 
 **v0.42.1 — vitórias-régias maiores:** 16 folhas inteiras em forma de bandeja, com diâmetro aproximado de 3,1–4,4 m (antes 1,2–1,9 m), borda levantada, nervuras ramificadas e seis flores brancas/rosadas em camadas. Folhas próximas reposicionadas no entorno para não se sobreporem ou atingirem terra; saída do escorregador livre, taboas e sete sapos preservados. Avaliação em `index.html?jardim=1234&local=lago`; aprovadas pelo usuário em 19/10/2026. Ver [docs/vitorias-regias.md](docs/vitorias-regias.md).
 
