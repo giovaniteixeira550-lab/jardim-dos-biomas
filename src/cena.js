@@ -27,10 +27,12 @@ import { criarPostesDoces } from "./postesDoces.js";
 import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
 import { plantarGrandeArvore } from "./grandeArvore.js";
-import { criarEscorregadorLago, percursoEscorregador } from "./escorregadorLago.js";
+import { criarEscorregadorLago, criarReservaEscorregador } from "./escorregadorLago.js";
 import { aplicarAcessoEscorregador, criarEscadaAcesso } from "./acessoEscorregador.js";
 import { criarBorboletas } from "./borboletas.js";
 import { criarEsquilos } from "./esquilos.js";
+import { aplicarLotacao } from "./lotacao.js";
+import { criarSapos } from "./sapos.js";
 
 const lerp = THREE.MathUtils.lerp;
 
@@ -171,16 +173,15 @@ export class Jardim {
     progresso(0.04, "Semeando o mundo…");
     await this.ceder();
     const m = (this.mundo = gerarMundo(semente));
-    // Só nesta cópia de proposta: abre o espaço físico do brinquedo sem
-    // refazer o sorteio das árvores nem alterar água, caminhos ou relevo.
-    const pista=percursoEscorregador(),centros=Array.from({length:161},(_,i)=>pista.amostra(i/160).p);
-    this.corredorEscorregador=centros;
+    // Reserva o brinquedo e o acesso antes de distribuir as árvores.
     this.acessoEscorregador=aplicarAcessoEscorregador(m);
+    const reserva=criarReservaEscorregador(this.acessoEscorregador);
+    this.corredorEscorregador=reserva.centros;
+    // Mantém as 278 árvores de estudo; suas vagas já nascem fora do brinquedo.
+    if(new URLSearchParams(globalThis.location?.search??'').get('lotacao')!=='0')aplicarLotacao(m,{livreExtra:reserva.livre});
     m.objetos=m.objetos.filter(o=>{
       const folga=o.tipo==='arvore'?7:o.tipo==='arbusto'?3.5:o.tipo==='tronco'?4:1.8;
-      if(o.x>234&&o.x<242&&o.y>143&&o.y<160)return false;
-      if(this.acessoEscorregador.distancia(o.x,o.y)<folga)return false;
-      return !centros.some(p=>Math.hypot(o.x-p.x,o.y-p.z)<folga);
+      return reserva.livre(o.x,o.y,folga);
     });
     medir("mundo");
     this.irAoViveiro(false);
@@ -197,8 +198,8 @@ export class Jardim {
     this.criarPlantasAquaticas();
     this.escorregador=criarEscorregadorLago(m,toon);this.scene.add(this.escorregador);
     this.scene.add(criarEscadaAcesso(this.acessoEscorregador,m,toon));
-    m.plano.locais.push({id:'escorregador',nome:'Escorregador do lago — prévia',tipo:'brinquedo',x:225,y:132,largura:4,profundidade:4,alturaCamera:48,status:'proposto'});
-    m.plano.locais.push({id:'acesso-escorregador',nome:'Acesso ao escorregador — prévia',tipo:'brinquedo',x:219,y:119,largura:4,profundidade:4,alturaCamera:91,status:'proposto'});
+    m.plano.locais.push({id:'escorregador',nome:'Escorregador do lago',tipo:'brinquedo',x:225,y:132,largura:4,profundidade:4,alturaCamera:48,status:'proposto'});
+    m.plano.locais.push({id:'acesso-escorregador',nome:'Acesso ao escorregador',tipo:'brinquedo',x:219,y:119,largura:4,profundidade:4,alturaCamera:91,status:'proposto'});
     medir("agua");
 
     const lista = Object.entries(ESPECIES);
@@ -291,6 +292,26 @@ export class Jardim {
     const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
     const terraTrilha = new Float32Array(pos.count); // distância normalizada ao caminho e aos seus largos
     const limitesSolo = new Float32Array(pos.count * 2); // topo e pé REAIS do corte local
+    // Distância (m) até a linha d'água REAL: no lago, onde o terreno cruza o nível da água (-0,55), procurado em cada
+    // direção; no riacho, a partir da borda do canal. Negativa dentro da água. O material desenha a margem por pixel.
+    const agua = new Float32Array(pos.count).fill(99);
+    const LG = m.lago, nAng = 720, linhaAgua = new Float32Array(nAng), escalaAng = new Float32Array(nAng);
+    for (let k = 0; k < nAng; k++) {
+      const a = k / nAng * Math.PI * 2, r = LG.raio(a), ux = Math.cos(a) * LG.rx * r, uz = Math.sin(a) * LG.ry * r;
+      let f0 = 0.4, f1 = 1.4;
+      for (let it = 0; it < 22; it++) { const fm = (f0 + f1) / 2; (m.altitude(LG.cx + ux * fm, LG.cy + uz * fm) > -0.55 ? (f1 = fm) : (f0 = fm)); }
+      linhaAgua[k] = (f0 + f1) / 2; escalaAng[k] = Math.hypot(ux, uz);
+    }
+    const distanciaAgua = (x, z, f) => {
+      let d = 99;
+      if (f < 1.8) {
+        const dx = (x - LG.cx) / LG.rx, dz = (z - LG.cy) / LG.ry, a = (Math.atan2(dz, dx) + Math.PI * 2) % (Math.PI * 2), k = Math.floor(a / (Math.PI * 2) * nAng) % nAng;
+        d = (f - linhaAgua[k]) * escalaAng[k];
+      }
+      const dr = m.distRiacho(x, z);
+      if (dr != null && dr < 12) d = Math.min(d, dr - m.larguraRiacho(x, z) / 2);
+      return Math.max(-3, Math.min(99, d));
+    };
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
@@ -326,9 +347,10 @@ export class Jardim {
       else if (h - vizMin > 2) c.set(S[Math.min(S.length - 1, idx + 2)]); // beirada iluminada
       // O desenho fino da terra acompanha o mundo no material, sem faixa escura contínua.
       if (trilha < 0.56) c.set(T[4]);
-      // Margem e fundo do lago.
-      if (f < 1.0) c.set(f < .85 ? RAMPAS.agua[0] : f < .975 ? RAMPAS.terra[2] : RAMPAS.salvia[2]); // faixa clara rente à margem: a borda ciano das referências
-      else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
+      // Fundo do lago sob a água; a margem acima da água continua gramado e é desenhada por pixel no material
+      // (lama, areia com pedrinhas e grama úmida), sem as faixas de largura fixa que serrilhavam.
+      const dAgua = distanciaAgua(x, z, f); agua[i] = dAgua;
+      if (dAgua < -0.05 && f < 1.0) c.set(RAMPAS.agua[0]);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
       // Altura local do corte: acompanha também recortes junto à estrada/água.
@@ -347,7 +369,7 @@ export class Jardim {
       if (inc > 0.7 && f > 1.0 && trilha > 0.62) c.set(T[3]);
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
       // Os degraus são as malhas sólidas das obras; o chão sob eles continua terra.
-      grama[i] = trilha > 0.59 && f > 1.04 && inc < 0.35 ? 1 : 0;
+      grama[i] = trilha > 0.59 && dAgua > -0.1 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
@@ -355,6 +377,7 @@ export class Jardim {
     g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
     g.setAttribute("aTrilha", new THREE.BufferAttribute(terraTrilha, 1));
     g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
+    g.setAttribute("aAgua", new THREE.BufferAttribute(agua, 1));
     const gradeOriginal=g;
     g=refinarBordasTerreno(gradeOriginal,m);
     gradeOriginal.dispose();
@@ -373,7 +396,7 @@ export class Jardim {
     const material=this.materialTerreno();
     if(indicesParede.length) {
       const recorte=new THREE.BufferGeometry();
-      for(const nome of ["position","normal","color","aRocha","aGrama","aTrilha","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
+      for(const nome of ["position","normal","color","aRocha","aGrama","aTrilha","aLimitesSolo","aAgua"])recorte.setAttribute(nome,g.getAttribute(nome));
       recorte.setIndex(indicesParede);
       // Preserva as normais compartilhadas do terreno: iluminar cada
       // triângulo isoladamente desenhava dentes na encosta contínua.
@@ -430,18 +453,20 @@ export class Jardim {
   /** Vitórias-régias e taboas na beira do lago. */
   criarPlantasAquaticas() {
     const m = this.mundo, L = m.lago, rng = criarRng(m.semente ^ 0x1e1a);
-    const folhas = [], taboas = [], pontas = [];
+    const folhas = [], taboas = [], pontas = [], posFolhas = [], posBeira = [];
     for (let i = 0; i < 16; i++) {
       const a = rng() * 6.28, r = L.raio(a) * lerp(0.62, 0.9, rng());
       const x = L.cx + Math.cos(a) * L.rx * r, z = L.cy + Math.sin(a) * L.ry * r;
       const f = new THREE.CylinderGeometry(lerp(0.6, 0.95, rng()), lerp(0.6, 0.95, rng()), 0.05, 10, 1, false, 0.5, 5.6); // fatia aberta: o "corte" da folha
       f.rotateY(rng() * 6.28);
       f.translate(x, -0.52, z);
-      folhas.push(f);
+      folhas.push(f); posFolhas.push({ x, z, r: 0.75 });
     }
     for (let c = 0; c < 7; c++) {
       const a = rng() * 6.28, r = L.raio(a) * lerp(0.95, 1.05, rng());
       const cx = L.cx + Math.cos(a) * L.rx * r, cz = L.cy + Math.sin(a) * L.ry * r;
+      // Um ponto seco ao lado de cada touceira de taboa, para os sapos subirem na beira.
+      { const fx = L.cx + Math.cos(a) * L.rx * L.raio(a) * 1.08, fz = L.cy + Math.sin(a) * L.ry * L.raio(a) * 1.08; posBeira.push({ x: fx, z: fz, y: Math.max(-0.5, m.altitude(fx, fz)) }); }
       for (let k = 0; k < 6; k++) {
         const x = cx + (rng() - 0.5) * 1.4, z = cz + (rng() - 0.5) * 1.4, h = lerp(1.0, 1.7, rng());
         const y = Math.max(-0.55, m.altitude(x, z));
@@ -469,6 +494,8 @@ export class Jardim {
       malha.castShadow = malha.receiveShadow = true;
       this.scene.add(malha);
     }
+    // Sapos nas folhas e na beira, com animação própria.
+    this.sapos = criarSapos(m, toon, posFolhas, posBeira); this.scene.add(this.sapos);
   }
 
   // --- Árvores ------------------------------------------------------------
@@ -1170,6 +1197,7 @@ export class Jardim {
       }
     }
     this.casaMadeira?.userData.animar?.(t);
+    this.sapos?.userData.animar?.(t);
     this.restaurarSobrevoo();
     this.atualizarCrescimento();
     // Teclado: WASD / setas movem; giro animado até o próximo passo de 45°.

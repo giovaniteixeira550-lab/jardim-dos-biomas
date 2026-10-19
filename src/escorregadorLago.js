@@ -17,6 +17,13 @@ export function percursoEscorregador() {
   return {amostra,comprimento,largura:2.7};
 }
 
+/** Reserva as vagas antes do plantio, mantendo as quotas das árvores de estudo. */
+export function criarReservaEscorregador(acesso) {
+  const pista=percursoEscorregador(),centros=Array.from({length:161},(_,i)=>pista.amostra(i/160).p);
+  const livre=(x,z,folga=7)=>!(x>234&&x<242&&z>143&&z<162)&&acesso.distancia(x,z)>=folga&&!centros.some(p=>Math.hypot(x-p.x,z-p.z)<folga);
+  return {centros,livre};
+}
+
 export function criarEscorregadorLago(mundo,toon) {
   const grupo=new THREE.Group();grupo.name='previa-escorregador-lago';
   const percurso=percursoEscorregador(),{amostra,comprimento}=percurso;

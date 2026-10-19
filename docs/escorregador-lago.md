@@ -24,4 +24,10 @@ Inspeção final no navegador com o painel visível e o ciclo nativo de animaç�
 
 ## Acesso acrescentado
 
-Ramal de terra de 118,3 m, com o mesmo material e máscara da trilha original, desde o ponto 193,56 × 76,5 até o pé da escada em 238 × 158. Contorna o lago por leste e sobe o barranco em 18 degraus de 25 cm. A escavação se restringe à escadaria; a água, os percursos anteriores e a geometria do brinquedo permanecem iguais. O ramal fica sempre fora da água (fator mínimo 1,337). A passagem sob a borda do brinquedo tem folga calculada mínima de 2,016 m. Seis testes passaram. Vista geral em index.html?local=acesso-escorregador.
+Primeiro ramal de terra de 118,3 m, desde a trilha até o pé da escada em 238 × 158. O usuário apontou que sua passagem sob uma curva baixa era bloqueada pelo tobogã. Essa versão foi substituída na v0.42 pelo desvio abaixo.
+
+## Desvio aprovado e publicação v0.42
+
+Autorização de 19/10/2026: “pode publicar tudo q vc fez, mas antes eu quero que vc arrume o caminho pro escorregador”. O ramal agora sobe o barranco antes do brinquedo, entre 237 × 98 e 246 × 104, em 18 degraus de 25 cm. Segue pelo lado leste da estrutura, aproximadamente em x=249, contorna sua face sul e termina na escada em 238 × 158. A calha e os apoios permanecem no lugar. Todo o corredor de terra passa por fora do brinquedo, em vez de depender de uma folga de altura sob a pista.
+
+A verificação lança raios verticais sobre as duas bordas e o centro de todo o caminho, contra a geometria real da calha e das ferragens; a única conexão permitida é a chegada ao primeiro degrau da torre. A reserva do brinquedo e do caminho é aplicada antes do novo plantio de Pediatria, preservando as quotas das 278 árvores de estudo. Detalhes da reunião e publicação em docs/publicacao-v042.md.

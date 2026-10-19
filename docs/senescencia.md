@@ -16,6 +16,8 @@ Comparação lado a lado, seleção de estágio, controle de avanço, giro, incl
 
 ## Limites e continuação
 
+Publicação autorizada pelo usuário em 19/10/2026 junto do escorregador, borboletas e esquilos. Na v0.42 esta amostra passa a ter endereço público próprio e ligação no cabeçalho do jardim; seus limites funcionais abaixo permanecem.
+
 Não modifica o mapa nem dados de estudos, revisão ou planejamento. Não define quantos dias levam a cada fase, qual evento recupera a árvore ou a velocidade da recuperação real. A decisão posterior deverá considerar a regra de revisão e a leitura visual aprovada. Este lote não demonstra senescência nas demais espécies ou nas quatro fases de crescimento.
 
 ## Verificação

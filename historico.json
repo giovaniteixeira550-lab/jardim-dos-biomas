@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.40 · prévias de vida e senescência",
+  "versaoAtual": "v0.42",
   "proximoPasso": {
-    "titulo": "Compor o bosque de Pediatria no terreno",
-    "descricao": "Distribuir as 11 espécies prontas pelas áreas planejadas, respeitando a Grande Árvore, a casa, os caminhos e a água."
+    "titulo": "Ligar as árvores de estudo aos subtemas",
+    "descricao": "Cada uma das 278 árvores da lista refinada deve nascer quando o seu subtema for estudado, e não por sorteio."
   },
   "frentes": [
     {
@@ -22,7 +22,7 @@
       "nome": "Ecossistema",
       "status": "andamento",
       "progresso": 35,
-      "nota": "Solo, luz, nicho e competição prontos. Falta o tempo passar."
+      "nota": "Solo, luz, nicho e competição. Amostra de senescência reversível em duas espécies, ainda sem vínculo aos estudos."
     },
     {
       "nome": "Terreno e água",
@@ -33,8 +33,8 @@
     {
       "nome": "Vida e clima",
       "status": "andamento",
-      "progresso": 15,
-      "nota": "Dia e noite, vaga-lumes. Borboletas com densidade moderada e primeiros esquilos animados em prévia local."
+      "progresso": 40,
+      "nota": "Sapos, borboletas, esquilos e vaga-lumes animados; dia, entardecer e noite."
     },
     {
       "nome": "Ligação com os estudos",
@@ -45,6 +45,9 @@
   ],
   "quadro": {
     "funciona": [
+      "Escorregador em S até o lago, com caminho e escadaria por fora da estrutura",
+      "Borboletas de perto com voos variados e repousos; esquilos articulados no bosque",
+      "Amostra pública dos cinco estágios de senescência, com recuperação visual",
       "Escada e caminho afastados da primeira cascata, com faixa de grama antes do rio",
       "Bordas contínuas e textura autoral de terra em pixel art, aprovadas em amostra e aplicadas ao mapa",
       "Encostas com iluminação contínua e margens do riacho com ombro arredondado",
@@ -98,9 +101,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
-      "Avaliar os estágios visuais de senescência antes de adaptar as demais espécies e definir prazos",
-      "Avaliar borboletas com densidade moderada e os primeiros esquilos animados",
-      "Avaliar a forma, escala e cores do escorregador na prévia isolada",
+      "Adaptar a senescência às demais espécies e definir prazos antes de ligá-la aos estudos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
@@ -121,6 +122,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.42",
+      "data": "2026-10-19",
+      "titulo": "Escorregador com acesso livre e mais vida no bosque",
+      "porque": "O usuário aprovou a publicação de todo o conjunto após corrigir o caminho bloqueado pelo tobogã.",
+      "mudancas": [
+        "Caminho de terra e escadaria passam por fora da calha e dos apoios até a escada da torre",
+        "Escorregador grande em S desembocando no lago, com torre colorida",
+        "Borboletas em quantidade moderada e esquilos animados pelo bosque",
+        "Amostra pública de senescência com cinco estágios, perda de folhas e recuperação"
+      ],
+      "resultado": "278 árvores de estudo e suas quotas preservadas. Passagem livre conferida nas malhas reais. Senescência demonstrativa, sem prazos ou conexão aos estudos. Conferência completa em docs/publicacao-v042.md.",
+      "imagens": [
+        {
+          "src": "historico/v0.42-acesso-livre.png",
+          "legenda": "Caminho pelo lado de fora do tobogã, chegando ao pé da escada"
+        },
+        {
+          "src": "projetos/senescencia/capturas/comparacao-carvalho.png",
+          "legenda": "Amostra de senescência reversível da mesma árvore adulta"
+        }
+      ]
+    },
     {
       "versao": "Prévia — senescência das árvores",
       "data": "2026-10-19",
@@ -206,6 +230,43 @@
         {
           "src": "historico/previa-escorregador-lateral.png",
           "legenda": "Vista lateral da calha, da escada de acesso e dos apoios"
+        }
+      ]
+    },
+    {
+      "versao": "v0.41.1",
+      "data": "2026-10-19",
+      "titulo": "Lista refinada de Pediatria: 278 árvores",
+      "porque": "Cada árvore passa a valer o assunto de uma sessão de estudo, em vez de um subtema longo.",
+      "mudancas": [
+        "Os 112 subtemas viraram grupos, divididos em 278 árvores de uma sessão",
+        "Seis grupos novos para assuntos que faltavam (adolescência, apneia do sono, calazar, neurocutâneas e outros)",
+        "O plantio usa a quantidade exata de cada espécie da lista nova"
+      ],
+      "resultado": "Lista em arvores-pediatria.json (v2), na pasta do projeto; as ligações com o organizador foram mantidas nos grupos.",
+      "imagens": [
+        {
+          "src": "historico/v0.41-jardim-surpresa.jpg",
+          "legenda": "O jardim surpresa, agora com 278 árvores de estudo"
+        }
+      ]
+    },
+    {
+      "versao": "v0.41",
+      "data": "2026-10-19",
+      "titulo": "Jardim surpresa, margens naturais e sapos",
+      "porque": "O usuário quis um bosque mais cheio e misturado que cresce sem ele saber como vai ficar, beiras de água mais bonitas e vida no lago.",
+      "mudancas": [
+        "Cerca de 270 árvores de estudo das 11 espécies, misturadas, mais 210 de paisagem no terreno inteiro, com clareiras",
+        "Jardim surpresa: semente sorteada uma vez por navegador; cada árvore escolhe o lugar ao nascer na barra de crescimento",
+        "Margens do lago e do riacho naturais: barranco contínuo, lama, areia com pedrinhas, grama úmida e espuma rasa",
+        "Sete sapos que respiram, piscam, coaxam e saltam de folha em folha"
+      ],
+      "resultado": "Bosque cheio sem excesso e água com beira natural; as árvores de estudo ainda não estão ligadas a subtemas reais.",
+      "imagens": [
+        {
+          "src": "historico/v0.41-jardim-surpresa.jpg",
+          "legenda": "Um jardim surpresa com as espécies de Pediatria misturadas"
         }
       ]
     },

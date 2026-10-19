@@ -36,9 +36,19 @@ export function criarLago(mundo,toon) {
       float onda=abs(fract(vMargem*.36-uTime*.055)-.48);
       float margem=(1.-step(.018,onda))*(1.-step(2.3,vMargem))*step(.58,hashAgua(floor(p/2.4)));
       cor=mix(cor,uReflexo,costa*.38+margem*.3);
+      // Raso junto à margem VISÍVEL (pela profundidade real, não pelo contorno, que fica sob a terra):
+      // faixa mais clara de largura irregular e uma linha de espuma quebrada que cintila devagar.
+      float rn=sin(p.x*.93+p.y*.61)*.5+sin(p.y*1.37-p.x*.42)*.5;
+      cor=mix(cor,uReflexo,(1.-step(.085+rn*.035,vFundo))*.55);
+      float rasoMedio=(1.-step(.17+rn*.05,vFundo))*step(.085+rn*.035,vFundo);
+      cor=mix(cor,uRaso,rasoMedio*.6);
+      float pedaco=hashAgua(floor(p/vec2(.72,.54)));
+      float cintila=step(.25,fract(uTime*.12+pedaco));
+      float espuma=(1.-step(.026+rn*.01,vFundo))*step(.28,pedaco)*cintila;
+      cor=mix(cor,uEspuma,espuma*.85);
       diffuseColor.rgb=cor;
     `).replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=diffuseColor.rgb*.075*uBrilho;');
   };
-  mat.customProgramCacheKey=()=> 'lago-faixas-ondas-1';
+  mat.customProgramCacheKey=()=> 'lago-faixas-ondas-2-raso';
   const mesh=new THREE.Mesh(g,mat);mesh.name='lago-superficie';mesh.receiveShadow=true;mesh.userData={tipo:'lago',profundidade:true,aneis,contorno:n};return mesh;
 }

@@ -3,10 +3,10 @@ import {RAMPAS} from './paleta.js';
 
 /** Ramal de terra: sai da trilha, sobe o barranco e chega ao pé da escada. */
 export function definirAcessoEscorregador(mundo) {
-  const origem=mundo.trilha.pontos.at(-2),inicio={x:232.5,y:117},fim={x:240,y:122};
+  const origem=mundo.trilha.pontos.at(-2),inicio={x:237,y:98},fim={x:246,y:104};
   const curvas=[
-    [origem,{x:201,y:80},{x:215,y:85},{x:225,y:94},{x:230,y:106},inicio],
-    [fim,{x:245,y:128},{x:246,y:143},{x:245,y:157},{x:241,y:161},{x:238,y:160},{x:238,y:158}],
+    [origem,{x:201,y:80},{x:215,y:85},{x:229,y:90},inicio],
+    [fim,{x:249,y:114},{x:249,y:135},{x:249,y:155},{x:246,y:161},{x:241,y:162},{x:238,y:160},{x:238,y:158}],
   ].map(pontos=>new THREE.CatmullRomCurve3(pontos.map(p=>new THREE.Vector3(p.x,0,p.y)),false,'centripetal'));
   const pontos=[];
   curvas.forEach((c,i)=>{
