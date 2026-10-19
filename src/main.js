@@ -61,7 +61,7 @@ async function iniciar(semente) {
     if($("viveiro").getAttribute("aria-pressed")==="true")jardim.focarEspecieViveiro($("especie-viveiro").value);
     const local=new URLSearchParams(window.location.search).get("local");
     if(local)jardim.irParaLocal(local);
-    if(local==='escorregador')jardim.quadroAnim(); // primeira imagem já usa o enquadramento da proposta
+    if(local?.includes('escorregador'))jardim.quadroAnim(); // primeira imagem já usa o enquadramento da proposta
     $("info").textContent = `Semente ${semente} · ${jardim.info().instancias} árvores e arbustos`;
     window.jardim = jardim;
     tela.hidden = true;

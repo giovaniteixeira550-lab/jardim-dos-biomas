@@ -128,10 +128,14 @@
         "Duas curvas largas em S, com calha aberta e bordas contínuas",
         "Torre com escada, guarda-corpos, telhado listrado e bandeirinha",
         "Pista amarela, bordas vermelhas e apoios azuis presos ao chão",
-        "Saída sobre a água, com ondas pequenas sob a boca"
+        "Caminho de terra desde a trilha principal, com subida de pedra até o patamar"
       ],
-      "resultado": "Prévia inspecionada no navegador, sem avisos ou erros nesta carga. Quatro testes passaram: descida, chegada ao lago, folga do terreno e geometria. Mantidos relevo, água, caminhos, casa e Grande Árvore.",
+      "resultado": "Seis testes passaram; ramal contínuo fora do lago e 18 degraus conferidos. Vista geral inspecionada sem avisos ou erros. Proposta local para avaliação.",
       "imagens": [
+        {
+          "src": "historico/previa-acesso-escorregador.png",
+          "legenda": "Ligação da trilha principal até o pé da escada do escorregador"
+        },
         {
           "src": "historico/previa-escorregador-lago.png",
           "legenda": "Escorregador em S partindo da encosta e chegando ao lago"

@@ -21,3 +21,7 @@ Quatro testes em testes/escorregador.mjs: descida contínua e chegada dentro da 
 Revisão: http://127.0.0.1:5651/jardim-escorregador/?local=escorregador . Captura de aprovação: historico/previa-escorregador-lago.png .
 
 Inspeção final no navegador com o painel visível e o ciclo nativo de animação: pista completa, saída sobre a água e vegetação fora da calha. Nenhum aviso ou erro na carga final.
+
+## Acesso acrescentado
+
+Ramal de terra de 118,3 m, com o mesmo material e máscara da trilha original, desde o ponto 193,56 × 76,5 até o pé da escada em 238 × 158. Contorna o lago por leste e sobe o barranco em 18 degraus de 25 cm. A escavação se restringe à escadaria; a água, os percursos anteriores e a geometria do brinquedo permanecem iguais. O ramal fica sempre fora da água (fator mínimo 1,337). A passagem sob a borda do brinquedo tem folga calculada mínima de 2,016 m. Seis testes passaram. Vista geral em index.html?local=acesso-escorregador.
