@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { RAMPAS } from "./paleta.js";
 import { criarRng } from "./mundo.js";
+import { criarMaterialRelevo } from "./solo.js";
 
 const EPS = 1e-5;
 
@@ -147,6 +148,45 @@ export function criarAguaPercurso(mundo, materialToon) {
   const labios = { pos: [] };
   const margens = { pos: [], cores: [] };
   const gramaMargens = { pos: [], cores: [] };
+  // Barranco natural: faixa contínua ao longo do curso, da água até o gramado (~2 m), seguindo o terreno.
+  // Cobre o corte do canal (que a grade de 0,5 m desenhava em dentes) e recebe a pintura de margem do solo.
+  const barranco = { pos: [], cores: [], agua: [] };
+  const S = RAMPAS.salvia, corGrama = (x, z, y) => {
+    const n1 = mundo.ruido ? mundo.ruido(x / 22, z / 22 + 9, 3) : 0.5;
+    let idx = (n1 < 0.5 ? 3 : 4) + Math.floor(Math.max(0, y + 0.6) / (mundo.DEGRAU ?? 4.5)) - 1;
+    const c = new THREE.Color(S[Math.max(0, Math.min(S.length - 1, idx))]);
+    const d = mundo.densidade ? mundo.densidade(x, z) : 0, t = Math.max(0, Math.min(1, (d - 0.25) / 0.65));
+    return c.lerp(new THREE.Color(S[1]), Math.round(t * t * (3 - 2 * t) * 2) / 2 * 0.7);
+  };
+  const OFFSETS = [0.1, 0.25, 0.45, 0.7, 0.95, 1.25, 1.6, 1.95];
+  const secaoBarranco = (p, lado) => {
+    const nl = Math.hypot(p.nx, p.nz) || 1, ux = p.nx / nl * lado, uz = p.nz / nl * lado;
+    const bx = p.x + p.nx * lado, bz = p.z + p.nz * lado;
+    // Altura do terreno: a maior numa pequena vizinhança (ao longo e através do curso), para o corte do canal
+    // nunca furar o barranco entre uma seção e a próxima.
+    const alt = (sd) => {
+      if (!mundo.altitude) return p.h;
+      let h = -Infinity;
+      for (const [ta, tc] of [[0, 0], [-0.9, 0], [0.9, 0], [-0.45, 0.25], [0.45, 0.25], [0, -0.2]]) h = Math.max(h, mundo.altitude(bx + ux * (sd + tc) + p.dx * ta, bz + uz * (sd + tc) + p.dz * ta));
+      return h;
+    };
+    const topo = alt(1.95), pts = [[bx, p.h - 0.55, bz, -0.6], [bx, p.h - 0.04, bz, -0.08]];
+    for (const sd of OFFSETS) {
+      const t = Math.max(0, Math.min(1, (sd - 0.1) / 1.5)), alvo = p.h + 0.02 + (topo - p.h - 0.02) * t * t * (3 - 2 * t);
+      const y = sd >= 1.95 ? topo + 0.03 : Math.max(alvo, alt(sd) + 0.07);
+      pts.push([bx + ux * sd, y, bz + uz * sd, sd - 0.08]);
+    }
+    return pts;
+  };
+  const ligarBarranco = (sa, sb) => {
+    for (let k = 0; k < sa.length - 1; k++) {
+      const v = [sa[k], sb[k], sa[k + 1], sb[k + 1]];
+      for (const tri of [[0, 1, 2], [1, 3, 2]]) for (const i of tri) {
+        const [x, y, z, a] = v[i]; barranco.pos.push(x, y, z); barranco.agua.push(a);
+        const c = corGrama(x, z, y); barranco.cores.push(c.r, c.g, c.b);
+      }
+    }
+  };
   const bordas = (p, h = p.h) => [[p.x + p.nx, h, p.z + p.nz], [p.x - p.nx, h, p.z - p.nz]];
   let percurso = 0;
   for (let i = 0; i < secoes.length - 1; i++) {
@@ -156,7 +196,7 @@ export function criarAguaPercurso(mundo, materialToon) {
     // Bordas laterais fechadas compartilham exatamente a meia-esquadria da
     // água. O tampo estreito cobre a interpolação do leito, sem cruzar o canal.
     for (const lado of [-1, 1]) {
-      if(mundo.fatorLago?.((a.x+b.x)/2,(a.z+b.z)/2)<1.025)continue;
+      if(mundo.fatorLago?.((a.x+b.x)/2,(a.z+b.z)/2)<0.99)continue; // a margem segue até dentro da foz, cobrindo o corte do terreno
       const secaoMargem = (p) => {
         const nl = Math.hypot(p.nx, p.nz) || 1;
         const x = p.x + p.nx * lado, z = p.z + p.nz * lado;
@@ -177,13 +217,8 @@ export function criarAguaPercurso(mundo, materialToon) {
       };
       const ma = secaoMargem(a), mb = secaoMargem(b);
       if (distancia > EPS) {
-        quadColorido(margens, ma.base, ma.meio, mb.base, mb.meio, RAMPAS.terra[1]);
-        quadColorido(margens, ma.meio, ma.topo, mb.meio, mb.topo, RAMPAS.terra[2]);
-        quadColorido(margens, ma.foraTopo, ma.foraBase, mb.foraTopo, mb.foraBase, RAMPAS.terra[2]);
-        const mancha = Math.sin((a.x + b.x) * 0.17 + (a.z + b.z) * 0.105 + lado * 2.1);
-        const corGrama = mancha > 0.62 ? RAMPAS.salvia[3] : RAMPAS.salvia[2];
-        quadColorido(gramaMargens, ma.topo, ma.ombro, mb.topo, mb.ombro, corGrama);
-        quadColorido(gramaMargens, ma.ombro, ma.foraTopo, mb.ombro, mb.foraTopo, corGrama);
+        // Barranco natural no lugar da tira estreita de margem e do ombro de grama liso.
+        ligarBarranco(secaoBarranco(a, lado), secaoBarranco(b, lado));
       } else if (desnivel > 0.025) {
         // Na cortina, esta faixa vira uma face rochosa apenas por FORA das
         // duas bordas; o vão entre elas permanece inteiramente de água.
@@ -261,6 +296,19 @@ export function criarAguaPercurso(mundo, materialToon) {
     const malha = new THREE.Mesh(geometria, matMargem);
     malha.name = nome;
     malha.receiveShadow = true;
+    grupo.add(malha);
+  }
+  if (barranco.pos.length) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(barranco.pos, 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(barranco.cores, 3));
+    geo.setAttribute("aAgua", new THREE.Float32BufferAttribute(barranco.agua, 1));
+    const unida = mergeVertices(geo, 0.0001); geo.dispose(); unida.computeVertexNormals();
+    unida.setAttribute("aNormalSombra", unida.getAttribute("normal"));
+    // A ordem dos vértices inverte de um lado do curso para o outro: desenha as duas faces.
+    const matBarranco = criarMaterialRelevo(materialToon); matBarranco.side = THREE.DoubleSide;
+    const malha = new THREE.Mesh(unida, matBarranco);
+    malha.name = "barranco-natural-riacho"; malha.receiveShadow = true;
     grupo.add(malha);
   }
   if (espuma.pos.length || labios.pos.length) {

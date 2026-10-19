@@ -269,6 +269,26 @@ export class Jardim {
     const grama = new Float32Array(pos.count); // 1 = gramado: recebe manchas e tufinhos desenhados no shader
     const terraTrilha = new Float32Array(pos.count); // distância normalizada ao caminho e aos seus largos
     const limitesSolo = new Float32Array(pos.count * 2); // topo e pé REAIS do corte local
+    // Distância (m) até a linha d'água REAL: no lago, onde o terreno cruza o nível da água (-0,55), procurado em cada
+    // direção; no riacho, a partir da borda do canal. Negativa dentro da água. O material desenha a margem por pixel.
+    const agua = new Float32Array(pos.count).fill(99);
+    const LG = m.lago, nAng = 720, linhaAgua = new Float32Array(nAng), escalaAng = new Float32Array(nAng);
+    for (let k = 0; k < nAng; k++) {
+      const a = k / nAng * Math.PI * 2, r = LG.raio(a), ux = Math.cos(a) * LG.rx * r, uz = Math.sin(a) * LG.ry * r;
+      let f0 = 0.4, f1 = 1.4;
+      for (let it = 0; it < 22; it++) { const fm = (f0 + f1) / 2; (m.altitude(LG.cx + ux * fm, LG.cy + uz * fm) > -0.55 ? (f1 = fm) : (f0 = fm)); }
+      linhaAgua[k] = (f0 + f1) / 2; escalaAng[k] = Math.hypot(ux, uz);
+    }
+    const distanciaAgua = (x, z, f) => {
+      let d = 99;
+      if (f < 1.8) {
+        const dx = (x - LG.cx) / LG.rx, dz = (z - LG.cy) / LG.ry, a = (Math.atan2(dz, dx) + Math.PI * 2) % (Math.PI * 2), k = Math.floor(a / (Math.PI * 2) * nAng) % nAng;
+        d = (f - linhaAgua[k]) * escalaAng[k];
+      }
+      const dr = m.distRiacho(x, z);
+      if (dr != null && dr < 12) d = Math.min(d, dr - m.larguraRiacho(x, z) / 2);
+      return Math.max(-3, Math.min(99, d));
+    };
     const S = RAMPAS.salvia, T = RAMPAS.terra;
     const c = new THREE.Color(), tmp = new THREE.Color();
     const rng = criarRng(m.semente ^ 0x77);
@@ -304,9 +324,10 @@ export class Jardim {
       else if (h - vizMin > 2) c.set(S[Math.min(S.length - 1, idx + 2)]); // beirada iluminada
       // O desenho fino da terra acompanha o mundo no material, sem faixa escura contínua.
       if (trilha < 0.56) c.set(T[4]);
-      // Margem e fundo do lago.
-      if (f < 1.0) c.set(f < .85 ? RAMPAS.agua[0] : f < .975 ? RAMPAS.terra[2] : RAMPAS.salvia[2]); // faixa clara rente à margem: a borda ciano das referências
-      else if (f < 1.035 + n2 * 0.03) c.set(S[1]).lerp(tmp.set(T[2]), 0.45);
+      // Fundo do lago sob a água; a margem acima da água continua gramado e é desenhada por pixel no material
+      // (lama, areia com pedrinhas e grama úmida), sem as faixas de largura fixa que serrilhavam.
+      const dAgua = distanciaAgua(x, z, f); agua[i] = dAgua;
+      if (dAgua < -0.05 && f < 1.0) c.set(RAMPAS.agua[0]);
       // Barranco: camadas de terra e pedra (estratos horizontais), fora da trilha.
       const inc = inclinacao(i);
       // Altura local do corte: acompanha também recortes junto à estrada/água.
@@ -325,7 +346,7 @@ export class Jardim {
       if (inc > 0.7 && f > 1.0 && trilha > 0.62) c.set(T[3]);
       else if (inc > 0.35 && f > 1.0 && trilha > 0.62) c.set(S[1]); // beirada do platô
       // Os degraus são as malhas sólidas das obras; o chão sob eles continua terra.
-      grama[i] = trilha > 0.59 && f > 1.04 && inc < 0.35 ? 1 : 0;
+      grama[i] = trilha > 0.59 && dAgua > -0.1 && inc < 0.35 ? 1 : 0;
       cores.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(cores, 3));
@@ -333,6 +354,7 @@ export class Jardim {
     g.setAttribute("aGrama", new THREE.BufferAttribute(grama, 1));
     g.setAttribute("aTrilha", new THREE.BufferAttribute(terraTrilha, 1));
     g.setAttribute("aLimitesSolo", new THREE.BufferAttribute(limitesSolo, 2));
+    g.setAttribute("aAgua", new THREE.BufferAttribute(agua, 1));
     const gradeOriginal=g;
     g=refinarBordasTerreno(gradeOriginal,m);
     gradeOriginal.dispose();
@@ -351,7 +373,7 @@ export class Jardim {
     const material=this.materialTerreno();
     if(indicesParede.length) {
       const recorte=new THREE.BufferGeometry();
-      for(const nome of ["position","normal","color","aRocha","aGrama","aTrilha","aLimitesSolo"])recorte.setAttribute(nome,g.getAttribute(nome));
+      for(const nome of ["position","normal","color","aRocha","aGrama","aTrilha","aLimitesSolo","aAgua"])recorte.setAttribute(nome,g.getAttribute(nome));
       recorte.setIndex(indicesParede);
       // Preserva as normais compartilhadas do terreno: iluminar cada
       // triângulo isoladamente desenhava dentes na encosta contínua.
