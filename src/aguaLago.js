@@ -1,8 +1,16 @@
 import * as THREE from 'three';
 import {RAMPAS} from './paleta.js';
 
-/** Lago desenhado em faixas de profundidade e ondulações largas, fixas no mundo. */
-export function criarLago(mundo,toon) {
+const MAX_FOLHAS = 24;
+
+/**
+ * Lago em pixel art: quatro faixas de profundidade com bordas orgânicas, ondinhas
+ * curtas alinhadas à tela (1 px de espessura), espuma que lambe a margem, anéis
+ * lentos em volta das folhas e brilhos raros de sol. Tudo fixo no mundo.
+ * `opcoes.direita`/`opcoes.texel` são os uniforms da câmera (direção da tela e
+ * tamanho do pixel), para que os traços tenham sempre 1 px.
+ */
+export function criarLago(mundo,toon,opcoes={}) {
   const L=mundo.lago,n=L.contorno.length,aneis=40,pos=[L.cx,-.55,L.cy],prof=[],margem=[],indices=[];
   const amostra=(x,z)=>{
     let d=Infinity;for(let i=0;i<n;i++) {const a=L.contorno[i],b=L.contorno[(i+1)%n],dx=b.x-a.x,dz=b.y-a.y,t=THREE.MathUtils.clamp(((x-a.x)*dx+(z-a.y)*dz)/(dx*dx+dz*dz),0,1);d=Math.min(d,Math.hypot(x-a.x-dx*t,z-a.y-dz*t));}
@@ -15,40 +23,84 @@ export function criarLago(mundo,toon) {
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aFundo',new THREE.Float32BufferAttribute(prof,1));g.setAttribute('aMargem',new THREE.Float32BufferAttribute(margem,1));g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
   const mat=toon({color:RAMPAS.agua[3],side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:0,polygonOffsetUnits:-2});
   mat.name='lago-profundidade-ondas';mat.userData.profundidade=true;
-  mat.onBeforeCompile=shader=>{
-    Object.assign(shader.uniforms,{uTime:{value:0},uBrilho:{value:1},uFundo:{value:new THREE.Color(RAMPAS.agua[2])},uMedio:{value:new THREE.Color(RAMPAS.agua[3]).lerp(new THREE.Color(RAMPAS.agua[2]),.35)},uRaso:{value:new THREE.Color(RAMPAS.agua[3])},uReflexo:{value:new THREE.Color(RAMPAS.agua[4])},uEspuma:{value:new THREE.Color(RAMPAS.agua[5])}});mat.userData.shader=shader;
-    shader.vertexShader='attribute float aFundo; attribute float aMargem; varying float vFundo; varying float vMargem; varying vec2 vAgua;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvFundo=aFundo;vMargem=aMargem;vAgua=position.xz;');
-    shader.fragmentShader='uniform float uTime;uniform float uBrilho;uniform vec3 uFundo,uMedio,uRaso,uReflexo,uEspuma;varying float vFundo;varying float vMargem;varying vec2 vAgua;\nfloat hashAgua(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}\n'+shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-      vec2 p=floor(vAgua/.18)*.18;
-      float mancha=sin(p.x*.19+p.y*.13)+sin(p.y*.23-p.x*.09)*.45;
-      float fundo=vFundo+mancha*.13;
-      vec3 cor=mix(uRaso,uMedio,step(.28,fundo));cor=mix(cor,uFundo,step(.83,fundo));
-      // Reflexos fragmentados: poucas pinceladas compridas, sem chuvisco branco.
-      vec2 cel=floor(p/vec2(5.8,4.2));float sorte=hashAgua(cel);
-      vec2 q=fract(p/vec2(5.8,4.2));
-      float fase=fract(uTime*.055+sorte),pulso=step(.12,fase)*(1.-step(.64,fase));
-      float arco=abs(q.y-(.28+sorte*.35+sin(uTime*.18+sorte*6.28)*.035)-pow(q.x-.5,2.)*.24);
-      float reflexo=(1.-step(.028,arco))*step(.22,q.x)*(1.-step(.73+sorte*.15,q.x))*step(.63,sorte)*pulso;
-      float manchaLuz=step(.94,sin(p.x*.085+p.y*.057+uTime*.07)*sin(p.y*.061-p.x*.04));
-      cor=mix(cor,uReflexo,reflexo*.45*uBrilho+manchaLuz*.13);
-      // Faixa rasa acompanha a costa real; pequenas ondas se abrem só em alguns trechos.
-      float costa=(1.-step(.34,vMargem))*step(.1,vMargem)*step(.05,sin(p.x*.38+p.y*.25));
-      float onda=abs(fract(vMargem*.36-uTime*.055)-.48);
-      float margem=(1.-step(.018,onda))*(1.-step(2.3,vMargem))*step(.58,hashAgua(floor(p/2.4)));
-      cor=mix(cor,uReflexo,costa*.38+margem*.3);
-      // Raso junto à margem VISÍVEL (pela profundidade real, não pelo contorno, que fica sob a terra):
-      // faixa mais clara de largura irregular e uma linha de espuma quebrada que cintila devagar.
-      float rn=sin(p.x*.93+p.y*.61)*.5+sin(p.y*1.37-p.x*.42)*.5;
-      cor=mix(cor,uReflexo,(1.-step(.085+rn*.035,vFundo))*.55);
-      float rasoMedio=(1.-step(.17+rn*.05,vFundo))*step(.085+rn*.035,vFundo);
-      cor=mix(cor,uRaso,rasoMedio*.6);
-      float pedaco=hashAgua(floor(p/vec2(.72,.54)));
-      float cintila=step(.25,fract(uTime*.12+pedaco));
-      float espuma=(1.-step(.026+rn*.01,vFundo))*step(.28,pedaco)*cintila;
-      cor=mix(cor,uEspuma,espuma*.85);
-      diffuseColor.rgb=cor;
-    `).replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=diffuseColor.rgb*.075*uBrilho;');
+  const cor=i=>new THREE.Color(RAMPAS.agua[i]);
+  const uFolhas={value:Array.from({length:MAX_FOLHAS},()=>new THREE.Vector3(0,0,-1))};
+  const uniforms={
+    uTime:{value:0},uBrilho:{value:1},
+    uDireitaAgua:opcoes.direita??{value:new THREE.Vector2(1,0)},uTexelAgua:opcoes.texel??{value:.12},
+    uTons:{value:[cor(1),cor(2),cor(3),cor(4),cor(5)]},uFolhas,
   };
-  mat.customProgramCacheKey=()=> 'lago-faixas-ondas-2-raso';
-  const mesh=new THREE.Mesh(g,mat);mesh.name='lago-superficie';mesh.receiveShadow=true;mesh.userData={tipo:'lago',profundidade:true,aneis,contorno:n};return mesh;
+  mat.onBeforeCompile=shader=>{
+    Object.assign(shader.uniforms,uniforms);mat.userData.shader=shader;
+    shader.vertexShader='attribute float aFundo; attribute float aMargem; varying float vFundo; varying float vMargem; varying vec2 vAgua;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvFundo=aFundo;vMargem=aMargem;vAgua=position.xz;');
+    shader.fragmentShader=`uniform float uTime,uBrilho,uTexelAgua;uniform vec2 uDireitaAgua;uniform vec3 uTons[5];uniform vec3 uFolhas[${MAX_FOLHAS}];
+varying float vFundo;varying float vMargem;varying vec2 vAgua;
+float hashAgua(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+  return mix(mix(hashAgua(i),hashAgua(i+vec2(1,0)),f.x),mix(hashAgua(i+vec2(0,1)),hashAgua(i+vec2(1,1)),f.x),f.y);}
+`+shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+      vec2 p=vAgua;
+      // Eixos da tela projetados no plano da água: traços horizontais na tela e 1 px de espessura.
+      vec2 dirX=normalize(uDireitaAgua),dirY=vec2(dirX.y,-dirX.x);
+      float tx=uTexelAgua,ty=uTexelAgua/.62;
+      float sx=dot(p,dirX),sy=dot(p,dirY);
+      // 1. Faixas de profundidade com bordas orgânicas (ruído lento, que respira devagar).
+      float org=ruidoAgua(p*.11+vec2(uTime*.012,0.))*.65+ruidoAgua(p*.37-vec2(0.,uTime*.02))*.35;
+      float fundo=vFundo+(org-.5)*.16;
+      int faixa=fundo<.07?3:(fundo<.3?2:(fundo<.7?1:0));
+      vec3 cor=uTons[faixa];
+      // 2. Ondinhas: traços curtos de 1 px (com uma cristinha menor acima), espalhados em
+      //    linhas desencontradas; nascem, esticam e somem, derivando devagar com o vento.
+      float linha=floor(sy/(ty*8.));
+      float deriva=uTime*.18*(hashAgua(vec2(linha,3.1))-.35);
+      float ux=sx+deriva+hashAgua(vec2(linha,9.7))*4.;
+      float cel=floor(ux/2.6);float sorte=hashAgua(vec2(cel,linha));
+      float fase=fract(uTime*.07+sorte*5.3);
+      float vida=sin(fase*3.1416);
+      float meio=(cel+.5)*2.6+(hashAgua(vec2(linha,cel+.7))-.5)*.8;
+      float comp=(.35+sorte*.6)*vida;
+      float dy=sy-(linha+.5)*ty*8.;
+      float tra=step(abs(ux-meio),comp)*step(abs(dy),ty*.5);
+      float crista=step(abs(ux-meio-comp*.15),comp*.45)*step(abs(dy-ty),ty*.5);
+      // Zonas de brisa e de calmaria: as ondinhas se agrupam, sem cobrir o lago por igual.
+      float brisa=ruidoAgua(p*.06+vec2(uTime*.01,-uTime*.008));
+      float onda=max(tra,crista)*step(.95-brisa*.6,sorte)*step(.08,fundo);
+      if(onda>.5)cor=uTons[min(faixa+1,4)];
+      // 3. Anéis lentos em volta das vitórias-régias (arcos de 1 px que se afastam e somem).
+      for(int i=0;i<${MAX_FOLHAS};i++){
+        vec3 f=uFolhas[i];if(f.z<0.)continue;
+        vec2 d=p-f.xy;float dist=length(vec2(dot(d,dirX),dot(d,dirY)))-f.z;
+        if(dist<0.||dist>1.1)continue;
+        float h=hashAgua(f.xy);
+        float ciclo=uTime*.11+h*7.,raio=fract(ciclo)*1.1;
+        // Só parte das folhas tem anel em cada ciclo, e o anel sai em arcos quebrados.
+        float ativo=step(.3,hashAgua(f.xy+floor(ciclo)));
+        float arco=step(.55,ruidoAgua(normalize(d)*2.6+h*9.+floor(ciclo)))*ativo;
+        if(abs(dist-raio)<ty*.55&&arco>.5&&raio<1.1*(.55+h*.45))cor=uTons[min(faixa+1,4)];
+      }
+      // 4. Margem: linha clara que lambe a beira (avança e recua ao longo da costa) e espuma quebrada.
+      float costa=ruidoAgua(p*.9)*.6+ruidoAgua(p*2.7)*.4;
+      float lambida=.045+.022*sin(uTime*.9+dot(p,vec2(.21,.17))*2.+costa*3.);
+      if(vFundo<lambida&&vFundo>lambida-.012-tx*.05)cor=uTons[3];
+      float espuma=(1.-step(.02+costa*.012,vFundo))*step(.32,ruidoAgua(p*1.6+vec2(uTime*.05,0.)));
+      if(espuma>.5)cor=uTons[4];
+      // 5. Brilhos de sol: um ou dois pixels que piscam no fundo, só de dia.
+      vec2 bc=floor(p/1.7);float bs=hashAgua(bc+17.);
+      vec2 bp=(bc+.2+vec2(hashAgua(bc+3.),hashAgua(bc+5.))*.6)*1.7;
+      float pisca=step(.93,fract(uTime*.35+bs*11.));
+      vec2 bd=p-bp;
+      if(bs>.82&&faixa<2&&pisca>.5&&abs(dot(bd,dirX))<tx*(fract(bs*7.)>.5?1.:.5)&&abs(dot(bd,dirY))<ty*.5&&uBrilho>.5)cor=uTons[4];
+      diffuseColor.rgb=cor;
+    `).replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=diffuseColor.rgb*.075*uBrilho;')
+      // Alfa baixo: o pós-processamento quase não aplica o pontilhado Bayer na água,
+      // e as faixas ficam chapadas como num tile desenhado à mão.
+      .replace('#include <opaque_fragment>','#include <opaque_fragment>\ngl_FragColor.a=.05;');
+  };
+  mat.customProgramCacheKey=()=> 'lago-pixel-3';
+  const mesh=new THREE.Mesh(g,mat);mesh.name='lago-superficie';mesh.receiveShadow=true;
+  mesh.userData={tipo:'lago',profundidade:true,aneis,contorno:n,
+    /** Recebe [{x,z,r}] das folhas flutuantes para desenhar os anéis em volta delas. */
+    definirFolhas(lista){uFolhas.value.forEach((v,i)=>{const f=lista[i];if(f)v.set(f.x,f.z,f.r);else v.set(0,0,-1);});},
+  };
+  return mesh;
 }

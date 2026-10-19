@@ -434,7 +434,7 @@ export class Jardim {
   }
 
   criarAgua() {
-    this.agua=criarLago(this.mundo,toon);this.scene.add(this.agua);
+    this.agua=criarLago(this.mundo,toon,{direita:this.uDireita,texel:this.pixel.uniforms.uTexel});this.scene.add(this.agua);
   }
 
   /**
@@ -492,6 +492,7 @@ export class Jardim {
       this.scene.add(malha);
     }
     // Sapos nas folhas e na beira, com animação própria.
+    this.agua.userData.definirFolhas(posFolhas);
     this.sapos = criarSapos(m, toon, posFolhas, posBeira); this.scene.add(this.sapos);
   }
 

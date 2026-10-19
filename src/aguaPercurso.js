@@ -85,23 +85,28 @@ function materialCorrenteza(toon,lago) {
           diffuseColor.rgb = mix(diffuseColor.rgb, uEspuma, max(fio * 0.88, margem * 0.5));
           luzAgua = diffuseColor.rgb * 0.19;
         } else {
-          // Poucas meias-luas largas no trecho calmo, com uma abertura por
-          // arco. Não há brilho independente em cada coluna do riacho.
-          float profundidade=1.0-abs(vLado);
-          diffuseColor.rgb=mix(diffuseColor.rgb,uAguaFunda,step(.34,profundidade)*.28);
-          float viagem = vDist * 0.245 - uTime * 0.2;
-          float celula = floor(viagem);
-          float sorte = fract(sin(celula * 91.31 + 37.13) * 15731.743);
-          float arco = abs(fract(viagem + vLado * vLado * 0.095) - 0.53);
-          float abertura = step(0.12, abs(vLado - (sorte - 0.5) * 0.65));
-          float extensao = 1.0 - step(0.52 + sorte * 0.29, abs(vLado));
-          float brilho = (1.0 - step(0.014 + sorte * 0.009, arco)) * step(0.67, sorte) * abertura * extensao;
-          diffuseColor.rgb = mix(diffuseColor.rgb, uBorda, max(margem * 0.23, brilho * 0.68));
+          // Trecho calmo na mesma linguagem do lago: canal fundo chapado no meio, faixa rasa
+          // nas laterais com borda clara quebrada, e traços curtos que descem com a correnteza.
+          float lado=abs(vLado);
+          float ondula=sin(vDist*.9+vLado*2.)*.06+sin(vDist*.31)*.05;
+          vec3 corRio=lado<.55+ondula?uAguaFunda:diffuseColor.rgb;
+          float sorteBorda=fract(sin(floor(vDist*1.7)*12.9898)*43758.5453);
+          if(lado>.9+ondula*.5&&sorteBorda>.25)corRio=uBorda;
+          float faixaRio=floor((vLado*.5+.5)*7.);
+          float sorteFaixa=fract(sin(faixaRio*78.233+5.1)*43758.5453);
+          float viagem=vDist*.55-uTime*(.55+sorteFaixa*.35)+sorteFaixa*9.;
+          float celula=floor(viagem),sorte=fract(sin(celula*91.31+faixaRio*17.7)*15731.743);
+          float traco=step(fract(viagem),.22+sorte*.25)*step(.55,sorte);
+          float centroFaixa=abs(fract((vLado*.5+.5)*7.)-.5);
+          if(traco>.5&&centroFaixa<.12&&lado<.85)corRio=lado<.55+ondula?diffuseColor.rgb:uBorda;
+          diffuseColor.rgb=corRio;
           luzAgua = diffuseColor.rgb * 0.1;
         }`,
-      ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += luzAgua;");
+      ).replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += luzAgua;")
+        // Mesmo alfa baixo do lago: a água sai chapada, sem o pontilhado Bayer.
+        .replace("#include <opaque_fragment>", "#include <opaque_fragment>\ngl_FragColor.a = 0.05;");
   };
-  mat.customProgramCacheKey = () => "agua-percurso-costa-4-"+lago.contorno.length;
+  mat.customProgramCacheKey = () => "agua-percurso-costa-5-"+lago.contorno.length;
   return mat;
 }
 
