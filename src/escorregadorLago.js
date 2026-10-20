@@ -123,11 +123,8 @@ export function criarEscorregadorLago(mundo,toon) {
       const p=a0.clone().lerp(a1,i/8);barra([p.x+dx,p.y,p.z],[p.x+dx,p.y+1.25,p.z],.065,azul);
     }
   }
-  // Ondas quebradas sob a saída, fixas no plano real do lago.
-  for(let r=0;r<3;r++)for(let arco=0;arco<3;arco++) {
-    const pontos=[];for(let i=0;i<=16;i++){const ang=arco*2.1+.2+i/16*1.25,raio=1.1+r*.85;pontos.push(new THREE.Vector3(208.7+Math.cos(ang)*raio,-.525,115+Math.sin(ang)*raio*.6));}
-    linha(pontos,.025,RAMPAS.agua[4]);
-  }
+  // As ondulações da saída pertencem ao material animado do lago; a estrutura
+  // do brinquedo não contém mais os nove arcos estáticos sobre a água.
   // Reúne as ferragens e peças em uma malha; a pista preserva normais contínuas.
   const vertices=[],normais=[],tons=[];
   for(const g of partes){vertices.push(...g.attributes.position.array);normais.push(...g.attributes.normal.array);tons.push(...g.attributes.color.array);g.dispose();}

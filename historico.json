@@ -2,8 +2,8 @@
   "atualizado": "2026-10-19",
   "versaoAtual": "v0.45",
   "proximoPasso": {
-    "titulo": "Avaliar as prévias restantes",
-    "descricao": "Capim/flores, escada do escorregador e identificação dos assuntos continuam em suas branches para avaliação."
+    "titulo": "Avaliar o movimento na saída do tobogã",
+    "descricao": "Conferir a prévia antes de publicar esta revisão."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 90,
-      "nota": "Cachoeiras curvas com espuma e respingos, lago sem pontos piscantes e gramado sem quadriculado (v0.45)."
+      "nota": "v0.45 publicada; saída do tobogã com ondas móveis em prévia separada."
     },
     {
       "nome": "Vida e clima",
@@ -105,6 +105,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
+      "Avaliar prévia das ondulações móveis na saída do tobogã",
       "Avaliar prévias de capim/flores, escada refinada e identificação dos assuntos, ainda separadas",
       "Adaptar a senescência às demais espécies e definir prazos antes de ligá-la aos estudos",
       "Salgueiros raros: margem do lago estreita",
@@ -127,6 +128,24 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — saída do tobogã",
+      "data": "2026-10-19",
+      "titulo": "Ondulações da saída com movimento",
+      "porque": "O efeito fixo na boca do tobogã parecia uma poça estática.",
+      "mudancas": [
+        "Removidos os nove arcos imóveis presos à estrutura",
+        "Ondas no lago que avançam, afinam e desaparecem",
+        "Origem e direção acompanham a boca do tobogã"
+      ],
+      "resultado": "12 testes existentes passaram; revisão local para avaliação, sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-saida-toboga.png",
+          "legenda": "Saída sem os arcos imóveis; ondas integradas ao lago"
+        }
+      ]
+    },
     {
       "versao": "v0.45",
       "data": "2026-10-19",
