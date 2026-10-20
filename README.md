@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.45)
+## 3. Estado atual (v0.46)
+
+**v0.46 — roda da fogueira ao lado da casa:** lugar de acampamento para juntar os amigos, no meio da clareira do platô da casa (local `fogueira` no plano mestre, reserva de 8,5 m, `?local=fogueira`). Pilha de toras grossas (base cruzada em duas camadas e cone aberto) dentro de um anel de pedras redondas em duas fiadas sobre lajes chatas; chamas em camadas que tremulam, brasas que pulsam, faíscas e fumaça. Cinco bancos de madeira em roda, três com encosto, um com manta xadrez; violão, caneca, espetos de marshmallow, pilha de lenha de canto, varal de lâmpadas coloridas que acende ao anoitecer e caminho de pedras até a varanda. A luz da fogueira tremula e ilumina a roda à noite; a pilha de toras não recebe luz, para não estourar para verde na paleta. Código em `src/fogueira.js`; `mundo.js` e `lotacao.js` agora reservam qualquer local com `raioReserva` (antes, só os marcos). Aprovado pelo usuário em 19/10/2026.
 
 **Prévia — crescimento de longo prazo (segunda aplicação):** porte permanente, recuperações distribuídas por pelo menos 60 dias para a adulta e copa restaurada por retornos espaçados. A interface mostra critérios pendentes e acompanhamento sem porcentagem de conhecimento. Amostras anteriores conservam suas regras. Amostra com dados fictícios, salvamento local e comparação 3D de Carvalho/Freixo em [projetos/crescimento-estudo/](projetos/crescimento-estudo/). Parâmetros ainda experimentais, sem conexão com registros reais e sem publicação. Ver [docs/crescimento-estudo.md](docs/crescimento-estudo.md).
 

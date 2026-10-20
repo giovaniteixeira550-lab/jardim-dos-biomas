@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.45",
+  "versaoAtual": "v0.46",
   "proximoPasso": {
     "titulo": "Ligar o histórico de cada assunto à sua árvore",
     "descricao": "Usar os IDs estáveis dos assuntos e definir o alcance da evidência, mantendo os registros reais e a arte das espécies preservados."
@@ -45,8 +45,7 @@
   ],
   "quadro": {
     "funciona": [
-      "Prévia: critérios visíveis, recuperações ao longo dos meses e copa com retorno espaçado",
-      "Prévia: conquista permanente, copa recuperável, pausas planejadas e crescimento em meses",
+      "Roda da fogueira ao lado da casa, com bancos, varal de luzes e fogo animado",
       "Três cachoeiras curvas com espuma e respingos; lago sem pontos piscantes; gramado sem quadriculado",
       "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
       "Água do lago e do riacho em pixel art: faixas de profundidade, ondinhas, espuma e anéis nas folhas",
@@ -104,7 +103,9 @@
       "Paineira dos Abraços no catálogo, evolução e viveiro, com copa em arco e frutos com paina",
       "Salgueiro das Canções no catálogo, evolução e viveiro, com ramos pendentes e sinos dourados",
       "Araucária dos Cometas no catálogo, evolução e viveiro, com copa azul de céu noturno e luas acesas",
-      "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
+      "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes",
+      "Prévia: critérios visíveis, recuperações ao longo dos meses e copa com retorno espaçado",
+      "Prévia: conquista permanente, copa recuperável, pausas planejadas e crescimento em meses"
     ],
     "corrigir": [
       "Calibrar parâmetros do crescimento e conectar assuntos/estudos reais em lote separado",
@@ -131,6 +132,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.46",
+      "data": "2026-10-19",
+      "titulo": "Roda da fogueira ao lado da casa",
+      "porque": "O usuário achou a área ao lado da casa mal aproveitada e pediu um lugar de acampamento para juntar os amigos.",
+      "mudancas": [
+        "Fogueira com pilha de toras grossas, chamas, brasas, faíscas e fumaça",
+        "Anel de pedras em duas fiadas sobre lajes chatas",
+        "Cinco bancos de madeira em roda, violão, marshmallows e lenha de canto",
+        "Varal de lâmpadas que acende ao anoitecer e caminho de pedras até a varanda"
+      ],
+      "resultado": "Aprovado pelo usuário em 19/10/2026, depois de duas revisões. À noite a fogueira ilumina a roda inteira.",
+      "imagens": [
+        {
+          "src": "historico/v046-fogueira.png",
+          "legenda": "A roda da fogueira à noite"
+        }
+      ]
+    },
     {
       "versao": "Prévia — crescimento aprimorado",
       "data": "2026-10-19",

@@ -27,6 +27,7 @@ import { criarPostesDoces } from "./postesDoces.js";
 import { criarLargosTrilha } from "./largosTrilha.js";
 import { criarCasaMadeira } from "./casaMadeira.js";
 import { plantarGrandeArvore } from "./grandeArvore.js";
+import { criarFogueira } from "./fogueira.js";
 import { criarEscorregadorLago, criarReservaEscorregador } from "./escorregadorLago.js";
 import { aplicarAcessoEscorregador, criarEscadaAcesso } from "./acessoEscorregador.js";
 import { criarBorboletas } from "./borboletas.js";
@@ -192,6 +193,7 @@ export class Jardim {
     this.criarTerreno();
     this.scene.add(criarLargosTrilha(m, toon));
     this.casaMadeira=criarCasaMadeira(m,toon);this.scene.add(this.casaMadeira);
+    this.fogueira=criarFogueira(m,toon);this.scene.add(this.fogueira);
     this.grandeArvore=plantarGrandeArvore(m,this.matArvore);this.scene.add(this.grandeArvore);
     medir("terreno");
     this.criarAgua();
@@ -731,7 +733,7 @@ export class Jardim {
 
   criarDetalhes() {
     const m = this.mundo;
-    const casa=m.plano.locais.find(l=>l.id==='casa-madeira');
+    const casa=m.plano.locais.find(l=>l.id==='casa-madeira'),fogueira=m.plano.locais.find(l=>l.id==='fogueira');
     const rng = criarRng(m.semente ^ 0x99);
     const d = new THREE.Object3D();
 
@@ -758,6 +760,7 @@ export class Jardim {
         d.updateMatrix();
         const yCasa=casa?casa.y-(casa.recuo??0):0;
         if(casa&&Math.abs(x-casa.x)<6.6&&z>yCasa-4.8&&z<yCasa+7.3)continue;
+        if(fogueira&&Math.hypot(x-fogueira.x,z-fogueira.y)<5.8)continue;
         if(this.acessoEscorregador.distancia(x,z)<1.9||this.corredorEscorregador.some(p=>Math.hypot(x-p.x,z-p.z)<2)){
           d.scale.setScalar(0);d.updateMatrix();
         }
@@ -869,6 +872,7 @@ export class Jardim {
     LUZ_NOTURNA.value = { dia: 0, entardecer: 0.35, noite: 1 }[this.hora];
     this.postesDoces?.userData.aplicarHora(this.hora);
     this.casaMadeira?.userData.aplicarHora?.(this.hora);
+    this.fogueira?.userData.aplicarHora?.(this.hora);
   }
 
   // --- Câmera e controles -------------------------------------------------
@@ -1195,6 +1199,7 @@ export class Jardim {
       }
     }
     this.casaMadeira?.userData.animar?.(t);
+    this.fogueira?.userData.animar?.(t);
     this.sapos?.userData.animar?.(t);
     this.restaurarSobrevoo();
     this.atualizarCrescimento();

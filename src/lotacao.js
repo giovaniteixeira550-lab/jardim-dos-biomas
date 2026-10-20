@@ -24,7 +24,7 @@ export function aplicarLotacao(m, { estudo = TOTAL_ESTUDO, paisagem = 202, espac
   const sementeJardim = pedida || (param !== 'novo' && guardada) || globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
   if (!pedida) try { globalThis.localStorage?.setItem('jardim-semente', String(sementeJardim)); } catch {}
   const rng = criarRng(sementeJardim ^ 0x10ca), ruido = criarRuido(m.semente ^ 0x5a1), amb = criarAmbiente(m), plano = m.plano;
-  const pesca = plano.pesca, casa = plano.locais.find(l => l.id === "casa-madeira"), marcos = plano.locais.filter(l => l.tipo === "marco");
+  const pesca = plano.pesca, casa = plano.locais.find(l => l.id === "casa-madeira"), marcos = plano.locais.filter(l => l.raioReserva);
   const perto = (x, y, a, b, r) => { const dx = b.x - a.x, dy = b.y - a.y, t = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1))); return Math.hypot(x - a.x - dx * t, y - a.y - dy * t) < r; };
   // Mesmas regras do plantio do jardim: fora da água, da trilha, das pontes, das quedas, das encostas íngremes e das reservas.
   const livre = (x, y) => {
