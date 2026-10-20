@@ -2,8 +2,8 @@
   "atualizado": "2026-10-19",
   "versaoAtual": "v0.45",
   "proximoPasso": {
-    "titulo": "Avaliar a saída sem ondulações",
-    "descricao": "Conferir a remoção do efeito antes de publicar."
+    "titulo": "Calibrar o crescimento de longo prazo",
+    "descricao": "Experimentar a amostra e ajustar os critérios antes de ligar os dados reais às árvores da floresta."
   },
   "frentes": [
     {
@@ -38,13 +38,14 @@
     },
     {
       "nome": "Ligação com os estudos",
-      "status": "nao_iniciado",
-      "progresso": 0,
-      "nota": "Plano definido (ver PLANO): árvore = tópico, crescimento = domínio, seca = tempo sem revisar."
+      "status": "andamento",
+      "progresso": 10,
+      "nota": "Modelo de crescimento e amostra 3D local preparados; registros reais e adaptação da floresta ainda pendentes."
     }
   ],
   "quadro": {
     "funciona": [
+      "Prévia: conquista permanente, copa recuperável, pausas planejadas e crescimento em meses",
       "Três cachoeiras curvas com espuma e respingos; lago sem pontos piscantes; gramado sem quadriculado",
       "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
       "Água do lago e do riacho em pixel art: faixas de profundidade, ondinhas, espuma e anéis nas folhas",
@@ -105,6 +106,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
+      "Calibrar parâmetros do crescimento e conectar assuntos/estudos reais em lote separado",
       "Avaliar prévia da saída do tobogã sem ondulações artificiais",
       "Avaliar prévias de capim/flores, escada refinada e identificação dos assuntos, ainda separadas",
       "Adaptar a senescência às demais espécies e definir prazos antes de ligá-la aos estudos",
@@ -128,6 +130,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — crescimento de longo prazo",
+      "data": "2026-10-19",
+      "titulo": "O porte fica, a copa pode se recuperar",
+      "porque": "Começar o modelo aprovado de crescimento em meses, com conquista permanente e acompanhamento recuperável.",
+      "mudancas": [
+        "Estudo em dias diferentes e retomadas constroem a mesma árvore",
+        "Dificuldades preservam a conquista; pausas suspendem o acompanhamento",
+        "Comparação 3D com quatro estágios e copa recuperável",
+        "Amostra fictícia salva neste navegador, com parâmetros ajustáveis"
+      ],
+      "resultado": "16 testes passaram e a amostra foi conferida no navegador. Sem publicação ou conexão com estudos reais.",
+      "imagens": [
+        {
+          "src": "historico/previa-crescimento-estudo.png",
+          "legenda": "Porte conquistado e acompanhamento da copa são independentes"
+        }
+      ]
+    },
     {
       "versao": "Prévia — saída do tobogã",
       "data": "2026-10-19",

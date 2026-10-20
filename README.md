@@ -58,6 +58,8 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 
 ## 3. Estado atual (v0.45)
 
+**Prévia — crescimento de longo prazo:** porte permanente separado da copa recuperável, retornos distribuídos no tempo e pausas planejadas. Amostra com dados fictícios, salvamento local e comparação 3D de Carvalho/Freixo em [projetos/crescimento-estudo/](projetos/crescimento-estudo/). Parâmetros ainda experimentais, sem conexão com registros reais e sem publicação. Ver [docs/crescimento-estudo.md](docs/crescimento-estudo.md).
+
 **Prévia — saída do tobogã:** removidos os arcos fixos e o efeito de ondulações que partia da boca. Como não há água escorrendo pelo brinquedo, o lago mantém apenas seus movimentos ambientes. Branch `codex/saida-toboga-fluida`, sem publicação; detalhes em [docs/saida-toboga.md](docs/saida-toboga.md).
 
 **v0.45 — cachoeira fluida e gramado sem quadriculado:** as três quedas têm virada curva, lâmina abaulada com veios móveis, espuma e respingos. O lago não tem pontos de luz piscantes. Preservados os ajustes recentes das massas de profundidade/reflexos do lago e dos veios da correnteza. O chão recebeu a correção já preparada para remover a grade Bayer e os losangos da malha, inclusive no ombro verde da trilha. Paleta, contorno e opacidade final preservados. Água aprovada para publicação pelo usuário em 19/10/2026; correção do gramado incluída após a conferência solicitada. Detalhes em [docs/publicacao-v045.md](docs/publicacao-v045.md).
