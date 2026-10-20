@@ -1,6 +1,6 @@
 # Água — correção da cachoeira e das luzes do lago
 
-Prévia de 19/10/2026, sobre a v0.44 (`2cf1689`), sem publicação.
+Água aprovada para publicação em 19/10/2026 e reunida na v0.45. Base inicial v0.44 (`2cf1689`); ajustes públicos até `8aaba84` preservados. Ver `docs/publicacao-v045.md`.
 
 ## Pedido atendido
 

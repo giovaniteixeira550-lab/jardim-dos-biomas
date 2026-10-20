@@ -56,9 +56,13 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.44)
+## 3. Estado atual (v0.45)
 
-**Prévia — cachoeira fluida e lago sem piscas:** as três quedas ganharam virada curva, lâmina abaulada com veios móveis, espuma no topo e no impacto e pequenos respingos em arco. As cores seguem o riacho. Removidos os pontos de sol piscantes do lago; profundidade, ondas e anéis das folhas preservados. Avaliação em `index.html?jardim=1234&local=poco-alto`; ainda sem publicação. Detalhes em [docs/agua-fluida.md](docs/agua-fluida.md).
+**v0.45 — cachoeira fluida e gramado sem quadriculado:** as três quedas têm virada curva, lâmina abaulada com veios móveis, espuma e respingos. O lago não tem pontos de luz piscantes. Preservados os ajustes recentes das massas de profundidade/reflexos do lago e dos veios da correnteza. O chão recebeu a correção já preparada para remover a grade Bayer e os losangos da malha, inclusive no ombro verde da trilha. Paleta, contorno e opacidade final preservados. Água aprovada para publicação pelo usuário em 19/10/2026; correção do gramado incluída após a conferência solicitada. Detalhes em [docs/publicacao-v045.md](docs/publicacao-v045.md).
+
+**Prévias ainda separadas:** novas moitas de capim e flores completas (`163b370`), escada de acesso refinada (`0686203`) e identificação dos 278 assuntos (`14a85cf`). A correção do chão foi extraída sem trazer essas outras frentes.
+
+### Versões anteriores
 
 **v0.44 — troncos mais altos em Pediatria:** Pitanga-de-Sol, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós ficavam com 3,7–4,9 m ao lado de árvores de 10–15 m, com o tronco escondido sob a copa. Agora têm 6,1–7,5 m: `alongarTronco` (em `src/arvoreProc.js`, tabela `TRONCO_ALONGADO`) estica só o fuste entre o pé e o início da copa e sobe o resto, sem reescalar a copa. Ninhos, ocos, vagens e frutos não deformam (na Árvore dos Ninhos o trecho esticado fica acima do oco); a Pitanga e a Ninhos ganham fuste mais grosso. Vale para os dois estágios maiores; broto e muda não mudam. `?troncos=0` mostra as proporções antigas para comparar. Aprovado pelo usuário em 19/10/2026.
 

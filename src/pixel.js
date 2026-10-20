@@ -95,7 +95,9 @@ export function criarMaterialPixel() {
         }
         // Barrancos marcam o alfa do alvo intermediário para manter suas
         // faces chapadas. Os demais materiais conservam o Bayer original.
-        if (uQuant > 0.5) c = quantizar(c, bayer4(px), amostra.a);
+        // Gramado (.75): paleta e contorno mantidos, sem a grade Bayer no chão.
+        float pontilhado = abs(amostra.a-.75)<.008 ? .04 : amostra.a;
+        if (uQuant > 0.5) c = quantizar(c, bayer4(px), pontilhado);
         gl_FragColor = vec4(c, 1.0);
       }`,
     depthTest: false,

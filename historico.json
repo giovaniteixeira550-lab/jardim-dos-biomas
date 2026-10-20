@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-19",
-  "versaoAtual": "v0.44",
+  "versaoAtual": "v0.45",
   "proximoPasso": {
-    "titulo": "Avaliar a cachoeira e o lago corrigidos",
-    "descricao": "Conferir a prévia da água antes da publicação; integração com os estudos continua separada."
+    "titulo": "Avaliar as prévias restantes",
+    "descricao": "Capim/flores, escada do escorregador e identificação dos assuntos continuam em suas branches para avaliação."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 90,
-      "nota": "Prévia: quedas curvas com espuma e respingos; lago sem pontos piscantes. Aguarda avaliação visual."
+      "nota": "Cachoeiras curvas com espuma e respingos, lago sem pontos piscantes e gramado sem quadriculado (v0.45)."
     },
     {
       "nome": "Vida e clima",
@@ -45,7 +45,7 @@
   ],
   "quadro": {
     "funciona": [
-      "Prévia local: três cachoeiras curvas com espuma e respingos, lago sem pontos piscantes",
+      "Três cachoeiras curvas com espuma e respingos; lago sem pontos piscantes; gramado sem quadriculado",
       "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
       "Água do lago e do riacho em pixel art: faixas de profundidade, ondinhas, espuma e anéis nas folhas",
       "Vitórias-régias maiores com nervuras, bordas levantadas e seis flores brancas/rosadas",
@@ -105,7 +105,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
-      "Avaliar o acabamento da água nesta prévia antes de publicar",
+      "Avaliar prévias de capim/flores, escada refinada e identificação dos assuntos, ainda separadas",
       "Adaptar a senescência às demais espécies e definir prazos antes de ligá-la aos estudos",
       "Salgueiros raros: margem do lago estreita",
       "Clique entre lóbulos da copa às vezes falha",
@@ -128,25 +128,21 @@
   },
   "versoes": [
     {
-      "versao": "Prévia — água fluida",
+      "versao": "v0.45",
       "data": "2026-10-19",
-      "titulo": "Cachoeira curva e lago sem luzes piscantes",
-      "porque": "A queda parecia duas paredes, tinha pouca espuma e não combinava com o riacho; o lago piscava.",
+      "titulo": "Cachoeiras fluidas e gramado sem quadriculado",
+      "porque": "Publicar a água aprovada e incluir a correção do chão que havia ficado somente em prévia.",
       "mudancas": [
-        "Virada curva e lâmina abaulada nas três quedas",
-        "Veios em movimento com as cores do riacho",
+        "Virada curva e volume nas três quedas, com cores do riacho",
         "Espuma no topo e no impacto, com pequenos respingos em arco",
-        "Removidos os pontos de luz piscantes do lago"
+        "Lago sem pontos piscantes; profundidade e correnteza recentes preservadas",
+        "Gramado sem grade Bayer ou losangos da malha; trilha e barrancos preservados"
       ],
-      "resultado": "38 testes da água e dos percursos passaram. Prévia local para avaliação, ainda sem publicação.",
+      "resultado": "Água aprovada em 19/10/2026. Correção do chão incluída após auditoria; 38 testes da água/percurso, 6 verificações do gramado e 2 de contorno passaram. Cena conferida no navegador.",
       "imagens": [
         {
-          "src": "historico/previa-agua-fluida.png",
-          "legenda": "Virada curva, veios e espuma da primeira cascata"
-        },
-        {
-          "src": "historico/previa-agua-fluida-lateral.png",
-          "legenda": "Conferência da lâmina por outro ângulo"
+          "src": "historico/v045-agua-gramado.png",
+          "legenda": "Cachoeira aprovada e gramado sem quadriculado na versão reunida"
         }
       ]
     },

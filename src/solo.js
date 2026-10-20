@@ -23,6 +23,7 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       uMusgo: RAMPAS.mata[2], uGramaBorda: RAMPAS.salvia[3],
       uTufo: RAMPAS.mata[2], uTufoLuz: RAMPAS.mata[5],
       uTerraGasta: RAMPAS.terra[5], uCapimTrilha: RAMPAS.salvia[3],
+      uGramadoBaixo:RAMPAS.salvia[2],uGramadoMedio:RAMPAS.salvia[3],uGramadoAlto:RAMPAS.salvia[4],uGramadoTopo:RAMPAS.salvia[5],
     };
     for (const [nome, cor] of Object.entries(cores)) sh.uniforms[nome] = { value: new THREE.Color(cor) };
     sh.uniforms.uDireita = direita;
@@ -69,6 +70,7 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       uniform vec2 uDireita; uniform float uTexel;
       uniform vec3 uTufo; uniform vec3 uTufoLuz;
       uniform vec3 uTerraGasta; uniform vec3 uCapimTrilha;
+      uniform vec3 uGramadoBaixo; uniform vec3 uGramadoMedio; uniform vec3 uGramadoAlto; uniform vec3 uGramadoTopo;
       varying float vRocha; varying float vGrama;
       varying float vTrilha; varying float vAgua;
       varying vec2 vLimitesSolo;
@@ -82,6 +84,7 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       }
     ` + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
       vec3 normalSolo = normalize(vSoloNormal);
+      float gramadoLimpo=0.;
       if ((vSoloParede>.5 || normalSolo.y < 0.72) && vRocha > 0.15) {
         vec3 p = vSoloMundo;
         float profundidade = max(0.0, vLimitesSolo.x - vSoloMundo.y);
@@ -123,26 +126,24 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
         if (borda > 0.0) {
           terra = uTerra;
           float invasao = ruidoSolo(p / 0.48);
-          if (borda > 0.075 || invasao > 0.46 - borda * 2.5)
+          if (borda > 0.075 || invasao > 0.46 - borda * 2.5) {
             terra = macro > 0.5 ? uCapimTrilha : uGramaBorda;
+            gramadoLimpo=1.;
+          }
         }
         diffuseColor.rgb = terra;
       } else if (vGrama > 0.5) {
-        // Preserva o gramado desenhado do Claude: manchas e tufinhos em V.
+        gramadoLimpo=1.;
+        // O tom vem do mundo, não da interpolação entre os cantos da malha.
+        // Manchas orgânicas discretas substituem losangos e carimbos de V.
         vec2 p = vSoloMundo.xz;
-        float n = ruidoSolo(p / 9.0) * 0.7 + ruidoSolo(p / 3.1) * 0.3;
-        vec3 grama = diffuseColor.rgb * (n < 0.36 ? 0.8 : (n > 0.66 ? 1.16 : 1.0));
-        if (uTexel < 0.2) {
-          vec2 cel = floor(p / 1.1); float h = soloHash(cel);
-          if (h > 0.55) {
-            vec2 o = (cel + 0.25 + vec2(fract(h * 7.3), fract(h * 13.1)) * 0.5) * 1.1;
-            vec2 cima = vec2(uDireita.y, -uDireita.x), d = p - o;
-            float ax = dot(d, uDireita), ay = dot(d, cima) / 0.62;
-            float esp = max(0.05, uTexel * 0.75);
-            float folhas = step(0.0, ay) * step(ay, 0.38) * max(step(abs(ax + ay * 0.5), esp), max(step(abs(ax - ay * 0.5), esp), step(abs(ax), esp) * step(ay, 0.48)));
-            if (folhas > 0.5) grama = h > 0.9 ? uTufoLuz : uTufo;
-          }
-        }
+        vec2 curva=p+(vec2(ruidoSolo(p/4.1),ruidoSolo(p/3.7+13.))*2.-1.)*1.6;
+        float n = ruidoSolo(curva / 5.3) * 0.75 + ruidoSolo(curva / 1.9) * 0.25;
+        float nivel=floor(max(0.,vSoloMundo.y+.6)/4.5);
+        vec3 base=nivel<.5?uGramadoBaixo:nivel<1.5?uGramadoMedio:nivel<2.5?uGramadoAlto:uGramadoTopo;
+        // O sombreado do bosque vem das árvores reais. Não herda os losangos
+        // de cores interpoladas da grade; as manchas têm contornos próprios.
+        vec3 grama = base * (n < 0.37 ? 0.87 : (n > 0.66 ? 1.08 : 1.0));
         diffuseColor.rgb = grama;
       }
       // Margem natural do lago e do riacho, desenhada por pixel a partir da distância à linha d'água: a borda é
@@ -176,8 +177,10 @@ export function criarMaterialRelevo(toon, opcoes = {}) {
       // O alvo intermediário usa alfa como força de pontilhado. Continua
       // sendo uma parede opaca: só o pós-processamento lê esta marca.
       if ((vSoloParede>.5 || normalize(vSoloNormal).y < 0.72) && vRocha > 0.15) gl_FragColor.a = 0.18;
+      // Marca exclusiva do gramado seco; material continua completamente opaco.
+      else if(gramadoLimpo>.5 && normalize(vSoloNormal).y>.72 && vAgua>3.6)gl_FragColor.a=.75;
     `);
   };
-  mat.customProgramCacheKey = () => "solo-terra-pixel-aprovada-6-margens";
+  mat.customProgramCacheKey = () => "solo-terra-pixel-aprovada-7-gramado";
   return mat;
 }

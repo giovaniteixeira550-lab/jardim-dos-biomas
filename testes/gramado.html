@@ -1,0 +1,8 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Conferência do gramado</title>
+<style>body{font:16px system-ui;background:#141c18;color:#e9e3d1;margin:24px}button{font:inherit;padding:10px}canvas{width:256px;height:256px;image-rendering:pixelated}figure{display:inline-block;margin:12px}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"}}</script>
+<h1>Gramado sem grade de pontilhado</h1><p>Pixels reais do pós-processamento: mesma cor de entrada, paleta e contorno ativos. O gramado recebe uma marca própria no alvo intermediário, mantendo-se opaco.</p>
+<button id="executar">Executar verificações</button><p id="estado" role="status">Aguardando.</p><ol id="resultados"></ol>
+<figure><canvas id="antes" width="64" height="64"></canvas><figcaption>Material comum: Bayer original</figcaption></figure>
+<figure><canvas id="depois" width="64" height="64"></canvas><figcaption>Gramado: cor chapada da mesma paleta</figcaption></figure>
+<script type="module" src="./gramado.js"></script></html>

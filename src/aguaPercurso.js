@@ -107,7 +107,7 @@ function materialCorrenteza(toon,lago) {
         float faixas = u * 12.0 + sin(u * 14.0) * 0.32 + sin(u * 33.0) * 0.15;
         float canal = floor(faixas);
         float r = fract(sin(canal * 71.73 + 13.6) * 43758.5453);
-        float margem = step(0.972, abs(vLado));
+        float margem = step(0.982, abs(vLado));
         vec3 luzAgua = vec3(0.0);
         if (vQueda > 0.5) {
           float lado = abs(vLado);
@@ -130,17 +130,24 @@ function materialCorrenteza(toon,lago) {
           // Trecho calmo na mesma linguagem do lago: canal fundo chapado no meio, faixa rasa
           // nas laterais com borda clara quebrada, e traços curtos que descem com a correnteza.
           float lado=abs(vLado);
-          float ondula=sin(vDist*.9+vLado*2.)*.06+sin(vDist*.31)*.05;
+          // A corrente se curva e se abre em veios irregulares, em vez de repetir ladrilhos.
+          float desvio=sin(vDist*.18+vLado*3.1)*.095+sin(vDist*.47-vLado*6.3)*.035;
+          float ondula=sin(vDist*.32+vLado*2.4)*.048+sin(vDist*.13)*.035;
+          float veios=sin((vLado+desvio)*11.8+sin(vDist*.23-uTime*.36)*.85);
+          float ilhas=sin(vDist*.48-vLado*6.7-uTime*.13)*sin(vDist*.19+vLado*13.1);
           vec3 corRio=lado<.55+ondula?uAguaFunda:diffuseColor.rgb;
+          // Sombras líquidas e reflexos fragmentados, sempre usando a paleta original.
+          if(lado<.82 && veios<-.74 && ilhas>.08)corRio=mix(corRio,uAguaFunda,.56);
+          if(lado<.76 && veios>.82 && ilhas>.28)corRio=mix(corRio,uBorda,.65);
           float sorteBorda=fract(sin(floor(vDist*1.7)*12.9898)*43758.5453);
           if(lado>.9+ondula*.5&&sorteBorda>.25)corRio=uBorda;
-          float faixaRio=floor((vLado*.5+.5)*7.);
+          float faixaRio=floor(((vLado+desvio)*.5+.5)*9.);
           float sorteFaixa=fract(sin(faixaRio*78.233+5.1)*43758.5453);
-          float viagem=vDist*.55-uTime*(.55+sorteFaixa*.35)+sorteFaixa*9.;
+          float viagem=vDist*.38-uTime*(.42+sorteFaixa*.30)+sorteFaixa*9.+sin(vDist*.27+vLado*5.)*.24;
           float celula=floor(viagem),sorte=fract(sin(celula*91.31+faixaRio*17.7)*15731.743);
           float traco=step(fract(viagem),.22+sorte*.25)*step(.55,sorte);
-          float centroFaixa=abs(fract((vLado*.5+.5)*7.)-.5);
-          if(traco>.5&&centroFaixa<.12&&lado<.85)corRio=lado<.55+ondula?diffuseColor.rgb:uBorda;
+          float centroFaixa=abs(fract(((vLado+desvio)*.5+.5)*9.)-.5);
+          if(traco>.5&&centroFaixa<.09&&lado<.78&&ilhas>.02)corRio=lado<.55+ondula?diffuseColor.rgb:uBorda;
           diffuseColor.rgb=corRio;
           luzAgua = diffuseColor.rgb * 0.1;
         }`,
