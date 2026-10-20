@@ -1,8 +1,8 @@
 /**
  * Roda da fogueira no quintal da casa: lugar de acampamento para juntar os amigos.
- * Fogueira em anel de pedras redondas (duas fiadas sobre lajes chatas) com lenha em
- * pirâmide, chamas em camadas que tremulam, brasas, faíscas e fumaça; tripé com
- * chaleira; bancos de madeira em roda (alguns com encosto, um com manta), violão
+ * Fogueira em anel de pedras redondas (duas fiadas sobre lajes chatas) com pilha de
+ * toras grossas (base cruzada e cone), chamas em camadas que tremulam, brasas, faíscas
+ * e fumaça; bancos de madeira em roda (alguns com encosto, um com manta), violão
  * encostado, espetos de marshmallow, pilha de lenha de canto para alimentar o fogo e
  * varal de lâmpadas coloridas que acende ao anoitecer. A roda fica aberta
  * para o lado da casa, de onde chega um caminho de pedras. Tudo sai da semente.
@@ -28,13 +28,13 @@ export function criarFogueira(m,toon){
  const aCasa=casa?Math.atan2(casa.y-(casa.recuo??0)-local.y,casa.x-local.x):0;
 
  // Peças estáticas: unidas por cor numa só malha com cores por vértice.
- const partes=[];
+ const partes=[],pilha=[];let destino=partes;
  const pintar=(g,tom)=>{
   const geo=g.index?g.toNonIndexed():g,c=new THREE.Color(tom),n=geo.attributes.position.count,cores=new Float32Array(n*3);
   for(let i=0;i<n;i++){cores[i*3]=c.r;cores[i*3+1]=c.g;cores[i*3+2]=c.b;}
   geo.setAttribute('color',new THREE.BufferAttribute(cores,3));
   for(const nome of Object.keys(geo.attributes))if(!['position','normal','color'].includes(nome))geo.deleteAttribute(nome);
-  partes.push(geo);return geo;
+  destino.push(geo);return geo;
  };
  const cilindro=(a,b,r0,r1,tom,lados=7)=>{
   const A=a.clone(),B=b.clone(),d=B.clone().sub(A),g=new THREE.CylinderGeometry(r1,r0,d.length(),lados,1);
@@ -69,23 +69,24 @@ export function criarFogueira(m,toon){
   for(let i=0;i<11;i++){const a=(i+.5)/11*Math.PI*2+entre(-.08,.08);redonda(noAnel(a,entre(.98,1.03),.2),entre(.14,.19),rng()>.5?R.terra[3]:R.pedra[2],.65);}
   // Fuligem na face de dentro do anel.
   const fuligem=new THREE.RingGeometry(.74,.86,16);fuligem.rotateX(-Math.PI/2);fuligem.translate(0,.07,0);pintar(fuligem,R.tinta[0]);
-  const nL=6,topo=V(entre(-.05,.05),1.0,entre(-.05,.05));
-  for(let i=0;i<nL;i++){
-   const a=i/nL*Math.PI*2+entre(-.2,.2),pe=noAnel(a,entre(.6,.72),.05),meioL=pe.clone().lerp(topo,.45);
-   cilindro(pe,meioL,.085,.075,R.tinta[1],6);cilindro(meioL,pe.clone().lerp(topo,.92),.075,.05,i%2?R.terra[1]:R.terra[0],6);
+  // Pilha de fogueira: base de toras grossas cruzadas em quadrado (duas camadas) e,
+  // por cima, um cone de toras inclinadas, com o pé queimado e a casca escura em cima.
+  destino=pilha;
+  const giroBase=rng()*Math.PI;
+  for(let camada=0;camada<2;camada++){
+   const g0=giroBase+camada*Math.PI/2,d=V(Math.cos(g0),0,Math.sin(g0)),n=V(-d.z,0,d.x),y=.15+camada*.22;
+   for(const lado of [-1,1]){const r=entre(.11,.14),c=n.clone().multiplyScalar(lado*entre(.4,.46)).setY(y),meia=d.clone().multiplyScalar(entre(.62,.7));
+    cilindro(c.clone().sub(meia),c.clone().add(meia),r,r*.95,camada?R.terra[1]:R.tinta[1],7);
+    for(const s of [-1,1]){const ponta=new THREE.CircleGeometry(r*.92,7);ponta.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0,0,1),d.clone().multiplyScalar(s)));ponta.translate(...c.clone().addScaledVector(meia,s).addScaledVector(d,s*.01).toArray());pintar(ponta,camada?R.terra[3]:R.terra[1]);}}
   }
-  for(const a of [entre(0,1),entre(1.6,2.6)]){const d=noAnel(a,.62);cilindro(d.clone().setY(.12),d.clone().multiplyScalar(-1).setY(.12),.08,.08,R.terra[1],6);}
- }
-
- // Tripé de galhos sobre o fogo, com chaleira de ferro pendurada.
- {
-  const alto=V(0,2.15,0);
-  for(let i=0;i<3;i++){const a=aCasa+.9+i*2.1+entre(-.15,.15);cilindro(noAnel(a,1.35,0),alto.clone().add(noAnel(a,.1)),.045,.035,R.terra[2],5);}
-  cilindro(V(0,2.12,0),V(0,1.62,0),.012,.012,R.tinta[0],4);
-  const ch=new THREE.SphereGeometry(.24,8,5);ch.scale(1,.8,1);ch.translate(0,1.42,0);pintar(ch,R.tinta[1]);
-  cilindro(V(0,1.58,0),V(0,1.64,0),.13,.1,R.tinta[0],8);
-  cilindro(V(.18,1.4,0),V(.36,1.55,0),.035,.025,R.tinta[1],5);
-  const alca=new THREE.TorusGeometry(.2,.012,4,10,Math.PI);alca.translate(0,1.6,0);pintar(alca,R.tinta[0]);
+  // Cone aberto: as toras não se fecham no topo, para as chamas saírem por cima e pelos vãos.
+  const nL=7,topo=V(entre(-.05,.05),1.15,entre(-.05,.05));
+  for(let i=0;i<nL;i++){
+   const a=i/nL*Math.PI*2+entre(-.15,.15),r=entre(.1,.14),pe=noAnel(a,entre(.66,.76),.06),fim=pe.clone().lerp(topo,entre(.62,.74)),meioL=pe.clone().lerp(fim,.42);
+   cilindro(pe,meioL,r,r*.95,R.tinta[1],7);
+   cilindro(meioL,fim,r*.95,r*.8,[R.terra[1],R.terra[0],R.terra[1],R.terra[2]][i%4],7);
+  }
+  destino=partes;
  }
 
  // Bancos de madeira em roda, com o lado da casa livre: assento de três ripas, pés em
@@ -179,6 +180,11 @@ export function criarFogueira(m,toon){
  const estatica=new THREE.Mesh(mergeGeometries(partes,false),toon({vertexColors:true}));
  estatica.name='fogueira-pecas';estatica.castShadow=estatica.receiveShadow=true;grupo.add(estatica);
  for(const g of partes)g.dispose();
+ // A pilha não recebe luz: com a fogueira a 1 m, a luz quente estourava a madeira para
+ // um verde-amarelo da paleta. Sem luz, as toras ficam sempre escuras, como lenha queimando.
+ const malhaPilha=new THREE.Mesh(mergeGeometries(pilha,false),new THREE.MeshBasicMaterial({vertexColors:true}));
+ malhaPilha.name='pilha-fogueira';malhaPilha.castShadow=true;grupo.add(malhaPilha);
+ for(const g of pilha)g.dispose();
 
  // Lâmpadas do varal: penduradas ao longo do fio, em quatro cores que alternam.
  const coresLampada=[R.amarelo[2],R.outono[3],R.flor[2],R.agua[4]];
@@ -197,8 +203,8 @@ export function criarFogueira(m,toon){
  // Chamas em três camadas (vermelho por fora, laranja, amarelo no miolo) e línguas soltas.
  const chamas=[];
  const camadas=[
-  {cor:R.vermelho[2],r:.5,h:1.25,n:1,off:0},{cor:R.outono[3],r:.36,h:1.05,n:1,off:0},{cor:R.amarelo[2],r:.2,h:.7,n:1,off:0},
-  {cor:R.outono[3],r:.16,h:.75,n:4,off:.32},{cor:R.vermelho[2],r:.13,h:.6,n:3,off:.42},{cor:R.amarelo[2],r:.09,h:.45,n:3,off:.22},
+  {cor:R.vermelho[2],r:.44,h:1.75,n:1,off:0},{cor:R.outono[3],r:.32,h:1.5,n:1,off:0},{cor:R.amarelo[2],r:.19,h:1.1,n:1,off:0},
+  {cor:R.outono[3],r:.17,h:1.2,n:5,off:.3},{cor:R.vermelho[2],r:.14,h:1.0,n:4,off:.42},{cor:R.amarelo[2],r:.1,h:.75,n:4,off:.2},
  ];
  for(const c of camadas)for(let i=0;i<c.n;i++){
   const g=new THREE.ConeGeometry(c.r,c.h,5,2);g.translate(0,c.h/2,0);
