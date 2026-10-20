@@ -394,7 +394,7 @@ export function gerarMundo(semente, largura = 260, altura = 170) {
   // Retira árvores, arbustos e objetos da reserva, mantendo o gramado natural.
   for(let i=objetos.length-1;i>=0;i--)if(naReservaCasa(objetos[i].x,objetos[i].y))objetos.splice(i,1);
   // Marcos (a Grande Árvore): círculo livre de outras árvores, arbustos e objetos, para a copa e as raízes caberem.
-  const marcos=plano.locais.filter(l=>l.tipo==="marco");
+  const marcos=plano.locais.filter(l=>l.raioReserva);
   for(let i=objetos.length-1;i>=0;i--)if(marcos.some(l=>Math.hypot(objetos[i].x-l.x,objetos[i].y-l.y)<l.raioReserva))objetos.splice(i,1);
 
   let percursosFinais=percursos;
