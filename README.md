@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.45)
+## 3. Estado atual (v0.46)
+
+**v0.46 — roda da fogueira ao lado da casa:** lugar de acampamento para juntar os amigos, no meio da clareira do platô da casa (local `fogueira` no plano mestre, reserva de 8,5 m, `?local=fogueira`). Pilha de toras grossas (base cruzada em duas camadas e cone aberto) dentro de um anel de pedras redondas em duas fiadas sobre lajes chatas; chamas em camadas que tremulam, brasas que pulsam, faíscas e fumaça. Cinco bancos de madeira em roda, três com encosto, um com manta xadrez; violão, caneca, espetos de marshmallow, pilha de lenha de canto, varal de lâmpadas coloridas que acende ao anoitecer e caminho de pedras até a varanda. A luz da fogueira tremula e ilumina a roda à noite; a pilha de toras não recebe luz, para não estourar para verde na paleta. Código em `src/fogueira.js`; `mundo.js` e `lotacao.js` agora reservam qualquer local com `raioReserva` (antes, só os marcos). Aprovado pelo usuário em 19/10/2026.
 
 **v0.45 — cachoeira fluida e gramado sem quadriculado:** as três quedas têm virada curva, lâmina abaulada com veios móveis, espuma e respingos. O lago não tem pontos de luz piscantes. Preservados os ajustes recentes das massas de profundidade/reflexos do lago e dos veios da correnteza. O chão recebeu a correção já preparada para remover a grade Bayer e os losangos da malha, inclusive no ombro verde da trilha. Paleta, contorno e opacidade final preservados. Água aprovada para publicação pelo usuário em 19/10/2026; correção do gramado incluída após a conferência solicitada. Detalhes em [docs/publicacao-v045.md](docs/publicacao-v045.md).
 

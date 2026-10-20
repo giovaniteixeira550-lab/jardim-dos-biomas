@@ -189,3 +189,7 @@ Pedido do usuário em 19/10/2026: melhorar a qualidade e a arte da água. O shad
 ## Troncos mais altos — v0.44 (Claude)
 
 O usuário apontou que algumas árvores estavam muito baixas e com tronco pequeno. As cinco espécies de Pediatria de arquitetura baixa ganharam fuste mais alto por pós-processamento das geometrias aprovadas (`alongarTronco` em `src/arvoreProc.js`), sem mudar os geradores de cada espécie. `testes/especies.html` passou (57 espécies, 684 modelos, frutos presos). Plantio, posições e as demais espécies não mudaram.
+
+## Roda da fogueira — v0.46 (Claude)
+
+O usuário achou mal aproveitado o platô ao lado da casa e pediu uma fogueira de acampamento para juntar os amigos. Depois de duas revisões dele (bancos de madeira no lugar de troncos e tocos, sem machados, pedras melhores, pilha de toras grossas no lugar do tripé), a roda foi aprovada. Novo local `fogueira` no plano mestre com `raioReserva`; as reservas de `mundo.js` e `lotacao.js` passaram a valer para qualquer local com esse campo. Como as vagas do plantio mudam, árvores perto da clareira podem nascer em outros lugares.
