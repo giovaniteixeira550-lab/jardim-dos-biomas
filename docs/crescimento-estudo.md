@@ -1,39 +1,62 @@
-# Crescimento de longo prazo — primeira aplicação
+# Crescimento de longo prazo — conquista e acompanhamento
 
-19/10/2026. O usuário escolheu começar a aplicar o modelo discutido: porte/estrutura como conquista permanente e vigor da copa como estado recuperável de acompanhamento. Implementação em `codex/crescimento-estudo-longo-prazo`, sobre a v0.45 e a remoção do efeito do tobogã. Sem publicação e sem alteração do site de estudos.
+19/10/2026. Prévia em `codex/crescimento-estudo-longo-prazo`, sobre a v0.45 e a remoção do efeito da saída do tobogã. O usuário autorizou começar o modelo e, depois, pensar em aprimoramentos e avançar. Este lote aprimora a amostra e o motor; a floresta e o site de estudos ainda não recebem esses estados.
 
-## O que funciona
+## Decisões do modelo
 
-- Motor independente da cena em `src/crescimentoEstudo.js`: histórico de um assunto, quatro estágios, retornos em dias distintos, ganho limitado por dia e recuperação espaçada. Esperar sozinho não aumenta o crescimento, pois o intervalo de trajetória termina na última atividade registrada.
-- Tentar com pista, após explicação ou sem recuperar acrescenta atividade, preservando a evidência de ajuda; não inventa autonomia. Uma retomada melhora o acompanhamento da copa, mas uma dificuldade permanece pendente de nova avaliação.
-- Conquista crescente para um histórico acrescido, sem regressão por erro, tempo sem registro ou mudança de vigor. Reenvios com o mesmo ID não duplicam efeito; conteúdo divergente sob o mesmo ID é recusado.
-- Pausas planejadas suspendem somente o relógio de acompanhamento. Intervalos sobrepostos são unidos; pausa e passagem de dias não criam crescimento.
-- Copa com perda gradual após tolerância; a volta ao estudo recupera parte do estado. Vinte ações no mesmo dia não restauram a copa vinte vezes. O sinal de ausência de registro não é uma estimativa de esquecimento.
-- Adaptador 3D em `src/visualCrescimentoEstudo.js`: estágios reais e pequeno aumento dentro de cada estágio. Na adulta, senescência anatômica preparada para Carvalho e Freixo; madeira original preservada em posições, normais e cores. Nas fases menores, alteração suave de cor da folhagem. Geometrias originais não são modificadas.
-- Amostra interativa em `projetos/crescimento-estudo/`: dados fictícios de um assunto, comparação lado a lado, calendário simulado, atividades, ajuda/dificuldade, pausas, configurações para uma nova amostra e salvamento local com releitura. Reabrir restaura o estado. A chave é exclusiva da amostra e não toca o jardim pessoal ou registros de estudo.
+- O porte representa a trajetória acumulada. Erros, ajuda, pausas e ausência não diminuem o estágio conquistado.
+- A copa responde ao acompanhamento registrado. Ausência de registro não prova esquecimento, e uma copa acompanhada não certifica domínio.
+- Tentativas difíceis e estudo com ajuda também constroem a trajetória. Somente uma tentativa declarada sem ajuda conta como recuperação autônoma. Na amostra o resultado é informado pelo usuário, não observado por um avaliador.
+- Crescimento exige encontros reais em datas distintas: o intervalo termina no último encontro, nunca na data do relógio. Esperar não completa uma etapa.
+- Retomada e desempenho são sinais separados. Trabalhar uma dificuldade não a resolve automaticamente; a evidência permanece até uma nova tentativa avaliada.
+- A condição visual pode melhorar com o retorno ao estudo mesmo quando a tentativa é difícil. Isso representa acompanhamento, não sucesso cognitivo.
 
-## Parâmetros experimentais para avaliação
+## Aprimoramentos da segunda aplicação
 
-| Etapa | Dias de estudo distintos | Intervalo entre primeiro e último estudo | Encontros ponderados | Recuperações sem ajuda espaçadas |
+A versão inicial permitia completar três recuperações em 28 dias e obter a adulta meses depois apenas com leituras. Nas regras `crescimento-estudo-0.2`, as recuperações sem ajuda também precisam abranger pelo menos 60 dias. Não basta espaçar leituras para satisfazer esse critério.
+
+Antes, cada novo dia de retorno restaurava a copa, e o botão de retomada tinha um bônus maior. Agora as atividades têm o mesmo efeito de acompanhamento e uma nova melhoria visual exige sete dias ativos desde a anterior. Vinte cliques ou retornos diários não repetem a restauração dentro desse intervalo; pausas não o aceleram. A passagem dos sete dias só habilita a próxima melhoria: continua sendo necessário um encontro registrado.
+
+A interface passou a mostrar os critérios cumpridos e pendentes da próxima fase, além da data da última tentativa. O valor percentual de vigor foi substituído por estados descritivos: acompanhada, sem registro recente ou em retomada. A dificuldade continua visível separadamente, inclusive durante ausência ou recuperação da copa.
+
+Há dois exemplos comparáveis: encontros e recuperações distribuídos por quatro meses; encontros distribuídos pelo mesmo período, mas três recuperações limitadas ao primeiro mês. O segundo fica jovem até registrar uma recuperação posterior que complete o intervalo exigido.
+
+## Parâmetros experimentais das novas amostras
+
+| Etapa | Dias distintos de atividade | Intervalo entre primeiro e último encontro | Recuperações sem ajuda espaçadas | Intervalo entre primeira e última recuperação sem ajuda |
 |---|---:|---:|---:|---:|
-| Muda | 2 | 1 dia | 1,8 | 0 |
-| Jovem | 5 | 21 dias | 5 | 1 |
-| Adulta | 12 | 90 dias | 12 | 3 |
+| Muda | 2 | 1 dia | 0 | — |
+| Jovem | 5 | 21 dias | 1 | — |
+| Adulta | 12 | 90 dias | 3 | 60 dias |
 
-Uma atividade por dia conta integralmente; cada repetição no mesmo dia acrescenta 0,15, com teto diário de 1,25. Recuperações autônomas precisam de intervalo mínimo de 14 dias entre as contadas. Critérios de etapa são cumulativos, enquanto pequenos avanços dentro da etapa reconhecem dimensões já preenchidas. Os números são parâmetros de protótipo, não limiares cientificamente validados de domínio.
+As recuperações contadas precisam estar separadas por pelo menos 14 dias. O intervalo total entre recuperações usa todas as datas de sucesso: inserir um registro antigo não pode reduzir uma conquista por alterar a seleção das datas espaçadas. Critérios são cumulativos; o avanço parcial reconhece as dimensões atendidas dentro da fase.
 
-Tolerância inicial sem registro: 45 dias ativos. Depois, perda visual distribuída por 180 dias ativos, limitada a 0,6 no modelo; o adaptador anatômico suaviza esse valor. Cada dia de retorno recupera uma parcela: atividade comum multiplica a perda por 0,55; retomada, por 0,35. O indicador não significa porcentagem de folhas nem porcentagem de conhecimento. Mudanças de ritmo na interface começam uma nova amostra fictícia; migrações de regras de contas reais ainda precisam preservar conquistas existentes.
+O motor mantém o teto diário anterior: uma atividade vale um encontro e repetições acrescentam 0,15 até 1,25 por dia. Os mínimos de encontros são 1,8 / 5 / 12 e já são garantidos pelos mínimos de dias distintos dessas regras; por isso a interface não apresenta uma segunda contagem redundante em pontos.
 
-## Conferência realizada
+Tolerância sem registro: 45 dias ativos. A alteração visual posterior é gradual, distribuída por 180 dias ativos e limitada a 0,6 no motor. Cada retorno elegível multiplica a perda visual por 0,65, com pelo menos sete dias ativos entre melhorias. O adaptador anatômico suaviza o valor. Esses números são escolhas experimentais de experiência visual, não medidas validadas de conhecimento, memória ou folhas.
 
-16 testes passaram: nove novos do modelo/adaptador e sete existentes de senescência. Cobrem espera sem recompensa, teto diário, crescimento em meses, dificuldade sem perda de conquista, pausas sobrepostas, retomada gradual, idempotência, datas/regras inválidas, ordem de evidência no mesmo dia e preservação exata da madeira.
+Pausas são intervalos de início inclusivo e fim exclusivo, com sobreposições unidas. Suspendem o relógio de acompanhamento e o intervalo da recuperação da copa; não geram atividades nem crescimento. Um estudo voluntariamente registrado durante uma pausa continua sendo uma atividade real.
 
-No navegador: primeiro estudo gerou broto; retorno em outro dia gerou muda; encontros distribuídos por quatro semanas geraram jovem; o exemplo de quatro meses chegou à adulta. Depois de 180 dias sem registro, a adulta permaneceu e o vigor visual caiu para 55%. Uma pausa planejada de 30 dias manteve 55%. Tentativa difícil manteve o porte e a contagem de autonomias; a retomada elevou o vigor gradualmente. Recarregar preservou data, registros e estado. Carvalho e Freixo renderizados sem avisos ou erros observados no console.
+## Compatibilidade e preservação
 
-Captura: `historico/previa-crescimento-estudo.png`.
+A amostra salva continua na chave exclusiva `jardim-amostra-crescimento-v1`, com suas regras registradas. Amostras `crescimento-estudo-0.1` conservam critérios e resposta visual originais. A interface identifica essa versão; novas regras entram ao escolher um exemplo ou começar outra amostra. Não há migração silenciosa que diminua uma conquista anterior.
 
-## Próximo lote
+Salvamento é seguido de releitura antes da mensagem de confirmação. Se um histórico salvo não puder ser lido, o teste temporário não sobrescreve esse conteúdo automaticamente. A substituição acontece somente ao escolher um exemplo ou reiniciar a amostra fictícia. Registros repetidos pelo mesmo ID não duplicam crescimento; o mesmo ID com conteúdo diferente é recusado. Regras desconhecidas, critérios incoerentes e datas inválidas falham explicitamente.
 
-Calibrar os parâmetros com exemplos do usuário; conectar os IDs estáveis dos assuntos e seus registros reais pelo adaptador do site; aplicar estados individuais às árvores da floresta. Expandir senescência para as 11 espécies de Pediatria exige adaptações anatômicas próprias. Floração/frutificação como manutenção adulta ainda não foi implementada.
+## Visual e verificação
 
-A amostra local não é acompanhamento autenticado, sincronização com o site nem armazenamento por conta. Eventos reais exigirão validação no serviço de dados, isolamento por usuário e confirmação de persistência. Nenhum banco, agenda, sessão ou regra ativa do site foi alterado.
+O adaptador `src/visualCrescimentoEstudo.js` usa os estágios reais do gerador. Carvalho e Freixo têm transformação anatômica da copa adulta. A madeira mantém posições, normais e cores originais; geometrias de origem não são alteradas. Nas fases menores há alteração suave de cor da folhagem. Paleta, pixel mínimo, contorno e ausência de vento permanecem.
+
+21 testes passaram: 14 de crescimento/adaptador e sete de senescência. Incluem distribuição das recuperações, espera sem recompensa, teto diário, inserção retroativa de evidência, crescimento monotônico em 80 encontros com erros e pausas, retomada semanal, pausa sem restauração indevida, compatibilidade com regras anteriores, idempotência, validação e madeira preservada.
+
+No navegador foram conferidos: amostra anterior reconhecida sem troca de regras; exemplo concentrado jovem com 28/60 dias de recuperação; nova tentativa posterior permitindo adulta; ausência prolongada sem regressão de fase; retomada mantendo dificuldade pendente; pausa e recarga com preservação do histórico; comparação 3D de Carvalho e Freixo. A conferência final não apresentou avisos ou erros no console observado.
+
+Capturas: `historico/previa-crescimento-criterios.png` e `historico/previa-crescimento-retomada.png`.
+
+## Continuidade
+
+O próximo lote deve ligar históricos individuais aos IDs estáveis dos assuntos, preservando a mesma árvore e os registros originais. Também precisa definir o alcance da evidência dentro de cada assunto: repetir uma única pergunta não comprova cobertura de todos os conteúdos. A atual adulta representa trajetória, não uma avaliação global de competência. Não inferir cobertura que o serviço de estudos não fornece.
+
+Adaptar a copa das 11 espécies de Pediatria exige anatomia própria; não aplicar uma árvore seca genérica. Flores/frutos como marcos de manutenção adulta ainda não foram implementados. A identificação dos 278 assuntos permanece em sua prévia separada, sem incorporar as outras frentes artísticas por arrasto.
+
+Sem sincronização autenticada, alteração de banco, agenda ou dados reais. A publicação pública permanece na v0.45.

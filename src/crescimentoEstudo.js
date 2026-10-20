@@ -1,10 +1,11 @@
 /** Modelo experimental: conquista acumulada e acompanhamento da copa são independentes. */
 export const REGRAS_EXPERIMENTAIS = Object.freeze({
-  versao: 'crescimento-estudo-0.1',
+  versao: 'crescimento-estudo-0.2',
   muda: Object.freeze({ dias: 2, intervalo: 1, encontros: 1.8, autonomias: 0 }),
   jovem: Object.freeze({ dias: 5, intervalo: 21, encontros: 5, autonomias: 1 }),
-  adulta: Object.freeze({ dias: 12, intervalo: 90, encontros: 12, autonomias: 3 }),
+  adulta: Object.freeze({ dias: 12, intervalo: 90, encontros: 12, autonomias: 3, intervaloRecuperacoes: 60 }),
   intervaloAutonomias: 14,
+  intervaloRecuperacaoCopa: 7,
   toleranciaSemRegistro: 45,
   diasParaCopaRala: 180,
   senescenciaMaxima: 0.6,
@@ -25,13 +26,17 @@ export function somarDias(data,dias) {
   return new Date((diaNumero(data)+dias)*DIA).toISOString().slice(0,10);
 }
 export function validarRegras(r) {
+  if(!['crescimento-estudo-0.1','crescimento-estudo-0.2'].includes(r?.versao))throw Error('Versão das regras não reconhecida.');
   for(const chave of ['intervaloAutonomias','toleranciaSemRegistro','diasParaCopaRala'])if(!Number.isFinite(r[chave])||r[chave]<1)throw Error('Intervalo inválido: '+chave);
+  if(r.versao==='crescimento-estudo-0.2'&&(!Number.isInteger(r.intervaloRecuperacaoCopa)||r.intervaloRecuperacaoCopa<1))throw Error('Intervalo de recuperação da copa inválido.');
   if(!Number.isFinite(r.senescenciaMaxima)||r.senescenciaMaxima<0||r.senescenciaMaxima>1)throw Error('Limite de copa inválido.');
-  let anterior=0;
+  let anterior={dias:0,intervalo:0,encontros:0,autonomias:0,intervaloRecuperacoes:0};
   for(const nome of ['muda','jovem','adulta']){
     const e=r[nome];
-    if(!e||!['dias','intervalo','encontros','autonomias'].every(k=>Number.isFinite(e[k])&&e[k]>=0)||e.intervalo<anterior||e.dias<1||e.encontros<=0)throw Error('Critérios de crescimento inválidos: '+nome);
-    anterior=e.intervalo;
+    if(!e||!['dias','intervalo','encontros','autonomias'].every(k=>Number.isFinite(e[k])&&e[k]>=anterior[k])||e.dias<1||e.encontros<=0||!Number.isInteger(e.dias)||!Number.isInteger(e.autonomias))throw Error('Critérios de crescimento inválidos: '+nome);
+    const recuperacoes=e.intervaloRecuperacoes??0;
+    if(!Number.isFinite(recuperacoes)||recuperacoes<anterior.intervaloRecuperacoes||(recuperacoes>0&&e.autonomias<2))throw Error('Distribuição das recuperações inválida: '+nome);
+    anterior={...e,intervaloRecuperacoes:recuperacoes};
   }
 }
 function normalizarEvento(e) {
@@ -82,12 +87,22 @@ export function avaliarCrescimento(eventos,agora,regras=REGRAS_EXPERIMENTAIS) {
   const encontros=[...dias.values()].reduce((s,n)=>s+Math.min(1.25,1+(n-1)*.15),0);
   const datas=[...dias.keys()].sort(),primeira=datas[0]??null,ultima=datas.at(-1)??null;
   const intervalo=primeira?diaNumero(ultima)-diaNumero(primeira):0;
-  const autonomias=[];
-  for(const data of [...new Set(atividades.filter(e=>e.tipo==='tentativa'&&e.resultado==='autonomo').map(e=>e.data))].sort()){
+  const autonomias=[],datasRecuperacoes=[...new Set(atividades.filter(e=>e.tipo==='tentativa'&&e.resultado==='autonomo').map(e=>e.data))].sort();
+  for(const data of datasRecuperacoes){
     if(!autonomias.length||diaNumero(data)-diaNumero(autonomias.at(-1))>=regras.intervaloAutonomias)autonomias.push(data);
   }
-  const mede=e=>Math.min(datas.length/e.dias,intervalo/Math.max(1,e.intervalo),encontros/e.encontros,e.autonomias?autonomias.length/e.autonomias:1);
-  const parcial=e=>[datas.length/e.dias,intervalo/Math.max(1,e.intervalo),encontros/e.encontros,e.autonomias?autonomias.length/e.autonomias:1].reduce((s,x)=>s+limitar(x,0,1),0)/4;
+  // Usa todas as datas para o intervalo: inserir evidência antiga não pode reduzir a conquista.
+  const intervaloRecuperacoes=datasRecuperacoes.length>1?diaNumero(datasRecuperacoes.at(-1))-diaNumero(datasRecuperacoes[0]):0;
+  const medidas=e=>[
+    {chave:'dias',rotulo:'Dias distintos de estudo',atual:datas.length,meta:e.dias},
+    {chave:'intervalo',rotulo:'Intervalo entre encontros',atual:intervalo,meta:e.intervalo},
+    {chave:'encontros',rotulo:'Encontros acumulados',atual:encontros,meta:e.encontros},
+    {chave:'autonomias',rotulo:'Recuperações sem ajuda espaçadas',atual:autonomias.length,meta:e.autonomias},
+    ...(e.intervaloRecuperacoes?[{chave:'intervaloRecuperacoes',rotulo:'Intervalo entre recuperações sem ajuda',atual:intervaloRecuperacoes,meta:e.intervaloRecuperacoes}]:[]),
+  ].map(c=>({...c,concluido:c.atual>=c.meta}));
+  const razoes=e=>medidas(e).map(c=>c.meta?c.atual/c.meta:1);
+  const mede=e=>Math.min(...razoes(e));
+  const parcial=e=>razoes(e).reduce((s,x)=>s+limitar(x,0,1),0)/razoes(e).length;
   const nomes=['broto','muda','jovem','adulta'],bases=[.04,.2,.45,.75],fins=[.199,.449,.749,1];
   let indice=atividades.length?0:-1;
   for(const [i,nome] of ['muda','jovem','adulta'].entries())if(atividades.length&&mede(regras[nome])>=1)indice=i+1;else break;
@@ -97,10 +112,19 @@ export function avaliarCrescimento(eventos,agora,regras=REGRAS_EXPERIMENTAIS) {
   const crescimento=indice<0?0:bases[indice]+(fins[indice]-bases[indice])*fracao;
 
   const pausas=pausasUnidas(lista);
-  let perda=0,contato=null;
+  let perda=0,contato=null,ultimaRecuperacaoCopa=null;
   const avancar=(de,ate)=>de?Math.min(regras.senescenciaMaxima,perda+Math.max(0,diasAtivos(de,ate,pausas)-regras.toleranciaSemRegistro)/regras.diasParaCopaRala*regras.senescenciaMaxima):0;
   // Consolida por dia também na recuperação da copa; dez cliques no mesmo dia não a restauram dez vezes.
-  for(const data of datas){perda=avancar(contato,data)*(atividades.some(e=>e.data===data&&e.tipo==='retomada')?.35:.55);contato=data;}
+  for(const data of datas){
+    perda=avancar(contato,data);
+    if(regras.versao==='crescimento-estudo-0.1'){
+      // Amostras anteriores mantêm as regras com que foram criadas.
+      perda*=atividades.some(e=>e.data===data&&e.tipo==='retomada')?.35:.55;
+    }else if(perda>0&&(!ultimaRecuperacaoCopa||diasAtivos(ultimaRecuperacaoCopa,data,pausas)>=regras.intervaloRecuperacaoCopa)){
+      perda*=.65;ultimaRecuperacaoCopa=data;
+    }
+    contato=data;
+  }
   perda=avancar(contato,agora);
   const semRegistro=ultima?diasAtivos(ultima,agora,pausas):0;
   const ultimaTentativa=atividades.filter(e=>e.tipo==='tentativa').at(-1)??null;
@@ -109,10 +133,11 @@ export function avaliarCrescimento(eventos,agora,regras=REGRAS_EXPERIMENTAIS) {
   const dificuldadeAtiva=Boolean(ultimoAvaliativo&&(ultimoAvaliativo.tipo==='dificuldade'||['pista','apos_explicacao','nao_recuperou'].includes(ultimoAvaliativo.resultado)));
   return {
     versao:regras.versao,agora,indice,estagio:indice<0?'semente':nomes[indice],crescimento,
-    diasDeEstudo:datas.length,atividades:atividades.length,intervaloEstudado:intervalo,encontros,autonomiasEspacadas:autonomias.length,
-    primeiraAtividade:primeira,ultimaAtividade:ultima,ultimaTentativa:ultimaTentativa?.resultado??'nao_avaliado',dificuldadeAtiva,retomadaEmAndamento:ultimoSinal?.tipo==='retomada'&&dificuldadeAtiva,
+    diasDeEstudo:datas.length,atividades:atividades.length,intervaloEstudado:intervalo,encontros,autonomiasEspacadas:autonomias.length,intervaloRecuperacoes,
+    primeiraAtividade:primeira,ultimaAtividade:ultima,ultimaTentativa:ultimaTentativa?.resultado??'nao_avaliado',dataUltimaTentativa:ultimaTentativa?.data??null,dificuldadeAtiva,retomadaEmAndamento:ultimoSinal?.tipo==='retomada'&&dificuldadeAtiva,
     senescencia:perda,vigorVisual:1-perda,diasSemAcompanhamento:semRegistro,
+    acompanhamento:!ultima?'sem_registros':semRegistro>regras.toleranciaSemRegistro?'sem_acompanhamento':perda>.01?'em_retomada':'acompanhada',
     pausaAtiva:lista.some(e=>e.tipo==='pausa'&&e.data<=agora&&e.fim>agora),
-    proximo:proximo?{estagio:nomes[indice+1],dias:Math.max(0,proximo.dias-datas.length),intervalo:Math.max(0,proximo.intervalo-intervalo),autonomias:Math.max(0,proximo.autonomias-autonomias.length)}:null,
+    proximo:proximo?{estagio:nomes[indice+1],dias:Math.max(0,proximo.dias-datas.length),intervalo:Math.max(0,proximo.intervalo-intervalo),autonomias:Math.max(0,proximo.autonomias-autonomias.length),criterios:medidas(proximo)}:null,
   };
 }

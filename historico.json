@@ -2,8 +2,8 @@
   "atualizado": "2026-10-19",
   "versaoAtual": "v0.45",
   "proximoPasso": {
-    "titulo": "Calibrar o crescimento de longo prazo",
-    "descricao": "Experimentar a amostra e ajustar os critérios antes de ligar os dados reais às árvores da floresta."
+    "titulo": "Ligar o histórico de cada assunto à sua árvore",
+    "descricao": "Usar os IDs estáveis dos assuntos e definir o alcance da evidência, mantendo os registros reais e a arte das espécies preservados."
   },
   "frentes": [
     {
@@ -40,11 +40,12 @@
       "nome": "Ligação com os estudos",
       "status": "andamento",
       "progresso": 10,
-      "nota": "Modelo de crescimento e amostra 3D local preparados; registros reais e adaptação da floresta ainda pendentes."
+      "nota": "Prévia com critérios de longo prazo, retomada espaçada e regras antigas preservadas; conexão com dados reais pendente."
     }
   ],
   "quadro": {
     "funciona": [
+      "Prévia: critérios visíveis, recuperações ao longo dos meses e copa com retorno espaçado",
       "Prévia: conquista permanente, copa recuperável, pausas planejadas e crescimento em meses",
       "Três cachoeiras curvas com espuma e respingos; lago sem pontos piscantes; gramado sem quadriculado",
       "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
@@ -130,6 +131,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — crescimento aprimorado",
+      "data": "2026-10-19",
+      "titulo": "Crescer pelos retornos ao longo dos meses",
+      "porque": "Evitar que recuperações concentradas ou cliques repetidos simulem uma trajetória de longo prazo.",
+      "mudancas": [
+        "Adulta exige recuperações sem ajuda distribuídas por pelo menos 60 dias",
+        "Copa se recupera com retornos espaçados, sem bônus por botão",
+        "Critérios pendentes e acompanhamento sem porcentagens de conhecimento",
+        "Amostras anteriores mantêm suas regras e conquistas"
+      ],
+      "resultado": "21 testes passaram. Comparação dos exemplos, tentativa posterior, retomada, pausa e recarga conferidas. Prévia local, sem conexão com dados reais.",
+      "imagens": [
+        {
+          "src": "historico/previa-crescimento-criterios.png",
+          "legenda": "Recuperações concentradas deixam visível o critério ainda pendente"
+        },
+        {
+          "src": "historico/previa-crescimento-retomada.png",
+          "legenda": "Porte adulto preservado e dificuldade ainda pendente durante a retomada"
+        }
+      ]
+    },
     {
       "versao": "Prévia — crescimento de longo prazo",
       "data": "2026-10-19",

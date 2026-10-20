@@ -58,7 +58,7 @@ No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `j
 
 ## 3. Estado atual (v0.45)
 
-**Prévia — crescimento de longo prazo:** porte permanente separado da copa recuperável, retornos distribuídos no tempo e pausas planejadas. Amostra com dados fictícios, salvamento local e comparação 3D de Carvalho/Freixo em [projetos/crescimento-estudo/](projetos/crescimento-estudo/). Parâmetros ainda experimentais, sem conexão com registros reais e sem publicação. Ver [docs/crescimento-estudo.md](docs/crescimento-estudo.md).
+**Prévia — crescimento de longo prazo (segunda aplicação):** porte permanente, recuperações distribuídas por pelo menos 60 dias para a adulta e copa restaurada por retornos espaçados. A interface mostra critérios pendentes e acompanhamento sem porcentagem de conhecimento. Amostras anteriores conservam suas regras. Amostra com dados fictícios, salvamento local e comparação 3D de Carvalho/Freixo em [projetos/crescimento-estudo/](projetos/crescimento-estudo/). Parâmetros ainda experimentais, sem conexão com registros reais e sem publicação. Ver [docs/crescimento-estudo.md](docs/crescimento-estudo.md).
 
 **Prévia — saída do tobogã:** removidos os arcos fixos e o efeito de ondulações que partia da boca. Como não há água escorrendo pelo brinquedo, o lago mantém apenas seus movimentos ambientes. Branch `codex/saida-toboga-fluida`, sem publicação; detalhes em [docs/saida-toboga.md](docs/saida-toboga.md).
 
