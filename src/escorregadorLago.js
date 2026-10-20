@@ -123,8 +123,7 @@ export function criarEscorregadorLago(mundo,toon) {
       const p=a0.clone().lerp(a1,i/8);barra([p.x+dx,p.y,p.z],[p.x+dx,p.y+1.25,p.z],.065,azul);
     }
   }
-  // As ondulações da saída pertencem ao material animado do lago; a estrutura
-  // do brinquedo não contém mais os nove arcos estáticos sobre a água.
+  // Sem arcos na saída: não há fluxo de água neste brinquedo que os produza.
   // Reúne as ferragens e peças em uma malha; a pista preserva normais contínuas.
   const vertices=[],normais=[],tons=[];
   for(const g of partes){vertices.push(...g.attributes.position.array);normais.push(...g.attributes.normal.array);tons.push(...g.attributes.color.array);g.dispose();}

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import {RAMPAS} from './paleta.js';
-import {percursoEscorregador} from './escorregadorLago.js';
 
 const MAX_FOLHAS = 24;
 
@@ -26,18 +25,15 @@ export function criarLago(mundo,toon,opcoes={}) {
   mat.name='lago-profundidade-ondas';mat.userData.profundidade=true;
   const cor=i=>new THREE.Color(RAMPAS.agua[i]);
   const uFolhas={value:Array.from({length:MAX_FOLHAS},()=>new THREE.Vector3(0,0,-1))};
-  const saida=percursoEscorregador().amostra(1);
-  const origemSaida=saida.p.clone().addScaledVector(saida.d,1.3);
   const uniforms={
     uTime:{value:0},uBrilho:{value:1},
-    uSaidaToboga:{value:new THREE.Vector4(origemSaida.x,origemSaida.z,saida.d.x,saida.d.z)},
     uDireitaAgua:opcoes.direita??{value:new THREE.Vector2(1,0)},uTexelAgua:opcoes.texel??{value:.12},
     uTons:{value:[cor(1),cor(2),cor(3),cor(4),cor(5)]},uFolhas,
   };
   mat.onBeforeCompile=shader=>{
     Object.assign(shader.uniforms,uniforms);mat.userData.shader=shader;
     shader.vertexShader='attribute float aFundo; attribute float aMargem; varying float vFundo; varying float vMargem; varying vec2 vAgua;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvFundo=aFundo;vMargem=aMargem;vAgua=position.xz;');
-    shader.fragmentShader=`uniform float uTime,uBrilho,uTexelAgua;uniform vec4 uSaidaToboga;uniform vec2 uDireitaAgua;uniform vec3 uTons[5];uniform vec3 uFolhas[${MAX_FOLHAS}];
+    shader.fragmentShader=`uniform float uTime,uBrilho,uTexelAgua;uniform vec2 uDireitaAgua;uniform vec3 uTons[5];uniform vec3 uFolhas[${MAX_FOLHAS}];
 varying float vFundo;varying float vMargem;varying vec2 vAgua;
 float hashAgua(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
@@ -98,24 +94,6 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       if(vMargem<.22&&vFundo<lambida&&vFundo>lambida-.012-tx*.05&&costa>.46)cor=uTons[3];
       float espuma=(1.-step(.018+costa*.01,vFundo))*step(.72,ruidoAgua(p*1.6+vec2(uTime*.035,0.)));
       if(espuma>.5)cor=uTons[4];
-      // A água da saída espalha ondas no próprio lago. Cada arco avança,
-      // afina e perde contraste antes de recomeçar, sem contorno imóvel.
-      vec2 deltaSaida=p-uSaidaToboga.xy;
-      float frenteSaida=dot(deltaSaida,uSaidaToboga.zw);
-      float ladoSaida=dot(deltaSaida,vec2(-uSaidaToboga.w,uSaidaToboga.z));
-      float distanciaSaida=length(vec2(frenteSaida*.82,ladoSaida));
-      if(distanciaSaida<3.0&&frenteSaida>-.35){
-        float angulo=atan(ladoSaida,frenteSaida);
-        for(int i=0;i<3;i++){
-          float faseSaida=fract(uTime*.32+float(i)/3.0);
-          float raioSaida=.2+faseSaida*2.65;
-          float vidaSaida=smoothstep(0.0,.14,faseSaida)*(1.0-smoothstep(.58,1.0,faseSaida));
-          float fragmento=step(-.35,sin(angulo*5.0+float(i)*1.7));
-          float espessuraSaida=max(.008,max(.025,tx*.48)*vidaSaida);
-          float arcoSaida=(1.0-smoothstep(espessuraSaida*.5,espessuraSaida,abs(distanciaSaida-raioSaida)))*fragmento;
-          cor=mix(cor,uTons[min(faixa+1,3)],arcoSaida*vidaSaida*.8);
-        }
-      }
       // Lago em repouso: sem partículas luminosas ou piscadas aleatórias.
       // O movimento vem apenas das ondulações e dos reflexos cromáticos lentos.
       diffuseColor.rgb=cor;
@@ -124,7 +102,7 @@ float ruidoAgua(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
       // e as faixas ficam chapadas como num tile desenhado à mão.
       .replace('#include <opaque_fragment>','#include <opaque_fragment>\ngl_FragColor.a=.05;');
   };
-  mat.customProgramCacheKey=()=> 'lago-pictorico-6-saida-toboga';
+  mat.customProgramCacheKey=()=> 'lago-pictorico-5-sem-pisca';
   const mesh=new THREE.Mesh(g,mat);mesh.name='lago-superficie';mesh.receiveShadow=true;
   mesh.userData={tipo:'lago',profundidade:true,aneis,contorno:n,
     /** Recebe [{x,z,r}] das folhas flutuantes para desenhar os anéis em volta delas. */

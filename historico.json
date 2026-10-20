@@ -2,8 +2,8 @@
   "atualizado": "2026-10-19",
   "versaoAtual": "v0.45",
   "proximoPasso": {
-    "titulo": "Avaliar o movimento na saída do tobogã",
-    "descricao": "Conferir a prévia antes de publicar esta revisão."
+    "titulo": "Avaliar a saída sem ondulações",
+    "descricao": "Conferir a remoção do efeito antes de publicar."
   },
   "frentes": [
     {
@@ -28,7 +28,7 @@
       "nome": "Terreno e água",
       "status": "andamento",
       "progresso": 90,
-      "nota": "v0.45 publicada; saída do tobogã com ondas móveis em prévia separada."
+      "nota": "v0.45 publicada; remoção dos arcos e das ondas da saída do tobogã em prévia."
     },
     {
       "nome": "Vida e clima",
@@ -105,7 +105,7 @@
       "Mangue das Pontes no catálogo, evolução e viveiro, com raízes em arco sobre a lama e propágulos pendentes"
     ],
     "corrigir": [
-      "Avaliar prévia das ondulações móveis na saída do tobogã",
+      "Avaliar prévia da saída do tobogã sem ondulações artificiais",
       "Avaliar prévias de capim/flores, escada refinada e identificação dos assuntos, ainda separadas",
       "Adaptar a senescência às demais espécies e definir prazos antes de ligá-la aos estudos",
       "Salgueiros raros: margem do lago estreita",
@@ -131,18 +131,18 @@
     {
       "versao": "Prévia — saída do tobogã",
       "data": "2026-10-19",
-      "titulo": "Ondulações da saída com movimento",
-      "porque": "O efeito fixo na boca do tobogã parecia uma poça estática.",
+      "titulo": "Saída sem ondulações artificiais",
+      "porque": "Sem água escorrendo no tobogã, as ondas da saída não tinham uma causa.",
       "mudancas": [
-        "Removidos os nove arcos imóveis presos à estrutura",
-        "Ondas no lago que avançam, afinam e desaparecem",
-        "Origem e direção acompanham a boca do tobogã"
+        "Removidos os nove arcos fixos da estrutura",
+        "Retiradas também as ondas que partiam da boca",
+        "Mantidos os movimentos ambientes e os anéis das vitórias-régias"
       ],
-      "resultado": "12 testes existentes passaram; revisão local para avaliação, sem publicação.",
+      "resultado": "Revisão local: saída sem efeito artificial; ainda sem publicação.",
       "imagens": [
         {
-          "src": "historico/previa-saida-toboga.png",
-          "legenda": "Saída sem os arcos imóveis; ondas integradas ao lago"
+          "src": "historico/previa-saida-toboga-sem-ondas.png",
+          "legenda": "Saída sem arcos nem ondas artificiais"
         }
       ]
     },
