@@ -1,9 +1,10 @@
 /**
  * Roda da fogueira no quintal da casa: lugar de acampamento para juntar os amigos.
- * Fogueira em anel de pedras com lenha em pirâmide, chamas em camadas que tremulam,
- * brasas, faíscas e fumaça; tripé com chaleira; assentos em roda (troncos deitados,
- * tocos, banco de tábua com manta), violão encostado, espetos de marshmallow, pilha
- * de lenha e varal de lâmpadas coloridas que acende ao anoitecer. A roda fica aberta
+ * Fogueira em anel de pedras redondas (duas fiadas sobre lajes chatas) com lenha em
+ * pirâmide, chamas em camadas que tremulam, brasas, faíscas e fumaça; tripé com
+ * chaleira; bancos de madeira em roda (alguns com encosto, um com manta), violão
+ * encostado, espetos de marshmallow, pilha de lenha de canto para alimentar o fogo e
+ * varal de lâmpadas coloridas que acende ao anoitecer. A roda fica aberta
  * para o lado da casa, de onde chega um caminho de pedras. Tudo sai da semente.
  */
 import * as THREE from 'three';
@@ -53,12 +54,21 @@ export function criarFogueira(m,toon){
   for(let i=0;i<14;i++){const a=rng()*6.28,r=entre(1.4,3.7);pedra(noAnel(a,r,.02),entre(.04,.09),rng()>.5?R.pedra[3]:R.pedra[2],.5);}
  }
 
- // Fogueira: cinzas, anel de pedras de tamanhos diferentes e lenha em pirâmide.
+ // Fogueira: lajes chatas em volta, anel de pedras redondas encaixadas em duas fiadas,
+ // fuligem por dentro, cinzas e lenha em pirâmide.
  {
-  const cinza=new THREE.CircleGeometry(.86,10);cinza.rotateX(-Math.PI/2);cinza.translate(0,.05,0);pintar(cinza,R.pedra[1]);
-  const meio=new THREE.CircleGeometry(.5,8);meio.rotateX(-Math.PI/2);meio.translate(0,.06,0);pintar(meio,R.tinta[1]);
-  const nP=13;
-  for(let i=0;i<nP;i++){const a=i/nP*Math.PI*2+entre(-.1,.1);pedra(noAnel(a,entre(.95,1.05)),entre(.18,.3),[R.pedra[2],R.pedra[3],R.pedra[1],R.pedra[2]][i%4]);}
+  const redonda=(p,r,tom,ach=.6)=>{const g=new THREE.IcosahedronGeometry(r,1);g.scale(entre(.95,1.25),ach,entre(.85,1.05));g.rotateY(rng()*6.28);g.translate(p.x,p.y+r*ach*.8,p.z);return pintar(g,tom);};
+  // Lajes do piso da fogueira: um anel de pedras chatas, de cantos irregulares.
+  const nLaje=14;
+  for(let i=0;i<nLaje;i++){const a=i/nLaje*Math.PI*2+entre(-.06,.06),p=noAnel(a,entre(1.36,1.44),.03),g=new THREE.CylinderGeometry(entre(.24,.29),entre(.26,.31),.06,6);g.scale(1,1,entre(.75,.95));g.rotateY(a+entre(-.3,.3));g.translate(p.x,p.y,p.z);pintar(g,i%3===0?R.terra[2]:i%3===1?R.pedra[1]:R.terra[1]);}
+  const cinza=new THREE.CircleGeometry(.9,12);cinza.rotateX(-Math.PI/2);cinza.translate(0,.05,0);pintar(cinza,R.pedra[1]);
+  const meio=new THREE.CircleGeometry(.52,10);meio.rotateX(-Math.PI/2);meio.translate(0,.06,0);pintar(meio,R.tinta[1]);
+  // Fiada de baixo: pedras grandes e encostadas umas nas outras; fiada de cima: menores, nos vãos.
+  const nP=16,tons=[R.pedra[1],R.terra[1],R.pedra[0],R.terra[2],R.pedra[1]];
+  for(let i=0;i<nP;i++){const a=i/nP*Math.PI*2+entre(-.04,.04);redonda(noAnel(a,entre(1.0,1.06),.02),entre(.22,.27),tons[Math.floor(rng()*tons.length)]);}
+  for(let i=0;i<11;i++){const a=(i+.5)/11*Math.PI*2+entre(-.08,.08);redonda(noAnel(a,entre(.98,1.03),.2),entre(.14,.19),rng()>.5?R.terra[3]:R.pedra[2],.65);}
+  // Fuligem na face de dentro do anel.
+  const fuligem=new THREE.RingGeometry(.74,.86,16);fuligem.rotateX(-Math.PI/2);fuligem.translate(0,.07,0);pintar(fuligem,R.tinta[0]);
   const nL=6,topo=V(entre(-.05,.05),1.0,entre(-.05,.05));
   for(let i=0;i<nL;i++){
    const a=i/nL*Math.PI*2+entre(-.2,.2),pe=noAnel(a,entre(.6,.72),.05),meioL=pe.clone().lerp(topo,.45);
@@ -78,55 +88,53 @@ export function criarFogueira(m,toon){
   const alca=new THREE.TorusGeometry(.2,.012,4,10,Math.PI);alca.translate(0,1.6,0);pintar(alca,R.tinta[0]);
  }
 
- // Assentos em roda, com o lado da casa livre. Ângulos desencontrados, peças variadas.
- const assentos=[
-  {tipo:'tronco',da:1.15,r:2.75,comp:2.1},
-  {tipo:'toco',da:1.95,r:2.55},
-  {tipo:'banco',da:2.65,r:2.8},
-  {tipo:'toco',da:3.3,r:2.6,caneca:true},
-  {tipo:'tronco',da:4.05,r:2.7,comp:1.8,violao:true},
-  {tipo:'toco',da:4.8,r:2.5,baixo:true},
+ // Bancos de madeira em roda, com o lado da casa livre: assento de três ripas, pés em
+ // quadro com travessa e, em alguns, encosto inclinado para fora. Comprimentos e
+ // distâncias variam um pouco, para a roda não ficar certinha demais.
+ const caixaX=(p,tam,tom,giro,incl)=>{const g=new THREE.BoxGeometry(...tam);g.rotateX(incl);g.rotateY(giro);g.translate(p.x,p.y,p.z);return pintar(g,tom);};
+ const bancos=[
+  {da:1.2,comp:1.9,encosto:true},
+  {da:2.15,comp:1.7,manta:true},
+  {da:3.1,comp:2.0,encosto:true,violao:true},
+  {da:4.05,comp:1.75,caneca:true},
+  {da:5.0,comp:1.85,encosto:true},
  ];
- for(const s of assentos){
-  const a=aCasa+s.da+entre(-.06,.06),c=noAnel(a,s.r),tan=V(-Math.sin(a),0,Math.cos(a)),rad=V(Math.cos(a),0,Math.sin(a));
-  if(s.tipo==='tronco'){
-   const meia=tan.clone().multiplyScalar(s.comp/2),y=.3,A=c.clone().sub(meia).setY(y),B=c.clone().add(meia).setY(y);
-   cilindro(A,B,.31,.29,R.terra[1],9);
-   // Topo achatado onde se senta e anéis claros nas pontas serradas.
-   caixa(c.clone().setY(.56),[s.comp*.86,.06,.3],R.terra[2],-a+Math.PI/2);
-   for(const [P,d] of [[A,-1],[B,1]]){const anel=new THREE.CircleGeometry(.29,9);anel.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0,0,1),tan.clone().multiplyScalar(d)));anel.translate(...P.clone().addScaledVector(tan,d*.012).toArray());pintar(anel,R.terra[4]);
-    const miolo=new THREE.CircleGeometry(.12,7);miolo.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0,0,1),tan.clone().multiplyScalar(d)));miolo.translate(...P.clone().addScaledVector(tan,d*.02).toArray());pintar(miolo,R.terra[3]);}
-   // Um toco de galho quebrado e musgo de um lado.
-   cilindro(c.clone().addScaledVector(tan,s.comp*.22).setY(.45),c.clone().addScaledVector(tan,s.comp*.3).addScaledVector(rad,.25).setY(.72),.07,.04,R.terra[1],5);
-   const musgo=new THREE.SphereGeometry(.2,6,3,0,6.28,0,1.3);musgo.scale(1.6,.35,1);musgo.rotateY(-a);musgo.translate(...c.clone().addScaledVector(tan,-s.comp*.25).addScaledVector(rad,.18).setY(.5).toArray());pintar(musgo,R.mata[3]);
-   if(s.violao){
-    // Violão encostado no tronco, de frente para o fogo.
-    const p=c.clone().addScaledVector(rad,-.42).addScaledVector(tan,s.comp*.18),q=new THREE.Quaternion().setFromUnitVectors(CIMA,V(0,1,0).addScaledVector(rad,.45).normalize());
-    const parte=(g,tom,dy)=>{g.translate(0,dy,0);g.rotateY(-a+Math.PI/2);g.applyQuaternion(q);g.translate(p.x,.05,p.z);pintar(g,tom);};
-    const corpo=new THREE.CylinderGeometry(.27,.27,.12,10);corpo.rotateX(Math.PI/2);parte(corpo,R.outono[2],.3);
-    const cintura=new THREE.CylinderGeometry(.21,.21,.121,10);cintura.rotateX(Math.PI/2);parte(cintura,R.outono[2],.62);
-    const boca=new THREE.CircleGeometry(.07,8);boca.translate(0,0,.062);parte(boca,R.tinta[0],.52);
-    const ponte=new THREE.BoxGeometry(.16,.03,.02);ponte.translate(0,0,.065);parte(ponte,R.tinta[1],.26);
-    parte(new THREE.BoxGeometry(.07,.62,.05),R.terra[1],1.05);
-    parte(new THREE.BoxGeometry(.11,.17,.05),R.terra[0],1.43);
-   }
-  }else if(s.tipo==='toco'){
-   const h=s.baixo?.32:entre(.42,.5),r=entre(.26,.33);
-   cilindro(c.clone().setY(0),c.clone().setY(h),r*1.12,r,R.terra[2],9);
-   const topo=new THREE.CircleGeometry(r*.98,9);topo.rotateX(-Math.PI/2);topo.translate(c.x,h+.004,c.z);pintar(topo,R.terra[4]);
-   const anel=new THREE.RingGeometry(r*.35,r*.45,9);anel.rotateX(-Math.PI/2);anel.translate(c.x,h+.008,c.z);pintar(anel,R.terra[3]);
-   for(let k=0;k<3;k++){const ra=rng()*6.28,d=V(Math.cos(ra),0,Math.sin(ra));cilindro(c.clone().addScaledVector(d,r*.8).setY(.08),c.clone().addScaledVector(d,r*1.5).setY(0),.08,.04,R.terra[1],5);}
-   if(s.caneca){const p=c.clone().addScaledVector(tan,.08).setY(h);cilindro(p,p.clone().setY(h+.17),.075,.075,R.agua[4],8);const asa=new THREE.TorusGeometry(.05,.013,4,8);asa.rotateY(-a);asa.translate(...p.clone().addScaledVector(tan,.09).setY(h+.09).toArray());pintar(asa,R.agua[4]);const cafe=new THREE.CircleGeometry(.06,8);cafe.rotateX(-Math.PI/2);cafe.translate(p.x,h+.165,p.z);pintar(cafe,R.terra[0]);}
-  }else if(s.tipo==='banco'){
-   // Tábua grossa sobre dois tocos baixos, com uma manta xadrez dobrada.
-   for(const d of [-.62,.62]){const p=c.clone().addScaledVector(tan,d);cilindro(p.clone().setY(0),p.clone().setY(.38),.2,.18,R.terra[1],7);}
-   caixa(c.clone().setY(.44),[1.75,.1,.44],R.terra[3],-a+Math.PI/2);
-   caixa(c.clone().setY(.4),[1.75,.03,.44],R.terra[2],-a+Math.PI/2);
-   const pm=c.clone().addScaledVector(tan,.35).setY(.52);
-   caixa(pm,[.62,.07,.42],R.vermelho[1],-a+Math.PI/2+.12);
-   for(const off of [-.18,.02,.2])caixa(pm.clone().addScaledVector(tan,off).setY(.558),[.07,.012,.43],R.vermelho[2],-a+Math.PI/2+.12);
-   caixa(pm.clone().setY(.562),[.6,.012,.06],R.outono[3],-a+Math.PI/2+.12);
-   caixa(pm.clone().addScaledVector(rad,-.22).setY(.36),[.6,.28,.03],R.vermelho[1],-a+Math.PI/2+.12);
+ for(const s of bancos){
+  const a=aCasa+s.da+entre(-.05,.05),c=noAnel(a,entre(2.7,2.85)),tan=V(-Math.sin(a),0,Math.cos(a)),rad=V(Math.cos(a),0,Math.sin(a)),giro=-a+Math.PI/2;
+  const H=.46,ponto=(t,r,y)=>c.clone().addScaledVector(tan,t).addScaledVector(rad,r).setY(y);
+  // Assento: três ripas com frestas, a do meio um tom mais clara.
+  for(const [r,tom] of [[-.15,R.terra[3]],[0,R.terra[4]],[.15,R.terra[3]]])caixa(ponto(entre(-.02,.02),r,H),[s.comp,.06,.13],tom,giro);
+  // Pés em quadro: dois montantes por lado, travessa sob o assento e uma ripa baixa ligando os lados.
+  for(const lado of [-1,1]){const t=lado*(s.comp/2-.2);
+   for(const r of [-.16,.16])caixa(ponto(t,r,H/2-.02),[.09,H-.04,.09],R.terra[1],giro);
+   caixa(ponto(t,0,H-.07),[.08,.07,.42],R.terra[1],giro);
+   caixa(ponto(t,0,.13),[.07,.06,.34],R.terra[1],giro);}
+  caixa(ponto(0,0,.16),[s.comp-.4,.06,.06],R.terra[2],giro);
+  if(s.encosto){
+   // Encosto do lado de fora, inclinado para trás: dois montantes e duas ripas largas.
+   const incl=.22;
+   for(const lado of [-1,1])caixaX(ponto(lado*(s.comp/2-.2),.26,H+.25),[.08,.62,.07],R.terra[1],giro,incl);
+   for(const [y,dr] of [[H+.3,.29],[H+.48,.33]])caixaX(ponto(0,dr,y),[s.comp-.12,.13,.04],y>H+.4?R.terra[4]:R.terra[3],giro,incl);
+  }
+  if(s.manta){
+   // Manta xadrez dobrada sobre o assento, caindo pela frente.
+   const pm=ponto(.35,0,H+.06),g2=giro+.1;
+   caixa(pm,[.62,.06,.44],R.vermelho[1],g2);
+   for(const off of [-.18,.02,.2])caixa(pm.clone().addScaledVector(tan,off).setY(H+.093),[.07,.012,.45],R.vermelho[2],g2);
+   caixa(pm.clone().setY(H+.095),[.6,.012,.06],R.outono[3],g2);
+   caixa(ponto(.35,-.23,H-.1),[.6,.26,.03],R.vermelho[1],g2);
+  }
+  if(s.caneca){const p=ponto(s.comp/2-.25,.05,H+.03);cilindro(p,p.clone().setY(H+.2),.075,.075,R.agua[4],8);const asa=new THREE.TorusGeometry(.05,.013,4,8);asa.rotateY(-a);asa.translate(...p.clone().addScaledVector(tan,.09).setY(H+.12).toArray());pintar(asa,R.agua[4]);const cafe=new THREE.CircleGeometry(.06,8);cafe.rotateX(-Math.PI/2);cafe.translate(p.x,H+.195,p.z);pintar(cafe,R.terra[0]);}
+  if(s.violao){
+   // Violão encostado na frente do banco, virado para o fogo.
+   const p=ponto(s.comp*.22,-.42,0),q=new THREE.Quaternion().setFromUnitVectors(CIMA,V(0,1,0).addScaledVector(rad,.42).normalize());
+   const parte=(g,tom,dy)=>{g.translate(0,dy,0);g.rotateY(giro);g.applyQuaternion(q);g.translate(p.x,.05,p.z);pintar(g,tom);};
+   const corpo=new THREE.CylinderGeometry(.27,.27,.12,10);corpo.rotateX(Math.PI/2);parte(corpo,R.outono[2],.3);
+   const cintura=new THREE.CylinderGeometry(.21,.21,.121,10);cintura.rotateX(Math.PI/2);parte(cintura,R.outono[2],.62);
+   const boca=new THREE.CircleGeometry(.07,8);boca.translate(0,0,.062);parte(boca,R.tinta[0],.52);
+   const ponte=new THREE.BoxGeometry(.16,.03,.02);ponte.translate(0,0,.065);parte(ponte,R.tinta[1],.26);
+   parte(new THREE.BoxGeometry(.07,.62,.05),R.terra[1],1.05);
+   parte(new THREE.BoxGeometry(.11,.17,.05),R.terra[0],1.43);
   }
  }
 
@@ -140,14 +148,11 @@ export function criarFogueira(m,toon){
 
  // Pilha de lenha ao lado da roda, perto do caminho.
  {
-  const a=aCasa-1.05,c=noAnel(a,3.25),tan=V(-Math.sin(a),0,Math.cos(a)),rad=V(Math.cos(a),0,Math.sin(a));
+  const a=aCasa-.72,c=noAnel(a,3.45),tan=V(-Math.sin(a),0,Math.cos(a)),rad=V(Math.cos(a),0,Math.sin(a));
   const fila=[[-.27,.12],[0,.12],[.27,.12],[-.14,.34],[.14,.34],[0,.56]];
   for(const [o,y] of fila){const r=entre(.1,.13),p=c.clone().addScaledVector(tan,o).setY(y),meia=rad.clone().multiplyScalar(entre(.42,.55));
    cilindro(p.clone().sub(meia),p.clone().add(meia),r,r,rng()>.5?R.terra[1]:R.terra[2],7);
    const ponta=new THREE.CircleGeometry(r*.95,7);ponta.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0,0,1),rad));ponta.translate(...p.clone().add(meia).addScaledVector(rad,.01).toArray());pintar(ponta,R.terra[4]);}
-  const machado=c.clone().addScaledVector(tan,.75).setY(0);
-  cilindro(machado,machado.clone().add(V(.08,.62,.05)),.025,.022,R.terra[3],5);
-  caixa(machado.clone().add(V(.09,.66,.06)),[.22,.12,.03],R.pedra[3],-a,.1);
  }
 
  // Caminho de pedras chatas até a varanda da casa.
