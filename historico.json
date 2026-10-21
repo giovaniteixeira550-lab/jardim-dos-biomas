@@ -1,5 +1,5 @@
 {
-  "atualizado": "2026-10-19",
+  "atualizado": "2026-10-21",
   "versaoAtual": "v0.46",
   "proximoPasso": {
     "titulo": "Ligar o histórico de cada assunto à sua árvore",
@@ -39,8 +39,8 @@
     {
       "nome": "Ligação com os estudos",
       "status": "andamento",
-      "progresso": 10,
-      "nota": "Prévia com critérios de longo prazo, retomada espaçada e regras antigas preservadas; conexão com dados reais pendente."
+      "progresso": 15,
+      "nota": "Prévia com critérios de longo prazo, retomada espaçada e regras antigas preservadas; conexão com dados reais pendente. Prévia do painel Evolução do módulo (21/10), com exemplo fictício e contrato para os registros do site."
     }
   ],
   "quadro": {
@@ -117,6 +117,7 @@
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
+      "Painel do módulo: clicar num assunto e levar a câmera até a árvore dele",
       "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
       "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
@@ -132,6 +133,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — painel do módulo",
+      "data": "2026-10-21",
+      "titulo": "Painel fixo com a evolução do módulo de Pediatria",
+      "porque": "O usuário pediu um menu fixo para acompanhar a evolução do módulo, com gráficos e informações úteis sobre o que foi estudado.",
+      "mudancas": [
+        "Botão Evolução do módulo abre um painel lateral que pode ser fixado e lembra a aba escolhida",
+        "Resumo: rodízio, assuntos plantados, floresta por estágio, evolução diária com linha de ritmo e marcos",
+        "Áreas e Atividade: estágios por área e por assunto, calendário de estudo e tentativas por semana",
+        "Próximos: perto de crescer, bom momento para recuperar, dificuldades, confusões e copas sem retorno"
+      ],
+      "resultado": "Funciona com um exemplo fictício e um dia simulado; ainda sem registros reais e sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-painel-modulo.jpg",
+          "legenda": "Aba Resumo no exemplo fictício (5/12)"
+        },
+        {
+          "src": "historico/previa-painel-modulo-mapa.jpg",
+          "legenda": "O painel ao lado do mapa, no fim do rodízio"
+        }
+      ]
+    },
     {
       "versao": "v0.46",
       "data": "2026-10-19",

@@ -64,6 +64,97 @@
   #etapa { margin-top: 12px; font-size: 13px; }
   #erro { color: var(--alerta); font-size: 13px; margin-top: 12px; }
 
+  /* Painel fixo "Evolução do módulo": coluna à esquerda; folha inferior no celular. */
+  .abrir-modulo { top: calc(62px + env(safe-area-inset-top, 0px)); left: 12px; font-family: var(--corpo); font-size: 13px; color: var(--texto); background: var(--painel); padding: 6px 10px; cursor: pointer; }
+  .abrir-modulo small { color: var(--acento); margin-left: 6px; font-variant-numeric: tabular-nums; }
+  .abrir-modulo[aria-expanded="true"] { border-color: var(--acento); }
+  .modulo { --fundo-modulo: #18221d; top: calc(100px + env(safe-area-inset-top, 0px)); left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(410px, calc(100% - 24px)); z-index: 3; background: var(--fundo-modulo); display: flex; flex-direction: column; font-size: 12px; }
+  .modulo[hidden] { display: none; }
+  .modulo-topo { display: flex; justify-content: space-between; align-items: start; gap: 8px; padding: 10px 12px 6px; }
+  .modulo-topo h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 14px; color: var(--acento); letter-spacing: 0.04em; }
+  .modulo-sobre { margin: 0 0 2px; font-size: 11px; color: var(--alerta); letter-spacing: 0.08em; }
+  .modulo-topo button { padding: 2px 8px; font-size: 12px; }
+  .modulo-fonte { display: flex; gap: 8px; align-items: center; padding: 0 12px 6px; }
+  .modulo select { font-family: var(--corpo); font-size: 12px; background: var(--tinta); color: var(--texto); border: 2px solid var(--borda); }
+  .selo { font-size: 11px; padding: 1px 6px; border: 1px dashed var(--alerta); color: var(--alerta); }
+  .selo[data-origem="site"] { border-style: solid; border-color: var(--acento); color: var(--acento); }
+  .simulacao { padding: 0 12px 8px; display: grid; gap: 4px; }
+  .simulacao[hidden] { display: none; }
+  .simulacao label { display: flex; justify-content: space-between; color: var(--suave); }
+  .simulacao output { color: var(--texto); }
+  .simulacao .grupo button { font-size: 11px; padding: 2px 6px; }
+  .abas { display: flex; gap: 2px; padding: 0 12px; border-bottom: 2px solid var(--borda); }
+  .abas button { box-shadow: none; border-bottom: 0; background: transparent; font-size: 12px; padding: 4px 8px; }
+  .abas button[aria-selected="true"] { background: var(--borda); color: #fff; }
+  .modulo-corpo { overflow-y: auto; padding: 8px 12px 14px; flex: 1; scrollbar-color: var(--borda) transparent; }
+  .modulo h3 { margin: 14px 0 6px; font-family: var(--corpo); font-weight: 600; font-size: 12px; color: var(--texto); }
+  .modulo svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .modulo svg.barra-estagios { height: 14px; }
+  .barra-estagios rect { stroke: var(--fundo-modulo); stroke-width: 2px; }
+  .modulo .eixo { fill: var(--suave); font-size: 9px; font-family: var(--corpo); }
+  .modulo .grade { stroke: rgba(166, 182, 127, 0.16); stroke-width: 1; }
+  .modulo .ritmo { stroke: var(--texto); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .modulo .marca { stroke: var(--suave); stroke-dasharray: 2 2; }
+  .modulo .cursor { stroke: #fff3c4; stroke-width: 1; }
+  .calendario rect.futuro { stroke: rgba(166, 182, 127, 0.22); stroke-dasharray: 2 2; }
+  .calendario rect.rodizio:not(.futuro) { stroke: rgba(156, 195, 100, 0.35); stroke-width: 1; }
+  .calendario rect.pausa { stroke: #9b80cc; stroke-width: 1.5; }
+  .legenda { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 0; padding: 0; color: var(--suave); font-size: 11px; }
+  .legenda li { display: inline-flex; align-items: center; gap: 4px; }
+  .legenda b { color: var(--texto); font-weight: 400; }
+  .legenda i { width: 10px; height: 10px; display: inline-block; border-radius: 2px; }
+  .legenda i.tracejado { width: 14px; height: 0; border-top: 2px dashed var(--texto); border-radius: 0; }
+  .legenda i.pausa-i { border: 1.5px solid #9b80cc; }
+  .legenda i.rodizio-i { border: 1px solid rgba(156, 195, 100, 0.6); }
+  .rodizio { margin-top: 4px; }
+  .rodizio-topo, .rodizio-legenda { display: flex; justify-content: space-between; gap: 8px; color: var(--suave); font-size: 11px; }
+  .rodizio-legenda i { display: inline-block; width: 10px; height: 6px; margin-right: 4px; }
+  .trilho { position: relative; height: 16px; margin: 4px 0; background: var(--tinta); border: 2px solid var(--borda); }
+  .trilho > div { position: absolute; left: 0; top: 0; height: 50%; background: var(--suave); }
+  .trilho > .plantio, .rodizio-legenda .plantado { top: 50%; background: var(--acento); }
+  .rodizio-legenda .tempo { background: var(--suave); }
+  .blocos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+  .bloco { background: var(--tinta); border: 1px solid #2f5236; padding: 6px 8px; }
+  .bloco p { margin: 0; }
+  .bloco-t { font-size: 11px; color: var(--suave); }
+  .bloco-v { font-family: var(--display); font-size: 18px; color: var(--texto); margin: 2px 0 !important; font-variant-numeric: tabular-nums; }
+  .bloco-v small { font-family: var(--corpo); font-size: 12px; color: var(--suave); }
+  .bloco-s { font-size: 11px; color: var(--suave); }
+  .nota, .dica-painel { color: var(--suave); line-height: 1.45; margin: 8px 0 0; }
+  .nota b { color: var(--texto); font-weight: 400; }
+  .vazio { color: var(--suave); font-style: italic; margin: 4px 0; }
+  .marcos { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+  .marcos time { display: inline-block; min-width: 42px; color: var(--alerta); }
+  details.mais summary, details.tabela summary { cursor: pointer; color: var(--alerta); margin-top: 4px; }
+  .tabela table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11px; font-variant-numeric: tabular-nums; }
+  .tabela th, .tabela td { text-align: right; padding: 2px 4px; border-bottom: 1px solid #2f5236; }
+  .tabela th:first-child, .tabela td:first-child { text-align: left; }
+  .linha-ctl { display: flex; gap: 8px; align-items: center; color: var(--suave); }
+  details.area { border-top: 1px solid #2f5236; padding: 6px 0; }
+  details.area summary { cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; list-style: none; }
+  details.area summary::-webkit-details-marker { display: none; }
+  details.area summary svg { grid-column: 1 / -1; height: 8px !important; }
+  .area-nome { color: var(--texto); }
+  .area-nome small { display: block; color: var(--suave); font-size: 10px; }
+  .area-num { color: var(--texto); font-variant-numeric: tabular-nums; text-align: right; }
+  .area-num em { font-style: normal; color: var(--alerta); margin-left: 4px; }
+  .area-ultima { grid-column: 1 / -1; color: var(--suave); font-size: 10px; }
+  details.area[open] summary { margin-bottom: 6px; }
+  .grupo-assuntos { margin: 4px 0 6px; }
+  .grupo-assuntos p { margin: 0 0 3px; color: var(--suave); font-size: 11px; }
+  .pontos { display: flex; flex-wrap: wrap; gap: 3px; }
+  .pontos i { width: 12px; height: 12px; display: inline-block; border-radius: 2px; }
+  .pontos i.dif { outline: 2px solid var(--alerta); outline-offset: -2px; }
+  .bloco-lista h3 { display: flex; justify-content: space-between; }
+  .contagem { color: var(--acento); font-weight: 400; }
+  .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+  .lista li { display: grid; gap: 1px; padding-left: 8px; border-left: 2px solid #2f5236; }
+  .li-nome { color: var(--texto); }
+  .li-meta { color: var(--suave); font-size: 11px; }
+  .li-meta b { color: var(--acento); font-weight: 400; }
+  .modulo-dica { position: fixed; z-index: 6; pointer-events: none; max-width: 260px; background: var(--tinta); color: var(--texto); border: 2px solid var(--alerta); padding: 5px 8px; font-size: 11px; line-height: 1.45; white-space: pre-line; box-shadow: 3px 3px 0 #000; }
+  .modulo-dica[hidden] { display: none; }
+
   @media (max-width: 900px) {
     .titulo { max-width: calc(100% - 24px); }
     .giro { top: calc(92px + env(safe-area-inset-top, 0px)); }
@@ -75,6 +166,8 @@
     .ficha { top: calc(116px + env(safe-area-inset-top, 0px)); }
     .painel { gap: 8px; padding: 8px; }
     .dica { display: none; }
+    .abrir-modulo { top: auto; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
+    .modulo { top: auto; left: 8px; right: 8px; width: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); max-height: 74vh; }
   }
   @media (prefers-reduced-motion: reduce) { .barra > div { transition: none; } }
 </style>
@@ -137,7 +230,12 @@
     "./src/qualidade.js": "./src/qualidade.js?v=0.39.2",
     "./src/solo.js": "./src/solo.js?v=0.45",
     "./src/trilhaTerra.js": "./src/trilhaTerra.js?v=0.39.2",
-    "./src/viveiro.js": "./src/viveiro.js?v=0.39.2"
+    "./src/viveiro.js": "./src/viveiro.js?v=0.39.2",
+    "./src/painelModulo.js": "./src/painelModulo.js?v=0.47",
+    "./src/resumoModulo.js": "./src/resumoModulo.js?v=0.47",
+    "./src/exemploModulo.js": "./src/exemploModulo.js?v=0.47",
+    "./src/catalogoPediatria.js": "./src/catalogoPediatria.js?v=0.47",
+    "./src/crescimentoEstudo.js": "./src/crescimentoEstudo.js?v=0.47"
   }
 }
 </script>
@@ -192,6 +290,37 @@
   <p class="dica" id="info">Semente 1234</p>
 </details>
 
+<button id="abrir-modulo" class="hud abrir-modulo" type="button" aria-expanded="false" aria-controls="painel-modulo" title="Apanhado do estudo do módulo">▤ Evolução do módulo<small></small></button>
+
+<aside class="hud modulo" id="painel-modulo" aria-label="Evolução do módulo de Pediatria" hidden>
+  <header class="modulo-topo">
+    <div><p class="modulo-sobre">PEDIATRIA</p><h2>EVOLUÇÃO DO MÓDULO</h2></div>
+    <div class="grupo">
+      <button id="fixar-modulo" type="button" aria-pressed="false" title="Manter o painel aberto, inclusive ao recarregar a página">▣ Fixar</button>
+      <button id="fechar-modulo" type="button" aria-label="Fechar painel" title="Fechar (Esc)">×</button>
+    </div>
+  </header>
+  <div class="modulo-fonte">
+    <span id="modulo-origem" class="selo"></span>
+    <select id="modulo-fonte" aria-label="Fonte dos dados">
+      <option value="exemplo">Exemplo fictício</option>
+      <option value="vazio">Início real (vazio)</option>
+    </select>
+  </div>
+  <div class="simulacao" id="modulo-simulacao">
+    <label for="modulo-dia">Dia simulado <output id="modulo-dia-saida"></output></label>
+    <input id="modulo-dia" type="range" step="1" />
+    <div class="grupo">
+      <button type="button" id="modulo-ir-inicio">1ª semana</button>
+      <button type="button" id="modulo-ir-fim">Fim do rodízio</button>
+      <button type="button" id="modulo-ir-marco">Fim de março</button>
+    </div>
+  </div>
+  <nav class="abas" id="modulo-abas" role="tablist" aria-label="Seções do painel"></nav>
+  <div class="modulo-corpo" id="modulo-corpo" role="tabpanel"></div>
+</aside>
+<div class="modulo-dica" id="modulo-dica" role="tooltip" hidden></div>
+
 <div id="carregando" role="status" aria-live="polite">
   <div class="caixa">
     <h2>JARDIM DOS BIOMAS</h2>
@@ -201,4 +330,5 @@
   </div>
 </div>
 
+<script type="module" src="./src/painelModulo.js?v=0.47"></script>
 <script type="module" src="./src/main.js?v=0.45"></script>

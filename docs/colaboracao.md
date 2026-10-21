@@ -193,3 +193,7 @@ O usuário apontou que algumas árvores estavam muito baixas e com tronco pequen
 ## Roda da fogueira — v0.46 (Claude)
 
 O usuário achou mal aproveitado o platô ao lado da casa e pediu uma fogueira de acampamento para juntar os amigos. Depois de duas revisões dele (bancos de madeira no lugar de troncos e tocos, sem machados, pedras melhores, pilha de toras grossas no lugar do tripé), a roda foi aprovada. Novo local `fogueira` no plano mestre com `raioReserva`; as reservas de `mundo.js` e `lotacao.js` passaram a valer para qualquer local com esse campo. Como as vagas do plantio mudam, árvores perto da clareira podem nascer em outros lugares.
+
+## Painel "Evolução do módulo" — prévia (Claude)
+
+Pedido do usuário em 21/10/2026: um menu fixo para acompanhar a evolução do módulo, com gráficos. Branch `claude/painel-evolucao`, sobre `codex/menu-evolucao-demo`. Arquivos novos: `src/painelModulo.js`, `src/resumoModulo.js` e `src/exemploModulo.js`, além de `src/catalogoPediatria.js`, copiado sem mudanças da prévia `14a85cf`. `index.html` ganhou o botão, o painel, o CSS e 5 entradas no importmap. A cena 3D, `main.js` e o plantio não foram tocados. O painel só lê o motor `crescimentoEstudo.js` e não o altera. Detalhes em `docs/painel-modulo.md`.
