@@ -72,7 +72,9 @@ São as mudanças dos últimos 14 dias: objetivo que passou a sair sem ajuda dep
 
 ## Dados
 
-Fontes no seletor: **Exemplo fictício**, com dia simulado de 03/11/2026 a 31/03/2027, e **Início real (vazio)**. O selo "exemplo fictício" fica sempre visível.
+**O caderno começa zerado em 21/10/2026.** Decisão do usuário: nenhum assunto foi estudado ainda, e só conta o que for estudado a partir dessa data. A fonte padrão é **Seus registros**: todos os 278 assuntos em semente, sem marcos, sugestões ou confusões, até chegarem registros do organizador, que o caderno ainda não lê. `resumirModulo` recebe `inicioCiclo` e ignora qualquer registro ou confusão anterior a essa data. A exceção é uma pausa que atravessa o início. `window.jardimModulo.carregar` aplica o mesmo início por padrão. A preferência salva passou para a chave `jardim-caderno-modulo-v2`, para que a escolha antiga do exemplo não reapareça.
+
+A **Demonstração fictícia** continua no seletor, só se escolhida. Ela tem dia simulado de 03/11/2026 a 31/03/2027 e o selo "demonstração fictícia" sempre visível.
 
 Os **objetivos do exemplo são genéricos**, de 3 a 4 por assunto, escolhidos por palavras do nome: prevenção, conduta, diagnóstico, conceito ou padrão. No site, cada tópico usa seus objetivos cadastrados. No exemplo, as tentativas se concentram nos primeiros objetivos de cada assunto, de propósito, para reproduzir a lacuna que o caderno precisa mostrar.
 
@@ -110,7 +112,7 @@ Um estudo sem `objetivo` conta como contato com todos os objetivos do assunto. R
 - `src/resumoModulo.js`: cálculo puro, com estágios, evidência por objetivo, três dimensões, sugestões, mudanças e sessões.
 - `src/exemploModulo.js`: exemplo fictício e objetivos genéricos.
 - `src/catalogoPediatria.js`: os 278 assuntos, copiado sem mudanças da prévia `14a85cf`.
-- `testes/painel-modulo.mjs`: 12 testes.
+- `testes/painel-modulo.mjs`: 13 testes, incluindo o do ciclo zerado.
 
 ## Cores
 
@@ -121,7 +123,7 @@ Um estudo sem `objetivo` conta como contato com todos os objetivos do assunto. R
 
 ## Verificação
 
-- 26 testes passaram: 14 do crescimento e 12 do caderno. Os do caderno cobrem os estados por objetivo, o intervalo da repetição, ajuda posterior que não apaga a trajetória, a cobertura das tentativas no panorama, as sugestões com motivo, as mudanças e os objetivos do exemplo.
+- 27 testes passaram: 14 do crescimento e 13 do caderno, incluindo o do ciclo zerado. Os do caderno cobrem os estados por objetivo, o intervalo da repetição, ajuda posterior que não apaga a trajetória, a cobertura das tentativas no panorama, as sugestões com motivo, as mudanças e os objetivos do exemplo.
 - No navegador, sem erros no console, foram conferidos:
   - o cartão compacto;
   - as quatro abas;

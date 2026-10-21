@@ -105,3 +105,18 @@ test('exemplo: objetivos de exemplo cobrem todos os assuntos', () => {
   assert.equal(ids.size, 278);
   assert.ok(exemplo.registros.filter(r => r.tipo === 'tentativa').every(r => r.objetivo && r.fonte));
 });
+
+test('ciclo zerado: registros anteriores ao início não entram em nada', () => {
+  const regs = [
+    ev('a', '2026-10-01', { tipo: 'estudo' }),
+    ev('b', '2026-10-05', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo' }),
+  ];
+  const conf = [{ a: 'escarlatina', b: 'doenca-de-kawasaki-diagnostico', data: '2026-10-02' }];
+  const r = resumirModulo({ ...base, registros: regs, confusoes: conf, inicioCiclo: '2026-10-21', agora: '2026-10-21' }, C);
+  assert.equal(r.iniciados, 0); assert.equal(r.porEstagio.semente, 278);
+  assert.equal(r.confusoes.length, 0); assert.equal(r.marcos.length, 0); assert.equal(r.revisar.length, 0);
+  assert.equal(r.assuntos.find(a => a.id === 'asma-diagnostico-e-classificacao').objetivos[0].estado, 'nao_avaliado');
+  const depois = resumirModulo({ ...base, registros: [...regs, ev('c', '2026-11-04', { tipo: 'estudo' })], inicioCiclo: '2026-10-21', agora: '2026-11-04' }, C);
+  assert.equal(depois.iniciados, 1);
+  assert.equal(depois.assuntos.find(a => a.estado).estado.primeiraAtividade, '2026-11-04');
+});

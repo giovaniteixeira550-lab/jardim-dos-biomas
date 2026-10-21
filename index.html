@@ -84,6 +84,7 @@
   .compacto-dims dt { font-size: 11px; color: var(--suave); }
   .compacto-dims dd { margin: 2px 0 0; font-family: var(--display); font-size: 16px; color: var(--texto); }
   .compacto-dims small { display: block; font-family: var(--leitura); font-size: 10px; color: var(--suave); }
+  .compacto-zero { margin: 0; color: var(--texto); }
   .compacto-alerta { margin: 6px 0 0; font-size: 12px; color: var(--suave); }
   .compacto-foco { margin-top: 10px; border-top: 1px solid #2f5236; padding-top: 8px; }
   .compacto .abrir-caderno { width: 100%; margin-top: 10px; font-size: 13px; }
@@ -373,8 +374,8 @@
     <div class="caderno-ctl">
       <span id="caderno-origem" class="selo"></span>
       <select id="caderno-fonte" aria-label="Fonte dos dados">
-        <option value="exemplo">Exemplo fictício</option>
-        <option value="vazio">Início real (vazio)</option>
+        <option value="real">Seus registros</option>
+        <option value="exemplo">Demonstração fictícia</option>
       </select>
       <button id="fechar-caderno" type="button" title="Voltar ao jardim (Esc)">Voltar ao jardim</button>
     </div>

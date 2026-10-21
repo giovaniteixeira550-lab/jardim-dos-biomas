@@ -15,6 +15,17 @@ export function inicioSemana(data) {
   return somarDias(data, -dow);
 }
 
+/** Registros a partir do início do ciclo. Uma pausa que atravessa o início continua valendo.
+ * Guardado por lista e data, para o cálculo das conquistas também ser reaproveitado. */
+const cacheCiclo = new WeakMap();
+function registrosDoCiclo(registros, inicio) {
+  if (!inicio) return registros;
+  const porInicio = cacheCiclo.get(registros) ?? new Map();
+  cacheCiclo.set(registros, porInicio);
+  if (!porInicio.has(inicio)) porInicio.set(inicio, registros.filter(r => r.data >= inicio || (r.tipo === 'pausa' && r.fim > inicio)));
+  return porInicio.get(inicio);
+}
+
 /** Data em que cada assunto alcançou cada estágio. O porte só depende dos registros
  * até o dia (nunca do relógio nem de pausas), então vale para qualquer data simulada
  * e é calculado uma vez por lista de registros. */
@@ -107,12 +118,14 @@ export function dimensoes(assuntos, agora) {
 /**
  * dados = { modulo:{nome,inicio,fim}, agora:'AAAA-MM-DD', objetivos:[{id, assunto, descricao}],
  *           registros:[{id, assunto|null, objetivo?, tipo, data, resultado?, fim?, atividade?, fonte?, evidencia?, confianca?}],
- *           confusoes:[{a, b, data}] }
+ *           confusoes:[{a, b, data}], inicioCiclo?:'AAAA-MM-DD' }
  * Registros sem assunto valem para todos (só pausas fazem sentido assim).
+ * Com inicioCiclo, o caderno começa do zero nessa data: registros anteriores não entram.
  */
 export function resumirModulo(dados, catalogo, regras = REGRAS_EXPERIMENTAIS) {
-  const { modulo, agora } = dados;
-  const visiveis = dados.registros.filter(r => r.data <= agora);
+  const { modulo, agora, inicioCiclo } = dados;
+  const doCiclo = registrosDoCiclo(dados.registros, inicioCiclo);
+  const visiveis = doCiclo.filter(r => r.data <= agora);
   const pausas = visiveis.filter(r => r.tipo === 'pausa' && !r.assunto);
   const porAssunto = new Map(catalogo.map(a => [a.id, []]));
   for (const r of visiveis) if (r.assunto && porAssunto.has(r.assunto)) porAssunto.get(r.assunto).push(r);
@@ -124,7 +137,7 @@ export function resumirModulo(dados, catalogo, regras = REGRAS_EXPERIMENTAIS) {
     const objetivos = objetivosDo.get(a.id).map(o => avaliarObjetivo(o, proprios, agora, regras));
     if (!atividades.length) return { ...a, estagio: 'semente', estado: null, registros: proprios, conquistas: {}, objetivos };
     const estado = avaliarCrescimento([...proprios, ...pausas], agora, regras);
-    const conquistas = Object.fromEntries(Object.entries(datasDeConquista(dados.registros, regras).get(a.id) ?? {}).filter(([, d]) => d <= agora));
+    const conquistas = Object.fromEntries(Object.entries(datasDeConquista(doCiclo, regras).get(a.id) ?? {}).filter(([, d]) => d <= agora));
     const autonomias = atividades.filter(r => r.tipo === 'tentativa' && r.resultado === 'autonomo').map(r => r.data).sort();
     return { ...a, estagio: estado.estagio, estado, registros: proprios, conquistas, objetivos, primeiraAutonomia: autonomias[0] ?? null, ultimaAutonomia: autonomias.at(-1) ?? null };
   });
@@ -226,7 +239,7 @@ export function resumirModulo(dados, catalogo, regras = REGRAS_EXPERIMENTAIS) {
   // Confusões: o mesmo par 2+ vezes vira confusão frequente (regra do organizador).
   const nomes = new Map(catalogo.map(a => [a.id, a]));
   const pares = new Map();
-  for (const c of (dados.confusoes ?? []).filter(c => c.data <= agora)) {
+  for (const c of (dados.confusoes ?? []).filter(c => c.data <= agora && (!inicioCiclo || c.data >= inicioCiclo))) {
     const chave = [c.a, c.b].sort().join('|');
     const p = pares.get(chave) ?? { a: nomes.get(c.a), b: nomes.get(c.b), vezes: 0, ultima: c.data };
     p.vezes++; if (c.data > p.ultima) p.ultima = c.data;

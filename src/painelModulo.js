@@ -1,7 +1,8 @@
 /** Caderno de aprendizado do módulo, dentro do jardim.
  * Versão compacta (cartão fixo para acompanhar enquanto navega) e caderno ampliado
  * com quatro abas: Panorama, Assuntos, Revisar e Histórico. Independente da cena 3D.
- * Sem registros reais: exemplo fictício ou início vazio; o site entra por window.jardimModulo. */
+ * Padrão: seus registros, do zero, a partir de INICIO_CICLO. A demonstração fictícia só aparece
+ * se escolhida. Os registros do site entram por window.jardimModulo. */
 import { CATALOGO_PEDIATRIA } from './catalogoPediatria.js';
 import { ESPECIES } from './especies.js';
 import { resumirModulo, dimensoes, ESTAGIOS_PAINEL, RESULTADOS_PAINEL, EVIDENCIAS, NOME_EVIDENCIA } from './resumoModulo.js';
@@ -9,7 +10,10 @@ import { gerarExemploModulo, objetivosDeExemplo, MODULO_PEDIATRIA, FIM_EXEMPLO }
 import { diaNumero, somarDias } from './crescimentoEstudo.js';
 
 const $ = (id) => document.getElementById(id);
-const CHAVE = 'jardim-caderno-modulo-v1';
+// v2: a fonte padrão passou a ser os seus registros; a escolha antiga do exemplo não é herdada.
+const CHAVE = 'jardim-caderno-modulo-v2';
+/** Decisão do usuário em 21/10/2026: nada foi estudado ainda; só conta o que vier a partir daqui. */
+const INICIO_CICLO = '2026-10-21';
 // Estágio é ordinal: um verde só, do escuro (broto) ao claro (adulta); "semente" é o trilho neutro.
 const COR_ESTAGIO = { semente: '#3a3f3e', broto: '#3f6e3c', muda: '#75a650', jovem: '#9cc364', adulta: '#c6dd84' };
 const NOME_ESTAGIO = { semente: 'Não plantado', broto: 'Broto', muda: 'Muda', jovem: 'Jovem', adulta: 'Adulta' };
@@ -44,7 +48,7 @@ const ha = (d, agora) => { const n = Math.round(diaNumero(agora) - diaNumero(d))
 const salvo = ler();
 const hoje = hojeLocal();
 const estado = {
-  fonte: ['exemplo', 'vazio'].includes(salvo.fonte) ? salvo.fonte : 'exemplo',
+  fonte: salvo.fonte === 'exemplo' ? 'exemplo' : 'real',
   dia: /^\d{4}-\d{2}-\d{2}$/.test(salvo.dia ?? '') ? salvo.dia : (hoje >= MODULO_PEDIATRIA.inicio && hoje <= FIM_EXEMPLO ? hoje : '2026-12-05'),
   aba: ABAS.some(([id]) => id === salvo.aba) ? salvo.aba : 'panorama',
   area: typeof salvo.area === 'string' ? salvo.area : '',
@@ -56,7 +60,8 @@ let exemplo = null, resumo = null, agendado = 0;
 
 function dadosAtuais() {
   if (estado.externo) return estado.externo;
-  if (estado.fonte === 'vazio') return { modulo: MODULO_PEDIATRIA, origem: 'vazio', agora: hoje, objetivos: objetivosDeExemplo(CATALOGO_PEDIATRIA), registros: [], confusoes: [] };
+  // Ainda sem ligação com o organizador: seus registros começam vazios.
+  if (estado.fonte === 'real') return { modulo: MODULO_PEDIATRIA, origem: 'real', inicioCiclo: INICIO_CICLO, agora: hoje < INICIO_CICLO ? INICIO_CICLO : hoje, objetivos: objetivosDeExemplo(CATALOGO_PEDIATRIA), registros: [], confusoes: [] };
   exemplo ??= gerarExemploModulo(CATALOGO_PEDIATRIA);
   return { ...exemplo, agora: estado.dia };
 }
@@ -207,7 +212,8 @@ function abaPanorama(r) {
   const mudancas = r.mudancas.filter(daArea);
   const porEstagio = Object.fromEntries(ESTAGIOS_PAINEL.map(e => [e, lista.filter(a => a.estagio === e).length]));
   const rt = r.ritmo;
-  const rodizio = `<p class="rodizio-linha">${rt.antes ? `O rodízio começa em ${dataCurta(r.modulo.inicio)}. O mapa começa do zero: cada assunto planta sua árvore quando for estudado.` : rt.emAndamento ? `Rodízio: dia ${rt.decorridos} de ${rt.duracao} (${pct(rt.decorridos / rt.duracao)} do tempo) · ${r.iniciados} de ${r.total} assuntos plantados.` : `Rodízio encerrado em ${dataCurta(r.modulo.fim)} com ${r.iniciados} de ${r.total} assuntos plantados; as revisões continuam.`}</p>`;
+  const ciclo = r.origem === 'exemplo' ? '' : `<p class="rodizio-linha">Caderno zerado em ${dataLonga(INICIO_CICLO)}: só entra o que for estudado a partir dessa data. ${r.iniciados ? '' : 'Nenhum assunto estudado ainda.'}</p>`;
+  const rodizio = `${ciclo}<p class="rodizio-linha">${rt.antes ? `O rodízio começa em ${dataCurta(r.modulo.inicio)}. O mapa começa do zero: cada assunto planta sua árvore quando for estudado.` : rt.emAndamento ? `Rodízio: dia ${rt.decorridos} de ${rt.duracao} (${pct(rt.decorridos / rt.duracao)} do tempo) · ${r.iniciados} de ${r.total} assuntos plantados.` : `Rodízio encerrado em ${dataCurta(r.modulo.fim)} com ${r.iniciados} de ${r.total} assuntos plantados; as revisões continuam.`}</p>`;
   const tabelaAreas = estado.area ? '' : `<h3>Por área</h3><div class="rolagem-x"><table class="tabela-areas"><thead><tr><th>Área</th><th>Exploração</th><th>Autonomia</th><th>Com ajuda</th><th>Não avaliados</th><th>Último contato</th></tr></thead><tbody>${r.areas.map(a => {
     const da = dimensoes(a.assuntos, r.agora);
     return `<tr data-area="${a.especie}" tabindex="0"><td>${esc(a.area)}<small>${esc(nomeEspecie(a.especie))}</small></td><td>${da.exploracao.assuntos}/${da.exploracao.total}</td><td>${da.autonomia.comAutonomia}/${da.autonomia.objetivos}</td><td>${da.autonomia.por.com_ajuda || '—'}</td><td>${da.autonomia.por.nao_avaliado || '—'}</td><td>${a.ultima ? dataCurta(a.ultima) : '—'}</td></tr>`;
@@ -286,7 +292,7 @@ function ficha(a, r) {
   return `<header class="ficha-topo"><p class="ficha-area">${esc(a.area)} · ${esc(a.grupoNome)}</p><h3>${esc(a.nome)}</h3>
       <p class="ficha-arvore"><span class="estagio" style="--cor:${COR_ESTAGIO[a.estagio]}">${NOME_ESTAGIO[a.estagio]}</span> ${e ? `${esc(nomeEspecie(a.especie))} · ${e.diasDeEstudo} dia(s) de estudo, de ${dataCurta(e.primeiraAtividade)} a ${dataCurta(e.ultimaAtividade)}` : 'Ainda não estudado: a árvore nasce no primeiro estudo.'}</p></header>
     <h4>Objetivos</h4>
-    ${a.objetivos.length ? `<div class="rolagem-x"><table class="tabela-objetivos"><thead><tr><th>Objetivo</th><th>Evidência</th><th>Último</th><th>Encontros</th><th>Origem</th></tr></thead><tbody>${objetivos}</tbody></table></div><p class="dica-painel">Clique na evidência para ver o motivo. ${r.origem === 'exemplo' || r.origem === 'vazio' ? 'Objetivos genéricos de exemplo; no site, cada tópico usa os objetivos cadastrados.' : ''}</p>` : '<p class="vazio">Nenhum objetivo cadastrado para este assunto.</p>'}
+    ${a.objetivos.length ? `<div class="rolagem-x"><table class="tabela-objetivos"><thead><tr><th>Objetivo</th><th>Evidência</th><th>Último</th><th>Encontros</th><th>Origem</th></tr></thead><tbody>${objetivos}</tbody></table></div><p class="dica-painel">Clique na evidência para ver o motivo. ${r.origem !== 'site' ? 'Objetivos genéricos de exemplo; no site, cada tópico usa os objetivos cadastrados.' : ''}</p>` : '<p class="vazio">Nenhum objetivo cadastrado para este assunto.</p>'}
     <h4>Sua percepção</h4>${percepcao}
     ${sugestoes.length ? `<h4>Sugestões</h4><ul class="cartoes">${sugestoes.slice(0, 3).map(cartaoSugestao).join('')}</ul>` : ''}
     ${confusoes.length ? `<h4>Confusões</h4><ul class="lista">${confusoes.map(c => `<li><span class="li-nome">${esc(c.a.id === a.id ? c.b.nome : c.a.nome)}</span><span class="li-meta">${c.vezes}× · última ${dataCurta(c.ultima)}</span></li>`).join('')}</ul>` : ''}
@@ -342,6 +348,11 @@ function abaHistorico(r) {
 // ---------- cartão compacto ----------
 function desenharCompacto(r) {
   const d = r.dimensoes, foco = r.revisar.find(s => s.tipo === 'dificuldade');
+  if (!r.iniciados) {
+    $('compacto-corpo').innerHTML = `<p class="compacto-zero">Nenhum assunto estudado ainda: os ${r.total} assuntos estão em semente.</p><p class="dica-painel">Cada assunto entra no caderno, e planta sua árvore, quando for estudado pela primeira vez${r.origem === 'exemplo' ? '' : ` a partir de ${dataCurta(INICIO_CICLO)}`}.</p>`;
+    $('abrir-modulo').querySelector('small').textContent = `0/${r.total}`;
+    return;
+  }
   $('compacto-corpo').innerHTML = `
     <dl class="compacto-dims">
       <div><dt>Exploração</dt><dd>${d.exploracao.assuntos}<small>/${d.exploracao.total} assuntos</small></dd></div>
@@ -359,9 +370,9 @@ function desenhar() {
   agendado = 0;
   resumo = resumirModulo(dadosAtuais(), CATALOGO_PEDIATRIA);
   const r = resumo;
-  const origem = { exemplo: 'exemplo fictício', vazio: 'nenhum registro ainda', site: 'registros do site' }[r.origem] ?? r.origem;
+  const origem = { exemplo: 'demonstração fictícia', real: `seus registros · desde ${dataCurta(INICIO_CICLO)}`, site: `registros do site · desde ${dataCurta(INICIO_CICLO)}` }[r.origem] ?? r.origem;
   for (const id of ['compacto-origem', 'caderno-origem']) { $(id).textContent = origem; $(id).dataset.origem = r.origem; }
-  $('compacto-dia').textContent = r.origem === 'exemplo' ? `dia simulado: ${dataLonga(r.agora)}` : dataLonga(r.agora);
+  $('compacto-dia').textContent = r.origem === 'exemplo' ? `dia simulado: ${dataLonga(r.agora)}` : '';
   $('caderno-dia-saida').textContent = dataLonga(r.agora);
   $('caderno-simulacao').hidden = r.origem !== 'exemplo';
   $('caderno-fonte').hidden = r.origem === 'site';
@@ -492,7 +503,7 @@ function iniciarPainel() {
 
   /** Ponto de entrada para registros reais, no formato do exemplo (ver docs/painel-modulo.md). */
   window.jardimModulo = {
-    carregar(dados) { estado.externo = { modulo: MODULO_PEDIATRIA, objetivos: [], confusoes: [], ...dados, origem: 'site', agora: dados.agora ?? hoje }; desenhar(); return resumo; },
+    carregar(dados) { estado.externo = { modulo: MODULO_PEDIATRIA, objetivos: [], confusoes: [], inicioCiclo: INICIO_CICLO, ...dados, origem: 'site', agora: dados.agora ?? hoje }; desenhar(); return resumo; },
     limpar() { estado.externo = null; desenhar(); },
     resumo: () => resumo,
   };
