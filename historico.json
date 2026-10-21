@@ -39,8 +39,8 @@
     {
       "nome": "Ligação com os estudos",
       "status": "andamento",
-      "progresso": 15,
-      "nota": "Prévia com critérios de longo prazo, retomada espaçada e regras antigas preservadas; conexão com dados reais pendente. Prévia do painel Evolução do módulo (21/10), com exemplo fictício e contrato para os registros do site."
+      "progresso": 20,
+      "nota": "Prévia com critérios de longo prazo, retomada espaçada e regras antigas preservadas; conexão com dados reais pendente. Prévia do caderno do módulo (21/10): evidência por objetivo, sugestões explicadas e contrato para os registros do site."
     }
   ],
   "quadro": {
@@ -117,7 +117,7 @@
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
-      "Painel do módulo: clicar num assunto e levar a câmera até a árvore dele",
+      "Caderno do módulo: localizar a árvore do assunto no mapa e abrir a ficha ao clicar numa árvore",
       "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
       "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
@@ -133,6 +133,33 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — caderno do módulo",
+      "data": "2026-10-21",
+      "titulo": "O painel virou um caderno de aprendizado",
+      "porque": "O usuário pediu que o menu mostrasse o que ele consegue fazer com cada conteúdo, e não só quanto estudou.",
+      "mudancas": [
+        "Cartão compacto fixo com exploração, autonomia, retornos e uma dificuldade em foco; o caderno ampliado abre sobre o mapa",
+        "Panorama separa exploração, autonomia demonstrada e acompanhamento, e mostra quantos objetivos as tentativas realmente avaliaram",
+        "Assuntos: lista pesquisável e mapa por áreas; cada assunto abre uma ficha com objetivos, evidência, motivo, origem e percepção",
+        "Revisar explica cada sugestão e o próximo passo; Histórico guarda sessões, gráficos e marcos"
+      ],
+      "resultado": "Funciona com o exemplo fictício e objetivos genéricos de exemplo; ainda sem registros reais e sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-caderno-panorama.jpg",
+          "legenda": "Panorama com as três dimensões"
+        },
+        {
+          "src": "historico/previa-caderno-ficha.jpg",
+          "legenda": "Ficha do assunto com a evidência de cada objetivo"
+        },
+        {
+          "src": "historico/previa-caderno-compacto.jpg",
+          "legenda": "Cartão compacto ao lado do mapa"
+        }
+      ]
+    },
     {
       "versao": "Prévia — painel do módulo",
       "data": "2026-10-21",

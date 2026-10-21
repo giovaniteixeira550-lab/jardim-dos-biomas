@@ -1,75 +1,130 @@
-# Painel "Evolução do módulo" (prévia)
+# Caderno do módulo (prévia)
 
-21/10/2026. Pedido do usuário: criar na demo um menu fixo para acompanhar a evolução do módulo, com gráficos e informações úteis sobre os conteúdos estudados, como um apanhado geral. Prévia na branch `claude/painel-evolucao`, sobre `codex/menu-evolucao-demo` (v0.46 + crescimento de longo prazo). Não publicada.
+21/10/2026. Prévia na branch `claude/painel-evolucao`, sobre `codex/menu-evolucao-demo` (v0.46 + crescimento de longo prazo). Não publicada.
 
-## Brainstorm: o que torna o painel útil
+## Histórico do pedido
 
-O painel responde a cinco perguntas, nesta ordem de prioridade.
+1. O usuário pediu um menu fixo para acompanhar a evolução do módulo, com gráficos, como um apanhado geral. A primeira versão era um painel lateral com as abas Resumo, Áreas, Atividade e Próximos, centrado na floresta: estágios, ritmo do rodízio e calendário.
+2. Em seguida, ele propôs transformar o menu num **caderno de aprendizado**. O caderno teria uma versão compacta para acompanhar enquanto navega e uma ampliada para consultar. O objetivo era mostrar o que ele consegue fazer com cada conteúdo, e não só quanto estudou. Exemplo dado: "87% de recuperação sem ajuda" precisa dizer quais conteúdos foram avaliados, porque muitas respostas sobre uma mesma parte podem esconder lacunas. A sugestão foi começar pela lista de assuntos e pela ficha de objetivos.
 
-1. **Onde estou no rodízio?** Linha do tempo de 03/11 a 19/12 com duas barras: tempo decorrido e assuntos plantados. Se a segunda fica para trás da primeira, o atraso aparece sem precisar fazer contas.
-2. **Como está a floresta?** Quantos dos 278 assuntos estão em semente, broto, muda, jovem e adulta. Há também um gráfico de área com a evolução diária e uma linha de ritmo uniforme até o fim do rodízio.
-3. **Estou fixando ou só lendo?** Dias de estudo, taxa de recuperação sem ajuda nos últimos 14 dias comparada às duas semanas anteriores, calendário de dias com estudo e tentativas por semana, separadas pelo resultado (sem ajuda, com pista, após explicação, não recuperou).
-4. **Que áreas estão fracas?** Uma linha por área (= espécie), com a barra de estágios e o último estudo. Pode ser ordenada por menos plantadas, mais dificuldades ou estudo mais antigo. Ao abrir uma área, cada assunto vira um quadradinho colorido por estágio, agrupado pelo grupo do catálogo; uma moldura laranja marca dificuldade em aberto.
-5. **O que fazer agora?** A aba Próximos tem estas listas:
-   - **Perto de crescer:** árvores a um critério da próxima fase, com o que falta e desde quando dá para cumprir; o que já pode ser feito hoje vem primeiro (✓).
-   - **Bom momento para recuperar sem ajuda:** assuntos em que uma nova recuperação já conta como espaçada (14 dias desde a última).
-   - **Dificuldades em aberto**, por data da última tentativa.
-   - **Confusões entre assuntos:** pares A × B; 2 ou mais vezes = frequente, a mesma regra do organizador.
-   - **Copa pedindo retorno:** mais de 45 dias ativos sem registro.
-   - **Ainda em semente, por área.**
+Esta versão implementa a segunda proposta. Os gráficos da primeira foram para a aba Histórico.
 
-Também há **marcos** (primeiro assunto, 25/50/100… plantados, primeira jovem/adulta, área completa) para dar senso de progresso sem cobrança.
+## Estrutura
 
-Ideias avaliadas e deixadas para depois:
-- Clicar numa área ou num assunto e levar a câmera até a árvore. Depende do vínculo assunto → árvore, que está na prévia separada `14a85cf`.
-- Mostrar no mapa os estágios do painel. Depende do adaptador da floresta (ver `docs/crescimento-estudo.md`).
-- Sequência de dias seguidos. Foi descartada por contrariar a regra anti-burnout do README: o painel mostra dias nos últimos 14, sem "quebrar" sequência.
-- Tempo de estudo em minutos e desempenho em questões por banca. Exigem campos que o organizador ainda não envia para o jardim.
+**Cartão compacto** (botão "Caderno do módulo", no canto superior esquerdo):
+- Três números: exploração (assuntos), autonomia (objetivos recuperados sem ajuda / objetivos estudados) e retornos em 14 dias.
+- A barra de evidências e quantos objetivos estudados ainda não foram avaliados.
+- Uma dificuldade em foco, com o próximo passo.
+- "Fixar" mantém o cartão aberto ao recarregar a página. "Abrir caderno" abre a versão ampliada.
 
-## Decisões de leitura
+**Caderno ampliado** (sobre o mapa; Voltar ao jardim ou Esc fecham), com quatro abas:
 
-- **Porte é trajetória, não domínio.** O painel usa o mesmo motor da prévia de crescimento (`crescimento-estudo-0.2`) e repete isso nas notas. Ajuda e erro contam como encontros; só a recuperação sem ajuda leva às fases jovem e adulta.
-- **Ritmo informa, não cobra.** O texto mostra a projeção no ritmo das últimas duas semanas e o necessário para plantar todos. Não há alerta vermelho de atraso.
-- **Sugestões não mexem no planejador.** As listas são calculadas a partir dos critérios e não gravam nada.
+| Aba | Pergunta | Conteúdo |
+|---|---|---|
+| Panorama | Como está meu aprendizado nesta área? | Filtro por área; as três dimensões; dificuldades em foco; mudanças com significado; tabela por área; trajetória da floresta |
+| Assuntos | O que sei e onde estão minhas lacunas? | Busca (assunto, grupo ou objetivo); filtros por área e situação; ordenação; **Lista** ou **Mapa por áreas**; ficha do assunto |
+| Revisar | O que merece minha atenção agora? | Sugestões agrupadas, cada uma com "Por quê" e "Próximo passo"; seleção para o planejador |
+| Histórico | Como cheguei até aqui? | Evolução da floresta, tentativas por semana, calendário, sessões por dia e marcos |
+
+### As três dimensões (Panorama)
+
+- **Exploração:** assuntos e objetivos que receberam estudo. Não diz se houve aprendizado.
+- **Autonomia demonstrada:** objetivos recuperados sem ajuda pelo menos uma vez, e quantos repetiram isso em encontros separados. Abaixo vem a frase sobre cobertura, por exemplo: "45% das 370 tentativas saíram sem ajuda, mas elas avaliaram só 242 dos 456 objetivos estudados; 172 nunca foram avaliados." É a resposta direta à preocupação com uma taxa alta que esconde lacunas.
+- **Acompanhamento:** assuntos com retorno nos últimos 14 dias, assuntos sem retorno há mais de 45 dias e a evidência mais recente.
+
+A árvore continua mostrando a trajetória. Uma árvore adulta pode ter um objetivo que voltou a precisar de ajuda; isso aparece na ficha e não reduz a árvore.
+
+### Evidência por objetivo
+
+Linguagem proposta, sem certificar domínio. Os critérios são operacionais e podem ser revistos:
+
+| Estado | Regra atual |
+|---|---|
+| Ainda não avaliado | Nenhuma tentativa avaliada neste objetivo (pode ter sido estudado) |
+| Recupera com ajuda | A tentativa avaliada mais recente foi com pista, após explicação ou não recuperou |
+| Recuperou sem ajuda | A mais recente foi sem ajuda |
+| Repetiu a autonomia em encontros separados | A mais recente foi sem ajuda, e houve recuperações sem ajuda em dias separados por pelo menos 14 dias (mesmo intervalo do motor de crescimento) |
+
+O estado segue a evidência **mais recente**. Clicar no estado mostra o motivo, por exemplo: "Na última tentativa (01/12, caso clínico): confundiu com Bronquiolite. Já tinha recuperado sem ajuda em 29/11; essa trajetória continua contando."
+
+### Ficha do assunto
+
+A ficha mostra:
+- Área, grupo, estágio da árvore e dias de estudo.
+- A tabela de objetivos: objetivo, evidência (com motivo), último contato, encontros e origem ("Observado na atividade" ou "Informado por você").
+- **Sua percepção**, em campo próprio: a segurança declarada, de 1 a 5, que não conta como recuperação.
+- Sugestões e confusões ligadas ao assunto, e o histórico de registros.
+
+### Revisar
+
+Cada sugestão traz o motivo e uma tentativa concreta:
+- **Retomar objetivos que precisaram de ajuda.** O passo depende do resultado: com pista → "tentar um caso diferente antes de consultar a explicação"; após explicação → "explicar com suas palavras e, em outro dia, uma questão nova sem consulta"; não recuperou → "rever o ponto central e tentar de novo em 2 a 3 dias".
+- **Comparar assuntos que você confunde:** pares com 2 ou mais confusões, a mesma regra do organizador.
+- **Testar o que ainda não foi avaliado:** assunto estudado há 2 dias ou mais com objetivo nunca testado.
+- **Repetir a autonomia:** recuperou sem ajuda há 14 dias ou mais, sugerindo uma atividade diferente da última.
+- **Árvores a um passo de crescer.**
+
+"Levar ao planejador" monta uma seleção local, só neste navegador. O planejador do site ainda não a recebe, e nada é agendado sozinho.
+
+### Mudanças com significado
+
+São as mudanças dos últimos 14 dias: objetivo que passou a sair sem ajuda depois de precisar de pista ou explicação, autonomia repetida, objetivo que voltou a precisar de ajuda (em tom neutro) e árvore que chegou a jovem ou adulta. Dias estudados e cliques não entram.
 
 ## Dados
 
-Não há registros reais na demo. O seletor tem duas fontes:
-- **Exemplo fictício** (`src/exemploModulo.js`): um rodízio simulado e determinístico (semente 2026) de 03/11/2026 a 31/03/2027, com pausa de fim de ano. Um controle de **dia simulado** mostra o painel em qualquer data; os atalhos levam à 1ª semana, ao fim do rodízio e ao fim de março, quando aparecem as árvores adultas. O selo "não são dados seus" fica sempre visível.
-- **Início real (vazio):** o estado de hoje sem nenhum registro. O mapa começa do zero.
+Fontes no seletor: **Exemplo fictício**, com dia simulado de 03/11/2026 a 31/03/2027, e **Início real (vazio)**. O selo "exemplo fictício" fica sempre visível.
+
+Os **objetivos do exemplo são genéricos**, de 3 a 4 por assunto, escolhidos por palavras do nome: prevenção, conduta, diagnóstico, conceito ou padrão. No site, cada tópico usa seus objetivos cadastrados. No exemplo, as tentativas se concentram nos primeiros objetivos de cada assunto, de propósito, para reproduzir a lacuna que o caderno precisa mostrar.
 
 ### Contrato para os registros do site
 
-`window.jardimModulo.carregar(dados)` troca a fonte para os registros informados e devolve o resumo. `window.jardimModulo.limpar()` volta ao seletor.
+Os campos seguem o `Evento` de `aprendizado-integrado/src/lib/aprendizado/modelo.ts` (`objetivo_id`, `evidencia`, `atividade`, `confianca`, `fonte`). Na integração, `com_pista` vira `pista` e `estudado` vira `estudo`.
 
 ```js
-{
-  agora: 'AAAA-MM-DD',                       // opcional; padrão: hoje
+window.jardimModulo.carregar({
+  agora: 'AAAA-MM-DD',
+  objetivos: [{ id, assunto: '<id da lista v2>', descricao }],
   registros: [
-    { id: 'único', assunto: '<id da lista v2>', tipo: 'estudo' | 'tentativa' | 'retomada' | 'dificuldade', data: 'AAAA-MM-DD',
-      resultado: 'autonomo' | 'pista' | 'apos_explicacao' | 'nao_recuperou' | 'nao_avaliado' },  // resultado só em tentativa
-    { id: 'único', assunto: null, tipo: 'pausa', data: 'AAAA-MM-DD', fim: 'AAAA-MM-DD' },        // pausa do módulo inteiro
+    { id, assunto, objetivo?, tipo: 'estudo' | 'tentativa' | 'retomada' | 'dificuldade', data,
+      resultado?: 'autonomo' | 'pista' | 'apos_explicacao' | 'nao_recuperou' | 'nao_avaliado',
+      atividade?: 'questão de prova' | 'caso clínico' | ..., fonte?: 'observado' | 'informado',
+      evidencia?: 'texto curto do que aconteceu', confianca?: 1..5 },
+    { id, assunto: null, tipo: 'pausa', data, fim },
   ],
-  confusoes: [ { a: '<id>', b: '<id>', data: 'AAAA-MM-DD' } ],   // uma linha por ocorrência
-}
+  confusoes: [{ a, b, data }],
+});
 ```
 
-Os ids de assunto são os da lista refinada v2 (`src/catalogoPediatria.js`, copiado sem mudanças da prévia `14a85cf`). A mesma regra de idempotência do motor vale aqui: reenviar um registro com o mesmo id não duplica crescimento.
+Um estudo sem `objetivo` conta como contato com todos os objetivos do assunto. Reenviar o mesmo id não duplica crescimento.
+
+## Pendências
+
+- **Localizar a árvore no mapa** e abrir a ficha ao clicar numa árvore. Depende do vínculo assunto → árvore, que está na prévia separada `14a85cf` e ainda não foi aprovado.
+- **Planejador:** a seleção é local. Enviar ao planejador do site exige a integração do organizador.
+- **Critérios de evidência:** os nomes e regras acima são proposta de interface e ainda precisam ser aprovados.
+- `index.html` não tem `<meta name="viewport">`; em celular, a demo inteira aparece como desktop reduzido.
 
 ## Arquivos
 
-- `src/painelModulo.js`: HUD, abas, gráficos SVG e dicas ao passar o mouse.
-- `src/resumoModulo.js`: cálculo puro do resumo (sem DOM). A data em que cada assunto alcançou cada estágio é calculada uma vez por lista de registros, porque o porte não depende do relógio.
-- `src/exemploModulo.js`: exemplo fictício.
-- `src/catalogoPediatria.js`: os 278 assuntos.
-- `testes/painel-modulo.mjs`: 6 testes. Cobrem o início vazio, o determinismo, o porte que nunca diminui ao avançar o dia, a coerência das contagens, a lista "perto de crescer" e confusões nos dois sentidos.
+- `src/painelModulo.js`: cartão compacto, caderno, abas, ficha e gráficos SVG.
+- `src/resumoModulo.js`: cálculo puro, com estágios, evidência por objetivo, três dimensões, sugestões, mudanças e sessões.
+- `src/exemploModulo.js`: exemplo fictício e objetivos genéricos.
+- `src/catalogoPediatria.js`: os 278 assuntos, copiado sem mudanças da prévia `14a85cf`.
+- `testes/painel-modulo.mjs`: 12 testes.
 
 ## Cores
 
-Os estágios usam um verde só, do escuro (broto) ao claro (adulta); semente é o trilho cinza. Os resultados usam `#568a45`, `#9b80cc`, `#d07a36` e `#a8323a`, da paleta do jardim, validados contra o fundo do painel: separação para daltonismo ≥ 17 e visão normal ≥ 18. O vermelho tem contraste 2,4:1 com o fundo, por isso o gráfico tem legenda, dica e tabela. O calendário usa a rampa da água.
+- Estágios da árvore: um verde só, do escuro (broto) ao claro (adulta).
+- Evidência: lilás `#9b80cc` para "com ajuda", verde `#568a45` para "sem ajuda" e verde-claro `#c6dd84` para "repetiu". A separação entre lilás e verde para daltonismo é ≥ 17. "Não avaliado" é um quadrado vazado e tracejado, para não depender só da cor. Todos os estados também aparecem por extenso.
+- Resultados das tentativas: os mesmos da versão anterior, validados. O calendário usa a rampa da água.
+- Texto de leitura em fonte de sistema, 13–14 px; títulos e moldura continuam em pixel art.
 
 ## Verificação
 
-- Testes: 6 novos + 14 do crescimento passaram (`node --test`, com o carregador local do three).
-- No navegador: as quatro abas renderizam sem erros no console. A dica do gráfico de área mostra o dia, os estágios e o ritmo. "Fixar" mantém o painel aberto e a aba escolhida depois de recarregar. A fonte vazia esconde a simulação. Em "fim de março" aparecem 85 adultas. Em telas estreitas, o botão e o painel descem quando o título quebra em duas linhas.
-- `index.html` não tem `<meta name="viewport">`; por isso, em celular de verdade, a demo inteira (não só o painel) é desenhada como desktop reduzido. A regra de folha inferior em ≤ 560 px fica pronta para quando isso mudar.
+- 26 testes passaram: 14 do crescimento e 12 do caderno. Os do caderno cobrem os estados por objetivo, o intervalo da repetição, ajuda posterior que não apaga a trajetória, a cobertura das tentativas no panorama, as sugestões com motivo, as mudanças e os objetivos do exemplo.
+- No navegador, sem erros no console, foram conferidos:
+  - o cartão compacto;
+  - as quatro abas;
+  - a busca ("asma"), a ficha com o motivo aberto e o mapa por áreas;
+  - "Levar ao planejador";
+  - o Esc, que fecha o caderno e mantém o cartão fixado.

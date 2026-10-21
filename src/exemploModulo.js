@@ -20,8 +20,40 @@ const PARES = [
 ];
 const RETORNOS = [1, 4, 7, 14, 21, 30, 45, 60, 75, 95, 115, 135];
 
+// Objetivos GENÉRICOS por tipo de assunto, só para o exemplo. No site, cada tópico
+// tem seus objetivos cadastrados (tabela de objetivos do organizador).
+const MODELOS = {
+  prevencao: ['Explicar a indicação e o fundamento', 'Aplicar o esquema, as idades e os intervalos', 'Reconhecer contraindicações e situações especiais'],
+  conduta: ['Reconhecer a apresentação clínica', 'Reconhecer sinais de gravidade', 'Decidir e justificar a conduta', 'Definir seguimento e quando encaminhar'],
+  diagnostico: ['Reconhecer a apresentação clínica', 'Aplicar os critérios diagnósticos ou a classificação', 'Diferenciar de quadros semelhantes'],
+  conceito: ['Explicar o processo normal e seus marcos', 'Interpretar achados e medidas', 'Identificar o que é anormal e o que investigar'],
+  padrao: ['Reconhecer a apresentação clínica', 'Diferenciar de quadros semelhantes', 'Justificar a escolha do tratamento'],
+};
+function modeloDe(nome) {
+  const n = nome.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  if (/vacin|calendario|imuniz|profilax|prevenc|triage|teste do|rastre|aleitamento|alimentacao|esavi/.test(n)) return 'prevencao';
+  if (/tratamento|conduta|manejo|reidrat|corticoter|emergencia|crise|choque|parada|reanima|estado de mal|intoxica/.test(n)) return 'conduta';
+  if (/diagnostico|classifica|criterio|abordagem|avaliacao/.test(n)) return 'diagnostico';
+  if (/desenvolvimento|crescimento|curvas|puberdade normal|marcos|fisiolog|metabolismo|semiologia|exame fisico/.test(n)) return 'conceito';
+  return 'padrao';
+}
+export function objetivosDeExemplo(catalogo) {
+  return catalogo.flatMap(a => MODELOS[modeloDe(a.nome)].map((descricao, i) => ({ id: `${a.id}#${i + 1}`, assunto: a.id, descricao })));
+}
+const ATIVIDADES = [['questão de prova', 'observado'], ['caso clínico', 'observado'], ['flashcard', 'informado'], ['explicação em voz alta', 'informado']];
+const minuscula = (t) => t[0].toLowerCase() + t.slice(1);
+function evidenciaDe(resultado, objetivo, confundiu) {
+  if (confundiu) return `Confundiu com ${confundiu}`;
+  return { autonomo: 'Respondeu sem consultar', pista: `Precisou de pista para ${minuscula(objetivo)}`, apos_explicacao: `Só conseguiu depois de rever a explicação`, nao_recuperou: 'Não conseguiu recuperar' }[resultado];
+}
+
 export function gerarExemploModulo(catalogo, semente = 2026) {
   const rng = criarRng(semente), registros = [], confusoes = [];
+  const objetivos = objetivosDeExemplo(catalogo);
+  const objetivosDo = new Map();
+  for (const o of objetivos) { if (!objetivosDo.has(o.assunto)) objetivosDo.set(o.assunto, []); objetivosDo.get(o.assunto).push(o); }
+  const nomeDe = new Map(catalogo.map(a => [a.id, a.nome]));
+  const porObjetivo = new Map();
   const sortear = (lista) => lista[Math.floor(rng() * lista.length)];
   const ids = new Set(catalogo.map(a => a.id));
   const parDe = new Map();
@@ -64,19 +96,27 @@ export function gerarExemploModulo(catalogo, semente = 2026) {
     const hoje = agenda.get(d) ?? [];
     for (const id of hoje) {
       if (rng() < (rodizio ? 0.22 : 0.3)) { agendar(somarDias(d, 2 + Math.floor(rng() * 6)), id); continue; }
-      const k = tentativas.get(id) ?? 0;
-      tentativas.set(id, k + 1);
-      const sorte = rng(), pAuto = Math.min(0.85, 0.3 + 0.13 * k);
+      tentativas.set(id, (tentativas.get(id) ?? 0) + 1);
+      // As tentativas se concentram nos primeiros objetivos: alguns ficam sem avaliação,
+      // como acontece quando se repete sempre o mesmo tipo de pergunta.
+      const lista = objetivosDo.get(id), sorteio = rng();
+      const objetivo = lista[sorteio < 0.55 ? 0 : sorteio < 0.82 ? 1 : sorteio < 0.95 ? 2 : lista.length - 1] ?? lista[0];
+      const k = porObjetivo.get(objetivo.id) ?? 0;
+      porObjetivo.set(objetivo.id, k + 1);
+      const sorte = rng(), pAuto = Math.min(0.88, 0.3 + 0.16 * k);
       const resultado = sorte < pAuto ? 'autonomo' : sorte < pAuto + 0.3 * (1 - pAuto) ? 'pista' : sorte < pAuto + 0.65 * (1 - pAuto) ? 'apos_explicacao' : 'nao_recuperou';
-      reg({ assunto: id, tipo: 'tentativa', data: d, resultado });
-      if (resultado !== 'autonomo' && parDe.has(id) && iniciou.has(parDe.get(id)) && rng() < 0.7) confusoes.push({ a: id, b: parDe.get(id), data: d });
+      const confundiu = resultado !== 'autonomo' && parDe.has(id) && iniciou.has(parDe.get(id)) && rng() < 0.7 ? parDe.get(id) : null;
+      const [atividade, fonte] = sortear(ATIVIDADES);
+      reg({ assunto: id, objetivo: objetivo.id, tipo: 'tentativa', data: d, resultado, atividade, fonte, evidencia: evidenciaDe(resultado, objetivo.descricao, confundiu && nomeDe.get(confundiu)),
+        ...(rng() < 0.3 ? { confianca: Math.max(1, Math.min(5, Math.round(resultado === 'autonomo' ? 3.5 + rng() * 1.5 : 1 + rng() * 2.5))) } : {}) });
+      if (confundiu) confusoes.push({ a: id, b: confundiu, data: d });
       if (['apos_explicacao', 'nao_recuperou'].includes(resultado)) {
-        if (rng() < 0.45) reg({ assunto: id, tipo: 'dificuldade', data: d });
+        if (rng() < 0.45) reg({ assunto: id, objetivo: objetivo.id, tipo: 'dificuldade', data: d });
         if (rng() < 0.5) agendar(somarDias(d, 3 + Math.floor(rng() * 4)), id);
       }
     }
     // Releituras curtas de assuntos recentes.
     if (pendentes.length && rng() < 0.4) reg({ assunto: sortear(pendentes.slice(-25)), tipo: rng() < 0.3 ? 'retomada' : 'estudo', data: d });
   }
-  return { modulo: MODULO_PEDIATRIA, origem: 'exemplo', registros, confusoes };
+  return { modulo: MODULO_PEDIATRIA, origem: 'exemplo', objetivos, registros, confusoes };
 }

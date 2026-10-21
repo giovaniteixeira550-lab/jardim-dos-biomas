@@ -197,3 +197,5 @@ O usuário achou mal aproveitado o platô ao lado da casa e pediu uma fogueira d
 ## Painel "Evolução do módulo" — prévia (Claude)
 
 Pedido do usuário em 21/10/2026: um menu fixo para acompanhar a evolução do módulo, com gráficos. Branch `claude/painel-evolucao`, sobre `codex/menu-evolucao-demo`. Arquivos novos: `src/painelModulo.js`, `src/resumoModulo.js` e `src/exemploModulo.js`, além de `src/catalogoPediatria.js`, copiado sem mudanças da prévia `14a85cf`. `index.html` ganhou o botão, o painel, o CSS e 5 entradas no importmap. A cena 3D, `main.js` e o plantio não foram tocados. O painel só lê o motor `crescimentoEstudo.js` e não o altera. Detalhes em `docs/painel-modulo.md`.
+
+Atualização no mesmo dia: a pedido do usuário, o painel virou o **caderno do módulo**. Agora há um cartão compacto e um caderno ampliado com as abas Panorama, Assuntos, Revisar e Histórico, além de evidência por objetivo. `resumoModulo.js` ganhou estados por objetivo, as três dimensões, sugestões explicadas, mudanças e sessões. Os campos dos registros seguem o `Evento` do protótipo `aprendizado-integrado`. Cena, `main.js` e plantio continuam intocados.

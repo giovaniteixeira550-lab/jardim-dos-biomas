@@ -48,3 +48,60 @@ test('confusões: o mesmo par conta junto nos dois sentidos', () => {
   const r = resumirModulo({ ...dados, agora: '2026-11-20' }, C);
   assert.equal(r.confusoes.length, 1); assert.equal(r.confusoes[0].vezes, 2); assert.equal(r.confusoes[0].ultima, '2026-11-12');
 });
+
+// ---------- caderno: objetivos e evidências ----------
+const base = { modulo: MODULO_PEDIATRIA, confusoes: [], objetivos: [
+  { id: 'asma#1', assunto: 'asma-diagnostico-e-classificacao', descricao: 'Reconhecer a apresentação clínica' },
+  { id: 'asma#2', assunto: 'asma-diagnostico-e-classificacao', descricao: 'Diferenciar de quadros semelhantes' },
+  { id: 'asma#3', assunto: 'asma-diagnostico-e-classificacao', descricao: 'Justificar a escolha do tratamento' },
+] };
+const ev = (id, data, extra) => ({ id, assunto: 'asma-diagnostico-e-classificacao', data, ...extra });
+const caderno = (registros, agora) => resumirModulo({ ...base, registros, agora }, C).assuntos.find(a => a.id === 'asma-diagnostico-e-classificacao');
+
+test('evidência por objetivo: não avaliado, com ajuda, sem ajuda e repetiu', () => {
+  const regs = [
+    ev('1', '2026-11-03', { tipo: 'estudo' }),
+    ev('2', '2026-11-04', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo', fonte: 'observado' }),
+    ev('3', '2026-11-20', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo', fonte: 'observado' }),
+    ev('4', '2026-11-20', { tipo: 'tentativa', objetivo: 'asma#2', resultado: 'pista', evidencia: 'Precisou de pista para diferenciar de bronquiolite' }),
+  ];
+  const [o1, o2, o3] = caderno(regs, '2026-11-21').objetivos;
+  assert.equal(o1.estado, 'repetiu'); assert.equal(o1.fonte, 'observado');
+  assert.equal(o2.estado, 'com_ajuda'); assert.match(o2.motivo, /bronquiolite/);
+  assert.equal(o3.estado, 'nao_avaliado'); assert.match(o3.motivo, /nenhuma tentativa/);
+});
+test('autonomia no mesmo dia ou com menos de 14 dias não conta como repetição', () => {
+  const regs = [ev('1', '2026-11-04', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo' }), ev('2', '2026-11-10', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo' })];
+  assert.equal(caderno(regs, '2026-11-12').objetivos[0].estado, 'sem_ajuda');
+});
+test('precisar de ajuda depois não apaga a trajetória da árvore nem a autonomia anterior', () => {
+  const regs = [ev('1', '2026-11-04', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo' }), ev('2', '2026-11-25', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'nao_recuperou' })];
+  const antes = caderno(regs.slice(0, 1), '2026-11-24'), depois = caderno(regs, '2026-11-25');
+  assert.equal(depois.objetivos[0].estado, 'com_ajuda');
+  assert.match(depois.objetivos[0].motivo, /Já tinha recuperado sem ajuda em 04\/11/);
+  assert.ok(ESTAGIOS_PAINEL.indexOf(depois.estagio) >= ESTAGIOS_PAINEL.indexOf(antes.estagio));
+});
+test('panorama mostra quantos objetivos as tentativas cobriram, não só a taxa', () => {
+  const regs = Array.from({ length: 10 }, (_, i) => ev('t' + i, '2026-11-1' + (i % 9), { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'autonomo' }));
+  const d = resumirModulo({ ...base, registros: regs, agora: '2026-11-20' }, C).dimensoes;
+  assert.equal(d.autonomia.taxaTentativas, 1);
+  assert.equal(d.autonomia.objetivosNasTentativas, 1);
+  assert.equal(d.autonomia.por.nao_avaliado, 2);
+});
+test('revisar explica cada sugestão e mudanças com significado são detectadas', () => {
+  const regs = [
+    ev('1', '2026-11-03', { tipo: 'estudo' }),
+    ev('2', '2026-11-05', { tipo: 'tentativa', objetivo: 'asma#2', resultado: 'pista' }),
+    ev('3', '2026-11-12', { tipo: 'tentativa', objetivo: 'asma#2', resultado: 'autonomo' }),
+    ev('4', '2026-11-12', { tipo: 'tentativa', objetivo: 'asma#1', resultado: 'apos_explicacao' }),
+  ];
+  const r = resumirModulo({ ...base, registros: regs, agora: '2026-11-14' }, C);
+  assert.ok(r.revisar.every(s => s.porque && s.passo));
+  assert.deepEqual(r.revisar.filter(s => s.assunto.id === 'asma-diagnostico-e-classificacao').map(s => s.tipo), ['dificuldade', 'nao_avaliado']);
+  assert.ok(r.mudancas.some(m => m.objetivo?.id === 'asma#2' && /antes precisava de pista/.test(m.texto)));
+});
+test('exemplo: objetivos de exemplo cobrem todos os assuntos', () => {
+  const ids = new Set(exemplo.objetivos.map(o => o.assunto));
+  assert.equal(ids.size, 278);
+  assert.ok(exemplo.registros.filter(r => r.tipo === 'tentativa').every(r => r.objetivo && r.fonte));
+});
