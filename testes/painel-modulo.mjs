@@ -120,3 +120,36 @@ test('ciclo zerado: registros anteriores ao início não entram em nada', () => 
   assert.equal(depois.iniciados, 1);
   assert.equal(depois.assuntos.find(a => a.estado).estado.primeiraAtividade, '2026-11-04');
 });
+
+// ---------- registros do site (organizador) ----------
+import { traduzirOrganizador, resultadoDoOrganizador } from '../src/registrosOrganizador.js';
+
+test('organizador → caderno: só sessões consolidadas, ajuda explícita vence o "autônomo"', () => {
+  assert.equal(resultadoDoOrganizador('autonomo', 'autonoma'), 'autonomo');
+  assert.equal(resultadoDoOrganizador('autonomo', 'com_pistas'), 'pista');
+  assert.equal(resultadoDoOrganizador('autonomo', 'apos_explicacao'), 'apos_explicacao');
+  assert.equal(resultadoDoOrganizador('com_pista', null), 'pista');
+  assert.equal(resultadoDoOrganizador('nao_avaliado', null), null);
+  const t = traduzirOrganizador({
+    sessoes: [
+      { id: 's1', data: '2026-11-05T01:30:00Z', data_real: null, tipo: 'estudo_guiado', status_fechamento: 'consolidado' },
+      { id: 's2', data: '2026-11-06T15:00:00Z', data_real: '2026-11-06', tipo: 'revisao', status_fechamento: 'consolidado' },
+      { id: 's3', data: '2026-11-07T15:00:00Z', data_real: '2026-11-07', tipo: 'questoes', status_fechamento: 'rascunho' },
+    ],
+    marcas: [
+      { sessao_id: 's1', assunto_id: 'sarampo', objetivo_id: null },
+      { sessao_id: 's1', assunto_id: 'sarampo', objetivo_id: 'o1' },
+      { sessao_id: 's2', assunto_id: 'sarampo', objetivo_id: null },
+      { sessao_id: 's3', assunto_id: 'escarlatina', objetivo_id: null },
+    ],
+    objetivos: [{ sessao_id: 's1', objetivo_id: 'o1', resultado: 'autonomo', grau_ajuda: 'com_pistas', evidencia_resumida: 'Precisou de pista para o enantema' }],
+    descricoes: [{ id: 'o1', descricao: 'Reconhecer o exantema' }],
+  });
+  // 01:30 UTC de 05/11 ainda é 04/11 em São Paulo.
+  assert.deepEqual(t.registros.map(r => [r.tipo, r.data, r.resultado ?? null]), [['estudo', '2026-11-04', null], ['tentativa', '2026-11-04', 'pista'], ['retomada', '2026-11-06', null]]);
+  assert.deepEqual(t.objetivos, [{ id: 'o1@sarampo', assunto: 'sarampo', descricao: 'Reconhecer o exantema' }]);
+  const r = resumirModulo({ modulo: MODULO_PEDIATRIA, inicioCiclo: '2026-10-21', agora: '2026-11-07', confusoes: [], ...t }, C);
+  const sarampo = r.assuntos.find(a => a.id === 'sarampo');
+  assert.equal(r.iniciados, 1); assert.notEqual(sarampo.estagio, 'semente');
+  assert.equal(sarampo.objetivos[0].estado, 'com_ajuda'); assert.match(sarampo.objetivos[0].motivo, /enantema/);
+});

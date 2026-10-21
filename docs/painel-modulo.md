@@ -110,6 +110,22 @@ Pedido do usuário em 21/10: as 278 árvores de estudo começam como semente e s
 - **Localizar no jardim:** botão na ficha do assunto. Fecha o caderno, leva a câmera até a árvore e a seleciona. Para assunto em semente, o botão fica desligado, para não revelar o lugar antes do nascimento.
 - **Da árvore para o caderno:** a ficha da árvore no mapa mostra o assunto e a área e tem o botão "Abrir no caderno", que abre a ficha do mesmo assunto.
 
+## Ligação com o site de estudos
+
+Decisão do usuário em 21/10: levar o jardim ao site e marcar, em cada sessão, os assuntos estudados. O site (branch `claude/jardim-caderno-site` do projeto do organizador; detalhes em `docs/jardim-caderno.md` de lá) mostra esta demo num iframe em `/jardim`.
+
+- **`src/conexaoSite.js`:** só age quando a página está dentro de um iframe.
+  - Avisa a página de cima com `jardim:pronto`, que não leva dados.
+  - Aceita `jardim:registros` (versão 1) **apenas** das origens do site (`study-compass-26.lovable.app` e a prévia do Lovable). Em desenvolvimento, aceita também `localhost` quando a própria demo está em `localhost`.
+  - Entrega os dados a `window.jardimModulo.carregar`. Nada é salvo nem reenviado.
+- **`src/registrosOrganizador.js`:** traduz o que o site envia (sessões consolidadas, marcas de assunto, objetivos avaliados e descrições) para os registros do caderno.
+  - Assunto marcado vira estudo; numa sessão de revisão, vira retomada.
+  - Objetivo marcado vira tentativa. A ajuda explícita sempre vence: "autônomo" com pista conta como pista, como no site.
+  - A data é `data_real` ou, na falta dela, o dia em São Paulo.
+  - O mesmo objetivo avaliado em assuntos diferentes vira um objetivo por assunto.
+- **Início do ciclo:** o caderno continua aplicando 21/10/2026. O mapa recebe o porte por `jardim:estudo`, como antes.
+- **Teste de ponta a ponta:** uma página local fez o papel do site com sessões fictícias. O selo mostrou "registros do site · desde 21/10" e 2 assuntos plantados, com a sessão de 10/10 fora. O Panorama mostrou a mudança "recuperou sem ajuda um objetivo que antes precisava de pista".
+
 ## Pendências
 
 - **Planejador:** a seleção é local. Enviar ao planejador do site exige a integração do organizador.
@@ -122,7 +138,7 @@ Pedido do usuário em 21/10: as 278 árvores de estudo começam como semente e s
 - `src/resumoModulo.js`: cálculo puro, com estágios, evidência por objetivo, três dimensões, sugestões, mudanças e sessões.
 - `src/exemploModulo.js`: exemplo fictício e objetivos genéricos.
 - `src/catalogoPediatria.js`: os 278 assuntos, copiado sem mudanças da prévia `14a85cf`.
-- `testes/painel-modulo.mjs`: 13 testes, incluindo o do ciclo zerado.
+- `testes/painel-modulo.mjs`: 14 testes, incluindo o do ciclo zerado e o da tradução dos registros do organizador.
 
 ## Testes do repositório
 

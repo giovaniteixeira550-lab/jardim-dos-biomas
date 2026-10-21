@@ -133,6 +133,25 @@
   },
   "versoes": [
     {
+      "versao": "Prévia — jardim ligado ao site",
+      "data": "2026-10-21",
+      "titulo": "As árvores nascem com os estudos registrados no organizador",
+      "porque": "O usuário pediu que as árvores nasçam quando ele estudar; ele escolheu levar o jardim ao site e marcar os assuntos em cada sessão.",
+      "mudancas": [
+        "Dentro do site, a demo recebe as sessões consolidadas da conta, só de origens permitidas",
+        "Cada assunto marcado numa sessão faz a árvore dele nascer; cada objetivo avaliado conta como tentativa",
+        "No site: tabela de assuntos, marcas por sessão sem exclusão e registrar_sessao aceitando os assuntos",
+        "Nada publicado ainda: falta aplicar no Lovable e publicar a demo"
+      ],
+      "resultado": "Teste de ponta a ponta com um site local: as árvores dos assuntos marcados nasceram e o caderno mostrou os registros do site.",
+      "imagens": [
+        {
+          "src": "historico/previa-arvores-zeradas.jpg",
+          "legenda": "Antes do primeiro estudo: vagas de estudo vazias"
+        }
+      ]
+    },
+    {
       "versao": "Prévia — árvores ligadas ao caderno",
       "data": "2026-10-21",
       "titulo": "Cada árvore de estudo é um assunto e começa como semente",
