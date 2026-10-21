@@ -290,7 +290,8 @@ function ficha(a, r) {
   const eventos = a.registros.filter(x => x.tipo !== 'pausa').slice().reverse();
   const nomeObj = new Map(a.objetivos.map(o => [o.id, o.descricao]));
   return `<header class="ficha-topo"><p class="ficha-area">${esc(a.area)} · ${esc(a.grupoNome)}</p><h3>${esc(a.nome)}</h3>
-      <p class="ficha-arvore"><span class="estagio" style="--cor:${COR_ESTAGIO[a.estagio]}">${NOME_ESTAGIO[a.estagio]}</span> ${e ? `${esc(nomeEspecie(a.especie))} · ${e.diasDeEstudo} dia(s) de estudo, de ${dataCurta(e.primeiraAtividade)} a ${dataCurta(e.ultimaAtividade)}` : 'Ainda não estudado: a árvore nasce no primeiro estudo.'}</p></header>
+      <p class="ficha-arvore"><span class="estagio" style="--cor:${COR_ESTAGIO[a.estagio]}">${NOME_ESTAGIO[a.estagio]}</span> ${e ? `${esc(nomeEspecie(a.especie))} · ${e.diasDeEstudo} dia(s) de estudo, de ${dataCurta(e.primeiraAtividade)} a ${dataCurta(e.ultimaAtividade)}` : 'Ainda não estudado: a árvore nasce no primeiro estudo.'}</p>
+      <p class="ficha-acoes">${e ? `<button type="button" data-localizar="${a.id}">Localizar no jardim</button>` : `<button type="button" disabled title="O lugar fica guardado em segredo até a árvore nascer">Localizar no jardim</button> <span class="dica-painel">Ainda é semente: o lugar é surpresa até o primeiro estudo.</span>`}</p></header>
     <h4>Objetivos</h4>
     ${a.objetivos.length ? `<div class="rolagem-x"><table class="tabela-objetivos"><thead><tr><th>Objetivo</th><th>Evidência</th><th>Último</th><th>Encontros</th><th>Origem</th></tr></thead><tbody>${objetivos}</tbody></table></div><p class="dica-painel">Clique na evidência para ver o motivo. ${r.origem !== 'site' ? 'Objetivos genéricos de exemplo; no site, cada tópico usa os objetivos cadastrados.' : ''}</p>` : '<p class="vazio">Nenhum objetivo cadastrado para este assunto.</p>'}
     <h4>Sua percepção</h4>${percepcao}
@@ -377,6 +378,8 @@ function desenhar() {
   $('caderno-simulacao').hidden = r.origem !== 'exemplo';
   $('caderno-fonte').hidden = r.origem === 'site';
   desenharCompacto(r);
+  // O mapa acompanha a fonte do caderno: cada árvore de estudo recebe o porte do seu assunto.
+  document.dispatchEvent(new CustomEvent('jardim:estudo', { detail: portesDasArvores() }));
   if (estado.ampliado) desenharCaderno();
 }
 function desenharCaderno() {
@@ -413,6 +416,9 @@ function ampliar(ampliado, { aba, assunto } = {}) {
   else $('abrir-caderno').focus();
   salvar();
 }
+/** Assunto → crescimento 0..1 do motor; assuntos ainda em semente ficam de fora (sem árvore). */
+const portesDasArvores = () => new Map((resumo?.assuntos ?? []).filter(a => a.estado).map(a => [a.id, a.estado.crescimento]));
+
 function abrirFicha(id) {
   if (!estado.ampliado) return ampliar(true, { assunto: id });
   estado.selecionado = id;
@@ -458,6 +464,9 @@ function iniciarPainel() {
   const corpo = $('caderno-corpo');
   const aoClicar = (e) => {
     const ficha = e.target.closest('.link-ficha'); if (ficha) { abrirFicha(ficha.dataset.assunto); return; }
+    // Fecha o caderno e deixa o mapa à vista; a cena (main.js) leva a câmera até a árvore.
+    const localizar = e.target.closest('[data-localizar]');
+    if (localizar) { ampliar(false); document.dispatchEvent(new CustomEvent('jardim:localizar', { detail: localizar.dataset.localizar })); return; }
     const plano = e.target.closest('[data-planejar]');
     if (plano) { const k = plano.dataset.planejar; estado.planejador.has(k) ? estado.planejador.delete(k) : estado.planejador.add(k); salvar(); const y = corpo.scrollTop; desenharCaderno(); corpo.scrollTop = y; return; }
     const mais = e.target.closest('[data-mais]'); if (mais) { estado.maisRevisar.add(mais.dataset.mais); const y = corpo.scrollTop; desenharCaderno(); corpo.scrollTop = y; return; }
@@ -506,6 +515,8 @@ function iniciarPainel() {
     carregar(dados) { estado.externo = { modulo: MODULO_PEDIATRIA, objetivos: [], confusoes: [], inicioCiclo: INICIO_CICLO, ...dados, origem: 'site', agora: dados.agora ?? hoje }; desenhar(); return resumo; },
     limpar() { estado.externo = null; desenhar(); },
     resumo: () => resumo,
+    arvores: portesDasArvores,
+    abrirFicha: (id) => { abrirCompacto(true); ampliar(true, { assunto: id }); },
   };
   desenhar();
   abrirCompacto(estado.fixado && estado.aberto);

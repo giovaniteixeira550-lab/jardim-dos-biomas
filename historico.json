@@ -117,7 +117,6 @@
       "Espécie de cristal ainda rara no mapa (precisa de terreno alto e rocha)"
     ],
     "ideias": [
-      "Caderno do módulo: localizar a árvore do assunto no mapa e abrir a ficha ao clicar numa árvore",
       "Implantar chegada, mirante e pavilhão nas áreas já reservadas do plano",
       "Mapa maior: mais platôs, um segundo riacho, regiões para os 5 biomas",
       "Árvore = tópico; espécie = tema; bioma = grande área (ver PLANO)",
@@ -133,6 +132,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "Prévia — árvores ligadas ao caderno",
+      "data": "2026-10-21",
+      "titulo": "Cada árvore de estudo é um assunto e começa como semente",
+      "porque": "O usuário ainda não estudou nenhum assunto e pediu que tudo comece do zero e cresça só com o que ele estudar a partir de 21/10.",
+      "mudancas": [
+        "As 278 árvores de estudo estão ligadas aos 278 assuntos da lista v2",
+        "O porte vem do caderno: hoje nenhuma nasceu; a barra de crescimento não as move mais",
+        "Na ficha do assunto, \"Localizar no jardim\" leva a câmera até a árvore",
+        "Clicar numa árvore mostra o assunto e abre a ficha no caderno"
+      ],
+      "resultado": "Mapa e caderno mostram os mesmos estágios; com seus registros, as vagas de estudo estão vazias até o primeiro estudo. Sem publicação.",
+      "imagens": [
+        {
+          "src": "historico/previa-arvores-zeradas.jpg",
+          "legenda": "O mapa com as vagas de estudo ainda vazias"
+        },
+        {
+          "src": "historico/previa-localizar-arvore.jpg",
+          "legenda": "Árvore localizada a partir da ficha (demonstração)"
+        }
+      ]
+    },
     {
       "versao": "Prévia — caderno do módulo",
       "data": "2026-10-21",

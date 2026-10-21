@@ -53,7 +53,13 @@ async function iniciar(semente) {
       $("ficha-nome").textContent = a.nome;
       const cab = a.numero === "viveiro" ? [] : [`Indivíduo nº ${a.numero}`];
       $("ficha-dados").textContent = [...cab, `Estágio: ${a.estagio}`, ...(a.extra ?? [])].join("\n");
+      // Árvore de estudo: abre a ficha do mesmo assunto no caderno.
+      $("ficha-caderno").hidden = !a.assunto || !window.jardimModulo;
+      $("ficha-caderno").dataset.assunto = a.assunto ?? "";
     };
+    // O porte das árvores de estudo vem do caderno (que pode ter carregado antes do mapa).
+    jardim.definirEstudo(window.jardimModulo?.arvores() ?? null);
+    usarCrescimentoDoCaderno(Boolean(window.jardimModulo));
     await instancia.carregar(semente, progresso);
     if (carga !== cargaAtual) return;
     jardim.setHora(document.querySelector("[data-hora][aria-pressed='true']").dataset.hora);
@@ -76,6 +82,21 @@ async function iniciar(semente) {
     $("erro").textContent = `Não foi possível montar o jardim: ${e?.message ?? e}`;
   }
 }
+
+// Com o caderno ligado, a barra de crescimento não move mais as árvores de estudo: some do painel.
+function usarCrescimentoDoCaderno(sim) {
+  if (sim) pararCrescimento();
+  $("linha-crescimento").hidden = sim;
+  $("dica-estudo").hidden = !sim;
+}
+document.addEventListener("jardim:estudo", (e) => { jardim?.definirEstudo(e.detail); usarCrescimentoDoCaderno(true); });
+document.addEventListener("jardim:localizar", (e) => {
+  if (!jardim?.focarAssunto(e.detail)) return;
+  $("viveiro").setAttribute("aria-pressed", "false");
+  $("viveiro").textContent = "Viveiro";
+  $("especie-viveiro").hidden = true;
+});
+$("ficha-caderno").addEventListener("click", () => window.jardimModulo?.abrirFicha($("ficha-caderno").dataset.assunto));
 
 $("crescimento").addEventListener("input", (e) => {
   const v = Number(e.target.value);

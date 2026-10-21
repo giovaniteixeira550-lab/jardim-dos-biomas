@@ -2,10 +2,12 @@
  * árvores de paisagem, no terreno inteiro (inclusive as partes dos platôs fora do retângulo de 260 × 170 m).
  * Jardim surpresa: a semente do jardim é sorteada uma vez e guardada neste navegador; as árvores de estudo nascem uma a
  * uma ao longo da barra de crescimento e cada uma escolhe o lugar ao nascer. ?jardim=N abre um jardim específico,
- * ?jardim=novo sorteia outro e ?lotacao=0 volta ao plantio antigo. As árvores ainda não estão ligadas a subtemas reais. */
+ * ?jardim=novo sorteia outro e ?lotacao=0 volta ao plantio antigo. Cada árvore de estudo é ligada a um assunto da
+ * lista v2; o porte vem do caderno do módulo (cena.definirEstudo), e não mais da barra de crescimento. */
 import { poisson, criarRng, criarRuido } from "./mundo.js";
 import { ESPECIES } from "./especies.js";
 import { aptidao, condicoes, criarAmbiente } from "./ecossistema.js";
+import { identificarArvoresEstudo } from "./identidadeEstudo.js";
 
 // Árvores de estudo por espécie: a lista refinada de Pediatria (v2, 19/10/2026, 278 árvores de uma sessão cada;
 // fonte: arvores-pediatria.json na pasta do projeto). Com estudo = total, cada espécie recebe exatamente a sua lista.
@@ -86,6 +88,7 @@ export function aplicarLotacao(m, { estudo = TOTAL_ESTUDO, paisagem = 202, espac
 
   const nova = (v, especie, estudoSim) => ({ tipo: "arvore", x: v.x, y: v.y, d: m.densidade(v.x, v.y), zona: 0, lago: m.fatorLago(v.x, v.y), escala: .9 + rng() * .18, nasce: estudoSim ? v.nasce : 0, giro: rng() * 6.28, especiePaisagem: especie, ...(estudoSim ? { estudo: true } : { paisagem: true }) });
   const arvores = [...plantadas.map(p => nova(p, p.especie, true)), ...daPaisagem.map(v => nova(v, escolherPaisagem(v.cond), false))];
+  identificarArvoresEstudo(arvores);
   // Arbustos e objetos ficam, menos os que caem embaixo de um tronco novo.
   const resto = m.objetos.filter(o => o.tipo !== "arvore" && !(o.tipo === "arbusto" && arvores.some(a => Math.hypot(a.x - o.x, a.y - o.y) < 3)));
   for (const a of resto) if (a.tipo === "arbusto") a.nasce = 0;

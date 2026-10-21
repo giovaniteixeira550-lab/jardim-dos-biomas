@@ -99,9 +99,19 @@ window.jardimModulo.carregar({
 
 Um estudo sem `objetivo` conta como contato com todos os objetivos do assunto. Reenviar o mesmo id não duplica crescimento.
 
+## Árvores do mapa
+
+Pedido do usuário em 21/10: as 278 árvores de estudo começam como semente e só crescem com o que ele estudar a partir de 21/10.
+
+- **Vínculo:** `src/identidadeEstudo.js` foi trazido da prévia `14a85cf` do Codex, com o texto da ficha ajustado. Ele liga cada árvore de estudo a um assunto da lista v2: a espécie vem do assunto, e a ordem dentro da espécie segue o plantio. O lugar continua reproduzível pela semente do jardim e fica em segredo até a árvore nascer.
+- **Porte:** o caderno envia `jardim:estudo` com um mapa assunto → crescimento (0 a 1, o mesmo valor do motor de crescimento). `cena.definirEstudo` usa esse valor no lugar da antiga barra de crescimento. Assunto ainda em semente não tem árvore: a vaga fica vazia. As árvores de paisagem não mudam.
+- **O mapa segue a fonte do caderno.** Com "Seus registros", nenhuma das 278 árvores aparece hoje. Com a demonstração, aparecem os estágios do dia simulado, iguais aos do caderno: em "fim de março", 97 adultas, 122 jovens e 59 sementes no mapa e no caderno.
+- **Barra de crescimento:** some de "Opções do jardim" quando o caderno está ligado. Em seu lugar fica uma dica.
+- **Localizar no jardim:** botão na ficha do assunto. Fecha o caderno, leva a câmera até a árvore e a seleciona. Para assunto em semente, o botão fica desligado, para não revelar o lugar antes do nascimento.
+- **Da árvore para o caderno:** a ficha da árvore no mapa mostra o assunto e a área e tem o botão "Abrir no caderno", que abre a ficha do mesmo assunto.
+
 ## Pendências
 
-- **Localizar a árvore no mapa** e abrir a ficha ao clicar numa árvore. Depende do vínculo assunto → árvore, que está na prévia separada `14a85cf` e ainda não foi aprovado.
 - **Planejador:** a seleção é local. Enviar ao planejador do site exige a integração do organizador.
 - **Critérios de evidência:** os nomes e regras acima são proposta de interface e ainda precisam ser aprovados.
 - `index.html` não tem `<meta name="viewport">`; em celular, a demo inteira aparece como desktop reduzido.
@@ -113,6 +123,10 @@ Um estudo sem `objetivo` conta como contato com todos os objetivos do assunto. R
 - `src/exemploModulo.js`: exemplo fictício e objetivos genéricos.
 - `src/catalogoPediatria.js`: os 278 assuntos, copiado sem mudanças da prévia `14a85cf`.
 - `testes/painel-modulo.mjs`: 13 testes, incluindo o do ciclo zerado.
+
+## Testes do repositório
+
+Rodando todas as suítes `testes/*.mjs`: `desvio-escada` (1 falha) e `percursos` (5 falhas) falham igualmente no commit-base `ad5751c`, antes destas mudanças. As demais passam, inclusive `plantio` (3) e as 13 do caderno.
 
 ## Cores
 

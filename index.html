@@ -33,6 +33,11 @@
   .ficha { top: calc(64px + env(safe-area-inset-top, 0px)); right: 12px; padding: 8px 12px; min-width: 180px; max-width: calc(100% - 24px); border-color: var(--alerta); }
   .ficha p { margin: 0; }
   .ficha-nome { font-family: var(--display); font-size: 13px; color: var(--alerta); letter-spacing: 0.04em; }
+  .ficha-caderno { margin-top: 8px; font-size: 12px; }
+  .ficha-caderno[hidden] { display: none; }
+  .ficha-acoes { margin: 8px 0 0; }
+  .ficha-acoes button { font-size: 12px; }
+  .ficha-acoes button:disabled { opacity: 0.5; cursor: not-allowed; }
   .ficha-dados { margin-top: 4px !important; font-size: 12px; color: var(--texto); line-height: 1.5; white-space: pre-line; }
   .painel { left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(760px, calc(100% - 24px)); padding: 10px 12px; display: grid; gap: 10px; }
   .painel:not([open]) { width: auto; min-width: 190px; }
@@ -248,12 +253,12 @@
     "./src/relevo.js": "./src/relevo.js?v=0.39.2",
     "./src/percursos.js": "./src/percursos.js?v=0.39.2",
     "./src/perfilPonte.js": "./src/perfilPonte.js?v=0.39.2",
-    "./src/cena.js": "./src/cena.js?v=0.46",
+    "./src/cena.js": "./src/cena.js?v=0.47",
     "./src/esquilos.js": "./src/esquilos.js?v=0.42",
     "./src/borboletas.js": "./src/borboletas.js?v=0.42",
     "./src/acessoEscorregador.js": "./src/acessoEscorregador.js?v=0.42",
     "./src/escorregadorLago.js": "./src/escorregadorLago.js?v=0.42",
-    "./src/lotacao.js": "./src/lotacao.js?v=0.46",
+    "./src/lotacao.js": "./src/lotacao.js?v=0.47",
     "./src/grandeArvore.js": "./src/grandeArvore.js?v=0.40",
     "./src/mundo.js": "./src/mundo.js?v=0.46",
     "./src/formacaoTerreno.js": "./src/formacaoTerreno.js?v=0.39.2",
@@ -283,7 +288,7 @@
     "./src/ecossistema.js": "./src/ecossistema.js?v=0.39.2",
     "./src/evolucao.js": "./src/evolucao.js?v=0.39.2",
     "./src/largosTrilha.js": "./src/largosTrilha.js?v=0.39.2",
-    "./src/main.js": "./src/main.js?v=0.45",
+    "./src/main.js": "./src/main.js?v=0.47",
     "./src/paleta.js": "./src/paleta.js?v=0.39.2",
     "./src/pixel.js": "./src/pixel.js?v=0.45",
     "./src/planejamento.js": "./src/planejamento.js?v=0.39.2",
@@ -298,6 +303,7 @@
     "./src/resumoModulo.js": "./src/resumoModulo.js?v=0.47",
     "./src/exemploModulo.js": "./src/exemploModulo.js?v=0.47",
     "./src/catalogoPediatria.js": "./src/catalogoPediatria.js?v=0.47",
+    "./src/identidadeEstudo.js": "./src/identidadeEstudo.js?v=0.47",
     "./src/crescimentoEstudo.js": "./src/crescimentoEstudo.js?v=0.47"
   }
 }
@@ -324,6 +330,7 @@
 <aside class="hud ficha" id="ficha" aria-live="polite" hidden>
   <p class="ficha-nome" id="ficha-nome"></p>
   <p class="ficha-dados" id="ficha-dados"></p>
+  <button id="ficha-caderno" class="ficha-caderno" type="button" hidden>Abrir no caderno ▸</button>
 </aside>
 
 <details class="hud painel" aria-label="Controles do jardim">
@@ -335,13 +342,14 @@
       <option value="original">Original · comparar</option>
     </select>
   </div>
-  <div class="linha">
+  <div class="linha" id="linha-crescimento">
     <div class="campo">
       <label for="crescimento">Crescimento <output id="v-crescimento">90%</output></label>
       <input id="crescimento" type="range" min="0" max="1" step="0.01" value="0.9" />
     </div>
     <button id="ver-crescer" type="button">▶ Ver crescer</button>
   </div>
+  <p class="dica" id="dica-estudo" hidden>As 278 árvores de estudo crescem com o caderno do módulo, e não com uma barra.</p>
   <div class="linha">
     <div class="grupo" role="group" aria-label="Hora do dia">
       <button type="button" data-hora="dia" aria-pressed="true">Dia</button>
@@ -406,4 +414,4 @@
 </div>
 
 <script type="module" src="./src/painelModulo.js?v=0.47"></script>
-<script type="module" src="./src/main.js?v=0.45"></script>
+<script type="module" src="./src/main.js?v=0.47"></script>
