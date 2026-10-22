@@ -56,7 +56,10 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.46)
+## 3. Estado atual (v0.47)
+
+**v0.47 — caderno do módulo e árvores ligadas aos estudos:** botão "Evolução do módulo" com cartão compacto fixável e caderno ampliado (Panorama, Assuntos, Revisar, Histórico), com evidência medida por objetivo (`src/painelModulo.js`, `src/resumoModulo.js`). As 278 árvores de estudo estão ligadas aos 278 assuntos da lista v2 (`src/identidadeEstudo.js`): começam como semente e só crescem com o porte vindo do caderno; a barra de crescimento deixou de movê-las. O caderno começa zerado em 21/10/2026, com a fonte "Seus registros"; a demonstração fictícia só aparece se escolhida. Dentro do site (`/jardim`, em iframe), `src/conexaoSite.js` e `src/registrosOrganizador.js` recebem as sessões consolidadas por `postMessage`, só das origens do site, e as traduzem para o caderno. Publicada em 21/10/2026.
+
 
 **v0.46 — roda da fogueira ao lado da casa:** lugar de acampamento para juntar os amigos, no meio da clareira do platô da casa (local `fogueira` no plano mestre, reserva de 8,5 m, `?local=fogueira`). Pilha de toras grossas (base cruzada em duas camadas e cone aberto) dentro de um anel de pedras redondas em duas fiadas sobre lajes chatas; chamas em camadas que tremulam, brasas que pulsam, faíscas e fumaça. Cinco bancos de madeira em roda, três com encosto, um com manta xadrez; violão, caneca, espetos de marshmallow, pilha de lenha de canto, varal de lâmpadas coloridas que acende ao anoitecer e caminho de pedras até a varanda. A luz da fogueira tremula e ilumina a roda à noite; a pilha de toras não recebe luz, para não estourar para verde na paleta. Código em `src/fogueira.js`; `mundo.js` e `lotacao.js` agora reservam qualquer local com `raioReserva` (antes, só os marcos). Aprovado pelo usuário em 19/10/2026.
 
@@ -194,6 +197,8 @@ Acabamento v0.19: `testes/contorno.html` compara pixels reais da GPU em dois cen
 Na frente de integração, o próximo lote é identidade persistente e crescimento por planta, seguido de inspeção do site e do contrato de dados. A frente artística/ecológica acima continua independente; combinar mudanças antes de publicar, conforme o registro de colaboração.
 
 ## 5. Levar para o site
+
+**Decisão de 21/10/2026:** o jardim não é portado para o código do site. A rota `/jardim` mostra esta demo num iframe e entrega os registros da conta por `postMessage` (ver `src/conexaoSite.js`). O plano antigo de portar, abaixo, fica só como histórico.
 
 O site (repositório `study-compass-26`, branch `codex/medtermo-claude-context`) já tem a aba `/jardim` com uma versão 3D anterior (`src/lib/jardim/cena3d.ts`) e as dependências `three` e `@dgreenheck/ez-tree`. Para portar:
 

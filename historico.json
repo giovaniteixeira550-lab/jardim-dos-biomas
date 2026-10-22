@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-21",
-  "versaoAtual": "v0.46",
+  "versaoAtual": "v0.47",
   "proximoPasso": {
-    "titulo": "Ligar o histórico de cada assunto à sua árvore",
-    "descricao": "Usar os IDs estáveis dos assuntos e definir o alcance da evidência, mantendo os registros reais e a arte das espécies preservados."
+    "titulo": "Aplicar a ligação no site e registrar o primeiro estudo",
+    "descricao": "Aplicar no site a marcação de assuntos por sessão e a rota /jardim. A partir daí, cada sessão de Pediatria consolidada faz nascer a árvore do assunto estudado."
   },
   "frentes": [
     {
@@ -132,6 +132,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.47",
+      "data": "2026-10-21",
+      "titulo": "Caderno do módulo e árvores ligadas aos estudos",
+      "porque": "O usuário pediu um caderno para acompanhar o módulo e que cada árvore nasça só quando o assunto dela for estudado, a partir de 21/10/2026.",
+      "mudancas": [
+        "Caderno do módulo: cartão fixo e caderno com Panorama, Assuntos, Revisar e Histórico, com evidência por objetivo",
+        "As 278 árvores de estudo são os 278 assuntos de Pediatria e começam como semente; o porte vem do caderno",
+        "Começa zerado em 21/10/2026; a demonstração fictícia só aparece se for escolhida",
+        "Dentro do site, a demo recebe as sessões registradas, só das origens do site, sem guardar nem enviar dados"
+      ],
+      "resultado": "Testes do caderno e do crescimento passaram (14 + 14). Fora do site, as vagas de estudo ficam vazias até o primeiro estudo registrado.",
+      "imagens": [
+        {
+          "src": "historico/previa-caderno-panorama.jpg",
+          "legenda": "Panorama do caderno do módulo"
+        },
+        {
+          "src": "historico/previa-arvores-zeradas.jpg",
+          "legenda": "Antes do primeiro estudo: vagas de estudo vazias"
+        }
+      ]
+    },
     {
       "versao": "Prévia — jardim ligado ao site",
       "data": "2026-10-21",
