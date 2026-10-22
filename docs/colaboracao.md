@@ -203,3 +203,7 @@ Atualização no mesmo dia: a pedido do usuário, o painel virou o **caderno do 
 ## Caderno e ligação ao site — v0.47 (Claude)
 
 Publicada em 21/10/2026 a branch `claude/painel-evolucao` (sobre `codex/menu-evolucao-demo`, que inclui o crescimento de longo prazo do Codex). Traz o caderno do módulo, as 278 árvores ligadas aos assuntos (`identidadeEstudo.js`) e a recepção dos registros do site (`conexaoSite.js`, `registrosOrganizador.js`). A cena só ganhou `definirEstudo`; plantio, terreno e água não mudaram. O site correspondente fica na branch `claude/jardim-caderno-site` do `study-compass-26`.
+
+## Crescer no módulo, secar depois — v0.48 (Claude)
+
+Regras 0.3 em `src/crescimentoEstudo.js` (`regrasDoModulo`): as regras 0.1 e 0.2 continuam aceitas para as amostras antigas. O caderno usa as regras do módulo. `cena.js` dá a cada `InstancedMesh` de árvore uma geometria própria, com os mesmos buffers, para guardar o atributo por instância `secura`; `estiloCopa.js` lê esse atributo, que vale 0 em geometrias sem ele (paisagem, viveiro, catálogo). As chaves de cache dos shaders mudaram para `v17-secura`.

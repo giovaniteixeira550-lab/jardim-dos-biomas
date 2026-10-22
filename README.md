@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.47.1)
+## 3. Estado atual (v0.48)
+
+**v0.48 — crescer no módulo, secar depois:** as metas de crescimento são proporcionais à duração do módulo (`regrasDoModulo`, regras 0.3). Em Pediatria (47 dias), a adulta pede 6 dias de estudo espalhados por 19 dias e 2 recuperações sem ajuda com 14 dias entre elas, então um assunto começado na primeira metade do rodízio chega a adulta antes do fim. Sem estudo, a copa começa a amarelar 19 dias depois do último encontro e seca em uns 5 meses; o porte fica, e retornos espaçados de 5 dias ou mais a recuperam. O mapa mostra a secura de cada árvore de estudo em todas as espécies, pelo estilo compartilhado da copa (`estiloCopa.js`, atributo `secura`). Detalhes em `docs/crescimento-modulo.md`. Aprovado pelo usuário em 21/10/2026.
 
 **v0.47.1:** dentro do site (iframe), o viveiro de revisão da arte não é montado, o botão Viveiro some e a câmera para logo após a borda sul do mapa (`cena.js`).
 

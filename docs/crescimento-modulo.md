@@ -1,6 +1,6 @@
 # Crescimento no tamanho do módulo (regras 0.3)
 
-21/10/2026, a pedido do usuário. Branch `claude/crescimento-modulo`, proposta (não publicada).
+21/10/2026, a pedido do usuário. Branch `claude/crescimento-modulo`. Aprovada e publicada como **v0.48** no mesmo dia.
 
 ## Problema
 

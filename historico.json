@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-21",
-  "versaoAtual": "v0.47.1",
+  "versaoAtual": "v0.48",
   "proximoPasso": {
-    "titulo": "Aplicar a ligação no site e registrar o primeiro estudo",
-    "descricao": "Aplicar no site a marcação de assuntos por sessão e a rota /jardim. A partir daí, cada sessão de Pediatria consolidada faz nascer a árvore do assunto estudado."
+    "titulo": "Registrar o primeiro estudo de Pediatria",
+    "descricao": "A partir de 03/11, cada sessão consolidada com os assuntos marcados faz nascer a árvore; as metas seguem a duração do rodízio."
   },
   "frentes": [
     {
@@ -133,7 +133,7 @@
   },
   "versoes": [
     {
-      "versao": "Prévia — crescer no módulo, secar depois",
+      "versao": "v0.48",
       "data": "2026-10-21",
       "titulo": "A árvore pode ficar adulta num rodízio e seca se o assunto for esquecido",
       "porque": "Com as regras anteriores nenhuma árvore chegava a adulta nos 47 dias do rodízio; o usuário pediu que cresça no módulo e vá secando depois, até ser retomada.",
@@ -143,7 +143,7 @@
         "Retornos espaçados devolvem a copa",
         "Mapa e fichas mostram o estado da copa e o que falta para crescer"
       ],
-      "resultado": "6 testes novos e as suítes anteriores passaram; copa rala, últimas folhas e seca conferidas no mapa. Proposta, ainda não publicada.",
+      "resultado": "Aprovado e publicado em 21/10/2026. 6 testes novos e as suítes anteriores passaram; copa rala, últimas folhas e seca conferidas no mapa.",
       "imagens": [
         {
           "src": "historico/previa-copa-ultimas-folhas.jpg",
