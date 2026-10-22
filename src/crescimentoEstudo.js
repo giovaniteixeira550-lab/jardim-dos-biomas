@@ -10,6 +10,34 @@ export const REGRAS_EXPERIMENTAIS = Object.freeze({
   diasParaCopaRala: 180,
   senescenciaMaxima: 0.6,
 });
+/** Regras 0.3: as metas cabem no módulo. Um assunto começado na primeira metade do rodízio pode
+ * chegar a adulta antes do fim; depois, sem retorno, a copa amarela, perde folhas e seca (o porte
+ * fica), e volta a encher com retornos espaçados. Intervalos em proporção à duração, com mínimos. */
+export function regrasDoModulo(modulo) {
+  const D = diaNumero(modulo.fim) - diaNumero(modulo.inicio) + 1;
+  if (!(D >= 7)) throw Error('O módulo precisa durar pelo menos uma semana.');
+  const p = (fracao, minimo) => Math.max(minimo, Math.round(D * fracao));
+  return Object.freeze({
+    versao: 'crescimento-estudo-0.3',
+    duracaoModulo: D,
+    muda: Object.freeze({ dias: 2, intervalo: 1, encontros: 1.8, autonomias: 0 }),
+    jovem: Object.freeze({ dias: 4, intervalo: p(.2, 7), encontros: 4, autonomias: 1 }),
+    adulta: Object.freeze({ dias: 6, intervalo: p(.4, 14), encontros: 6, autonomias: 2, intervaloRecuperacoes: p(.3, 10) }),
+    intervaloAutonomias: p(.15, 5),
+    intervaloRecuperacaoCopa: p(.1, 3),
+    // Sem nenhum encontro além da tolerância, a copa perde vigor até secar em diasParaCopaRala dias.
+    toleranciaSemRegistro: p(.4, 14),
+    diasParaCopaRala: p(3, 90),
+    senescenciaMaxima: 1,
+    recuperacaoCopa: .55,
+  });
+}
+
+/** Nome da copa para a ficha; o porte conquistado não muda com ela. */
+export function nomeCopa(senescencia) {
+  return senescencia < .1 ? 'Copa cheia' : senescencia < .4 ? 'Amarelando' : senescencia < .65 ? 'Copa rala' : senescencia < .9 ? 'Últimas folhas' : 'Seca';
+}
+
 const TIPOS = ['estudo', 'tentativa', 'retomada', 'dificuldade', 'pausa'];
 const RESULTADOS = ['autonomo', 'pista', 'apos_explicacao', 'nao_recuperou', 'nao_avaliado'];
 const DIA = 86400000;
@@ -26,9 +54,10 @@ export function somarDias(data,dias) {
   return new Date((diaNumero(data)+dias)*DIA).toISOString().slice(0,10);
 }
 export function validarRegras(r) {
-  if(!['crescimento-estudo-0.1','crescimento-estudo-0.2'].includes(r?.versao))throw Error('Versão das regras não reconhecida.');
+  if(!['crescimento-estudo-0.1','crescimento-estudo-0.2','crescimento-estudo-0.3'].includes(r?.versao))throw Error('Versão das regras não reconhecida.');
   for(const chave of ['intervaloAutonomias','toleranciaSemRegistro','diasParaCopaRala'])if(!Number.isFinite(r[chave])||r[chave]<1)throw Error('Intervalo inválido: '+chave);
-  if(r.versao==='crescimento-estudo-0.2'&&(!Number.isInteger(r.intervaloRecuperacaoCopa)||r.intervaloRecuperacaoCopa<1))throw Error('Intervalo de recuperação da copa inválido.');
+  if(r.versao!=='crescimento-estudo-0.1'&&(!Number.isInteger(r.intervaloRecuperacaoCopa)||r.intervaloRecuperacaoCopa<1))throw Error('Intervalo de recuperação da copa inválido.');
+  if(r.recuperacaoCopa!==undefined&&!(r.recuperacaoCopa>0&&r.recuperacaoCopa<1))throw Error('Fator de recuperação da copa inválido.');
   if(!Number.isFinite(r.senescenciaMaxima)||r.senescenciaMaxima<0||r.senescenciaMaxima>1)throw Error('Limite de copa inválido.');
   let anterior={dias:0,intervalo:0,encontros:0,autonomias:0,intervaloRecuperacoes:0};
   for(const nome of ['muda','jovem','adulta']){
@@ -121,7 +150,7 @@ export function avaliarCrescimento(eventos,agora,regras=REGRAS_EXPERIMENTAIS) {
       // Amostras anteriores mantêm as regras com que foram criadas.
       perda*=atividades.some(e=>e.data===data&&e.tipo==='retomada')?.35:.55;
     }else if(perda>0&&(!ultimaRecuperacaoCopa||diasAtivos(ultimaRecuperacaoCopa,data,pausas)>=regras.intervaloRecuperacaoCopa)){
-      perda*=.65;ultimaRecuperacaoCopa=data;
+      perda*=regras.recuperacaoCopa??.65;ultimaRecuperacaoCopa=data;
     }
     contato=data;
   }

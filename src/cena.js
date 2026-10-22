@@ -153,7 +153,7 @@ export class Jardim {
     this.matArvore = toon({ vertexColors: true, side: THREE.DoubleSide });
     this.uDireita={value:new THREE.Vector2(1,0)};
     this.matArvore.onBeforeCompile=sh=>estiloCopa(sh,this.uDireita,this.pixel.uniforms.uTexel);
-    this.matArvore.customProgramCacheKey=()=>"arvore-copa-celulas-v16-noite";
+    this.matArvore.customProgramCacheKey=()=>"arvore-copa-celulas-v17-secura";
     this.cursorArvore = null;
     this.sobrevoo = null;
     this.ultimoRastreio = -Infinity;
@@ -565,7 +565,13 @@ export class Jardim {
     const tom = new THREE.Color();
     for (const [variacao, membros] of porVariacao) {
       const malhas = variacao.estagios.map((geo) => {
-        const im = new THREE.InstancedMesh(geo, this.matArvore, membros.length);
+        // Geometria própria de cada malha, com os mesmos buffers: a secura da copa é um valor por árvore.
+        const g = new THREE.BufferGeometry();
+        for (const [nome, a] of Object.entries(geo.attributes)) g.setAttribute(nome, a);
+        g.setIndex(geo.index);
+        g.boundingBox = geo.boundingBox; g.boundingSphere = geo.boundingSphere; g.userData = geo.userData;
+        g.setAttribute("secura", new THREE.InstancedBufferAttribute(new Float32Array(membros.length), 1));
+        const im = new THREE.InstancedMesh(g, this.matArvore, membros.length);
         im.castShadow = im.receiveShadow = true;
         im.frustumCulled = false;
         this.scene.add(im);
@@ -593,8 +599,11 @@ export class Jardim {
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), s = new THREE.Vector3();
     for (const grupo of this.grupos) {
       for (const ind of grupo.membros) {
-        // Árvore ligada a um assunto: o porte vem do caderno (0 = semente, ainda sem árvore).
-        const gf = this.estudo && ind.assuntoEstudo ? this.estudo.get(ind.assuntoEstudo.id) ?? 0 : ind.nasce === 0 ? 1 : suave(ind.nasce, ind.nasce + 0.3, g);
+        // Árvore ligada a um assunto: porte e secura da copa vêm do caderno (0 = semente, ainda sem árvore).
+        const doCaderno = this.estudo && ind.assuntoEstudo ? this.estudo.get(ind.assuntoEstudo.id) : undefined;
+        const gf = this.estudo && ind.assuntoEstudo ? (typeof doCaderno === "number" ? doCaderno : doCaderno?.porte ?? 0) : ind.nasce === 0 ? 1 : suave(ind.nasce, ind.nasce + 0.3, g);
+        ind.secura = doCaderno?.secura ?? 0;
+        for (const im of grupo.malhas) im.geometry.attributes.secura.setX(ind.vaga, ind.secura);
         const { indice, estagio, escala } = estagioDe(gf);
         ind.estagio = estagio;
         ind.indice = indice;
@@ -604,6 +613,7 @@ export class Jardim {
       }
       for (const im of grupo.malhas) {
         im.instanceMatrix.needsUpdate = true;
+        im.geometry.attributes.secura.needsUpdate = true;
         im.boundingSphere = null; // recalculado sob demanda (clique)
       }
     }
@@ -728,7 +738,7 @@ export class Jardim {
     const i = this.selecionado;
     if (!i) return this.aoSelecionar?.(null);
     const def = ESPECIES[i.especie];
-    const extra = [...descreverAssuntoEstudo(i.assuntoEstudo), ...descrever(i)];
+    const extra = [...descreverAssuntoEstudo(i.assuntoEstudo, i.secura), ...descrever(i)];
     const enfeite = def.fruto ?? def.flor;
     if (enfeite) extra.push(i.indice === 3 ? `Com ${enfeite.nome}` : `${enfeite.nome[0].toUpperCase()}${enfeite.nome.slice(1)} quando adulta`);
     this.aoSelecionar?.({ numero: i.numero, nome: i.nome, especie: i.especie, estagio: i.estagio.nome, extra, assunto: i.assuntoEstudo?.id ?? null });
@@ -755,7 +765,7 @@ export class Jardim {
     this.selecionado = ind;
     ind.grupo.malhas[ind.indice].setColorAt(ind.vaga, cor.setScalar(ind.tom * 1.35));
     for (const g of this.grupos) for (const im of g.malhas) im.instanceColor.needsUpdate = true;
-    const def = ESPECIES[ind.especie], enfeite = def.fruto ?? def.flor, extra = [...descreverAssuntoEstudo(ind.assuntoEstudo), ...descrever(ind)];
+    const def = ESPECIES[ind.especie], enfeite = def.fruto ?? def.flor, extra = [...descreverAssuntoEstudo(ind.assuntoEstudo, ind.secura), ...descrever(ind)];
     if (enfeite) extra.push(ind.indice === 3 ? `Com ${enfeite.nome}` : `${enfeite.nome[0].toUpperCase()}${enfeite.nome.slice(1)} quando adulta`);
     this.aoSelecionar?.({ numero: ind.numero, nome: ind.nome, especie: ind.especie, estagio: ind.estagio.nome, extra, assunto: id });
     return true;

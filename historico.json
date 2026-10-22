@@ -133,6 +133,33 @@
   },
   "versoes": [
     {
+      "versao": "Prévia — crescer no módulo, secar depois",
+      "data": "2026-10-21",
+      "titulo": "A árvore pode ficar adulta num rodízio e seca se o assunto for esquecido",
+      "porque": "Com as regras anteriores nenhuma árvore chegava a adulta nos 47 dias do rodízio; o usuário pediu que cresça no módulo e vá secando depois, até ser retomada.",
+      "mudancas": [
+        "Metas proporcionais à duração do módulo: em Pediatria, adulta com 6 dias de estudo espalhados por 19 dias e 2 recuperações sem ajuda",
+        "Sem estudo, a copa amarela, perde folhas e seca ao longo de meses; o porte fica",
+        "Retornos espaçados devolvem a copa",
+        "Mapa e fichas mostram o estado da copa e o que falta para crescer"
+      ],
+      "resultado": "6 testes novos e as suítes anteriores passaram; copa rala, últimas folhas e seca conferidas no mapa. Proposta, ainda não publicada.",
+      "imagens": [
+        {
+          "src": "historico/previa-copa-ultimas-folhas.jpg",
+          "legenda": "Paineiras nas últimas folhas"
+        },
+        {
+          "src": "historico/previa-copa-seca.jpg",
+          "legenda": "Paineira seca: tronco, galhos e flores"
+        },
+        {
+          "src": "historico/previa-copa-rala.jpg",
+          "legenda": "Árvore dos Ninhos com copa rala"
+        }
+      ]
+    },
+    {
       "versao": "v0.47.1",
       "data": "2026-10-21",
       "titulo": "Sem o viveiro dentro do site",

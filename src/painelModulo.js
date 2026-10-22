@@ -7,7 +7,7 @@ import { CATALOGO_PEDIATRIA } from './catalogoPediatria.js';
 import { ESPECIES } from './especies.js';
 import { resumirModulo, dimensoes, ESTAGIOS_PAINEL, RESULTADOS_PAINEL, EVIDENCIAS, NOME_EVIDENCIA } from './resumoModulo.js';
 import { gerarExemploModulo, objetivosDeExemplo, MODULO_PEDIATRIA, FIM_EXEMPLO } from './exemploModulo.js';
-import { diaNumero, somarDias } from './crescimentoEstudo.js';
+import { diaNumero, somarDias, regrasDoModulo, nomeCopa } from './crescimentoEstudo.js';
 
 const $ = (id) => document.getElementById(id);
 // v2: a fonte padrão passou a ser os seus registros; a escolha antiga do exemplo não é herdada.
@@ -274,6 +274,20 @@ function mapaAreas(r, filtrados) {
   return `<ul class="legenda">${Object.keys(NOME_SITUACAO).map(s => `<li><i class="sit-${s}" style="--cor:${cores[s]}"></i>${NOME_SITUACAO[s]}</li>`).join('')}</ul>
     ${areas.map(area => `<section class="mapa-area"><h4>${esc(area.area)} <small>${esc(nomeEspecie(area.especie))} · ${area.iniciados}/${area.total}</small></h4>${area.grupos.map(g => `<div class="mapa-grupo"><span>${esc(g.nome)}</span><div>${g.assuntos.map(a => { const s = situacaoAssunto(a); return `<button type="button" class="quadro link-ficha sit-${s}${visiveis.has(a.id) ? '' : ' apagado'}${a.id === estado.selecionado ? ' ativo' : ''}" style="--cor:${cores[s]}" data-assunto="${a.id}" aria-label="${esc(a.nome)}: ${NOME_SITUACAO[s]}" ${dica(`${a.nome}\n${NOME_SITUACAO[s]}${a.estado ? `\nÁrvore: ${NOME_ESTAGIO[a.estagio]}` : ''}`)}></button>`; }).join('')}</div></div>`).join('')}</section>`).join('')}`;
 }
+/** Copa (acompanhamento) e o que falta para a próxima fase, com as metas do módulo. */
+function copaECrescimento(e, r) {
+  const regras = regrasDoModulo(r.modulo), s = e.senescencia;
+  const copa = s < .1
+    ? `Começa a amarelar se ficar sem estudo até ${dataCurta(somarDias(e.ultimaAtividade, regras.toleranciaSemRegistro + 1))}.`
+    : `Sem estudo há ${e.diasSemAcompanhamento} dia(s): a copa perde folhas, mas o porte de ${NOME_ESTAGIO[e.estagio].toLowerCase()} fica. Retornos com ${regras.intervaloRecuperacaoCopa} dias ou mais entre si a recuperam.`;
+  const num = (x) => Number.isInteger(x) ? x : x.toFixed(1).replace('.', ',');
+  const falta = e.proximo?.criterios.filter(c => !c.concluido) ?? [];
+  const crescer = e.proximo
+    ? `<p class="dica-painel">Para virar ${NOME_ESTAGIO[e.proximo.estagio].toLowerCase()}: ${falta.map(c => `${c.rotulo.toLowerCase()} ${num(c.atual)} de ${num(c.meta)}${c.chave.startsWith('intervalo') ? ' dias' : ''}`).join(' · ')}. Metas para um módulo de ${regras.duracaoModulo} dias.</p>`
+    : '<p class="dica-painel">Fase adulta alcançada.</p>';
+  return `<p class="ficha-copa"><b>${nomeCopa(s)}.</b> ${copa}</p>${crescer}`;
+}
+
 function ficha(a, r) {
   const e = a.estado;
   const objetivos = a.objetivos.map(o => `<tr>
@@ -291,6 +305,7 @@ function ficha(a, r) {
   const nomeObj = new Map(a.objetivos.map(o => [o.id, o.descricao]));
   return `<header class="ficha-topo"><p class="ficha-area">${esc(a.area)} · ${esc(a.grupoNome)}</p><h3>${esc(a.nome)}</h3>
       <p class="ficha-arvore"><span class="estagio" style="--cor:${COR_ESTAGIO[a.estagio]}">${NOME_ESTAGIO[a.estagio]}</span> ${e ? `${esc(nomeEspecie(a.especie))} · ${e.diasDeEstudo} dia(s) de estudo, de ${dataCurta(e.primeiraAtividade)} a ${dataCurta(e.ultimaAtividade)}` : 'Ainda não estudado: a árvore nasce no primeiro estudo.'}</p>
+      ${e ? copaECrescimento(e, r) : ''}
       <p class="ficha-acoes">${e ? `<button type="button" data-localizar="${a.id}">Localizar no jardim</button>` : `<button type="button" disabled title="O lugar fica guardado em segredo até a árvore nascer">Localizar no jardim</button> <span class="dica-painel">Ainda é semente: o lugar é surpresa até o primeiro estudo.</span>`}</p></header>
     <h4>Objetivos</h4>
     ${a.objetivos.length ? `<div class="rolagem-x"><table class="tabela-objetivos"><thead><tr><th>Objetivo</th><th>Evidência</th><th>Último</th><th>Encontros</th><th>Origem</th></tr></thead><tbody>${objetivos}</tbody></table></div><p class="dica-painel">Clique na evidência para ver o motivo. ${r.origem !== 'site' ? 'Objetivos genéricos de exemplo; no site, cada tópico usa os objetivos cadastrados.' : ''}</p>` : `<p class="vazio">${r.origem === 'site' ? 'Nenhum objetivo avaliado neste assunto ainda. Ao registrar a sessão, cada objetivo pode indicar o assunto em que foi avaliado.' : 'Nenhum objetivo cadastrado para este assunto.'}</p>`}
@@ -369,7 +384,9 @@ function desenharCompacto(r) {
 // ---------- montagem ----------
 function desenhar() {
   agendado = 0;
-  resumo = resumirModulo(dadosAtuais(), CATALOGO_PEDIATRIA);
+  // As metas de crescimento seguem a duração do módulo (regras 0.3).
+  const dados = dadosAtuais();
+  resumo = resumirModulo(dados, CATALOGO_PEDIATRIA, regrasDoModulo(dados.modulo));
   const r = resumo;
   const origem = { exemplo: 'demonstração fictícia', real: `seus registros · desde ${dataCurta(INICIO_CICLO)}`, site: `registros do site · desde ${dataCurta(INICIO_CICLO)}` }[r.origem] ?? r.origem;
   for (const id of ['compacto-origem', 'caderno-origem']) { $(id).textContent = origem; $(id).dataset.origem = r.origem; }
@@ -416,8 +433,8 @@ function ampliar(ampliado, { aba, assunto } = {}) {
   else $('abrir-caderno').focus();
   salvar();
 }
-/** Assunto → crescimento 0..1 do motor; assuntos ainda em semente ficam de fora (sem árvore). */
-const portesDasArvores = () => new Map((resumo?.assuntos ?? []).filter(a => a.estado).map(a => [a.id, a.estado.crescimento]));
+/** Assunto → porte 0..1 e secura da copa 0..1; assuntos ainda em semente ficam de fora (sem árvore). */
+const portesDasArvores = () => new Map((resumo?.assuntos ?? []).filter(a => a.estado).map(a => [a.id, { porte: a.estado.crescimento, secura: a.estado.senescencia }]));
 
 function abrirFicha(id) {
   if (!estado.ampliado) return ampliar(true, { assunto: id });

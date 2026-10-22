@@ -2,6 +2,7 @@
  * O assunto define a espécie; a ordem dentro da espécie segue o plantio, então o lugar de
  * cada assunto é reproduzível para a mesma semente e continua surpresa até a árvore nascer. */
 import { CATALOGO_PEDIATRIA } from './catalogoPediatria.js';
+import { nomeCopa } from './crescimentoEstudo.js';
 
 const porEspecie = new Map();
 for (const assunto of CATALOGO_PEDIATRIA) {
@@ -23,7 +24,7 @@ export function identificarArvoresEstudo(arvores) {
   }
 }
 
-export function descreverAssuntoEstudo(assunto) {
+export function descreverAssuntoEstudo(assunto, secura = 0) {
   if (!assunto) return [];
-  return [`Assunto: ${assunto.nome}`, `Área: Pediatria · ${assunto.area}`];
+  return [`Assunto: ${assunto.nome}`, `Área: Pediatria · ${assunto.area}`, ...(secura >= .1 ? [`Copa: ${nomeCopa(secura).toLowerCase()} (sem estudo recente)`] : [])];
 }
