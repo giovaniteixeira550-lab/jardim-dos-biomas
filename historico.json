@@ -1,6 +1,6 @@
 {
   "atualizado": "2026-10-21",
-  "versaoAtual": "v0.47",
+  "versaoAtual": "v0.47.1",
   "proximoPasso": {
     "titulo": "Aplicar a ligação no site e registrar o primeiro estudo",
     "descricao": "Aplicar no site a marcação de assuntos por sessão e a rota /jardim. A partir daí, cada sessão de Pediatria consolidada faz nascer a árvore do assunto estudado."
@@ -132,6 +132,24 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.47.1",
+      "data": "2026-10-21",
+      "titulo": "Sem o viveiro dentro do site",
+      "porque": "Dentro do site, a câmera chegava ao viveiro de revisão da arte, e as fileiras de espécies pareciam fazer parte do mapa.",
+      "mudancas": [
+        "Dentro do site (iframe), o viveiro não é montado e o botão Viveiro some",
+        "A câmera para logo depois da borda sul do mapa",
+        "Fora do site, o viveiro continua como antes"
+      ],
+      "resultado": "Conferido num iframe local: sem viveiro, câmera limitada, nenhuma árvore de estudo nascida. Fora do iframe, 228 modelos no viveiro.",
+      "imagens": [
+        {
+          "src": "historico/previa-arvores-zeradas.jpg",
+          "legenda": "O mapa antes do primeiro estudo"
+        }
+      ]
+    },
     {
       "versao": "v0.47",
       "data": "2026-10-21",

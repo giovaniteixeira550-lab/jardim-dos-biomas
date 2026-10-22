@@ -223,7 +223,9 @@ export class Jardim {
     medir("arvores");
     this.plantar();
     medir("plantar");
-    this.montarViveiro();
+    // Dentro do site (iframe) o viveiro de revisão da arte não aparece; a câmera para logo após a borda sul.
+    if (globalThis.parent !== globalThis) this.fimViveiro = this.mundo.altura + 10;
+    else this.montarViveiro();
     this.criarDetalhes();
     medir("detalhes");
 

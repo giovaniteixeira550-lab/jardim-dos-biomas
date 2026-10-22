@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.47)
+## 3. Estado atual (v0.47.1)
+
+**v0.47.1:** dentro do site (iframe), o viveiro de revisão da arte não é montado, o botão Viveiro some e a câmera para logo após a borda sul do mapa (`cena.js`).
 
 **v0.47 — caderno do módulo e árvores ligadas aos estudos:** botão "Evolução do módulo" com cartão compacto fixável e caderno ampliado (Panorama, Assuntos, Revisar, Histórico), com evidência medida por objetivo (`src/painelModulo.js`, `src/resumoModulo.js`). As 278 árvores de estudo estão ligadas aos 278 assuntos da lista v2 (`src/identidadeEstudo.js`): começam como semente e só crescem com o porte vindo do caderno; a barra de crescimento deixou de movê-las. O caderno começa zerado em 21/10/2026, com a fonte "Seus registros"; a demonstração fictícia só aparece se escolhida. Dentro do site (`/jardim`, em iframe), `src/conexaoSite.js` e `src/registrosOrganizador.js` recebem as sessões consolidadas por `postMessage`, só das origens do site, e as traduzem para o caderno. Publicada em 21/10/2026.
 

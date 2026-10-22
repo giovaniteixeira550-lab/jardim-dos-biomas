@@ -30,6 +30,7 @@
 
   .giro { top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; display: flex; flex-wrap: wrap; max-width: calc(100% - 40px); gap: 6px; padding: 6px; }
   #especie-viveiro { font-family: var(--corpo); max-width: 180px; background: var(--tinta); color: var(--texto); border: 2px solid var(--borda); }
+  html[data-incorporado] #viveiro, html[data-incorporado] #especie-viveiro { display: none !important; }
   .ficha { top: calc(64px + env(safe-area-inset-top, 0px)); right: 12px; padding: 8px 12px; min-width: 180px; max-width: calc(100% - 24px); border-color: var(--alerta); }
   .ficha p { margin: 0; }
   .ficha-nome { font-family: var(--display); font-size: 13px; color: var(--alerta); letter-spacing: 0.04em; }
@@ -253,7 +254,7 @@
     "./src/relevo.js": "./src/relevo.js?v=0.39.2",
     "./src/percursos.js": "./src/percursos.js?v=0.39.2",
     "./src/perfilPonte.js": "./src/perfilPonte.js?v=0.39.2",
-    "./src/cena.js": "./src/cena.js?v=0.47",
+    "./src/cena.js": "./src/cena.js?v=0.47.1",
     "./src/esquilos.js": "./src/esquilos.js?v=0.42",
     "./src/borboletas.js": "./src/borboletas.js?v=0.42",
     "./src/acessoEscorregador.js": "./src/acessoEscorregador.js?v=0.42",
@@ -314,7 +315,7 @@
 <canvas id="mapa" aria-label="Mapa do jardim: clareira com bosque, lago e trilha, em pixel art vista do alto em ângulo"></canvas>
 
 <header class="hud titulo">
-  <h1>JARDIM DOS BIOMAS <small>v0.47</small> <a class="link-historico" href="historico.html">Histórico</a> <a class="link-historico" href="evolucao.html">Evolução</a> <a class="link-historico" href="planejamento.html">Plano</a> <a class="link-historico" href="projetos/senescencia/">Senescência</a> <a class="link-historico" href="projetos/crescimento-estudo/">Crescimento</a></h1>
+  <h1>JARDIM DOS BIOMAS <small>v0.47.1</small> <a class="link-historico" href="historico.html">Histórico</a> <a class="link-historico" href="evolucao.html">Evolução</a> <a class="link-historico" href="planejamento.html">Plano</a> <a class="link-historico" href="projetos/senescencia/">Senescência</a> <a class="link-historico" href="projetos/crescimento-estudo/">Crescimento</a></h1>
   <p>Arraste para mover · rodinha para aproximar onde aponta · clique duplo para focar · segure a rodinha e arraste para girar e inclinar</p>
 </header>
 
