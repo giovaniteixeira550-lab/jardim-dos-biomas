@@ -3,6 +3,7 @@
  * na memória desta página, sem salvar nem enviar a lugar algum. */
 import './painelModulo.js'; // garante window.jardimModulo antes da primeira mensagem
 import { traduzirOrganizador } from './registrosOrganizador.js';
+import { modoSite } from './modoSite.js';
 
 const VERSAO = 1;
 const ORIGENS_SITE = ['https://study-compass-26.lovable.app', 'https://id-preview--dbee4ccb-0378-455b-bc99-6a414dfb9a9f.lovable.app'];
@@ -10,8 +11,9 @@ const ORIGENS_SITE = ['https://study-compass-26.lovable.app', 'https://id-previe
 const local = (o) => /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
 const permitida = (o) => ORIGENS_SITE.includes(o) || (local(location.origin) && local(o));
 
+if (modoSite()) document.documentElement.dataset.incorporado = '1';
+
 if (window.parent !== window) {
-  document.documentElement.dataset.incorporado = '1';
   addEventListener('message', (e) => {
     if (e.source !== window.parent || !permitida(e.origin)) return;
     const msg = e.data;

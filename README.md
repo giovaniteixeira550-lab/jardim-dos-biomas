@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.48.1)
+## 3. Estado atual (v0.48.2)
+
+**v0.48.2 — site sem viveiro:** o parâmetro `incorporado=1` agora aplica o mesmo modo visual do iframe, inclusive ao abrir o mapa diretamente. O viveiro não cria malhas nem placas, seus controles ficam ocultos e a câmera não pode visitá-lo. A demo artística sem esse parâmetro conserva o viveiro. As clareiras e as 278 árvores de estudo permanecem intactas. Correção solicitada em 22/10/2026; ver [docs/site-sem-viveiro.md](docs/site-sem-viveiro.md).
 
 **v0.48.1 — clareiras para os estudos:** redução seletiva das árvores de cenário no mapa usado pelo site. Prioriza as bordas reais dos patamares e mantém folga em torno das futuras copas de estudo. Na semente 1234, são 61 árvores de cenário em vez de 202, além dos arbustos e da Grande Árvore preservados. As 278 árvores temáticas mantêm posições, espécies, modelos, escala, tom, vigor, nascimento e vínculos com os assuntos; a composição é filtrada depois dos sorteios e da competição original. Conferida também com todas adultas em simulação local, sem gravar estudos. Ver [docs/clareiras-pediatria.md](docs/clareiras-pediatria.md). Aprovada pelo usuário em 22/10/2026.
 

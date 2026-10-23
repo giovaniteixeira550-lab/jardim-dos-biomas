@@ -1,9 +1,9 @@
 {
   "atualizado": "2026-10-22",
-  "versaoAtual": "v0.48.1",
+  "versaoAtual": "v0.48.2",
   "proximoPasso": {
-    "titulo": "Acompanhar as clareiras com os estudos reais",
-    "descricao": "As árvores temáticas continuam nas posições originais e nascem conforme os registros do site."
+    "titulo": "Usar o jardim com os registros reais",
+    "descricao": "O modo do site mantém somente o jardim e seu caderno; o viveiro continua disponível na demo artística."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós aprovadas: as 11 espécies do bosque de Pediatria estão prontas. v0.48.1: cenário reduzido para dar espaço visual às 278 árvores temáticas."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós aprovadas: as 11 espécies do bosque de Pediatria estão prontas. v0.48.1: cenário reduzido para dar espaço visual às 278 árvores temáticas. v0.48.2: viveiro restrito à demo artística."
     },
     {
       "nome": "Ecossistema",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Modo do site sem viveiro, inclusive quando aberto diretamente",
       "Clareiras de Pediatria: cenário reduzido, com as 278 árvores de estudo preservadas",
       "Roda da fogueira ao lado da casa, com bancos, varal de luzes e fogo animado",
       "Três cachoeiras curvas com espuma e respingos; lago sem pontos piscantes; gramado sem quadriculado",
@@ -133,6 +134,25 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.48.2",
+      "data": "2026-10-22",
+      "titulo": "Modo do site sem viveiro",
+      "porque": "O endereço do site aberto diretamente ainda mostrava as fileiras de demonstração.",
+      "mudancas": [
+        "Modo do site reconhecido por iframe ou pelo parâmetro incorporado=1",
+        "Viveiro e placas não são construídos nesse modo",
+        "Controles ocultos e visita ao viveiro bloqueada",
+        "As 278 árvores de estudo e as clareiras preservadas"
+      ],
+      "resultado": "O endereço direto do modo do site apresenta o mesmo jardim limpo do iframe.",
+      "imagens": [
+        {
+          "src": "historico/v0.48.2-site-sem-viveiro.png",
+          "legenda": "Modo do site sem as fileiras externas do viveiro."
+        }
+      ]
+    },
     {
       "versao": "v0.48.1",
       "data": "2026-10-22",

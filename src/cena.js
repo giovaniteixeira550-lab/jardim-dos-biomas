@@ -17,6 +17,7 @@ import { ESPECIES, estagioDe } from "./especies.js";
 import { competirPorLuz, condicoes, criarAmbiente, descrever, escolherEspecie } from "./ecossistema.js";
 import { construirVariacao } from "./arvoreProc.js";
 import { organizarViveiro } from "./viveiro.js";
+import { modoSite } from "./modoSite.js";
 import { estiloCopa, LUZ_NOTURNA } from "./estiloCopa.js";
 import { criarLago } from "./aguaLago.js";
 import { criarAguaPercurso } from "./aguaPercurso.js";
@@ -224,9 +225,7 @@ export class Jardim {
     medir("arvores");
     this.plantar();
     medir("plantar");
-    // Dentro do site (iframe) o viveiro de revisão da arte não aparece; a câmera para logo após a borda sul.
-    if (globalThis.parent !== globalThis) this.fimViveiro = this.mundo.altura + 10;
-    else this.montarViveiro();
+    this.montarViveiro();
     this.criarDetalhes();
     medir("detalhes");
 
@@ -1083,6 +1082,14 @@ export class Jardim {
    * numa faixa plana além da borda sul do mapa. Serve para revisar a arte.
    */
   montarViveiro() {
+    // O viveiro é uma ferramenta da demo, nunca um elemento do mapa do site.
+    if (modoSite()) {
+      this.viveiro = [];
+      this.rotulosViveiro = [];
+      this.posicoesViveiro = new Map();
+      this.fimViveiro = this.mundo.altura + 10;
+      return;
+    }
     const ids = Object.keys(ESPECIES);
     const z0 = this.mundo.altura + 12;
     this.viveiro = [];
@@ -1115,6 +1122,7 @@ export class Jardim {
 
   /** Leva a câmera ao viveiro (ou de volta ao bosque). */
   irAoViveiro(ir = true) {
+    if (ir && modoSite()) return;
     for(const rotulo of this.rotulosViveiro ?? [])rotulo.visible=ir;
     if (ir) {
       this.alvo.set(14, 0, this.mundo.altura + 28);
