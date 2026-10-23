@@ -33,6 +33,7 @@ import { aplicarAcessoEscorregador, criarEscadaAcesso } from "./acessoEscorregad
 import { criarBorboletas } from "./borboletas.js";
 import { criarEsquilos } from "./esquilos.js";
 import { aplicarLotacao } from "./lotacao.js";
+import { abrirClareirasPediatria } from "./paisagemPediatria.js";
 import { descreverAssuntoEstudo } from "./identidadeEstudo.js";
 import { criarSapos } from "./sapos.js";
 import { criarVitoriaRegia, disporVitoriasRegias } from "./vitoriasRegias.js";
@@ -560,10 +561,16 @@ export class Jardim {
       ind.escala *= 0.82 + 0.26 * ind.vigor;
       if (ind.nasce > 0) ind.nasce = Math.min(0.95, Math.max(0.02, ind.nasce + (0.55 - ind.vigor) * 0.25));
     }
+    // Só a composição visível muda. A competição usa o plantio original para
+    // preservar rigorosamente porte, tom e vigor das 278 árvores de estudo.
+    this.individuos = abrirClareirasPediatria(this.individuos, this.mundo);
+    const visiveis = new Set(this.individuos);
     this.grupos = [];
     this.malhaParaGrupo = new Map();
     const tom = new THREE.Color();
-    for (const [variacao, membros] of porVariacao) {
+    for (const [variacao, originais] of porVariacao) {
+      const membros = originais.filter(ind => visiveis.has(ind));
+      if (!membros.length) continue;
       const malhas = variacao.estagios.map((geo) => {
         // Geometria própria de cada malha, com os mesmos buffers: a secura da copa é um valor por árvore.
         const g = new THREE.BufferGeometry();

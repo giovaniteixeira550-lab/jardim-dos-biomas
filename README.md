@@ -56,7 +56,9 @@ docs/colaboracao.md escopo e cuidados para combinar mudanças de Claude e Codex
 
 No console do navegador, `jardim` dá acesso à cena (ex.: `jardim.girar(1)`, `jardim.zoom(0.8)`, `jardim.info()`).
 
-## 3. Estado atual (v0.48)
+## 3. Estado atual (v0.48.1)
+
+**v0.48.1 — clareiras para os estudos:** redução seletiva das árvores de cenário no mapa usado pelo site. Prioriza as bordas reais dos patamares e mantém folga em torno das futuras copas de estudo. Na semente 1234, são 61 árvores de cenário em vez de 202, além dos arbustos e da Grande Árvore preservados. As 278 árvores temáticas mantêm posições, espécies, modelos, escala, tom, vigor, nascimento e vínculos com os assuntos; a composição é filtrada depois dos sorteios e da competição original. Conferida também com todas adultas em simulação local, sem gravar estudos. Ver [docs/clareiras-pediatria.md](docs/clareiras-pediatria.md). Aprovada pelo usuário em 22/10/2026.
 
 **v0.48 — crescer no módulo, secar depois:** as metas de crescimento são proporcionais à duração do módulo (`regrasDoModulo`, regras 0.3). Em Pediatria (47 dias), a adulta pede 6 dias de estudo espalhados por 19 dias e 2 recuperações sem ajuda com 14 dias entre elas, então um assunto começado na primeira metade do rodízio chega a adulta antes do fim. Sem estudo, a copa começa a amarelar 19 dias depois do último encontro e seca em uns 5 meses; o porte fica, e retornos espaçados de 5 dias ou mais a recuperam. O mapa mostra a secura de cada árvore de estudo em todas as espécies, pelo estilo compartilhado da copa (`estiloCopa.js`, atributo `secura`). Detalhes em `docs/crescimento-modulo.md`. Aprovado pelo usuário em 21/10/2026.
 
@@ -189,6 +191,8 @@ Servir esta pasta e abrir `testes/ciclo-de-vida.html`; clicar em **Executar veri
 Acabamento v0.19: `testes/contorno.html` compara pixels reais da GPU em dois cenários — plano oblíquo com interior preservado e cubo com silhueta de exatamente 1 pixel. Quantização é desligada somente nessa fixture para medir o efeito do contorno. Os cinco cenários de relevo e os seis de câmera/transparência também foram conferidos. Capturas em `historico/v0.19-paredoes.jpg` e `historico/v0.19-paredoes-giro.jpg`.
 
 ## 4. Próximos passos (um de cada vez, com revisão)
+
+Acompanhar a leitura das novas clareiras com os estudos reais; qualquer alteração futura deve preservar as árvores temáticas e seus registros.
 
 1. **Árvores** — ✅ silhuetas por espécie (v0.2). Pendente: bordas dos cones do pinheiro mais serrilhadas; galhos aparentes nas bétulas.
 2. **Chão** — micro-detalhe em pixel (trevos, folhas caídas sob o bosque, pedrinhas na trilha); transição mata/clareira.

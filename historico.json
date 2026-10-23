@@ -1,9 +1,9 @@
 {
-  "atualizado": "2026-10-21",
-  "versaoAtual": "v0.48",
+  "atualizado": "2026-10-22",
+  "versaoAtual": "v0.48.1",
   "proximoPasso": {
-    "titulo": "Registrar o primeiro estudo de Pediatria",
-    "descricao": "A partir de 03/11, cada sessão consolidada com os assuntos marcados faz nascer a árvore; as metas seguem a duração do rodízio."
+    "titulo": "Acompanhar as clareiras com os estudos reais",
+    "descricao": "As árvores temáticas continuam nas posições originais e nascem conforme os registros do site."
   },
   "frentes": [
     {
@@ -16,7 +16,7 @@
       "nome": "Árvores",
       "status": "andamento",
       "progresso": 90,
-      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós aprovadas: as 11 espécies do bosque de Pediatria estão prontas."
+      "nota": "52 espécies; Pitanga, Catavento, Paineira dos Abraços, Salgueiro das Canções, Araucária dos Cometas, Mangue das Pontes, Jabuticabeira das Constelações, Árvore dos Ninhos, Árvore dos Segredos, Acácia dos Mosaicos e Oliveira dos Nós aprovadas: as 11 espécies do bosque de Pediatria estão prontas. v0.48.1: cenário reduzido para dar espaço visual às 278 árvores temáticas."
     },
     {
       "nome": "Ecossistema",
@@ -45,6 +45,7 @@
   ],
   "quadro": {
     "funciona": [
+      "Clareiras de Pediatria: cenário reduzido, com as 278 árvores de estudo preservadas",
       "Roda da fogueira ao lado da casa, com bancos, varal de luzes e fogo animado",
       "Três cachoeiras curvas com espuma e respingos; lago sem pontos piscantes; gramado sem quadriculado",
       "Troncos mais altos nas cinco espécies baixas de Pediatria, com copas preservadas",
@@ -132,6 +133,29 @@
     ]
   },
   "versoes": [
+    {
+      "versao": "v0.48.1",
+      "data": "2026-10-22",
+      "titulo": "Clareiras para as árvores de estudo",
+      "porque": "O cenário já preenchia o jardim e competia com as árvores que nascerão dos estudos.",
+      "mudancas": [
+        "Menos árvores de cenário dentro dos platôs; maior presença nas bordas",
+        "Folga ao redor das futuras copas temáticas, sem mudar suas posições",
+        "As 278 árvores de estudo e seus vínculos, modelos e crescimento preservados",
+        "Composição conferida no modo do site e com as 278 adultas em simulação local"
+      ],
+      "resultado": "Na distribuição 1234, o cenário passou de 202 para 61 árvores. Arbustos, Grande Árvore, casa, água e percursos preservados.",
+      "imagens": [
+        {
+          "src": "historico/v0.48.1-clareiras.png",
+          "legenda": "Clareiras abertas no modelo do site; árvores de estudo ainda sem nascer nesta conta local de teste."
+        },
+        {
+          "src": "historico/v0.48.1-adultas-simuladas.png",
+          "legenda": "Simulação local das 278 adultas para avaliar o espaço, sem registrar estudos."
+        }
+      ]
+    },
     {
       "versao": "v0.48",
       "data": "2026-10-21",
